@@ -328,7 +328,7 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
       aiString materialName;
       aiSceneMain->mMaterials[materialIndex]->Get(AI_MATKEY_NAME, materialName);
 
-      if (materialName.length > 1)
+      if (materialName.length > 0)
       {
         m_materials[iNewMaterial].cm_strName = CTString(materialName.C_Str());
         // get color
