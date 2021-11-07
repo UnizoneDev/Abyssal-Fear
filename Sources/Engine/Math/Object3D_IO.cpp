@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include "stdh.h"
+#include "StdH.h"
 
 #include <Engine/Math/Object3D.h>
 
@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Base/Memory.h>
 #include <Engine/Base/ErrorReporting.h>
 #include <Engine/Graphics/Color.h>
-
+#include <Engine/Models/ImportedMesh.h>
 
 #include <Engine/Templates/DynamicContainer.cpp>
 #include <Engine/Templates/DynamicArray.cpp>
@@ -30,124 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <Engine/Math/TextureMapping_Utils.h>
 
-#include <assimp/Importer.hpp>
-#include <assimp/importerdesc.h>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <assimp/mesh.h>
 
-#include <algorithm>
-#include <array>
-#include <limits>
-#include <unordered_map>
-#include <map>
-#include <vector>
-
-#ifdef max
-#undef max
-#endif
-
-namespace
-{
-  struct aiHasher
-  {
-    std::size_t operator()(const aiVector3D& vec3d) const
-    {
-      std::size_t result = 0;
-      HashCombine(result, vec3d.x);
-      HashCombine(result, vec3d.y);
-      HashCombine(result, vec3d.z);
-      return result;
-    }
-  };
-
-  INDEX AI_GetNumFaces(const std::vector<aiMesh*>& meshes)
-  {
-    INDEX faces = 0;
-    for (auto* mesh : meshes)
-      faces += mesh->mNumFaces;
-    return faces;
-  }
-
-  std::vector<aiMesh*> AI_GetValidMeshes(const aiScene* aiSceneMain)
-  {
-    std::vector<aiMesh*> validMeshes;
-
-    for (size_t i = 0; i < aiSceneMain->mNumMeshes; ++i)
-      if (aiSceneMain->mMeshes[i]->HasFaces())
-      {
-        for (size_t j = 0; j < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++j)
-          if (aiSceneMain->mMeshes[i]->HasTextureCoords(j))
-          {
-            validMeshes.push_back(aiSceneMain->mMeshes[i]);
-            break;
-          }
-      }
-
-    return validMeshes;
-  }
-
-  const aiNode* AI_FindMeshNode(const aiScene* aiSceneMain, const aiNode* node, const aiMesh* mesh)
-  {
-    for (size_t i = 0; i < node->mNumMeshes; ++i)
-      if (aiSceneMain->mMeshes[node->mMeshes[i]] == mesh)
-        return node;
-
-    for (size_t i = 0; i < node->mNumChildren; ++i)
-      if (const auto* foundInChild = AI_FindMeshNode(aiSceneMain, node->mChildren[i], mesh))
-        return foundInChild;
-
-    return nullptr;
-  }
-
-  aiMatrix4x4 AI_GetAbsoluteTransform(const aiNode* node)
-  {
-    if (node->mParent)
-      return AI_GetAbsoluteTransform(node->mParent) * node->mTransformation;
-
-    return node->mTransformation;
-  }
-
-  std::map<const aiMesh*, aiMatrix4x4> AI_GetWorldTransforms(const aiScene* aiSceneMain, const std::vector<aiMesh*>& meshes)
-  {
-    std::map<const aiMesh*, aiMatrix4x4> meshTransform;
-    for (const auto* mesh : meshes)
-      if (const auto* node = AI_FindMeshNode(aiSceneMain, aiSceneMain->mRootNode, mesh))
-        meshTransform[mesh] = AI_GetAbsoluteTransform(node);
-
-    return meshTransform;
-  }
-} // anonymous namespace
-
-#undef W
-#undef NONE
-
-void FillConversionArrays_t(const FLOATmatrix3D &mTransform, const aiScene* aiSceneMain);
-void ClearConversionArrays( void);
-
-
-/*
- *  Intermediate structures used for converting from Exploration 3D data format into O3D
- */
-struct ConversionTriangle {
-  INDEX ct_iVtx[3];     // indices of vertices
-  INDEX ct_iTVtx[3*3];    // indices of texture vertices
-  INDEX ct_iMaterial;   // index of material
-};
-
-struct ConversionMaterial {
-  ULONG cm_ulTag;                           // for recognition of material
-  CTString cm_strName;                      // material's name
-  COLOR cm_colColor;                        // material's color
-  CDynamicContainer<INDEX> ms_Polygons;     // indices of polygons in this material
-};
-// conversion arrays
-CDynamicContainer<ConversionMaterial> acmMaterials;
-CStaticArray<ConversionTriangle> actTriangles;
-CStaticArray<FLOAT3D> avVertices;
-CStaticStackArray<FLOAT3D> avDst;
-CStaticArray<FLOAT2D> avTextureVertices[3];
-std::map<aiMesh*, std::array<unsigned int, 3>> uvChannels;
 
 /////////////////////////////////////////////////////////////////////////////
 // Helper functions
@@ -181,344 +64,45 @@ CObjectSectorLock::~CObjectSectorLock() {
   oscl_posc->UnlockAll();
 }
 
-//--------------------------------------------------------------------------------------------
-// function recognizes and loads many 3D file formats, throws char* errors
-BOOL _bBatchLoading = FALSE;
-
-// start/end batch loading of 3d objects
-void CObject3D::BatchLoading_t(BOOL bOn)
-{
-  // check for dummy calls
-  if (!_bBatchLoading==!bOn) {
-    return;
-  }
-
-  _bBatchLoading = bOn;
-}
-
-const std::vector<CObject3D::TFormatDescr>& CObject3D::GetSupportedFormats()
-{
-  static std::vector<TFormatDescr> formats;
-
-  if (formats.empty())
-  {
-    Assimp::Importer importer;
-    for (size_t i = 0; i < importer.GetImporterCount(); ++i)
-    {
-      const aiImporterDesc* pDescription = importer.GetImporterInfo(i);
-      TFormatDescr descr;
-      descr.first = pDescription->mName;
-      descr.second = "*.";
-      for (const char* c = pDescription->mFileExtensions; *c; ++c)
-      {
-        if (std::isspace(*c))
-          descr.second += ";*.";
-        else
-          descr.second += *c;
-      }
-      descr.first += " (" + descr.second + ")";
-      formats.emplace_back(std::move(descr));
-    }
-    std::sort(formats.begin(), formats.end(), [](const TFormatDescr& lhs, const TFormatDescr& rhs) { return lhs.first < rhs.first; });
-  }
-
-  return formats;
-}
-
-void CObject3D::LoadAny3DFormat_t(const CTFileName &fnmFileName, const FLOATmatrix3D &mTransform)
-{
-  BOOL bWasOn = _bBatchLoading;
-  try {
-    if (!_bBatchLoading) {
-      BatchLoading_t(TRUE);
-    }
-    // call file load with file's full path name
-    CTString strFile = _fnmApplicationPath+fnmFileName;
-    char acFile[MAX_PATH];
-    wsprintfA(acFile,"%s",strFile);
-
-    Assimp::Importer importerWithoutNormals;
-    // do not read normals from input file
-    importerWithoutNormals.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS);
-    const aiScene* aiSceneMain = importerWithoutNormals.ReadFile(acFile,
-      aiProcess_JoinIdenticalVertices |
-      aiProcess_Triangulate |
-      aiProcess_GenUVCoords |
-      aiProcess_RemoveComponent |
-      aiProcess_FlipUVs);
-
-    // if scene is successefuly loaded
-    if(aiSceneMain && aiSceneMain->mNumMeshes > 0 && aiSceneMain->mNumMaterials > 0)
-    {
-      FillConversionArrays_t(mTransform, aiSceneMain);
-      ConvertArraysToO3D();
-      ClearConversionArrays();
-    }
-    else 
-    {
-      ThrowF_t("Unable to load 3D object: %s", (const char *)fnmFileName);
-    }
-  
-    if (!bWasOn) {
-      BatchLoading_t(FALSE);
-    }
-  } catch (char *) {
-    if (!bWasOn) {
-      BatchLoading_t(FALSE);
-    }
-    throw;
-  }
-}
-
 /*
- * Converts data from Assimp scene format into arrays used for conversion to O3D
+ * Convert straightfowrard from intermediate structures into O3D
  */
-void FillConversionArrays_t(const FLOATmatrix3D &mTransform, const aiScene* aiSceneMain)
+void CObject3D::FillFromMesh(const ImportedMesh& mesh)
 {
-  // all polygons must be triangles
-  const auto validMeshes = AI_GetValidMeshes(aiSceneMain);
-  if(validMeshes.empty())
-    throw("Error: model has no UV map!");
-
-  const auto meshTransform = AI_GetWorldTransforms(aiSceneMain, validMeshes);
-  if (meshTransform.size() != validMeshes.size())
-    throw("Error: model has broken scene graph!");
-
-  // check if we need flipping (if matrix is flipping, polygons need to be flipped)
-  const FLOATmatrix3D &m = mTransform;
-  FLOAT fDet = 
-    m(1,1)*(m(2,2)*m(3,3)-m(2,3)*m(3,2))+
-    m(1,2)*(m(2,3)*m(3,1)-m(2,1)*m(3,3))+
-    m(1,3)*(m(2,1)*m(3,2)-m(2,2)*m(3,1));
-  FLOAT bFlipped = fDet<0;
-
-  // ------------  Find UV map indices
-  for (auto* mesh : validMeshes)
-  {
-    auto& coordsRemap = uvChannels[mesh];
-    coordsRemap = { AI_MAX_NUMBER_OF_TEXTURECOORDS, AI_MAX_NUMBER_OF_TEXTURECOORDS , AI_MAX_NUMBER_OF_TEXTURECOORDS };
-    for (size_t j = 0, uvIndex = 0; uvIndex < 3 && j < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++j)
-    {
-      if (mesh->HasTextureCoords(j))
-        coordsRemap[uvIndex++] = j;
-    }
-  }
-
-  // ------------  Convert object vertices (coordinates)
-  std::unordered_map<aiVector3D, INDEX, aiHasher> uniqueVertices;
-  std::vector<aiVector3D> orderedUniqueVertices;
-  for (auto* mesh : validMeshes)
-  {
-    for (size_t v = 0; v < mesh->mNumVertices; ++v)
-    {
-      if (uniqueVertices.find(mesh->mVertices[v]) == uniqueVertices.end())
-      {
-        uniqueVertices[mesh->mVertices[v]] = orderedUniqueVertices.size();
-        orderedUniqueVertices.push_back(meshTransform.at(mesh) * mesh->mVertices[v]);
-      }
-    }
-  }
-  avVertices.New(orderedUniqueVertices.size());
-  // copy vertices
-  for (size_t iVtx = 0; iVtx < orderedUniqueVertices.size(); ++iVtx)
-  {
-    FLOAT3D vtx(orderedUniqueVertices[iVtx][0], orderedUniqueVertices[iVtx][1], orderedUniqueVertices[iVtx][2]);
-    avVertices[iVtx] = vtx * mTransform;
-    avVertices[iVtx](1) = -avVertices[iVtx](1);
-    avVertices[iVtx](3) = -avVertices[iVtx](3);
-  }
-  orderedUniqueVertices.clear();
-
-  // ------------ Convert object's mapping vertices (texture vertices)
-  std::unordered_map<aiVector3D, INDEX, aiHasher> uniqueTexCoords[3];
-  for (size_t iUVMapIndex = 0; iUVMapIndex < 3; ++iUVMapIndex)
-  {
-    std::vector<aiVector3D*> orderedUniqueTexCoords;
-    for (auto* mesh : validMeshes)
-    {
-      size_t uv = uvChannels[mesh][iUVMapIndex];
-      if (!mesh->HasTextureCoords(uv))
-        continue;
-
-      for (size_t v = 0; v < mesh->mNumVertices; ++v)
-      {
-        if (uniqueTexCoords[iUVMapIndex].find(mesh->mTextureCoords[uv][v]) == uniqueTexCoords[iUVMapIndex].end())
-        {
-          uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][v]] = orderedUniqueTexCoords.size();
-          orderedUniqueTexCoords.push_back(&mesh->mTextureCoords[uv][v]);
-        }
-      }
-    }
-    if (orderedUniqueTexCoords.empty())
-      continue;
-
-    avTextureVertices[iUVMapIndex].New(orderedUniqueTexCoords.size());
-    // copy texture vertices
-    for (size_t iTVtx = 0; iTVtx < orderedUniqueTexCoords.size(); ++iTVtx)
-      avTextureVertices[iUVMapIndex][iTVtx] = (FLOAT2D&)*orderedUniqueTexCoords[iTVtx];
-  }
-
-  // ------------ Organize triangles as list of surfaces
-  // allocate triangles
-  actTriangles.New(AI_GetNumFaces(validMeshes));
-
-  acmMaterials.Lock();
-  
-  // sort triangles per surfaces
-  INDEX trianglesOffset = 0;
-  size_t meshIndex = 0;
-  for (auto* mesh : validMeshes)
-  {
-    for (INDEX iTriangle = 0; iTriangle < mesh->mNumFaces; iTriangle++)
-    {
-      ConversionTriangle& ctTriangle = actTriangles[trianglesOffset + iTriangle];
-
-      const aiFace* ai_face = &mesh->mFaces[iTriangle];
-      // copy vertex indices
-      if (bFlipped) {
-        ctTriangle.ct_iVtx[0] = uniqueVertices[mesh->mVertices[ai_face->mIndices[2]]];
-        ctTriangle.ct_iVtx[1] = uniqueVertices[mesh->mVertices[ai_face->mIndices[1]]];
-        ctTriangle.ct_iVtx[2] = uniqueVertices[mesh->mVertices[ai_face->mIndices[0]]];
-      }
-      else {
-        ctTriangle.ct_iVtx[0] = uniqueVertices[mesh->mVertices[ai_face->mIndices[0]]];
-        ctTriangle.ct_iVtx[1] = uniqueVertices[mesh->mVertices[ai_face->mIndices[1]]];
-        ctTriangle.ct_iVtx[2] = uniqueVertices[mesh->mVertices[ai_face->mIndices[2]]];
-      }
-
-
-      for (size_t iUVMapIndex = 0; iUVMapIndex < 3; ++iUVMapIndex)
-      {
-        size_t uv = uvChannels[mesh][iUVMapIndex];
-        if (!mesh->HasTextureCoords(uv))
-          continue;
-
-        // copy texture vertex indices
-        if (bFlipped) {
-          ctTriangle.ct_iTVtx[iUVMapIndex*3 + 0] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[2]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex*3 + 1] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[1]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex*3 + 2] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[0]]];
-        } else {
-          ctTriangle.ct_iTVtx[iUVMapIndex*3 + 0] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[0]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex*3 + 1] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[1]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex*3 + 2] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[2]]];
-        }
-      }
-
-      // obtain material
-      ULONG materialIndex = mesh->mMaterialIndex;
-      BOOL bNewMaterial = TRUE;
-      // attach triangle into one material
-      for (INDEX iMat = 0; iMat < acmMaterials.Count(); iMat++)
-      {
-        // if this material already exist in array of materu
-        if (acmMaterials[iMat].cm_ulTag == materialIndex)
-        {
-          // set index of surface
-          ctTriangle.ct_iMaterial = iMat;
-          // add triangle into surface list of triangles
-          INDEX* piNewTriangle = new INDEX(1);
-          *piNewTriangle = trianglesOffset+iTriangle;
-          acmMaterials[iMat].ms_Polygons.Add(piNewTriangle);
-          bNewMaterial = FALSE;
-          continue;
-        }
-      }
-      // if material hasn't been added yet
-      if (bNewMaterial)
-      {
-        // add new material
-        ConversionMaterial* pcmNew = new ConversionMaterial;
-        acmMaterials.Unlock();
-        acmMaterials.Add(pcmNew);
-        acmMaterials.Lock();
-        // set polygon's material index 
-        INDEX iNewMaterial = acmMaterials.Count() - 1;
-        ctTriangle.ct_iMaterial = iNewMaterial;
-        // add triangle into new surface's list of triangles
-        INDEX* piNewTriangle = new INDEX(1);
-        *piNewTriangle = trianglesOffset+iTriangle;
-        acmMaterials[iNewMaterial].ms_Polygons.Add(piNewTriangle);
-
-        // remember recognition tag (ptr)
-        pcmNew->cm_ulTag = materialIndex;
-
-        // ---------- Set material's name
-        // if not default material
-
-        aiString materialName;
-        aiSceneMain->mMaterials[materialIndex]->Get(AI_MATKEY_NAME, materialName);
-
-        if (materialName.length > 1)
-        {
-          acmMaterials[iNewMaterial].cm_strName = CTString(materialName.C_Str());
-          // get color
-          const double materialCoefficient = static_cast<double>(++meshIndex) / validMeshes.size();
-          COLOR colColor = static_cast<COLOR>(std::numeric_limits<COLOR>::max() * materialCoefficient);
-          acmMaterials[iNewMaterial].cm_colColor = colColor;
-        }
-        else
-        {
-          acmMaterials[iNewMaterial].cm_strName = "Default";
-          acmMaterials[iNewMaterial].cm_colColor = C_GRAY;
-        }
-      }
-    }
-    trianglesOffset += mesh->mNumFaces;
-  }
-  acmMaterials.Unlock();
-}
-
-void ClearConversionArrays( void)
-{
-  acmMaterials.Clear();
-  actTriangles.Clear();
-  avVertices.Clear();
-  for (size_t i = 0; i < 3; ++i)
-    avTextureVertices[i].Clear();
-  uvChannels.clear();
-}
-
-/*
- * Convert streihgtfowrard from intermediate structures into O3D
- */
-void CObject3D::ConvertArraysToO3D( void)
-{
-  acmMaterials.Lock();
   // create one sector
   CObjectSector &osc = *ob_aoscSectors.New(1);
   // this will lock at the instancing and unlock while destructing all sector arrays
-	CObjectSectorLock OSectorLock(&osc);
+  CObjectSectorLock OSectorLock(&osc);
 
   // ------------ Vertices
-  INDEX ctVertices = avVertices.Count();
+  INDEX ctVertices = mesh.m_vertices.size();
   CObjectVertex *pVtx = osc.osc_aovxVertices.New(ctVertices);
   for(INDEX iVtx=0; iVtx<ctVertices; iVtx++)
   {
-    pVtx[ iVtx] = FLOATtoDOUBLE( avVertices[iVtx]);
+    pVtx[ iVtx] = FLOATtoDOUBLE( mesh.m_vertices[iVtx]);
   }
-	
+
   // ------------ Materials
-  INDEX ctMaterials = acmMaterials.Count();
+  INDEX ctMaterials = mesh.m_materials.size();
   osc.osc_aomtMaterials.New( ctMaterials);
   for( INDEX iMat=0; iMat<ctMaterials; iMat++)
   {
-    osc.osc_aomtMaterials[iMat] = CObjectMaterial( acmMaterials[iMat].cm_strName);
-    osc.osc_aomtMaterials[iMat].omt_Color = acmMaterials[iMat].cm_colColor;
+    osc.osc_aomtMaterials[iMat] = CObjectMaterial( mesh.m_materials[iMat].cm_strName);
+    osc.osc_aomtMaterials[iMat].omt_Color = mesh.m_materials[iMat].cm_colColor;
   }
 
   // ------------ Edges and polygons
-  INDEX ctTriangles = actTriangles.Count();
-	CObjectPolygon *popo = osc.osc_aopoPolygons.New(ctTriangles);
-	CObjectPlane *popl = osc.osc_aoplPlanes.New(ctTriangles);
+  INDEX ctTriangles = mesh.m_triangles.size();
+  CObjectPolygon *popo = osc.osc_aopoPolygons.New(ctTriangles);
+  CObjectPlane *popl = osc.osc_aoplPlanes.New(ctTriangles);
   // we need 3 edges for each polygon
   CObjectEdge *poedg = osc.osc_aoedEdges.New(ctTriangles*3);
   for(INDEX iTri=0; iTri<ctTriangles; iTri++)
   {
     // obtain triangle's vertices
-    CObjectVertex *pVtx0 = &osc.osc_aovxVertices[ actTriangles[iTri].ct_iVtx[0]];
-    CObjectVertex *pVtx1 = &osc.osc_aovxVertices[ actTriangles[iTri].ct_iVtx[1]];
-    CObjectVertex *pVtx2 = &osc.osc_aovxVertices[ actTriangles[iTri].ct_iVtx[2]];
+    CObjectVertex *pVtx0 = &osc.osc_aovxVertices[ mesh.m_triangles[iTri].ct_iVtx[0]];
+    CObjectVertex *pVtx1 = &osc.osc_aovxVertices[ mesh.m_triangles[iTri].ct_iVtx[1]];
+    CObjectVertex *pVtx2 = &osc.osc_aovxVertices[ mesh.m_triangles[iTri].ct_iVtx[2]];
 
     // create edges
     poedg[iTri*3+0] = CObjectEdge( *pVtx0, *pVtx1);
@@ -534,7 +118,7 @@ void CObject3D::ConvertArraysToO3D( void)
     popo[iTri].opo_PolygonEdges.Unlock();
 
     // set material
-    popo[iTri].opo_Material = &osc.osc_aomtMaterials[ actTriangles[iTri].ct_iMaterial];
+    popo[iTri].opo_Material = &osc.osc_aomtMaterials[ mesh.m_triangles[iTri].ct_iMaterial];
     popo[iTri].opo_colorColor = popo[iTri].opo_Material->omt_Color;
 
     // create and set plane
@@ -550,23 +134,23 @@ void CObject3D::ConvertArraysToO3D( void)
     FLOAT2D p1_uv = defaultMapping.GetTextureCoordinates(mappingVectors, DOUBLEtoFLOAT(*pVtx1));
     FLOAT2D p2_uv = defaultMapping.GetTextureCoordinates(mappingVectors, DOUBLEtoFLOAT(*pVtx2));
 
-    for (size_t i = 0; i < 3; ++i)
+    for (size_t uvIndex = 0; uvIndex < 3; ++uvIndex)
     {
-      if (avTextureVertices[i].Count() == 0)
+      const auto& uvmap = mesh.m_uvs[uvIndex];
+      if (uvmap.empty())
         continue;
 
       FLOAT2D p0_uvTarget(
-        +avTextureVertices[i][actTriangles[iTri].ct_iTVtx[i*3 + 0]](1),
-        -avTextureVertices[i][actTriangles[iTri].ct_iTVtx[i*3 + 0]](2));
+        +uvmap[mesh.m_triangles[iTri].ct_iTVtx[uvIndex][0]](1),
+        -uvmap[mesh.m_triangles[iTri].ct_iTVtx[uvIndex][0]](2));
       FLOAT2D p1_uvTarget(
-        +avTextureVertices[i][actTriangles[iTri].ct_iTVtx[i*3 + 1]](1),
-        -avTextureVertices[i][actTriangles[iTri].ct_iTVtx[i*3 + 1]](2));
+        +uvmap[mesh.m_triangles[iTri].ct_iTVtx[uvIndex][1]](1),
+        -uvmap[mesh.m_triangles[iTri].ct_iTVtx[uvIndex][1]](2));
       FLOAT2D p2_uvTarget(
-        +avTextureVertices[i][actTriangles[iTri].ct_iTVtx[i*3 + 2]](1),
-        -avTextureVertices[i][actTriangles[iTri].ct_iTVtx[i*3 + 2]](2));
+        +uvmap[mesh.m_triangles[iTri].ct_iTVtx[uvIndex][2]](1),
+        -uvmap[mesh.m_triangles[iTri].ct_iTVtx[uvIndex][2]](2));
 
-      popo[iTri].opo_amdMappings[i] = GetMappingDefinitionFromReferenceToTarget({ p0_uv, p1_uv, p2_uv }, { p0_uvTarget, p1_uvTarget, p2_uvTarget });
+      popo[iTri].opo_amdMappings[uvIndex] = GetMappingDefinitionFromReferenceToTarget({ p0_uv, p1_uv, p2_uv }, { p0_uvTarget, p1_uvTarget, p2_uvTarget });
     }
   }
-  acmMaterials.Unlock();
 }

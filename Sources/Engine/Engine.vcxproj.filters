@@ -754,6 +754,9 @@
     <ClCompile Include="Math\TextureMapping_Utils.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Models\ImportedMesh.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\Anim.h">
@@ -1373,6 +1376,9 @@
     </ClInclude>
     <ClInclude Include="Math\TextureMapping_Utils.h">
       <Filter>Header Files\Math Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\ImportedMesh.h">
+      <Filter>Header Files\Models Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

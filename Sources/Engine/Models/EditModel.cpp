@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Models/ModelData.h>
 #include <Engine/Models/EditModel.h>
 #include <Engine/Models/MipMaker.h>
+#include <Engine/Models/ImportedMesh.h>
 #include <Engine/Math/Geometry.inl>
 #include <Engine/Models/Model_internal.h>
 #include <Engine/Base/Stream.h>
@@ -121,9 +122,6 @@ struct VertexNeighbors { CStaticStackArray<INDEX> vp_aiNeighbors; };
 
 void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D &mStretch) // throw char *
 {
-  try {
-  CObject3D::BatchLoading_t(TRUE);
-
   INDEX i;
 	CObject3D OB3D;
 	CListHead FrameNamesList;
@@ -183,7 +181,7 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
     CFileNameNode &fnnFileNameNode = itFr.Current();
     if( ProgresRoutines.SetProgressState != NULL) ProgresRoutines.SetProgressState(iO3D);
 		OB3D.Clear();
-    OB3D.LoadAny3DFormat_t( CTString(itFr->cfnn_FileName), mStretch);
+    OB3D.FillFromMesh(ImportedMesh(CTString(itFr->cfnn_FileName), mStretch));
     if( edm_md.md_VerticesCt != OB3D.ob_aoscSectors[0].osc_aovxVertices.Count()) {
 			ThrowF_t( "File %s, one of animation frame files has wrong number of points.", 
         (CTString)fnnFileNameNode.cfnn_FileName);
@@ -245,7 +243,7 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
   // lost 1st frame (one frame is enough because all frames has same poly->edge->vertex links)
 	OB3D.Clear();
   const CTString &fnmFirstFrame = LIST_HEAD( FrameNamesList, CFileNameNode, cfnn_Node)->cfnn_FileName;
-  OB3D.LoadAny3DFormat_t( fnmFirstFrame, mStretch);
+  OB3D.FillFromMesh(ImportedMesh(fnmFirstFrame, mStretch));
 	OB3D.ob_aoscSectors[0].LockAll();
 
   // loop thru polygons
@@ -405,12 +403,6 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
 
   // all done
 	OB3D.ob_aoscSectors.Unlock();
-
-  CObject3D::BatchLoading_t(FALSE);
-  } catch (char*) {
-  CObject3D::BatchLoading_t(FALSE);
-  throw;
-  }
 }
 
 
@@ -931,9 +923,6 @@ void CEditModel::CreateScriptFile_t(CTFileName &fnO3D) // throw char *
 
 void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 {
-  try {
-  CObject3D::BatchLoading_t(TRUE);
-
   INDEX i;
   CTFileStream File;
 	CObject3D O3D;
@@ -1071,7 +1060,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 			  sscanf( ld_line, "%s", file_name);
 			  sprintf( full_path, "%s%s", base_path, file_name);
 			  O3D.Clear();                            // clear possible existing O3D's data
-        O3D.LoadAny3DFormat_t( CTString(full_path), mStretch);
+        O3D.FillFromMesh(ImportedMesh(CTString(full_path), mStretch));
         // If there are no vertices in model, call New Model and calculate UV mapping
 			  if( edm_md.md_VerticesCt == 0)					
 			  {
@@ -1171,12 +1160,6 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 
   if( edm_aasAttachedSounds.Count() == 0)
     CreateEmptyAttachingSounds();
-
-  CObject3D::BatchLoading_t(FALSE);
-  } catch (char*) {
-  CObject3D::BatchLoading_t(FALSE);
-  throw;
-  }
 }
 
 //----------------------------------------------------------------------------------------------
@@ -1607,8 +1590,6 @@ void CEditModel::CreateMipModels_t(CObject3D &objRestFrame, CObject3D &objMipSou
  */
 void CEditModel::UpdateMipModels_t(CTFileName &fnScriptName) // throw char *
 {
-  try {
-  CObject3D::BatchLoading_t(TRUE);
 	CTFileStream File;
 	CObject3D O3D;
 	char base_path[ PATH_MAX] = "";
@@ -1681,7 +1662,7 @@ void CEditModel::UpdateMipModels_t(CTFileName &fnScriptName) // throw char *
 				sprintf( full_path, "%s%s", base_path, file_name);
 
 			  O3D.Clear();                            // clear possible existing O3D's data
-				O3D.LoadAny3DFormat_t( CTString(full_path), mStretch);
+				O3D.FillFromMesh(ImportedMesh(CTString(full_path), mStretch));
 
         if( edm_md.md_VerticesCt < O3D.ob_aoscSectors[0].osc_aovxVertices.Count())
         {
@@ -1714,12 +1695,6 @@ void CEditModel::UpdateMipModels_t(CTFileName &fnScriptName) // throw char *
 	}
 	O3D.ob_aoscSectors.Unlock();
   edm_md.LinkDataForSurfaces(TRUE);
-
-  CObject3D::BatchLoading_t(FALSE);
-  } catch (char*) {
-  CObject3D::BatchLoading_t(FALSE);
-  throw;
-  }
 }
 
 /*

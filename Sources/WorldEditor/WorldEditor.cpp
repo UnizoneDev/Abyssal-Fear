@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EventHub.h"
 #include <Engine/Templates/Stock_CTextureData.h>
 #include <Engine/Templates/Stock_CModelData.h>
+#include <Engine/Models/ImportedMesh.h>
 
 #include <QtWin>
 #include <QIcon>
@@ -2499,7 +2500,7 @@ BOOL CWorldEditorApp::Add3DObject(CWorldEditorDoc *pDoc, CEntity *penwb, CTFileN
     if (fnFile.FileExt()==".obj") { // Maya Obj has different orientation
       mStretch.Diagonal(FLOAT3D(-1.0f, 1.0f, -1.0f));
     }
-    o3d.LoadAny3DFormat_t( fnFile, mStretch);
+    o3d.FillFromMesh(ImportedMesh(fnFile, mStretch));
 
     FOREACHINDYNAMICARRAY(o3d.ob_aoscSectors, CObjectSector, itosc)
     {
