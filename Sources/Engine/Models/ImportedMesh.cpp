@@ -41,20 +41,88 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #undef W
 #undef NONE
 
+template<>
+struct std::hash<aiVector3D>
+{
+  std::size_t operator()(const aiVector3D& vec3d) const noexcept
+  {
+    std::size_t result = 0;
+    HashCombine(result, vec3d.x);
+    HashCombine(result, vec3d.y);
+    HashCombine(result, vec3d.z);
+    return result;
+  }
+};
+
+template<>
+struct std::hash<std::pair<size_t, const aiMesh*>>
+{
+  std::size_t operator()(const std::pair<size_t, const aiMesh*>& weight) const noexcept
+  {
+    std::size_t result = 0;
+    HashCombine(result, weight.first);
+    HashCombine(result, weight.second);
+    return result;
+  }
+};
+
+struct _VertexWeights
+{
+public:
+  _VertexWeights() = default;
+
+  using TVertexWeights = std::map<std::string, float>;
+
+  const TVertexWeights& Get(size_t vertexIndex, const aiMesh* mesh) const
+  {
+    auto foundPos = m_cache.find({ vertexIndex, mesh });
+    if (foundPos != m_cache.end())
+      return foundPos->second;
+
+    auto& result = m_cache[{ vertexIndex, mesh }];
+    for (size_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+    {
+      const aiBone* bone = mesh->mBones[boneIndex];
+      for (size_t weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex)
+      {
+        const aiVertexWeight& weight = bone->mWeights[weightIndex];
+        if (weight.mVertexId == vertexIndex)
+        {
+          result[std::string(bone->mName.C_Str())] = weight.mWeight;
+          break;
+        }
+      }
+    }
+    return result;
+  }
+
+private:
+  using TWeightCache = std::unordered_map<std::pair<size_t, const aiMesh*>, TVertexWeights>;
+  mutable TWeightCache m_cache;
+};
+
+template<>
+struct std::hash<std::pair<aiVector3D, const _VertexWeights::TVertexWeights>>
+{
+  std::size_t operator()(const std::pair<aiVector3D, const _VertexWeights::TVertexWeights>& vertexAndWeights) const noexcept
+  {
+    std::size_t result = 0;
+    const auto& vec3d = vertexAndWeights.first;
+    HashCombine(result, vec3d.x);
+    HashCombine(result, vec3d.y);
+    HashCombine(result, vec3d.z);
+    const _VertexWeights::TVertexWeights& weights = vertexAndWeights.second;
+    for (auto it = weights.begin(); it != weights.end(); ++it)
+    {
+      HashCombine(result, std::hash<std::string>{}(it->first));
+      HashCombine(result, it->second);
+    }
+    return result;
+  }
+};
+
 namespace
 {
-  struct aiHasher
-  {
-    std::size_t operator()(const aiVector3D& vec3d) const
-    {
-      std::size_t result = 0;
-      HashCombine(result, vec3d.x);
-      HashCombine(result, vec3d.y);
-      HashCombine(result, vec3d.z);
-      return result;
-    }
-  };
-
   INDEX AI_GetNumFaces(const std::vector<aiMesh*>& meshes)
   {
     INDEX faces = 0;
@@ -203,15 +271,17 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
   }
 
   // ------------  Convert object vertices (coordinates)
-  std::unordered_map<aiVector3D, INDEX, aiHasher> uniqueVertices;
+  _VertexWeights vertexWeights;
+  std::unordered_map<std::pair<aiVector3D, const _VertexWeights::TVertexWeights>, INDEX> uniqueVertices;
   std::vector<aiVector3D> orderedUniqueVertices;
   for (auto* mesh : validMeshes)
   {
     for (size_t v = 0; v < mesh->mNumVertices; ++v)
     {
-      if (uniqueVertices.find(mesh->mVertices[v]) == uniqueVertices.end())
+      const auto& weights = vertexWeights.Get(v, mesh);
+      if (uniqueVertices.find({ mesh->mVertices[v], weights }) == uniqueVertices.end())
       {
-        uniqueVertices[mesh->mVertices[v]] = orderedUniqueVertices.size();
+        uniqueVertices[{ mesh->mVertices[v], weights }] = orderedUniqueVertices.size();
         orderedUniqueVertices.push_back(meshTransform.at(mesh) * mesh->mVertices[v]);
       }
     }
@@ -228,7 +298,7 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
   orderedUniqueVertices.clear();
 
   // ------------ Convert object's mapping vertices (texture vertices)
-  std::unordered_map<aiVector3D, INDEX, aiHasher> uniqueTexCoords[3];
+  std::unordered_map<aiVector3D, INDEX> uniqueTexCoords[3];
   for (size_t iUVMapIndex = 0; iUVMapIndex < 3; ++iUVMapIndex)
   {
     std::vector<aiVector3D*> orderedUniqueTexCoords;
@@ -271,16 +341,28 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
       auto& ctTriangle = m_triangles[trianglesOffset + iTriangle];
 
       const aiFace* ai_face = &mesh->mFaces[iTriangle];
-      // copy vertex indices
-      if (bFlipped) {
-        ctTriangle.ct_iVtx[0] = uniqueVertices[mesh->mVertices[ai_face->mIndices[2]]];
-        ctTriangle.ct_iVtx[1] = uniqueVertices[mesh->mVertices[ai_face->mIndices[1]]];
-        ctTriangle.ct_iVtx[2] = uniqueVertices[mesh->mVertices[ai_face->mIndices[0]]];
-      }
-      else {
-        ctTriangle.ct_iVtx[0] = uniqueVertices[mesh->mVertices[ai_face->mIndices[0]]];
-        ctTriangle.ct_iVtx[1] = uniqueVertices[mesh->mVertices[ai_face->mIndices[1]]];
-        ctTriangle.ct_iVtx[2] = uniqueVertices[mesh->mVertices[ai_face->mIndices[2]]];
+      if (true)
+      {
+        auto v0Index = ai_face->mIndices[0];
+        auto v1Index = ai_face->mIndices[1];
+        auto v2Index = ai_face->mIndices[2];
+        const auto& v0Weights = vertexWeights.Get(v0Index, mesh);
+        const auto& v1Weights = vertexWeights.Get(v1Index, mesh);
+        const auto& v2Weights = vertexWeights.Get(v2Index, mesh);
+        auto v0 = mesh->mVertices[v0Index];
+        auto v1 = mesh->mVertices[v1Index];
+        auto v2 = mesh->mVertices[v2Index];
+        // copy vertex indices
+        if (bFlipped) {
+          ctTriangle.ct_iVtx[0] = uniqueVertices[{ v2, v2Weights}];
+          ctTriangle.ct_iVtx[1] = uniqueVertices[{ v1, v1Weights}];
+          ctTriangle.ct_iVtx[2] = uniqueVertices[{ v0, v0Weights}];
+        }
+        else {
+          ctTriangle.ct_iVtx[0] = uniqueVertices[{ v0, v0Weights}];
+          ctTriangle.ct_iVtx[1] = uniqueVertices[{ v1, v1Weights}];
+          ctTriangle.ct_iVtx[2] = uniqueVertices[{ v2, v2Weights}];
+        }
       }
 
 
