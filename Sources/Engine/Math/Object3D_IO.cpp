@@ -49,8 +49,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace
 {
-  std::vector<aiMesh*> validMeshes;
-
   struct aiHasher
   {
     std::size_t operator()(const aiVector3D& vec3d) const
@@ -71,8 +69,10 @@ namespace
     return faces;
   }
 
-  bool AI_FillValidMeshes(const aiScene* aiSceneMain)
+  std::vector<aiMesh*> AI_GetValidMeshes(const aiScene* aiSceneMain)
   {
+    std::vector<aiMesh*> validMeshes;
+
     for (size_t i = 0; i < aiSceneMain->mNumMeshes; ++i)
       if (aiSceneMain->mMeshes[i]->HasFaces())
       {
@@ -84,7 +84,38 @@ namespace
           }
       }
 
-    return !validMeshes.empty();
+    return validMeshes;
+  }
+
+  const aiNode* AI_FindMeshNode(const aiScene* aiSceneMain, const aiNode* node, const aiMesh* mesh)
+  {
+    for (size_t i = 0; i < node->mNumMeshes; ++i)
+      if (aiSceneMain->mMeshes[node->mMeshes[i]] == mesh)
+        return node;
+
+    for (size_t i = 0; i < node->mNumChildren; ++i)
+      if (const auto* foundInChild = AI_FindMeshNode(aiSceneMain, node->mChildren[i], mesh))
+        return foundInChild;
+
+    return nullptr;
+  }
+
+  aiMatrix4x4 AI_GetAbsoluteTransform(const aiNode* node)
+  {
+    if (node->mParent)
+      return AI_GetAbsoluteTransform(node->mParent) * node->mTransformation;
+
+    return node->mTransformation;
+  }
+
+  std::map<const aiMesh*, aiMatrix4x4> AI_GetWorldTransforms(const aiScene* aiSceneMain, const std::vector<aiMesh*>& meshes)
+  {
+    std::map<const aiMesh*, aiMatrix4x4> meshTransform;
+    for (const auto* mesh : meshes)
+      if (const auto* node = AI_FindMeshNode(aiSceneMain, aiSceneMain->mRootNode, mesh))
+        meshTransform[mesh] = AI_GetAbsoluteTransform(node);
+
+    return meshTransform;
   }
 } // anonymous namespace
 
@@ -206,13 +237,12 @@ void CObject3D::LoadAny3DFormat_t(const CTFileName &fnmFileName, const FLOATmatr
     char acFile[MAX_PATH];
     wsprintfA(acFile,"%s",strFile);
 
-    Assimp::Importer importerWithMaterials;
+    Assimp::Importer importerWithoutNormals;
     // do not read normals from input file
-    importerWithMaterials.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS);
-    const aiScene* aiSceneMain = importerWithMaterials.ReadFile(acFile,
+    importerWithoutNormals.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS);
+    const aiScene* aiSceneMain = importerWithoutNormals.ReadFile(acFile,
       aiProcess_JoinIdenticalVertices |
       aiProcess_Triangulate |
-      aiProcess_PreTransformVertices |
       aiProcess_GenUVCoords |
       aiProcess_RemoveComponent |
       aiProcess_FlipUVs);
@@ -246,10 +276,13 @@ void CObject3D::LoadAny3DFormat_t(const CTFileName &fnmFileName, const FLOATmatr
 void FillConversionArrays_t(const FLOATmatrix3D &mTransform, const aiScene* aiSceneMain)
 {
   // all polygons must be triangles
-  if(!AI_FillValidMeshes(aiSceneMain))
-  {
+  const auto validMeshes = AI_GetValidMeshes(aiSceneMain);
+  if(validMeshes.empty())
     throw("Error: model has no UV map!");
-  }
+
+  const auto meshTransform = AI_GetWorldTransforms(aiSceneMain, validMeshes);
+  if (meshTransform.size() != validMeshes.size())
+    throw("Error: model has broken scene graph!");
 
   // check if we need flipping (if matrix is flipping, polygons need to be flipped)
   const FLOATmatrix3D &m = mTransform;
@@ -273,7 +306,7 @@ void FillConversionArrays_t(const FLOATmatrix3D &mTransform, const aiScene* aiSc
 
   // ------------  Convert object vertices (coordinates)
   std::unordered_map<aiVector3D, INDEX, aiHasher> uniqueVertices;
-  std::vector<aiVector3D*> orderedUniqueVertices;
+  std::vector<aiVector3D> orderedUniqueVertices;
   for (auto* mesh : validMeshes)
   {
     for (size_t v = 0; v < mesh->mNumVertices; ++v)
@@ -281,7 +314,7 @@ void FillConversionArrays_t(const FLOATmatrix3D &mTransform, const aiScene* aiSc
       if (uniqueVertices.find(mesh->mVertices[v]) == uniqueVertices.end())
       {
         uniqueVertices[mesh->mVertices[v]] = orderedUniqueVertices.size();
-        orderedUniqueVertices.push_back(&mesh->mVertices[v]);
+        orderedUniqueVertices.push_back(meshTransform.at(mesh) * mesh->mVertices[v]);
       }
     }
   }
@@ -289,7 +322,8 @@ void FillConversionArrays_t(const FLOATmatrix3D &mTransform, const aiScene* aiSc
   // copy vertices
   for (size_t iVtx = 0; iVtx < orderedUniqueVertices.size(); ++iVtx)
   {
-    avVertices[iVtx] = ((FLOAT3D&)*orderedUniqueVertices[iVtx]) * mTransform;
+    FLOAT3D vtx(orderedUniqueVertices[iVtx][0], orderedUniqueVertices[iVtx][1], orderedUniqueVertices[iVtx][2]);
+    avVertices[iVtx] = vtx * mTransform;
     avVertices[iVtx](1) = -avVertices[iVtx](1);
     avVertices[iVtx](3) = -avVertices[iVtx](3);
   }
@@ -443,7 +477,6 @@ void ClearConversionArrays( void)
   for (size_t i = 0; i < 3; ++i)
     avTextureVertices[i].Clear();
   uvChannels.clear();
-  validMeshes.clear();
 }
 
 /*
