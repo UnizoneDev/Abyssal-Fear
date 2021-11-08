@@ -19,9 +19,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Base/CTString.h>
 #include <Engine/Math/Vector.h>
 
+#include <array>
 #include <string>
 #include <utility>
 #include <vector>
+#include <map>
 
 struct aiScene;
 
@@ -32,12 +34,13 @@ public:
   static const std::vector<TFormatDescr>& GetSupportedFormats();
 
   ImportedMesh(const CTFileName& fnmFileName, const FLOATmatrix3D& mTransform);
+  ImportedMesh(const ImportedMesh&) = default;
 
   struct Triangle
   {
-    INDEX ct_iVtx[3];    // indices of vertices
-    INDEX ct_iTVtx[3][3];// indices of texture vertices
-    INDEX ct_iMaterial;  // index of material
+    std::array<INDEX, 3> ct_iVtx;                // indices of vertices
+    std::array<std::array<INDEX, 3>, 3> ct_iTVtx;// indices of texture vertices
+    INDEX ct_iMaterial;                          // index of material
   };
 
   struct Material
@@ -46,11 +49,15 @@ public:
     COLOR cm_colColor;
   };
 
+  using TWeights = std::map<size_t, float>;
+
 public:
   std::vector<Triangle> m_triangles;
   std::vector<Material> m_materials;
   std::vector<FLOAT3D> m_vertices;
-  std::vector<FLOAT2D> m_uvs[3];
+  std::vector<TWeights> m_verticeWeights;
+  std::array<std::vector<FLOAT2D>, 3> m_uvs;
+  std::vector<std::string> m_bonesNames;
 
 private:
   void FillConversionArrays_t(const FLOATmatrix3D& mTransform, const aiScene* aiSceneMain);
