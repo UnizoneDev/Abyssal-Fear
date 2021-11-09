@@ -33,8 +33,11 @@ public:
   using TFormatDescr = std::pair<std::string, std::string>;
   static const std::vector<TFormatDescr>& GetSupportedFormats();
 
-  ImportedMesh(const CTFileName& fnmFileName, const FLOATmatrix3D& mTransform);
+  ImportedMesh() = default;
+  ImportedMesh(const CTFileName& fileName, const FLOATmatrix3D& mTransform);
   ImportedMesh(const ImportedMesh&) = default;
+
+  void FillFromFile(const CTFileName& fileName, const FLOATmatrix3D& mTransform);
 
   struct Triangle
   {
@@ -60,6 +63,7 @@ public:
   std::vector<std::string> m_bonesNames;
 
 private:
+  void Clear();
   void FillConversionArrays_t(const FLOATmatrix3D& mTransform, const aiScene* aiSceneMain);
 };
 

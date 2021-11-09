@@ -112,20 +112,202 @@ CProgressRoutines::CProgressRoutines()
   SetProgressState = NULL;
 }
 
-
 //----------------------------------------------------------------------------------------------
 /*
  * This routine loads animation data from opened model script file and converts loaded data
  * to model's frame vertices format
  */
+#define EQUAL_SUB_STR( str) (strnicmp( ld_line, str, strlen(str)) == 0)
+
+std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimData& ad, CTStream* File, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch)
+{
+  UWORD i;
+  char error_str[256];
+  char key_word[256];
+  char base_path[PATH_MAX] = "";
+  char file_name[PATH_MAX];
+  char anim_name[256];
+  char full_path[PATH_MAX];
+  char ld_line[128];
+  std::vector<CEditModel::FrameGenerator> frames;
+  CTmpListHead TempAnimationList;
+  SLONG lc;
+  BOOL ret_val;
+
+  // clears possible animations
+  ad.CAnimData::Clear();
+
+  ret_val = TRUE;
+  FOREVER
+  {
+    // Repeat reading of one line of script file until it is not empty or comment
+    do
+    {
+      File->GetLine_t(ld_line, 128);
+    } while ((strlen(ld_line) == 0) || (ld_line[0] == ';'));
+
+    // If key-word is "/*", search end of comment block
+    if (EQUAL_SUB_STR("/*"))
+    {
+      do
+      {
+        File->GetLine_t(ld_line, 128);
+      } while (!EQUAL_SUB_STR("*/"));
+    }
+    // If key-word is "DIRECTORY", remember it and add "\" character at the end of new path
+    // if it is not yet there
+    else if (EQUAL_SUB_STR("DIRECTORY"))
+    {
+      _strupr(ld_line);
+      sscanf(ld_line, "DIRECTORY %s", base_path);
+      if (base_path[strlen(base_path) - 1] != '\\')
+        strcat(base_path,"\\");
+    }
+    // Key-word animation must follow its name (in same line),
+    // its speed and its number of frames (new lines)
+    else if (EQUAL_SUB_STR("ANIMATION"))
+    {
+      if (strlen(ld_line) <= (strlen("ANIMATION") + 1))
+      {
+        throw("You have to give descriptive name to every animation.");
+      }
+      // Create new animation
+      COneAnim* poaOneAnim = new COneAnim;
+      _strupr(ld_line);
+      sscanf(ld_line, "ANIMATION %s", poaOneAnim->oa_Name);
+      File->GetLine_t(ld_line, 128);
+      if (!EQUAL_SUB_STR("SPEED"))
+      {
+        throw("Expecting key word \"SPEED\" after key word \"ANIMATION\".");
+      }
+      _strupr(ld_line);
+      sscanf(ld_line, "SPEED %f", &poaOneAnim->oa_SecsPerFrame);
+
+      CDynamicArray<CTString> astrFrames;
+      SLONG slLastPos;
+      FOREVER
+      {
+        slLastPos = File->GetPos_t();
+        File->GetLine_t(ld_line, 128);
+        _strupr(ld_line);
+        // jump over old key word "FRAMES" and comments
+        if (EQUAL_SUB_STR("FRAMES") || (ld_line[0] == ';')) continue;
+        // key words that start or end animations or empty line breaks frame reading
+        if ((EQUAL_SUB_STR("ANIMATION")) ||
+            (strlen(ld_line) == 0) ||
+            (EQUAL_SUB_STR("ANIM_END"))) break;
+
+        sscanf(ld_line, "%s", key_word);
+        if (key_word == CTString("ANIM"))
+        {
+          // read file name from line and add it at the end of last path string loaded
+          sscanf(ld_line, "%s %s", error_str, anim_name);
+          // search trough all allready readed animations for macro one
+          FOREACHINLIST(COneAnimNode, coan_Node, TempAnimationList, itOAN)
+          {
+            if (itOAN->coan_OneAnim->oa_Name == CTString(anim_name))
+            {
+              CTString* pstrMacroFrames = astrFrames.New(itOAN->coan_OneAnim->oa_NumberOfFrames);
+              for (INDEX iMacroFrame = 0; iMacroFrame < itOAN->coan_OneAnim->oa_NumberOfFrames; iMacroFrame++)
+              {
+                *pstrMacroFrames = frames[itOAN->coan_OneAnim->oa_FrameIndices[iMacroFrame]].m_filename;
+                pstrMacroFrames++;
+              }
+            }
+          }
+        }
+        else
+        {
+          // read file name from line and add it at the end of last path string loaded
+          sscanf(ld_line, "%s", file_name);
+          sprintf(full_path, "%s%s", base_path, file_name);
+          CTString* pstrNewFile = astrFrames.New(1);
+          *pstrNewFile = CTString(full_path);
+        }
+      }
+      if (astrFrames.Count() == 0)
+      {
+        ThrowF_t("Can't find any frames for animation %s.\nThere must be at least 1 frame "
+          "per animation.\nList of frames must start at line after line containing key"
+          "word SPEED.", poaOneAnim->oa_Name);
+      }
+      // set position before last line readed
+      File->SetPos_t(slLastPos);
+      // Allocate array of indices
+      poaOneAnim->oa_NumberOfFrames = astrFrames.Count();
+      poaOneAnim->oa_FrameIndices = (INDEX*)AllocMemory(poaOneAnim->oa_NumberOfFrames * sizeof(INDEX));
+
+      INDEX iFrame = 0;
+      FOREACHINDYNAMICARRAY(astrFrames, CTString, itStrFrame)
+      {
+        // find existing index (of insert new one) for this file name into FileNameList
+        auto foundFrame = std::find_if(frames.begin(), frames.end(),
+          [&itStrFrame](const FrameGenerator& frame) { return frame.m_filename == *itStrFrame; });
+        size_t frameIndex = frames.size();
+        if (foundFrame != frames.end())
+        {
+          frameIndex = std::distance(frames.begin(), foundFrame);
+        } else {
+          frames.emplace_back();
+          auto& frame = frames.back();
+          frame.m_filename = *itStrFrame;
+          frame.m_generator = [this, mStretch, filename = *itStrFrame](CObject3D& outObject)
+          {
+            outObject.Clear();
+            outObject.FillFromMesh(ImportedMesh(filename, mStretch));
+          };
+        }
+        poaOneAnim->oa_FrameIndices[iFrame] = frameIndex;
+        iFrame++;
+      }
+      // clear used array
+      astrFrames.Clear();
+      // Add this new animation instance to temporary animation list
+      new COneAnimNode(poaOneAnim, &TempAnimationList);
+      ad.ad_NumberOfAnims++;
+    }
+    else if (EQUAL_SUB_STR("ANIM_END"))
+      break;
+    else
+    {
+      sprintf(error_str, "Incorrect word readed from script file.\n");
+      strcat(error_str, "Probable cause: missing \"ANIM_END\" key-word at end of animation list.");
+      throw(error_str);
+    }
+  }
+
+  lc = TempAnimationList.Count();
+  ASSERT(lc != 0);
+
+  // create array of OneAnim object containing members as many as temporary list
+  ad.ad_Anims = new COneAnim[lc];
+
+  // copy list to array
+  lc = 0;
+  FOREACHINLIST(COneAnimNode, coan_Node, TempAnimationList, it2)
+  {
+    strcpy(ad.ad_Anims[lc].oa_Name, it2->coan_OneAnim->oa_Name);
+    ad.ad_Anims[lc].oa_SecsPerFrame = it2->coan_OneAnim->oa_SecsPerFrame;
+    ad.ad_Anims[lc].oa_NumberOfFrames = it2->coan_OneAnim->oa_NumberOfFrames;
+    ad.ad_Anims[lc].oa_FrameIndices = (INDEX*)AllocMemory(ad.ad_Anims[lc].oa_NumberOfFrames *
+      sizeof(INDEX));
+    for (i = 0; i < it2->coan_OneAnim->oa_NumberOfFrames; i++)
+      ad.ad_Anims[lc].oa_FrameIndices[i] = it2->coan_OneAnim->oa_FrameIndices[i];
+    lc++;
+  }
+  FORDELETELIST(COneAnimNode, coan_Node, TempAnimationList, litDel)
+    delete& litDel.Current();
+
+  return frames;
+}
 
 struct VertexNeighbors { CStaticStackArray<INDEX> vp_aiNeighbors; };
 
-void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D &mStretch) // throw char *
+void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch) // throw char *
 {
   INDEX i;
 	CObject3D OB3D;
-	CListHead FrameNamesList;
+
 	FLOATaabbox3D OneFrameBB;
 	FLOATaabbox3D AllFramesBB;
 
@@ -137,15 +319,15 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
 	if( edm_md.md_VerticesCt == 0) {
 		throw( "Trying to update model's animations, but model doesn't exists!");
 	}
-	edm_md.LoadFromScript_t( pFile, &FrameNamesList);		// load model's animation data from script
+  auto frameGenerators = LoadFrameGenerators(edm_md, pFile, baseMesh, skeleton, mStretch);
 
   // if recreating animations, frame count must be the same
-  if( (ctFramesBefore != 0) && (FrameNamesList.Count() != ctFramesBefore) )
+  if( (ctFramesBefore != 0) && (frameGenerators.size() != ctFramesBefore) )
   {
 		throw( "If you are updating animations, you can't change number of frames. \
       If you want to add or remove some frames or animations, please recreate the model.");
   }
-	edm_md.md_FramesCt = FrameNamesList.Count();
+	edm_md.md_FramesCt = frameGenerators.size();
 
 	/*
 	 * Now we will allocate frames and frames info array and array od 3D objects,
@@ -156,7 +338,7 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
     ProgresRoutines.SetProgressMessage( "Calculating bounding boxes ...");
   }
   if( ProgresRoutines.SetProgressRange != NULL) {
-    ProgresRoutines.SetProgressRange( FrameNamesList.Count());
+    ProgresRoutines.SetProgressRange(frameGenerators.size());
   }
 
   edm_md.md_FrameInfos.New( edm_md.md_FramesCt);
@@ -177,15 +359,13 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
     bOrigin = TRUE;
   }
 
-  {FOREACHINLIST( CFileNameNode, cfnn_Node, FrameNamesList, itFr)
+  for (auto& frameGenerator : frameGenerators)
 	{
-    CFileNameNode &fnnFileNameNode = itFr.Current();
     if( ProgresRoutines.SetProgressState != NULL) ProgresRoutines.SetProgressState(iO3D);
-		OB3D.Clear();
-    OB3D.FillFromMesh(ImportedMesh(CTString(itFr->cfnn_FileName), mStretch));
+    frameGenerator.m_generator(OB3D);
     if( edm_md.md_VerticesCt != OB3D.ob_aoscSectors[0].osc_aovxVertices.Count()) {
 			ThrowF_t( "File %s, one of animation frame files has wrong number of points.", 
-        (CTString)fnnFileNameNode.cfnn_FileName);
+        frameGenerator.m_filename);
 		}
     if(bOrigin)
     {
@@ -227,7 +407,7 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
 		AllFramesBB |= OneFrameBB;							
     // load next frame
 		iO3D++;																	
-  }}
+  }
 
   // calculate stretch vector
 	edm_md.md_Stretch = AllFramesBB.Size()/2.0f;       // get size of bounding box
@@ -243,8 +423,7 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
   
   // lost 1st frame (one frame is enough because all frames has same poly->edge->vertex links)
 	OB3D.Clear();
-  const CTString &fnmFirstFrame = LIST_HEAD( FrameNamesList, CFileNameNode, cfnn_Node)->cfnn_FileName;
-  OB3D.FillFromMesh(ImportedMesh(fnmFirstFrame, mStretch));
+  OB3D.FillFromMesh(baseMesh);
 	OB3D.ob_aoscSectors[0].LockAll();
 
   // loop thru polygons
@@ -252,11 +431,6 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
   {FOREACHINDYNAMICARRAY( OB3D.ob_aoscSectors[0].osc_aopoPolygons, CObjectPolygon, itPoly)
   {
     CObjectPolygon &opo = *itPoly;
-    // only triangles are supported!
-    ASSERT( opo.opo_PolygonEdges.Count() == 3);  
-    if( opo.opo_PolygonEdges.Count() != 3) {
-  		ThrowF_t( "Non-triangle polygon encountered in model file %s !", fnmFirstFrame);
-    }
     // get all 3 vetrices of current polygon and sorted them
     opo.opo_PolygonEdges.Lock();
     CObjectPolygonEdge &opeCurr = opo.opo_PolygonEdges[0];
@@ -382,9 +556,6 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D 
     // advance to next frame
     iO3D++;
   }
-
-  // list of filenames is no longer needed
-	FORDELETELIST( CFileNameNode, cfnn_Node, FrameNamesList, litDel) delete &litDel.Current();
 
   // create compressed vector center that will be used for setting object handle
   edm_md.md_vCompressedCenter(1) = -edm_md.md_vCenter(1) * f1oStretchX;
@@ -920,8 +1091,6 @@ void CEditModel::CreateScriptFile_t(CTFileName &fnO3D) // throw char *
 /*
  * This routine load lines from script file and executes appropriate actions
  */
-#define EQUAL_SUB_STR( str) (strnicmp( ld_line, str, strlen(str)) == 0)
-
 void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 {
   INDEX i;
@@ -938,6 +1107,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 	BOOL bMappingDimFound ;
 	BOOL bAnimationsFound;
   BOOL bLoadInitialMapping;
+  ImportedMesh baseMesh;
   ImportedSkeleton skeleton;
 
 	O3D.ob_aoscSectors.Lock();
@@ -1072,8 +1242,11 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 			  _strupr( ld_line);
 			  sscanf( ld_line, "%s", file_name);
 			  sprintf( full_path, "%s%s", base_path, file_name);
+        ImportedMesh mesh(CTString(full_path), mStretch);
+        if (baseMesh.m_vertices.empty())
+          baseMesh = mesh;
 			  O3D.Clear();                            // clear possible existing O3D's data
-        O3D.FillFromMesh(ImportedMesh(CTString(full_path), mStretch));
+        O3D.FillFromMesh(mesh);
         if (skeleton.Empty())
           skeleton.FillFromFile(CTString(full_path), mStretch);
         // If there are no vertices in model, call New Model and calculate UV mapping
@@ -1113,7 +1286,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 		// Key-word "ANIM_START" starts loading of Animation Data object
 		else if( EQUAL_SUB_STR( "ANIM_START"))
 		{
-			LoadModelAnimationData_t( &File, mStretch);	// loads and sets model's animation data
+			LoadModelAnimationData_t( &File, baseMesh, skeleton, mStretch);	// loads and sets model's animation data
       // add one collision box
       edm_md.md_acbCollisionBox.New();
       // reset attaching sounds
@@ -1505,7 +1678,12 @@ void CEditModel::UpdateAnimations_t(CTFileName &fnScriptName) // throw char *
 {
 	CTFileStream File;
 	char ld_line[ 128];
+  char base_path[PATH_MAX] = "";
+  char full_path[PATH_MAX];
+  char file_name[PATH_MAX];
 	CListHead FrameNamesList;
+  ImportedMesh baseMesh;
+  ImportedSkeleton skeleton;
   FLOATmatrix3D mStretch;
   mStretch.Diagonal(1.0f);
 
@@ -1537,9 +1715,41 @@ void CEditModel::UpdateAnimations_t(CTFileName &fnScriptName) // throw char *
         &mTran(3,1), &mTran(3,2), &mTran(3,3));
       mStretch *= mTran;
     }
+    else if (EQUAL_SUB_STR("DIRECTORY"))
+    {
+      _strupr(ld_line);
+      sscanf(ld_line, "DIRECTORY %s", base_path);
+      if (base_path[strlen(base_path) - 1] != '\\')
+        strcat(base_path, "\\");
+    }
+    else if (EQUAL_SUB_STR("SKELETON"))
+    {
+      do
+      {
+        File.GetLine_t(ld_line, 128);
+      } while ((strlen(ld_line) == 0) || (ld_line[0] == ';'));
+      _strupr(ld_line);
+      sscanf(ld_line, "%s", file_name);
+      sprintf(full_path, "%s%s", base_path, file_name);
+      skeleton.FillFromFile(CTString(full_path), mStretch);
+    }
+    // Key-word "MipModel" must follow name of this mipmodel file
+    else if (EQUAL_SUB_STR("MIP_MODELS") && baseMesh.m_vertices.empty())
+    {
+      INDEX iMipCt;
+      sscanf(ld_line, "MIP_MODELS %d", &iMipCt);
+      do
+      {
+        File.GetLine_t(ld_line, 128);
+      } while ((strlen(ld_line) == 0) || (ld_line[0] == ';'));
+      _strupr(ld_line);
+      sscanf(ld_line, "%s", file_name);
+      sprintf(full_path, "%s%s", base_path, file_name);
+      baseMesh.FillFromFile(CTString(full_path), mStretch);
+    }
 		else if( EQUAL_SUB_STR( "ANIM_START"))
 		{
-			LoadModelAnimationData_t( &File, mStretch);	// load and set model's animation data
+			LoadModelAnimationData_t( &File, baseMesh, skeleton, mStretch);	// load and set model's animation data
 			break;													// we found our animations, we loaded them so we will stop forever loop
 		}
     else if( EQUAL_SUB_STR( "ORIGIN_TRI"))

@@ -227,6 +227,12 @@ const std::vector<ImportedMesh::TFormatDescr>& ImportedMesh::GetSupportedFormats
 
 ImportedMesh::ImportedMesh(const CTFileName& fnmFileName, const FLOATmatrix3D& mTransform)
 {
+  FillFromFile(fnmFileName, mTransform);
+}
+
+void ImportedMesh::FillFromFile(const CTFileName& fnmFileName, const FLOATmatrix3D& mTransform)
+{
+  Clear();
   // call file load with file's full path name
   CTString strFile = _fnmApplicationPath + fnmFileName;
   char acFile[MAX_PATH];
@@ -251,6 +257,17 @@ ImportedMesh::ImportedMesh(const CTFileName& fnmFileName, const FLOATmatrix3D& m
   {
     ThrowF_t("Unable to load 3D object: %s", (const char*)fnmFileName);
   }
+}
+
+void ImportedMesh::Clear()
+{
+  m_triangles.clear();
+  m_materials.clear();
+  m_vertices.clear();
+  m_verticeWeights.clear();
+  for (auto& uv : m_uvs)
+    uv.clear();
+  m_bonesNames.clear();
 }
 
 void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const aiScene* aiSceneMain)
