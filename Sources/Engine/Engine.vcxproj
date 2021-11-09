@@ -428,6 +428,7 @@
     </ClCompile>
     <ClCompile Include="Math\TextureMapping_Utils.cpp" />
     <ClCompile Include="Models\ImportedMesh.cpp" />
+    <ClCompile Include="Models\ImportedSkeleton.cpp" />
     <ClCompile Include="Sound\SoundData.cpp" />
     <ClCompile Include="Sound\SoundDecoder.cpp" />
     <ClCompile Include="Sound\SoundLibrary.cpp" />
@@ -779,6 +780,7 @@
     <ClInclude Include="Graphics\Vertex.h" />
     <ClInclude Include="Graphics\ViewPort.h" />
     <ClInclude Include="Models\ImportedMesh.h" />
+    <ClInclude Include="Models\ImportedSkeleton.h" />
     <ClInclude Include="Sound\al_functions.h" />
     <ClInclude Include="Sound\DSound.h" />
     <ClInclude Include="Sound\eax.h" />

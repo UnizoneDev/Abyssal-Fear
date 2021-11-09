@@ -322,7 +322,6 @@ __forceinline Matrix<Type, iRows, iColumns> Matrix<Type, iRows, iColumns>::opera
   Matrix<Type, iRows, iColumns> result;
   // check that the matrices have square dimensions
   ASSERT(iRows==iColumns);
-  ASSERT( iRows!=3 && iColumns!=3);  // 3 is optimized special case 
   // multiply
   for(int iRow=1; iRow<=iRows; iRow++) {
     for(int iColumn=1; iColumn<=iColumns; iColumn++) {

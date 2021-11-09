@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Models/EditModel.h>
 #include <Engine/Models/MipMaker.h>
 #include <Engine/Models/ImportedMesh.h>
+#include <Engine/Models/ImportedSkeleton.h>
 #include <Engine/Math/Geometry.inl>
 #include <Engine/Models/Model_internal.h>
 #include <Engine/Base/Stream.h>
@@ -937,6 +938,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 	BOOL bMappingDimFound ;
 	BOOL bAnimationsFound;
   BOOL bLoadInitialMapping;
+  ImportedSkeleton skeleton;
 
 	O3D.ob_aoscSectors.Lock();
 	File.Open_t( fnScriptName);				// open script file for reading
@@ -1034,6 +1036,17 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
       sscanf( ld_line, "MAX_SHADOW %d", &iShadowQuality);
       edm_md.md_ShadowQuality = iShadowQuality;
     }
+    else if (EQUAL_SUB_STR("SKELETON"))
+    {
+      do
+      {
+        File.GetLine_t(ld_line, 128);
+      } while ((strlen(ld_line) == 0) || (ld_line[0] == ';'));
+      _strupr(ld_line);
+      sscanf(ld_line, "%s", file_name);
+      sprintf(full_path, "%s%s", base_path, file_name);
+      skeleton.FillFromFile(CTString(full_path), mStretch);
+    }
 		// Key-word "MipModel" must follow name of this mipmodel file
     else if( EQUAL_SUB_STR( "MIP_MODELS"))
     {
@@ -1061,6 +1074,8 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 			  sprintf( full_path, "%s%s", base_path, file_name);
 			  O3D.Clear();                            // clear possible existing O3D's data
         O3D.FillFromMesh(ImportedMesh(CTString(full_path), mStretch));
+        if (skeleton.Empty())
+          skeleton.FillFromFile(CTString(full_path), mStretch);
         // If there are no vertices in model, call New Model and calculate UV mapping
 			  if( edm_md.md_VerticesCt == 0)					
 			  {
