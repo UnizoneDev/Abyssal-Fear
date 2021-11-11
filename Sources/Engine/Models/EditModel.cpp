@@ -132,7 +132,7 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
   char full_path[PATH_MAX];
   char ld_line[128];
   std::vector<CEditModel::FrameGenerator> frames;
-  CTmpListHead TempAnimationList;
+  std::vector<std::unique_ptr<COneAnim>> TempAnimationList;
   SLONG lc;
   BOOL ret_val;
 
@@ -171,7 +171,7 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
       {
         throw("You have to give descriptive name to every animation.");
       }
-      COneAnim* oneAnim = new COneAnim;
+      auto oneAnim = std::make_unique<COneAnim>();
       _strupr(ld_line);
       sscanf(ld_line, "SKELETAL_ANIMATION %s", oneAnim->oa_Name);
 
@@ -256,7 +256,7 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
         };
       }
 
-      new COneAnimNode(oneAnim, &TempAnimationList);
+      TempAnimationList.push_back(std::move(oneAnim));
       ad.ad_NumberOfAnims++;
     }
     // Key-word animation must follow its name (in same line),
@@ -268,7 +268,7 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
         throw("You have to give descriptive name to every animation.");
       }
       // Create new animation
-      COneAnim* poaOneAnim = new COneAnim;
+      auto poaOneAnim = std::make_unique<COneAnim>();
       _strupr(ld_line);
       sscanf(ld_line, "ANIMATION %s", poaOneAnim->oa_Name);
       File->GetLine_t(ld_line, 128);
@@ -300,14 +300,14 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
           // read file name from line and add it at the end of last path string loaded
           sscanf(ld_line, "%s %s", error_str, anim_name);
           // search trough all allready readed animations for macro one
-          FOREACHINLIST(COneAnimNode, coan_Node, TempAnimationList, itOAN)
+          for (auto& oneAnim : TempAnimationList)
           {
-            if (itOAN->coan_OneAnim->oa_Name == CTString(anim_name))
+            if (oneAnim->oa_Name == CTString(anim_name))
             {
-              CTString* pstrMacroFrames = astrFrames.New(itOAN->coan_OneAnim->oa_NumberOfFrames);
-              for (INDEX iMacroFrame = 0; iMacroFrame < itOAN->coan_OneAnim->oa_NumberOfFrames; iMacroFrame++)
+              CTString* pstrMacroFrames = astrFrames.New(oneAnim->oa_NumberOfFrames);
+              for (INDEX iMacroFrame = 0; iMacroFrame < oneAnim->oa_NumberOfFrames; iMacroFrame++)
               {
-                *pstrMacroFrames = frames[itOAN->coan_OneAnim->oa_FrameIndices[iMacroFrame]].m_filename;
+                *pstrMacroFrames = frames[oneAnim->oa_FrameIndices[iMacroFrame]].m_filename;
                 pstrMacroFrames++;
               }
             }
@@ -360,7 +360,7 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
       // clear used array
       astrFrames.Clear();
       // Add this new animation instance to temporary animation list
-      new COneAnimNode(poaOneAnim, &TempAnimationList);
+      TempAnimationList.push_back(std::move(poaOneAnim));
       ad.ad_NumberOfAnims++;
     }
     else if (EQUAL_SUB_STR("ANIM_END"))
@@ -373,7 +373,7 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
     }
   }
 
-  lc = TempAnimationList.Count();
+  lc = TempAnimationList.size();
   ASSERT(lc != 0);
 
   // create array of OneAnim object containing members as many as temporary list
@@ -381,19 +381,17 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
 
   // copy list to array
   lc = 0;
-  FOREACHINLIST(COneAnimNode, coan_Node, TempAnimationList, it2)
+  for (auto& oneAnim : TempAnimationList)
   {
-    strcpy(ad.ad_Anims[lc].oa_Name, it2->coan_OneAnim->oa_Name);
-    ad.ad_Anims[lc].oa_SecsPerFrame = it2->coan_OneAnim->oa_SecsPerFrame;
-    ad.ad_Anims[lc].oa_NumberOfFrames = it2->coan_OneAnim->oa_NumberOfFrames;
+    strcpy(ad.ad_Anims[lc].oa_Name, oneAnim->oa_Name);
+    ad.ad_Anims[lc].oa_SecsPerFrame = oneAnim->oa_SecsPerFrame;
+    ad.ad_Anims[lc].oa_NumberOfFrames = oneAnim->oa_NumberOfFrames;
     ad.ad_Anims[lc].oa_FrameIndices = (INDEX*)AllocMemory(ad.ad_Anims[lc].oa_NumberOfFrames *
       sizeof(INDEX));
-    for (i = 0; i < it2->coan_OneAnim->oa_NumberOfFrames; i++)
-      ad.ad_Anims[lc].oa_FrameIndices[i] = it2->coan_OneAnim->oa_FrameIndices[i];
+    for (i = 0; i < oneAnim->oa_NumberOfFrames; i++)
+      ad.ad_Anims[lc].oa_FrameIndices[i] = oneAnim->oa_FrameIndices[i];
     lc++;
   }
-  FORDELETELIST(COneAnimNode, coan_Node, TempAnimationList, litDel)
-    delete& litDel.Current();
 
   return frames;
 }
