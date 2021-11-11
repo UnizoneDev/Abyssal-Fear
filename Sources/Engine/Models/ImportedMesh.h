@@ -26,6 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <map>
 
 struct aiScene;
+struct ImportedSkeleton;
 
 struct ENGINE_API ImportedMesh
 {
@@ -37,6 +38,7 @@ public:
   ImportedMesh(const CTFileName& fileName, const FLOATmatrix3D& mTransform);
   ImportedMesh(const ImportedMesh&) = default;
 
+  void ApplySkinning(const ImportedSkeleton& baseSkeleton, const ImportedSkeleton& animSkeleton, const FLOATmatrix3D& mTransform);
   void FillFromFile(const CTFileName& fileName, const FLOATmatrix3D& mTransform);
 
   struct Triangle

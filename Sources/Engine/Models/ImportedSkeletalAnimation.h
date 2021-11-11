@@ -13,46 +13,37 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#ifndef IMPORTED_SKELETON_H
-#define IMPORTED_SKELETON_H
+#ifndef IMPORTED_SKELETAL_ANIMATION_H
+#define IMPORTED_SKELETAL_ANIMATION_H
+
+#include "ImportedSkeleton.h"
 
 #include <Engine/Base/Types.h>
 #include <Engine/Math/Vector.h>
 
 #include <string>
-#include <vector>
-#include <map>
 
-struct aiScene;
-struct aiNode;
+struct aiAnimation;
 
-struct ENGINE_API ImportedSkeleton
+struct ImportedSkeletalAnimation
 {
 public:
-  struct Bone
-  {
-    std::string m_name;
-    FLOATmatrix4D m_transformToParent;
-    const Bone* mp_parent = nullptr;
-    std::vector<const Bone*> m_children;
+  ImportedSkeletalAnimation(
+    const CTFileName& fileName,
+    const std::string& animName,
+    const ImportedSkeleton& skeleton,
+    size_t optNumFrames,
+    double optDuration);
 
-    FLOATmatrix4D GetAbsoluteTransform() const;
-  };
-
-  ImportedSkeleton() = default;
-  ImportedSkeleton(const ImportedSkeleton& other);
-
-  ImportedSkeleton& operator=(const ImportedSkeleton& other);
-
-  bool Empty() const;
-  void FillFromFile(const CTFileName& fileName);
+  void ReapplyByReference(const ImportedSkeleton& refSkeleton);
 
 public:
-  std::map<std::string, Bone> m_bones;
+  double m_duration;
+  std::vector<ImportedSkeleton> m_frames;
+  ImportedSkeleton m_defaultPose;
 
 private:
-  void FillFromScene(const aiScene& scene);
-  const Bone* AppendBone(const aiNode* node, const Bone* parent = nullptr);
+  void ImportedSkeletalAnimation::BakeFrames(const aiAnimation& anim);
 };
 
 #endif

@@ -487,6 +487,70 @@ Matrix<Type, 3, 3> InverseMatrix(const Matrix<Type, 3, 3>& m)
   return inverse;
 }
 
+template<class Type>
+Matrix<Type, 4, 4> InverseMatrix(const Matrix<Type, 4, 4>& m)
+{
+  Type Coef00 = m.matrix[2][2] * m.matrix[3][3] - m.matrix[3][2] * m.matrix[2][3];
+  Type Coef02 = m.matrix[1][2] * m.matrix[3][3] - m.matrix[3][2] * m.matrix[1][3];
+  Type Coef03 = m.matrix[1][2] * m.matrix[2][3] - m.matrix[2][2] * m.matrix[1][3];
+  Type Coef04 = m.matrix[2][1] * m.matrix[3][3] - m.matrix[3][1] * m.matrix[2][3];
+  Type Coef06 = m.matrix[1][1] * m.matrix[3][3] - m.matrix[3][1] * m.matrix[1][3];
+  Type Coef07 = m.matrix[1][1] * m.matrix[2][3] - m.matrix[2][1] * m.matrix[1][3];
+  Type Coef08 = m.matrix[2][1] * m.matrix[3][2] - m.matrix[3][1] * m.matrix[2][2];
+  Type Coef10 = m.matrix[1][1] * m.matrix[3][2] - m.matrix[3][1] * m.matrix[1][2];
+  Type Coef11 = m.matrix[1][1] * m.matrix[2][2] - m.matrix[2][1] * m.matrix[1][2];
+  Type Coef12 = m.matrix[2][0] * m.matrix[3][3] - m.matrix[3][0] * m.matrix[2][3];
+  Type Coef14 = m.matrix[1][0] * m.matrix[3][3] - m.matrix[3][0] * m.matrix[1][3];
+  Type Coef15 = m.matrix[1][0] * m.matrix[2][3] - m.matrix[2][0] * m.matrix[1][3];
+  Type Coef16 = m.matrix[2][0] * m.matrix[3][2] - m.matrix[3][0] * m.matrix[2][2];
+  Type Coef18 = m.matrix[1][0] * m.matrix[3][2] - m.matrix[3][0] * m.matrix[1][2];
+  Type Coef19 = m.matrix[1][0] * m.matrix[2][2] - m.matrix[2][0] * m.matrix[1][2];
+  Type Coef20 = m.matrix[2][0] * m.matrix[3][1] - m.matrix[3][0] * m.matrix[2][1];
+  Type Coef22 = m.matrix[1][0] * m.matrix[3][1] - m.matrix[3][0] * m.matrix[1][1];
+  Type Coef23 = m.matrix[1][0] * m.matrix[2][1] - m.matrix[2][0] * m.matrix[1][1];
+
+  Vector<Type, 4> Fac0(Coef00, Coef00, Coef02, Coef03);
+  Vector<Type, 4> Fac1(Coef04, Coef04, Coef06, Coef07);
+  Vector<Type, 4> Fac2(Coef08, Coef08, Coef10, Coef11);
+  Vector<Type, 4> Fac3(Coef12, Coef12, Coef14, Coef15);
+  Vector<Type, 4> Fac4(Coef16, Coef16, Coef18, Coef19);
+  Vector<Type, 4> Fac5(Coef20, Coef20, Coef22, Coef23);
+
+  Vector<Type, 4> Vec0(m.matrix[1][0], m.matrix[0][0], m.matrix[0][0], m.matrix[0][0]);
+  Vector<Type, 4> Vec1(m.matrix[1][1], m.matrix[0][1], m.matrix[0][1], m.matrix[0][1]);
+  Vector<Type, 4> Vec2(m.matrix[1][2], m.matrix[0][2], m.matrix[0][2], m.matrix[0][2]);
+  Vector<Type, 4> Vec3(m.matrix[1][3], m.matrix[0][3], m.matrix[0][3], m.matrix[0][3]);
+
+  Vector<Type, 4> Inv0 = VectorProduct(Vec1, Fac0) - VectorProduct(Vec2, Fac1) + VectorProduct(Vec3, Fac2);
+  Vector<Type, 4> Inv1 = VectorProduct(Vec0, Fac0) - VectorProduct(Vec2, Fac3) + VectorProduct(Vec3, Fac4);
+  Vector<Type, 4> Inv2 = VectorProduct(Vec0, Fac1) - VectorProduct(Vec1, Fac3) + VectorProduct(Vec3, Fac5);
+  Vector<Type, 4> Inv3 = VectorProduct(Vec0, Fac2) - VectorProduct(Vec1, Fac4) + VectorProduct(Vec2, Fac5);
+
+  Vector<Type, 4> SignA(+1, -1, +1, -1);
+  Vector<Type, 4> SignB(-1, +1, -1, +1);
+  Vector<Type, 4> Col1 = VectorProduct(Inv0, SignA);
+  Vector<Type, 4> Col2 = VectorProduct(Inv1, SignB);
+  Vector<Type, 4> Col3 = VectorProduct(Inv2, SignA);
+  Vector<Type, 4> Col4 = VectorProduct(Inv3, SignB);
+  Matrix<Type, 4, 4> inverse;
+  for (int row = 1; row <= 4; ++row)
+  {
+    inverse(1, row) = Col1(row);
+    inverse(2, row) = Col2(row);
+    inverse(3, row) = Col3(row);
+    inverse(4, row) = Col4(row);
+  }
+
+  Vector<Type, 4> Row0(inverse.matrix[0][0], inverse.matrix[1][0], inverse.matrix[2][0], inverse.matrix[3][0]);
+
+  Vector<Type, 4> Dot0(VectorProduct(m.GetRow(1), Row0));
+  Type Dot1 = (Dot0(1) + Dot0(2)) + (Dot0(3) + Dot0(4));
+
+  Type OneOverDeterminant = static_cast<Type>(1) / Dot1;
+
+  return inverse * OneOverDeterminant;
+}
+
 // helper functions for converting between FLOAT and DOUBLE matrices
 __forceinline DOUBLEmatrix3D FLOATtoDOUBLE(const FLOATmatrix3D &mf)
 {

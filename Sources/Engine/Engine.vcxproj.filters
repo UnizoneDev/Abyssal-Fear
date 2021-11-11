@@ -760,6 +760,9 @@
     <ClCompile Include="Models\ImportedSkeleton.cpp">
       <Filter>Source Files\Models</Filter>
     </ClCompile>
+    <ClCompile Include="Models\ImportedSkeletalAnimation.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\Anim.h">
@@ -1384,6 +1387,9 @@
       <Filter>Header Files\Models Headers</Filter>
     </ClInclude>
     <ClInclude Include="Models\ImportedSkeleton.h">
+      <Filter>Header Files\Models Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\ImportedSkeletalAnimation.h">
       <Filter>Header Files\Models Headers</Filter>
     </ClInclude>
   </ItemGroup>

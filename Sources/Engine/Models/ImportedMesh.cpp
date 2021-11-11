@@ -16,6 +16,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "StdH.h"
 
 #include "ImportedMesh.h"
+#include "ImportedSkeleton.h"
 
 #include <Engine/Base/Stream.h>
 #include <Engine/Graphics/Color.h>
@@ -36,6 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #ifdef max
 #undef max
+#undef min
 #endif
 
 #undef W
@@ -77,6 +79,7 @@ public:
     if (foundPos != m_cache.end())
       return foundPos->second;
 
+    float totalWeight = 0.0f;
     auto& result = m_cache[{ vertexIndex, mesh }];
     for (size_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
     {
@@ -98,10 +101,16 @@ public:
           }
 
           result[boneNameIndex] = weight.mWeight;
+          totalWeight += weight.mWeight;
           break;
         }
       }
     }
+    if (totalWeight > 0.0f)
+      for (auto& weight : result)
+        weight.second /= totalWeight;
+    else
+      result.clear();
     return result;
   }
 
@@ -228,6 +237,37 @@ const std::vector<ImportedMesh::TFormatDescr>& ImportedMesh::GetSupportedFormats
 ImportedMesh::ImportedMesh(const CTFileName& fnmFileName, const FLOATmatrix3D& mTransform)
 {
   FillFromFile(fnmFileName, mTransform);
+}
+
+void ImportedMesh::ApplySkinning(const ImportedSkeleton& baseSkeleton, const ImportedSkeleton& animSkeleton, const FLOATmatrix3D& mTransform)
+{
+  for (size_t v = 0; v < m_vertices.size(); ++v)
+  {
+    auto& vtx3D = m_vertices[v];
+    auto vtxUnTransformed = FLOAT3D(-vtx3D(1), vtx3D(2), -vtx3D(3)) * InverseMatrix(mTransform);
+    const FLOAT4D vertex(vtxUnTransformed(1), vtxUnTransformed(2), vtxUnTransformed(3), 1.0f);
+    FLOAT4D result(0, 0, 0, 0);
+
+    const auto& weights = m_verticeWeights[v];
+    if (weights.empty())
+      continue;
+    for (const auto& weight : weights)
+    {
+      const auto& boneName = m_bonesNames[weight.first];
+      auto baseIt = baseSkeleton.m_bones.find(boneName);
+      if (baseIt == baseSkeleton.m_bones.end())
+        continue;
+      const auto& baseBone = baseIt->second;
+      const auto& animBone = animSkeleton.m_bones.find(boneName)->second;
+      const FLOATmatrix4D transform = animBone.GetAbsoluteTransform() * InverseMatrix(baseBone.GetAbsoluteTransform());
+      result += (vertex * transform) * weight.second;
+    }
+
+    vtx3D = FLOAT3D(result(1), result(2), result(3)) * mTransform;
+    vtx3D(1) = -vtx3D(1);
+    vtx3D(2) = +vtx3D(2);
+    vtx3D(3) = -vtx3D(3);
+  }
 }
 
 void ImportedMesh::FillFromFile(const CTFileName& fnmFileName, const FLOATmatrix3D& mTransform)

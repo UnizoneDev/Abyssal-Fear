@@ -26,19 +26,51 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #undef W
 #undef NONE
 
-void ImportedSkeleton::FillFromFile(const CTFileName& fileName, const FLOATmatrix3D& mTransform)
+FLOATmatrix4D ImportedSkeleton::Bone::GetAbsoluteTransform() const
+{
+  if (mp_parent)
+    return mp_parent->GetAbsoluteTransform() * m_transformToParent;
+
+  return m_transformToParent;
+}
+
+ImportedSkeleton::ImportedSkeleton(const ImportedSkeleton& other)
+{
+  *this = other;
+}
+
+ImportedSkeleton& ImportedSkeleton::operator=(const ImportedSkeleton& other)
+{
+  m_bones = other.m_bones;
+  for (auto it = other.m_bones.begin(); it != other.m_bones.end(); ++it)
+  {
+    const auto& bone = it->second;
+    auto& myBone = m_bones[bone.m_name];
+    myBone.m_children.clear();
+    myBone.m_children.reserve(bone.m_children.size());
+    for (const auto* childbone : bone.m_children)
+    {
+      auto& myChildBone = m_bones[childbone->m_name];
+      myBone.m_children.push_back(&myChildBone);
+      myChildBone.mp_parent = &myBone;
+    }
+  }
+  return *this;
+}
+
+void ImportedSkeleton::FillFromFile(const CTFileName& fileName)
 {
   CTString strFile = _fnmApplicationPath + fileName;
   char acFile[MAX_PATH];
   wsprintfA(acFile, "%s", strFile);
 
-  Assimp::Importer importerWithoutNormals;
-  const aiScene* aiSceneMain = importerWithoutNormals.ReadFile(acFile, 0);
+  Assimp::Importer importer;
+  const aiScene* aiSceneMain = importer.ReadFile(acFile, 0);
 
   // if scene is successefuly loaded
   if (aiSceneMain)
   {
-    FillFromScene(*aiSceneMain, mTransform);
+    FillFromScene(*aiSceneMain);
   }
   else
   {
@@ -46,20 +78,10 @@ void ImportedSkeleton::FillFromFile(const CTFileName& fileName, const FLOATmatri
   }
 }
 
-void ImportedSkeleton::FillFromScene(const aiScene& scene, const FLOATmatrix3D& mTransform)
+void ImportedSkeleton::FillFromScene(const aiScene& scene)
 {
-  mp_rootBone = nullptr;
   m_bones.clear();
   AppendBone(scene.mRootNode);
-
-  FLOATmatrix4D transform4D;
-  transform4D.Diagonal(1.0f);
-  for (size_t row = 1; row <= 3; ++row)
-    for (size_t col = 1; col <= 3; ++col)
-      transform4D(row, col) = mTransform(row, col);
-
-  for (auto it = m_bones.begin(); it != m_bones.end(); ++it)
-    it->second.m_transformToParent = transform4D * it->second.m_transformToParent;
 }
 
 const ImportedSkeleton::Bone* ImportedSkeleton::AppendBone(const aiNode* node, const Bone* parent)
@@ -80,8 +102,6 @@ const ImportedSkeleton::Bone* ImportedSkeleton::AppendBone(const aiNode* node, c
     boneName += '_';
 
   auto& bone = m_bones[boneName];
-  if (!mp_rootBone)
-    mp_rootBone = &bone;
   bone.m_name = boneName;
   bone.mp_parent = parent;
   bone.m_transformToParent = transformToParent;
@@ -95,24 +115,4 @@ const ImportedSkeleton::Bone* ImportedSkeleton::AppendBone(const aiNode* node, c
 bool ImportedSkeleton::Empty() const
 {
   return m_bones.empty();
-}
-
-ImportedSkeleton::Bone& ImportedSkeleton::GetRootBone()
-{
-  return *mp_rootBone;
-}
-
-ImportedSkeleton::Bone& ImportedSkeleton::GetBone(const std::string& name)
-{
-  return m_bones.at(name);
-}
-
-const ImportedSkeleton::Bone& ImportedSkeleton::GetRootBone() const
-{
-  return *mp_rootBone;
-}
-
-const ImportedSkeleton::Bone& ImportedSkeleton::GetBone(const std::string& name) const
-{
-  return m_bones.at(name);
 }

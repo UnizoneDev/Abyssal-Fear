@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Models/MipMaker.h>
 #include <Engine/Models/ImportedMesh.h>
 #include <Engine/Models/ImportedSkeleton.h>
+#include <Engine/Models/ImportedSkeletalAnimation.h>
 #include <Engine/Math/Geometry.inl>
 #include <Engine/Models/Model_internal.h>
 #include <Engine/Base/Stream.h>
@@ -34,6 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 // Globally instanciated object containing routines for dealing with progres messages
 CProgressRoutines ProgresRoutines;
@@ -163,6 +165,100 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
       if (base_path[strlen(base_path) - 1] != '\\')
         strcat(base_path,"\\");
     }
+    else if (EQUAL_SUB_STR("SKELETAL_ANIMATION"))
+    {
+      if (strlen(ld_line) <= (strlen("SKELETAL_ANIMATION") + 1))
+      {
+        throw("You have to give descriptive name to every animation.");
+      }
+      COneAnim* oneAnim = new COneAnim;
+      _strupr(ld_line);
+      sscanf(ld_line, "SKELETAL_ANIMATION %s", oneAnim->oa_Name);
+
+      SLONG slLastPos;
+      std::string sourceFile;
+      std::string optAnimName;
+      std::string optRefSkeleton;
+      double optAnimDuration = 0.0;
+      size_t optNumFrames = 0;
+      FOREVER
+      {
+        slLastPos = File->GetPos_t();
+        File->GetLine_t(ld_line, 128);
+        _strupr(ld_line);
+        if (ld_line[0] == ';') continue;
+        // key words that start or end animations or empty line breaks frame reading
+        if ((EQUAL_SUB_STR("ANIMATION")) ||
+          (EQUAL_SUB_STR("SKELETAL_ANIMATION")) ||
+          (strlen(ld_line) == 0) ||
+          (EQUAL_SUB_STR("ANIM_END"))) break;
+
+        if (EQUAL_SUB_STR("SOURCE_FILE"))
+        {
+          sscanf(ld_line, "SOURCE_FILE %s", file_name);
+          sprintf(full_path, "%s%s", base_path, file_name);
+          sourceFile = full_path;
+        }
+        else if (EQUAL_SUB_STR("ANIM_NAME_IN_FILE"))
+        {
+          sscanf(ld_line, "ANIM_NAME_IN_FILE %s", file_name);
+          optAnimName = file_name;
+        }
+        else if (EQUAL_SUB_STR("ORIG_SKELETON"))
+        {
+          sscanf(ld_line, "ORIG_SKELETON %s", file_name);
+          sprintf(full_path, "%s%s", base_path, file_name);
+          optRefSkeleton = full_path;
+        }
+        else if (EQUAL_SUB_STR("DURATION"))
+        {
+          sscanf(ld_line, "DURATION %lf", &optAnimDuration);
+        }
+        else if (EQUAL_SUB_STR("NUM_FRAMES"))
+        {
+          sscanf(ld_line, "NUM_FRAMES %u", &optNumFrames);
+        }
+      }
+      File->SetPos_t(slLastPos);
+      if (sourceFile.empty())
+        ThrowF_t("Animation %s has no source file provided!\n'SOURCE_FILE <filename>' expected!", oneAnim->oa_Name);
+
+      auto importedAnimation = std::make_shared<ImportedSkeletalAnimation>(
+        CTFileName(CTString(sourceFile.c_str())),
+        optAnimName,
+        skeleton,
+        optNumFrames,
+        optAnimDuration);
+      if (!optRefSkeleton.empty())
+      {
+        ImportedSkeleton refSkeleton;
+        refSkeleton.FillFromFile(CTFileName(CTString(optRefSkeleton.c_str())));
+        importedAnimation->ReapplyByReference(refSkeleton);
+      }
+
+      oneAnim->oa_NumberOfFrames = importedAnimation->m_frames.size();
+      oneAnim->oa_SecsPerFrame = importedAnimation->m_duration / importedAnimation->m_frames.size();
+      oneAnim->oa_FrameIndices = (INDEX*)AllocMemory(oneAnim->oa_NumberOfFrames * sizeof(INDEX));
+
+      for (size_t frameIndex = 0; frameIndex < importedAnimation->m_frames.size(); ++frameIndex)
+      {
+        oneAnim->oa_FrameIndices[frameIndex] = frames.size();
+        frames.emplace_back();
+        auto& frame = frames.back();
+        frame.m_filename = sourceFile.c_str();
+        frame.m_generator = [&baseMesh, &skeleton, mStretch, importedAnimation, frameIndex](CObject3D& outObject)
+        {
+          auto skinnedMesh = baseMesh;
+          const auto& animSkeleton = importedAnimation->m_frames[frameIndex];
+          skinnedMesh.ApplySkinning(skeleton, animSkeleton, mStretch);
+          outObject.Clear();
+          outObject.FillFromMesh(skinnedMesh);
+        };
+      }
+
+      new COneAnimNode(oneAnim, &TempAnimationList);
+      ad.ad_NumberOfAnims++;
+    }
     // Key-word animation must follow its name (in same line),
     // its speed and its number of frames (new lines)
     else if (EQUAL_SUB_STR("ANIMATION"))
@@ -194,6 +290,7 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
         if (EQUAL_SUB_STR("FRAMES") || (ld_line[0] == ';')) continue;
         // key words that start or end animations or empty line breaks frame reading
         if ((EQUAL_SUB_STR("ANIMATION")) ||
+            (EQUAL_SUB_STR("SKELETAL_ANIMATION")) ||
             (strlen(ld_line) == 0) ||
             (EQUAL_SUB_STR("ANIM_END"))) break;
 
@@ -251,7 +348,7 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
           frames.emplace_back();
           auto& frame = frames.back();
           frame.m_filename = *itStrFrame;
-          frame.m_generator = [this, mStretch, filename = *itStrFrame](CObject3D& outObject)
+          frame.m_generator = [mStretch, filename = *itStrFrame](CObject3D& outObject)
           {
             outObject.Clear();
             outObject.FillFromMesh(ImportedMesh(filename, mStretch));
@@ -1208,14 +1305,10 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
     }
     else if (EQUAL_SUB_STR("SKELETON"))
     {
-      do
-      {
-        File.GetLine_t(ld_line, 128);
-      } while ((strlen(ld_line) == 0) || (ld_line[0] == ';'));
       _strupr(ld_line);
-      sscanf(ld_line, "%s", file_name);
+      sscanf(ld_line, "SKELETON %s", file_name);
       sprintf(full_path, "%s%s", base_path, file_name);
-      skeleton.FillFromFile(CTString(full_path), mStretch);
+      skeleton.FillFromFile(CTString(full_path));
     }
 		// Key-word "MipModel" must follow name of this mipmodel file
     else if( EQUAL_SUB_STR( "MIP_MODELS"))
@@ -1248,7 +1341,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 			  O3D.Clear();                            // clear possible existing O3D's data
         O3D.FillFromMesh(mesh);
         if (skeleton.Empty())
-          skeleton.FillFromFile(CTString(full_path), mStretch);
+          skeleton.FillFromFile(CTString(full_path));
         // If there are no vertices in model, call New Model and calculate UV mapping
 			  if( edm_md.md_VerticesCt == 0)					
 			  {
@@ -1724,14 +1817,10 @@ void CEditModel::UpdateAnimations_t(CTFileName &fnScriptName) // throw char *
     }
     else if (EQUAL_SUB_STR("SKELETON"))
     {
-      do
-      {
-        File.GetLine_t(ld_line, 128);
-      } while ((strlen(ld_line) == 0) || (ld_line[0] == ';'));
       _strupr(ld_line);
-      sscanf(ld_line, "%s", file_name);
+      sscanf(ld_line, "SKELETON %s", file_name);
       sprintf(full_path, "%s%s", base_path, file_name);
-      skeleton.FillFromFile(CTString(full_path), mStretch);
+      skeleton.FillFromFile(CTString(full_path));
     }
     // Key-word "MipModel" must follow name of this mipmodel file
     else if (EQUAL_SUB_STR("MIP_MODELS") && baseMesh.m_vertices.empty())

@@ -356,6 +356,7 @@ typedef Vector<PIX, 3>          PIX3D;
 typedef Vector<ANGLE, 3>        ANGLE3D;
 typedef Vector<FLOAT, 2>        FLOAT2D;
 typedef Vector<FLOAT, 3>        FLOAT3D;
+typedef Vector<FLOAT, 4>        FLOAT4D;
 typedef Vector<DOUBLE, 2>       DOUBLE2D;
 typedef Vector<DOUBLE, 3>       DOUBLE3D;
 
