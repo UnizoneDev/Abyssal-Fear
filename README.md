@@ -24,6 +24,7 @@ Skeletal animation import support in Serious Modeler
   <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/run_flesh.gif">
 </p>
 <p align="center">
+Same model with automatically generated triangles per each bone
   <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/run_bones.gif">
 </p>
 
