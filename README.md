@@ -4,6 +4,7 @@
 
 Enhanced and somewhat fixed version of engine tools (Modeler, World Editor)
 * Compatible with 1.07!
+* Serious Modeler can now import skeletal animations! (baked into vertex frame animation during the import for compatibility)
 * Added Property Tree for Serious Editor for more convenient workflow!
 * Updated version of `assimp`, more import formats are available!
 * Modeler upgrade to correctly read imported UV map without tears at seams (previously required creation of additional surfaces at seams to avoid that problem)
@@ -13,6 +14,18 @@ Enhanced and somewhat fixed version of engine tools (Modeler, World Editor)
 * World Editor bugfix to correctly display color selection window
 * New advanced UV mapping tools for World Editor
 
+<p align="center">
+Skeletal animation import support in Serious Modeler
+</p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/skel_anims.gif">
+</p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/run_flesh.gif">
+</p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/run_bones.gif">
+</p>
 
 <p align="center">
 New Property Tree in Serious Editor
