@@ -1314,6 +1314,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
   while (!File.AtEOF())
   {
     File.GetLine_t(ld_line, 128);
+    iLineChars = strlen(ld_line);
     if (iLineChars == 0)
       continue;
 
