@@ -19,6 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "stdafx.h"
 #include "DlgWorldSettings.h"
 
+#include <Engine/Models/ImportedMesh.h>
+
 #ifdef _DEBUG
 #undef new
 #define new DEBUG_NEW
@@ -184,7 +186,7 @@ void CDlgWorldSettings::DoDataExchange(CDataExchange* pDX)
         // load 3D object
         FLOATmatrix3D mStretch;
         mStretch.Diagonal(1.0f);
-        pDoc->m_o3dBackdropObject.LoadAny3DFormat_t( pDoc->m_woWorld.wo_strBackdropObject, mStretch);
+        pDoc->m_o3dBackdropObject.FillFromMesh(ImportedMesh(pDoc->m_woWorld.wo_strBackdropObject, mStretch));
       }
       // catch and
       catch( char *strError)

@@ -39,6 +39,44 @@ public:
 };
 
 /*
+ * One animation of an animateable object
+ */
+class COneAnim {
+public:
+  COneAnim();
+  ~COneAnim();
+  // copy constructor
+  COneAnim& operator=(const COneAnim& oaAnim);
+  NAME oa_Name;
+  TIME oa_SecsPerFrame;	    // speed of this animation
+  INDEX oa_NumberOfFrames;
+  INDEX* oa_FrameIndices;   // array of frame indices
+};
+
+/*
+ * Node used for linking ptrs to COneAnim objects while loading
+ * script file before turning them into an array
+ * Class is used only for loading script files
+ */
+class COneAnimNode
+{
+public:
+  ~COneAnimNode();
+  COneAnimNode(COneAnim* AnimToInsert, CListHead* LH);
+  CListNode coan_Node;
+  COneAnim* coan_OneAnim;
+};
+
+/*
+ * This temporary list head class is used for automatic deleting of temporary list on exit
+ */
+class CTmpListHead : public CListHead
+{
+public:
+  ~CTmpListHead();
+};
+
+/*
  * Node used for linking file names representing frames.
  * Nodes of this kind are returned result of LoadFromScript function.
  */

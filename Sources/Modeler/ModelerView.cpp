@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 //
 
 #include "stdafx.h"
+#include <Engine/Models/ImportedMesh.h>
 #include <Engine/Templates/Stock_CTextureData.h>
 
 #ifdef _DEBUG
@@ -3443,9 +3444,9 @@ void CModelerView::OnCreateMipModels()
     if( fnFrameFileName != "")
     {
       // load rest frame
-      objRestFrame.LoadAny3DFormat_t( CTString(achrRestFrameFullPath), mStretch);
+      objRestFrame.FillFromMesh(ImportedMesh(CTString(achrRestFrameFullPath), mStretch));
       // load mip source frame
-      objMipSourceFrame.LoadAny3DFormat_t( fnFrameFileName, mStretch);
+      objMipSourceFrame.FillFromMesh(ImportedMesh(fnFrameFileName, mStretch));
 
       // show progres dialog
       CRect rectMainFrameSize;

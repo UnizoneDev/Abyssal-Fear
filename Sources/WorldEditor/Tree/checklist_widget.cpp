@@ -89,6 +89,16 @@ QStandardItem* CheckListWidget::AddItem(const QString& label, const Qt::CheckSta
   return item;
 }
 
+bool CheckListWidget::event(QEvent* event)
+{
+  if (event->type() == QEvent::Wheel)
+  {
+    event->ignore();
+    return true;
+  }
+  return QComboBox::event(event);
+}
+
 bool CheckListWidget::eventFilter(QObject* object, QEvent* event)
 {
   if (object == lineEdit() && event->type() == QEvent::MouseButtonPress)

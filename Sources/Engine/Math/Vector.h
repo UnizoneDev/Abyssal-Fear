@@ -442,6 +442,15 @@ __forceinline Vector<Type, iDimensions> Vector<Type, iDimensions>::operator/(con
   return Vector<Type, iDimensions>(*this) /= scalar;
 }
 
+template<class Type, int iDimensions>
+__forceinline Vector<Type, iDimensions> VectorProduct(const Vector<Type, iDimensions>& v0, const Vector<Type, iDimensions>& v1)
+{
+  Vector<Type, iDimensions> result;
+  for (int i = 1; i <= iDimensions; ++i)
+    result(i) = v0(i) * v1(i);
+  return result;
+}
+
 
 /*
  * Multiplication of a vector by a square matrix.
@@ -463,6 +472,26 @@ __forceinline Vector<FLOAT,3> Vector<FLOAT,3>::operator*(const Matrix<FLOAT,3,3>
   result(1) = matrix2(1,1) * (*this)(1) + matrix2(1,2) * (*this)(2) + matrix2(1,3) * (*this)(3);
   result(2) = matrix2(2,1) * (*this)(1) + matrix2(2,2) * (*this)(2) + matrix2(2,3) * (*this)(3);
   result(3) = matrix2(3,1) * (*this)(1) + matrix2(3,2) * (*this)(2) + matrix2(3,3) * (*this)(3);
+  return result;
+}
+
+__forceinline Vector<FLOAT, 4> Vector<FLOAT, 4>::operator*(const Matrix<FLOAT, 4, 4>& matrix2) const
+{
+  Vector<FLOAT, 4> result;
+  result(1) = matrix2(1, 1) * (*this)(1) + matrix2(1, 2) * (*this)(2) + matrix2(1, 3) * (*this)(3) + matrix2(1, 4) * (*this)(4);
+  result(2) = matrix2(2, 1) * (*this)(1) + matrix2(2, 2) * (*this)(2) + matrix2(2, 3) * (*this)(3) + matrix2(2, 4) * (*this)(4);
+  result(3) = matrix2(3, 1) * (*this)(1) + matrix2(3, 2) * (*this)(2) + matrix2(3, 3) * (*this)(3) + matrix2(3, 4) * (*this)(4);
+  result(4) = matrix2(4, 1) * (*this)(1) + matrix2(4, 2) * (*this)(2) + matrix2(4, 3) * (*this)(3) + matrix2(4, 4) * (*this)(4);
+  return result;
+}
+
+__forceinline Vector<DOUBLE, 4> Vector<DOUBLE, 4>::operator*(const Matrix<DOUBLE, 4, 4>& matrix2) const
+{
+  Vector<DOUBLE, 4> result;
+  result(1) = matrix2(1, 1) * (*this)(1) + matrix2(1, 2) * (*this)(2) + matrix2(1, 3) * (*this)(3) + matrix2(1, 4) * (*this)(4);
+  result(2) = matrix2(2, 1) * (*this)(1) + matrix2(2, 2) * (*this)(2) + matrix2(2, 3) * (*this)(3) + matrix2(2, 4) * (*this)(4);
+  result(3) = matrix2(3, 1) * (*this)(1) + matrix2(3, 2) * (*this)(2) + matrix2(3, 3) * (*this)(3) + matrix2(3, 4) * (*this)(4);
+  result(4) = matrix2(4, 1) * (*this)(1) + matrix2(4, 2) * (*this)(2) + matrix2(4, 3) * (*this)(3) + matrix2(4, 4) * (*this)(4);
   return result;
 }
 

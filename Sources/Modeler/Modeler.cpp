@@ -253,6 +253,7 @@ BOOL CModelerApp::SubInitInstance()
 	//  of your final executable, you should remove from the following
 	//  the specific initialization routines you do not need.
 
+  CoInitialize(nullptr);
 #ifdef _AFXDLL
 	Enable3dControls();			// Call this when using MFC in a shared DLL
 #else
@@ -724,6 +725,7 @@ void CModelerApp::OnFilePreferences()
 
 int CModelerApp::ExitInstance() 
 {
+  CoUninitialize();
   m_Preferences.WriteToIniFile();
   WriteProfileInt(L"Display modes", L"SED Gfx API", m_iApi);
 	return CWinApp::ExitInstance();

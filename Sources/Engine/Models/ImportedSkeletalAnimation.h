@@ -13,33 +13,37 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#ifndef CHECKLIST_WIDGET_H
-#define CHECKLIST_WIDGET_H
+#ifndef IMPORTED_SKELETAL_ANIMATION_H
+#define IMPORTED_SKELETAL_ANIMATION_H
 
-#include <QComboBox>
-#include <QStandardItemModel>
-#include <QEvent>
+#include "ImportedSkeleton.h"
 
-#include <optional>
+#include <Engine/Base/Types.h>
+#include <Engine/Math/Vector.h>
 
-class CheckListWidget : public QComboBox
+#include <string>
+
+struct aiAnimation;
+
+struct ImportedSkeletalAnimation
 {
-  Q_OBJECT
 public:
-  explicit CheckListWidget(QWidget* parent = nullptr);
+  ImportedSkeletalAnimation(
+    const CTFileName& fileName,
+    const std::string& animName,
+    const ImportedSkeleton& skeleton,
+    size_t optNumFrames,
+    double optDuration);
 
-  QStandardItem* AddItem(const QString& label, const Qt::CheckState check_state, QVariant data);
+  void ReapplyByReference(const ImportedSkeleton& refSkeleton);
 
-  Q_SIGNAL void Changed();
+public:
+  double m_duration;
+  std::vector<ImportedSkeleton> m_frames;
+  ImportedSkeleton m_defaultPose;
 
 private:
-  std::optional<Qt::CheckState> _GlobalCheckState() const;
-  bool event(QEvent* event) override;
-  bool eventFilter(QObject* object, QEvent* event) override;
-  void _UpdateText();
-
-private:
-  QStandardItemModel m_model;
+  void ImportedSkeletalAnimation::BakeFrames(const aiAnimation& anim);
 };
 
 #endif

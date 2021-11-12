@@ -27,6 +27,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/StaticArray.h>
 #include <Engine/Models/RenderModel.h>
 
+#include <vector>
+#include <functional>
+
 #define MAX_MODELERTEXTURES		32
 #define MAPPING_VERSION_WITHOUT_POLYGONS_PER_SURFACE "0001"
 #define MAPPING_VERSION_WITHOUT_SOUNDS_AND_ATTACHMENTS "0002"
@@ -121,13 +124,23 @@ public:
   void Write_t( CTStream *strFile); // throw char *
 };
 
+struct ImportedMesh;
+struct ImportedSkeleton;
+
 class ENGINE_API CEditModel : public CSerial
 {
 private:
+  struct FrameGenerator
+  {
+    CTString m_filename;
+    std::function<void(CObject3D&)> m_generator;
+  };
+
  	void NewModel(CObject3D *pO3D);									// creates new model, surface, vertice and polygon arrays
-	void AddMipModel(CObject3D *pO3D);							// adds one mip model
+  void AddMipModel(CObject3D *pO3D);							// adds one mip model
   // loads and converts model's animation data from script file
-	void LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D &mStretch);	// throw char *
+  std::vector<FrameGenerator> LoadFrameGenerators(CAnimData& ad, CTStream* File, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch);
+  void LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch);	// throw char *
   INDEX edm_iActiveCollisionBox;                  // collision box that is currently edited
 public:
 	CEditModel();																		// default contructor

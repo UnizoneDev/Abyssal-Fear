@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "WorldEditorDoc.h"
 
 #include <Engine/Base/Profiling.h>
+#include <Engine/Models/ImportedMesh.h>
 #include <Engine/Build.h>
 #include <direct.h>
 
@@ -498,7 +499,7 @@ BOOL CWorldEditorDoc::OnOpenDocument(LPCTSTR lpszPathName)
       // load 3D lightwawe object
       FLOATmatrix3D mStretch;
       mStretch.Diagonal(1.0f);
-      m_o3dBackdropObject.LoadAny3DFormat_t( m_woWorld.wo_strBackdropObject, mStretch);
+      m_o3dBackdropObject.FillFromMesh(ImportedMesh(m_woWorld.wo_strBackdropObject, mStretch));
     }
     // catch and
     catch( char *strError)

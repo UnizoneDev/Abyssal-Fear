@@ -15,7 +15,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "StdH.h"
 #include <Engine/Templates/Stock_CTextureData.h>
-#include <Engine/Math/Object3D.h>
+#include <Engine/Models/ImportedMesh.h>
 
 // global engine gui handling object
 CEngineGUI _EngineGUI;
@@ -44,7 +44,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 std::vector<char> CEngineGUI::GetListOf3DFormats(bool include_scr)
 {
   std::vector<char> result;
-  auto add_filter = [&result](const CObject3D::TFormatDescr& descr)
+  auto add_filter = [&result](const ImportedMesh::TFormatDescr& descr)
   {
     for (char c : descr.first)
       result.push_back(c);
@@ -54,8 +54,8 @@ std::vector<char> CEngineGUI::GetListOf3DFormats(bool include_scr)
     result.push_back('\0');
   };
 
-  const auto& formats = CObject3D::GetSupportedFormats();
-  CObject3D::TFormatDescr all_supported_formats;
+  const auto& formats = ImportedMesh::GetSupportedFormats();
+  ImportedMesh::TFormatDescr all_supported_formats;
   all_supported_formats.first = "All supported formats";
   for (const auto& format : formats)
   {
