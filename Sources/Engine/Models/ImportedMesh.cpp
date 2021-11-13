@@ -241,16 +241,40 @@ ImportedMesh::ImportedMesh(const CTFileName& fnmFileName, const FLOATmatrix3D& m
 
 void ImportedMesh::ApplySkinning(const ImportedSkeleton& baseSkeleton, const ImportedSkeleton& animSkeleton, const FLOATmatrix3D& mTransform)
 {
+  struct _TransformsCache
+  {
+  public:
+    const FLOATmatrix4D& GetAbsoluteTransform(const ImportedSkeleton::Bone& bone) const
+    {
+      auto foundPos = m_transforms.find(&bone);
+      if (foundPos != m_transforms.end())
+        return foundPos->second;
+      return m_transforms.insert({ &bone, bone.GetAbsoluteTransform() }).first->second;
+    }
+    const FLOATmatrix4D& GetInverseAbsoluteTransform(const ImportedSkeleton::Bone& bone) const
+    {
+      auto foundPos = m_inverseTransforms.find(&bone);
+      if (foundPos != m_inverseTransforms.end())
+        return foundPos->second;
+      return m_inverseTransforms.insert({ &bone, InverseMatrix(bone.GetAbsoluteTransform()) }).first->second;
+    }
+  private:
+    mutable std::unordered_map<const ImportedSkeleton::Bone*, FLOATmatrix4D> m_transforms;
+    mutable std::unordered_map<const ImportedSkeleton::Bone*, FLOATmatrix4D> m_inverseTransforms;
+  };
+  _TransformsCache transformCache;
+
+  const auto inverseMeshTransform = InverseMatrix(mTransform);
   for (size_t v = 0; v < m_vertices.size(); ++v)
   {
-    auto& vtx3D = m_vertices[v];
-    auto vtxUnTransformed = FLOAT3D(-vtx3D(1), vtx3D(2), -vtx3D(3)) * InverseMatrix(mTransform);
-    const FLOAT4D vertex(vtxUnTransformed(1), vtxUnTransformed(2), vtxUnTransformed(3), 1.0f);
-    FLOAT4D result(0, 0, 0, 0);
-
     const auto& weights = m_verticeWeights[v];
     if (weights.empty())
       continue;
+    auto& vtx3D = m_vertices[v];
+    auto vtxUnTransformed = FLOAT3D(-vtx3D(1), vtx3D(2), -vtx3D(3)) * inverseMeshTransform;
+    const FLOAT4D vertex(vtxUnTransformed(1), vtxUnTransformed(2), vtxUnTransformed(3), 1.0f);
+    FLOAT4D result(0, 0, 0, 0);
+
     for (const auto& weight : weights)
     {
       const auto& boneName = m_bonesNames[weight.first];
@@ -259,7 +283,7 @@ void ImportedMesh::ApplySkinning(const ImportedSkeleton& baseSkeleton, const Imp
         continue;
       const auto& baseBone = baseIt->second;
       const auto& animBone = animSkeleton.m_bones.find(boneName)->second;
-      const FLOATmatrix4D transform = animBone.GetAbsoluteTransform() * InverseMatrix(baseBone.GetAbsoluteTransform());
+      const FLOATmatrix4D transform = transformCache.GetAbsoluteTransform(animBone) * transformCache.GetInverseAbsoluteTransform(baseBone);
       result += (vertex * transform) * weight.second;
     }
 

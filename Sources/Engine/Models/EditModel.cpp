@@ -500,7 +500,8 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
   }
 
 	INDEX iO3D = 0;                        // index used for progress dialog
-  CStaticStackArray<FLOAT3D> avVertices; // for caching all vertices in all frames
+  std::vector<FLOAT3D> avVertices; // for caching all vertices in all frames
+  avVertices.reserve(baseMesh.m_vertices.size() * frameGenerators.size());
 
   BOOL bOrigin = FALSE;
   FLOATmatrix3D mOrientation;
@@ -549,7 +550,8 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
         vVtx *= mOrientation;
       }
       OneFrameBB |= FLOATaabbox3D(vVtx);
-      avVertices.Push() = vVtx;  // cache vertex
+      avVertices.emplace_back();
+      avVertices.back() = vVtx;  // cache vertex
     }
 		OB3D.ob_aoscSectors[0].UnlockAll();
     // remember this frame's Bounding Box
