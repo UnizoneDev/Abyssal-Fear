@@ -29,6 +29,7 @@ public:
   CMipPolygonVertex *mpv_pmpvNextInPolygon;
   class CMipPolygon *mpv_pmpPolygon;
   class CMipVertex *mpv_pmvVertex;
+  FLOAT2D m_uv;
   inline void Clear(void) {};
 };
 

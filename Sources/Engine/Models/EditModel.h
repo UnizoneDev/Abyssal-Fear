@@ -161,23 +161,12 @@ public:
   // creates default script file
   void CreateScriptFile_t(CTFileName &fnFile);	  // throw char *
   // creates mip-model and mapping default constructios after it loads data from script
-	void LoadFromScript_t(CTFileName &fnFileName); // throw char *
-  // recalculate mapping for surface after some polygon has been added to surface
-  void RecalculateSurfaceMapping( INDEX iMipModel, INDEX iSurface);
-  // functions for extracting texture vertex links for given mip model
-  void CalculateSurfaceCenterOffset( INDEX iCurrentMip, INDEX iSurface);
-  void RemapTextureVerticesForSurface(INDEX iMip, INDEX iSurface, BOOL bJustCount);
-  void RemapTextureVertices( INDEX iCurrentMip);
-  // calculates mapping for mip models (except for main mip)
-  void CalculateMappingForMips(void);
+  void LoadFromScript_t(CTFileName &fnFileName); // throw char *
   // updates animations
   void UpdateAnimations_t(CTFileName &fnScriptName);	// throw char *
   // updates mip models configuration, looses their mapping !
-	void UpdateMipModels_t(CTFileName &fnScriptName); // throw char *
+  void UpdateMipModels_t(CTFileName &fnScriptName); // throw char *
   void CreateMipModels_t(const ImportedMesh& baseMesh, INDEX iVertexRemoveRate, INDEX iSurfacePreservingFactor);
-	void DefaultMapping( INDEX iCurrentMip, INDEX iSurface=-1);// sets default mapping for given mip-model and surface (or all surfaces -1)
-  void CalculateMapping( INDEX iCurrentMip, INDEX iSurfaceNo); // calculate mapping coordinates
-  void CalculateMappingAll( INDEX iCurrentMip);
   void DrawWireSurface( CDrawPort *pDP, INDEX iCurrentMip, INDEX iCurrentSurface,
        FLOAT fMagnifyFactor, PIX offx, PIX offy, COLOR clrVisible, COLOR clrInvisible); // draws given surface in wire frame
   void DrawFilledSurface( CDrawPort *pDP, INDEX iCurrentMip, INDEX iCurrentSurface,
@@ -185,31 +174,10 @@ public:
   void PrintSurfaceNumbers( CDrawPort *pDP, CFontData *pFont, INDEX iCurrentMip,
        FLOAT fMagnifyFactor, PIX offx, PIX offy, COLOR clrInk); // prints surface numbers
   void ExportSurfaceNumbersAndNames( CTFileName fnFile);
-  void GetScreenSurfaceCenter( CDrawPort *pDP, INDEX iCurrentMip,
-       INDEX iCurrentSurface, FLOAT fMagnifyFactor, PIX offx, PIX offy,
-       PIX &XCenter, PIX &YCenter); // Calculates given surface's center point in view's window (in pixels)
-  FLOATaabbox3D CalculateSurfaceBBox( INDEX iCurrentMip, // used to calculate mapping coordinate's bbox
-        INDEX iSurfaceNo, FLOAT3D f3Position, FLOAT3D f3Angle, FLOAT fZoom);
-  void CalculateMapping();                        // used to calculate mapping coordinates
-  BOOL ChangeSurfacePositionRelative( INDEX iCurrentMip, INDEX iCurrentSurface, FLOAT fDZoom,
-         FLOAT dX, FLOAT dY, PIX dTH, PIX dTV);   // if it can, sets surface position with given offseted values
-  BOOL ChangeSurfacePositionAbsolute( INDEX iCurrentMip, INDEX iCurrentSurface,
-         FLOAT newZoom, FLOAT3D newCenter, FLOAT3D newAngle); // if it can, sets surface position to given values
-  void RememberSurfaceUndo( INDEX iCurrentMip, INDEX iCurrentSurface);   // remember undo position
-  ModelTextureVertex *FindClosestMappingVertex( INDEX iCurrentMip, INDEX iCurrentSurface,
-    PIX ptx, PIX pty, FLOAT fMagnifyFactor, PIX offx, PIX offy);// finds closest point and returns it
-  void MoveVertex( ModelTextureVertex *pmtvClosestVertex, PIX dx, PIX dy, INDEX iCurrentMip, INDEX iCurrentSurface); // try new vertex position
-  void RememberVertexUndo( ModelTextureVertex *pmtvClosestVertex);// remember coordinate change into undo buffer
   // add one texture to list of working textures
   CTextureDataInfo *AddTexture_t(const CTFileName &fnFileName, const MEX mexWidth,
         const MEX mexHeight); // throw char *
-  FLOAT3D GetSurfacePos(INDEX iCurrentMip, INDEX iCurrentSurface); // Retrieves given surface's position
-  FLOAT3D GetSurfaceAngles(INDEX iCurrentMip, INDEX iCurrentSurface); // Retrieves given surface's angles
-  FLOAT GetSurfaceZoom(INDEX iCurrentMip, INDEX iCurrentSurface); // Retrieves given surface's zoom factor
   const char *GetSurfaceName(INDEX iCurrentMip, INDEX iCurrentSurface); // Retrieves given surface's name
-  void Undo(void); // Undoes last operation
-  void Redo(void); // Redoes last operation
-	void RemoveTexture(char *pFileName);						// removes one of working textures in modeler app
   void MovePatchRelative( INDEX iMaskBit, MEX2D mexOffset);
   void SetPatchStretch( INDEX iMaskBit, FLOAT fNewStretch);
   BOOL EditAddPatch( CTFileName fnPatchName, MEX2D mexPos, INDEX &iMaskBit); // Adds one patch

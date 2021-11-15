@@ -1526,8 +1526,6 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
     (void)strError;
   }
 
-  CalculateMappingForMips();
-
   File.Close();
 
   if( edm_aasAttachedSounds.Count() == 0)
@@ -1656,6 +1654,7 @@ void CEditModel::AddMipModel(const ImportedMesh& mesh)
     ms.ms_ulRenderingFlags = SRF_DIFFUSE|SRF_NEW_TEXTURE_FORMAT;
   }
 
+
   struct VertexRemap
   {
     FLOAT2D uv;
@@ -1687,7 +1686,6 @@ void CEditModel::AddMipModel(const ImportedMesh& mesh)
     for (size_t e = 0; e < 3; ++e)
     {
       FLOAT2D vtxUV(mesh.m_uvs[0][triangle.ct_iTVtx[0][e]]);
-      vtxUV(2) *= -1.0f;
 
       VertexRemap vertex_remap{ vtxUV, triangle.ct_iMaterial, triangle.ct_iVtx[e] };
       auto found_pos = uniqueTexCoords.find(vertex_remap);
@@ -1713,7 +1711,7 @@ void CEditModel::AddMipModel(const ImportedMesh& mesh)
     uv_coord(1) *= edm_md.md_Width / 1024.0f;
     uv_coord(2) *= edm_md.md_Height / 1024.0f;
 
-    pmmpi->mmpi_TextureVertices[i].mtv_UVW = FLOAT3D(uv_coord(1), -uv_coord(2), 0.0f);
+    pmmpi->mmpi_TextureVertices[i].mtv_UVW = FLOAT3D(uv_coord(1), uv_coord(2), 0.0f);
     MEX2D mexUV;
     mexUV(1) = MEX_METERS(pmmpi->mmpi_TextureVertices[i].mtv_UVW(1));
     mexUV(2) = MEX_METERS(pmmpi->mmpi_TextureVertices[i].mtv_UVW(2));
@@ -1751,88 +1749,6 @@ void CEditModel::AddMipModel(const ImportedMesh& mesh)
   }
 
   edm_md.md_MipCt ++;  // finally, this mip-model is done.
-}
-
-//----------------------------------------------------------------------------------------------
-/*
- * Routine calculate mapping for mip models (except for main mip)
- */
-void CEditModel::CalculateMappingForMips( void)
-{
-  // for each mip model except first
-  for( INDEX iCurMip = 1; iCurMip< edm_md.md_MipCt; iCurMip++)
-  {
-    // get current mip model
-    struct ModelMipInfo *pMMICur = &edm_md.md_MipInfos[ iCurMip];
-    // get previous mip model
-    struct ModelMipInfo *pMMIPrev = &edm_md.md_MipInfos[ iCurMip-1];
-    // for each surface in current mip model
-    for( INDEX iSurfaceCur = 0; iSurfaceCur < pMMICur->mmpi_MappingSurfaces.Count(); iSurfaceCur++)
-    {
-      MappingSurface *pmsSurfCur = &pMMICur->mmpi_MappingSurfaces[iSurfaceCur];
-      // for each texture vertex in surface
-      for(INDEX iSurfCurTV=0; iSurfCurTV<pmsSurfCur->ms_aiTextureVertices.Count(); iSurfCurTV++)
-      {
-        INDEX iCurGlobalTV = pmsSurfCur->ms_aiTextureVertices[iSurfCurTV];
-        ModelTextureVertex *pmtvCur = &pMMICur->mmpi_TextureVertices[iCurGlobalTV];
-        // obtain index of model vertex
-        INDEX iCurMV = pmtvCur->mtv_iTransformedVertex;
-        
-        // get 3D coordinate of vertex from main mip
-        FLOAT3D vMainMipCoordCur = edm_md.md_MainMipVertices[ iCurMV];
-
-        // -------- Find closest vertex (using 3D coordinate) in previous mip
- 
-        // in previous mip model find surface with same name
-        MappingSurface *pmsSurfPrev = NULL;
-        for( INDEX iSurfacePrev = 0; iSurfacePrev < pMMIPrev->mmpi_MappingSurfaces.Count(); iSurfacePrev++)
-        {
-          pmsSurfPrev = &pMMIPrev->mmpi_MappingSurfaces[iSurfacePrev];
-          if( pmsSurfCur->ms_Name == pmsSurfPrev->ms_Name)
-          {
-            break;
-          }
-        }
-          
-        // new surfaces can't appear 
-        ASSERT(pmsSurfPrev != NULL);
-        if( pmsSurfPrev == NULL)
-        {
-          WarningMessage( "Mip model %d has surface that does not exist in previous mip. That is not allowed.", iCurMip);
-          break;
-        }
-
-        // set hudge distance as current minimum
-        FLOAT fMinDistance = 99999999.0f;
-        ModelTextureVertex *pmtvClosestPrev = NULL;
-
-        // for each texture vertex in previous mip's surface with same name
-        for(INDEX iSurfPrevTV=0; iSurfPrevTV<pmsSurfPrev->ms_aiTextureVertices.Count(); iSurfPrevTV++)
-        {
-          INDEX iPrevGlobalTV = pmsSurfPrev->ms_aiTextureVertices[iSurfPrevTV];
-          ModelTextureVertex *pmtvPrev = &pMMIPrev->mmpi_TextureVertices[iPrevGlobalTV];
-          // obtain index of model vertex
-          INDEX iPrevMV = pmtvPrev->mtv_iTransformedVertex;
-          // get 3D coordinate of vertex from main mip
-          FLOAT3D vMainMipCoordPrev = edm_md.md_MainMipVertices[ iPrevMV];
-          // get distance of these two vertices
-          FLOAT fAbsoluteDistance = Abs( (vMainMipCoordPrev - vMainMipCoordCur).Length());
-          if( fAbsoluteDistance < fMinDistance)
-          {
-            // remember current texture vertex as closest one
-            fMinDistance = fAbsoluteDistance;
-            pmtvClosestPrev = pmtvPrev;
-          }
-        }
-        ASSERT( pmtvClosestPrev != NULL);
-        // copy mapping coordinates from closest mapping vertex in previous mip
-        pmtvCur->mtv_UVW = pmtvClosestPrev->mtv_UVW;
-        pmtvCur->mtv_UV  = pmtvClosestPrev->mtv_UV;
-        pmtvCur->mtv_vU  = pmtvClosestPrev->mtv_vU;
-        pmtvCur->mtv_vV  = pmtvClosestPrev->mtv_vV;
-      }
-    }
-  }
 }
 
 /*
@@ -1957,7 +1873,6 @@ void CEditModel::CreateMipModels_t(const ImportedMesh& baseMesh, INDEX iVertexRe
   ProgresRoutines.SetProgressState(ctVerticesInRestFrame);
   edm_md.SpreadMipSwitchFactors( 0, 5.0f);
   edm_md.LinkDataForSurfaces(FALSE);
-  CalculateMappingForMips();
 }
 //----------------------------------------------------------------------------------------------
 /*

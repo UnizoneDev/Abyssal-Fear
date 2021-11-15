@@ -23,9 +23,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/DynamicArray.cpp>
 #include <Engine/Templates/DynamicContainer.cpp>
 
+#include <unordered_map>
+
 // if vertex removing should occure only inside surfaces
 static BOOL _bPreserveSurfaces;
-
 
 CMipModel::~CMipModel()
 {
@@ -91,11 +92,14 @@ ImportedMesh CMipModel::GetMesh()
     iMaterial ++;
   }
 
+  std::unordered_map<FLOAT2D, INDEX, FLOAT2D::Hasher> texCoordsRemap;
+
   // add polygons to object 3d
   FOREACHINDYNAMICARRAY( mm_ampPolygons, CMipPolygon, itPolygon)
   {
     // prepare array of polygon vertex indices
-    INDEX aivVertices[ 32];
+    INDEX aivVertices[32];
+    INDEX texCoords[32];
     CMipPolygonVertex *pmpvPolygonVertex = itPolygon->mp_pmpvFirstPolygonVertex;
     INDEX ctPolygonVertices = 0;
     do
@@ -103,6 +107,20 @@ ImportedMesh CMipModel::GetMesh()
       ASSERT( ctPolygonVertices<32);
       if( ctPolygonVertices >= 32) break;
       // add global index of vertex to list of vertex indices of polygon
+      INDEX texCoordIndex;
+      FLOAT2D vtxUV = pmpvPolygonVertex->m_uv;
+      auto foundPos = texCoordsRemap.find(vtxUV);
+      if (foundPos != texCoordsRemap.end())
+      {
+        texCoordIndex = foundPos->second;
+      }
+      else
+      {
+        texCoordIndex = mesh.m_uvs[0].size();
+        mesh.m_uvs[0].push_back(vtxUV);
+        texCoordsRemap[vtxUV] = texCoordIndex;
+      }
+      texCoords[ctPolygonVertices] = texCoordIndex;
       mm_amvVertices.Lock();
       aivVertices[ ctPolygonVertices] =
         mm_amvVertices.Index( pmpvPolygonVertex->mpv_pmvVertex);
@@ -118,15 +136,13 @@ ImportedMesh CMipModel::GetMesh()
       triangle.ct_iVtx[0] = aivVertices[0];
       triangle.ct_iVtx[1] = aivVertices[i - 1];
       triangle.ct_iVtx[2] = aivVertices[i];
+      triangle.ct_iTVtx[0][0] = texCoords[0];
+      triangle.ct_iTVtx[0][1] = texCoords[i - 1];
+      triangle.ct_iTVtx[0][2] = texCoords[i];
       triangle.ct_iMaterial = itPolygon->mp_iSurface;
-      for (size_t uv = 0; uv < 3; ++uv)
-        for (size_t j = 0; j < 3; ++j)
-          triangle.ct_iTVtx[uv][j] = 0;
       mesh.m_triangles.push_back(triangle);
     }
   }
-  for (size_t uv = 0; uv < 3; ++uv)
-    mesh.m_uvs[uv].push_back(FLOAT2D(0, 0));
 
   return mesh;
 }
@@ -187,6 +203,7 @@ CMipModel::CMipModel(const ImportedMesh& mesh)
       INDEX iVertexInSector = triangle.ct_iVtx[iPolygonVertice];
       // set references to mip polygon and mip vertex
       ppvPolygonVertex->mpv_pmpPolygon = &mpPolygon;
+      ppvPolygonVertex->m_uv = mesh.m_uvs[0][triangle.ct_iTVtx[0][iPolygonVertice]];
       mm_amvVertices.Lock();
       ppvPolygonVertex->mpv_pmvVertex = &mm_amvVertices[iVertexInSector];
       mm_amvVertices.Unlock();
