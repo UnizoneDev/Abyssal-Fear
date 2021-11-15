@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #endif
 
 #include <Engine/Base/CTString.h>
-#include <Engine/Math/Object3D.h>
+#include <Engine/Models/ImportedMesh.h>
 #include <Engine/Math/AABBox.h>
 #include <Engine/Templates/DynamicArray.h>
 
@@ -29,6 +29,7 @@ public:
   CMipPolygonVertex *mpv_pmpvNextInPolygon;
   class CMipPolygon *mpv_pmpPolygon;
   class CMipVertex *mpv_pmvVertex;
+  FLOAT2D m_uv;
   inline void Clear(void) {};
 };
 
@@ -65,9 +66,9 @@ public:
   CDynamicArray< CMipPolygon> mm_ampPolygons;
   CDynamicArray< CMipVertex> mm_amvVertices;
   FLOATaabbox3D mm_boxBoundingBox;
-  void FromObject3D_t( CObject3D &objRestFrame, CObject3D &objMipSourceFrame);
-  void ToObject3D( CObject3D &objDestination);
-  
+  ImportedMesh GetMesh();
+
+  explicit CMipModel(const ImportedMesh& mesh);
   ~CMipModel();
   BOOL CreateMipModel_t(INDEX iVetexRemoveRate, INDEX iSurfacePreservingFactor);
   INDEX FindSurfacesForVertices(void);

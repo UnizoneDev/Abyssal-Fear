@@ -23,9 +23,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/DynamicArray.cpp>
 #include <Engine/Templates/DynamicContainer.cpp>
 
+#include <unordered_map>
+
 // if vertex removing should occure only inside surfaces
 static BOOL _bPreserveSurfaces;
-
 
 CMipModel::~CMipModel()
 {
@@ -68,38 +69,37 @@ void CMipPolygon::Clear()
   mp_pmpvFirstPolygonVertex = NULL;
 }
 
-void CMipModel::ToObject3D( CObject3D &objDestination)
+ImportedMesh CMipModel::GetMesh()
 {
-  // add one sector
-  CObjectSector *pOS = objDestination.ob_aoscSectors.New(1);
+  ImportedMesh mesh;
   // add vertices to sector
-  pOS->osc_aovxVertices.New( mm_amvVertices.Count());
-  pOS->osc_aovxVertices.Lock();
+  mesh.m_vertices.resize(mm_amvVertices.Count(), FLOAT3D(0, 0, 0));
   INDEX iVertice = 0;
   FOREACHINDYNAMICARRAY( mm_amvVertices, CMipVertex, itVertice)
   {
     FLOAT3D vRestFrame = itVertice->mv_vRestFrameCoordinate;
-    pOS->osc_aovxVertices[ iVertice] = FLOATtoDOUBLE( vRestFrame);
+    mesh.m_vertices[ iVertice] = vRestFrame;
     iVertice++;
   }
 
   // add mip surfaces as materials to object 3d
-  pOS->osc_aomtMaterials.New( mm_amsSurfaces.Count());
-  pOS->osc_aomtMaterials.Lock();
+  mesh.m_materials.resize(mm_amsSurfaces.Count(), ImportedMesh::Material{});
   INDEX iMaterial = 0;
   FOREACHINDYNAMICARRAY( mm_amsSurfaces, CMipSurface, itSurface)
   {
-    pOS->osc_aomtMaterials[ iMaterial].omt_Name = itSurface->ms_strName;
-    pOS->osc_aomtMaterials[ iMaterial].omt_Color = itSurface->ms_colColor;
+    mesh.m_materials[ iMaterial].cm_strName = itSurface->ms_strName;
+    mesh.m_materials[ iMaterial].cm_colColor = itSurface->ms_colColor;
     iMaterial ++;
   }
 
+  std::unordered_map<FLOAT2D, INDEX, FLOAT2D::Hasher> texCoordsRemap;
 
   // add polygons to object 3d
   FOREACHINDYNAMICARRAY( mm_ampPolygons, CMipPolygon, itPolygon)
   {
     // prepare array of polygon vertex indices
-    INDEX aivVertices[ 32];
+    INDEX aivVertices[32];
+    INDEX texCoords[32];
     CMipPolygonVertex *pmpvPolygonVertex = itPolygon->mp_pmpvFirstPolygonVertex;
     INDEX ctPolygonVertices = 0;
     do
@@ -107,6 +107,20 @@ void CMipModel::ToObject3D( CObject3D &objDestination)
       ASSERT( ctPolygonVertices<32);
       if( ctPolygonVertices >= 32) break;
       // add global index of vertex to list of vertex indices of polygon
+      INDEX texCoordIndex;
+      FLOAT2D vtxUV = pmpvPolygonVertex->m_uv;
+      auto foundPos = texCoordsRemap.find(vtxUV);
+      if (foundPos != texCoordsRemap.end())
+      {
+        texCoordIndex = foundPos->second;
+      }
+      else
+      {
+        texCoordIndex = mesh.m_uvs[0].size();
+        mesh.m_uvs[0].push_back(vtxUV);
+        texCoordsRemap[vtxUV] = texCoordIndex;
+      }
+      texCoords[ctPolygonVertices] = texCoordIndex;
       mm_amvVertices.Lock();
       aivVertices[ ctPolygonVertices] =
         mm_amvVertices.Index( pmpvPolygonVertex->mpv_pmvVertex);
@@ -115,101 +129,94 @@ void CMipModel::ToObject3D( CObject3D &objDestination)
       ctPolygonVertices ++;
     }
     while( pmpvPolygonVertex != itPolygon->mp_pmpvFirstPolygonVertex);
-    // add current polygon
-    pOS->CreatePolygon( ctPolygonVertices, aivVertices,
-                        pOS->osc_aomtMaterials[ itPolygon->mp_iSurface], 0, FALSE);
+    // add current polygon splitted to triangles
+    for (size_t i = 2; i < ctPolygonVertices; ++i)
+    {
+      ImportedMesh::Triangle triangle;
+      triangle.ct_iVtx[0] = aivVertices[0];
+      triangle.ct_iVtx[1] = aivVertices[i - 1];
+      triangle.ct_iVtx[2] = aivVertices[i];
+      triangle.ct_iTVtx[0][0] = texCoords[0];
+      triangle.ct_iTVtx[0][1] = texCoords[i - 1];
+      triangle.ct_iTVtx[0][2] = texCoords[i];
+      triangle.ct_iMaterial = itPolygon->mp_iSurface;
+      mesh.m_triangles.push_back(triangle);
+    }
   }
-  pOS->osc_aomtMaterials.Unlock();
-  pOS->osc_aovxVertices.Unlock();
+
+  return mesh;
 }
 
-void CMipModel::FromObject3D_t( CObject3D &objRestFrame, CObject3D &objMipSourceFrame)
+CMipModel::CMipModel(const ImportedMesh& mesh)
 {
   INDEX ctInvalidVertices = 0;
   CTString strInvalidVertices;
   char achrErrorVertice[ 256];
-  objMipSourceFrame.ob_aoscSectors.Lock();
-  objRestFrame.ob_aoscSectors.Lock();
-  // lock object sectors dynamic array
-  objMipSourceFrame.ob_aoscSectors[0].LockAll();
-  objRestFrame.ob_aoscSectors[0].LockAll();
 
-  CObjectSector *pOS = &objMipSourceFrame.ob_aoscSectors[0];
   // add mip surface
-  mm_amsSurfaces.New( pOS->osc_aomtMaterials.Count());
+  mm_amsSurfaces.New(mesh.m_materials.size());
   // copy material data from object 3d to mip surfaces
   INDEX iMaterial = 0;
   FOREACHINDYNAMICARRAY( mm_amsSurfaces, CMipSurface, itSurface)
   {
-    itSurface->ms_strName = pOS->osc_aomtMaterials[ iMaterial].omt_Name;
-    itSurface->ms_colColor = pOS->osc_aomtMaterials[ iMaterial].omt_Color;
+    itSurface->ms_strName =mesh.m_materials[iMaterial].cm_strName;
+    itSurface->ms_colColor =mesh.m_materials[iMaterial].cm_colColor;
     iMaterial ++;
   }
 
   // add mip vertices
-  mm_amvVertices.New( pOS->osc_aovxVertices.Count());
+  mm_amvVertices.New(mesh.m_vertices.size());
   // copy vertice coordinates from object3d to mip vertices
   INDEX iVertice = 0;
   {FOREACHINDYNAMICARRAY( mm_amvVertices, CMipVertex, itVertice)
   {
-    (FLOAT3D &)(*itVertice) = DOUBLEtoFLOAT( pOS->osc_aovxVertices[ iVertice]);
-    itVertice->mv_vRestFrameCoordinate =
-      DOUBLEtoFLOAT( objRestFrame.ob_aoscSectors[0].osc_aovxVertices[ iVertice]);
+    const FLOAT3D vertex = mesh.m_vertices[iVertice];
+    (FLOAT3D &)(*itVertice) = vertex;
+    itVertice->mv_vRestFrameCoordinate = vertex;
     // calculate bounding box of all vertices
     mm_boxBoundingBox |= *itVertice;
     iVertice++;
   }}
 
   // add mip polygons
-  mm_ampPolygons.New( pOS->osc_aopoPolygons.Count());
+  mm_ampPolygons.New(mesh.m_triangles.size());
   // copy polygons object 3d to mip polygons
   INDEX iPolygon = 0;
   FOREACHINDYNAMICARRAY( mm_ampPolygons, CMipPolygon, itPolygon)
   {
-    CObjectPolygon &opoPolygon = pOS->osc_aopoPolygons[ iPolygon];
+    const ImportedMesh::Triangle& triangle = mesh.m_triangles[iPolygon];
     CMipPolygon &mpPolygon = itPolygon.Current();
-    INDEX ctPolygonVertices = opoPolygon.opo_PolygonEdges.Count();
     // allocate polygon vertices
-    CMipPolygonVertex *ppvPolygonVertices[ 32];
+    CMipPolygonVertex *ppvPolygonVertices[3];
     INDEX iPolygonVertice=0;
-    for( ; iPolygonVertice<ctPolygonVertices; iPolygonVertice++)
+    for( ; iPolygonVertice<3; iPolygonVertice++)
     {
       // allocate one polygon vertex
       ppvPolygonVertices[ iPolygonVertice] = new( CMipPolygonVertex);
     }
 
-    opoPolygon.opo_PolygonEdges.Lock();
     // for each polygon vertex in the polygon
-    for( iPolygonVertice=0; iPolygonVertice<ctPolygonVertices; iPolygonVertice++)
+    for( iPolygonVertice=0; iPolygonVertice<3; iPolygonVertice++)
     {
       CMipPolygonVertex *ppvPolygonVertex = ppvPolygonVertices[ iPolygonVertice];
       // get the object vertex as first vertex of the edge
-      CObjectVertex *povxStart, *povxEnd;
-      opoPolygon.opo_PolygonEdges[iPolygonVertice].GetVertices( povxStart, povxEnd);
-      INDEX iVertexInSector = pOS->osc_aovxVertices.Index( povxStart);
+      INDEX iVertexInSector = triangle.ct_iVtx[iPolygonVertice];
       // set references to mip polygon and mip vertex
       ppvPolygonVertex->mpv_pmpPolygon = &mpPolygon;
+      ppvPolygonVertex->m_uv = mesh.m_uvs[0][triangle.ct_iTVtx[0][iPolygonVertice]];
       mm_amvVertices.Lock();
       ppvPolygonVertex->mpv_pmvVertex = &mm_amvVertices[iVertexInSector];
       mm_amvVertices.Unlock();
       // link to previous and next vertices in the mip polygon
-      INDEX iNext=(iPolygonVertice+1)%ctPolygonVertices;
+      INDEX iNext=(iPolygonVertice+1)%3;
       ppvPolygonVertex->mpv_pmpvNextInPolygon = ppvPolygonVertices[ iNext];
     }
-    opoPolygon.opo_PolygonEdges.Unlock();
 
     // set first polygon vertex ptr and surface index to polygon
     itPolygon->mp_pmpvFirstPolygonVertex = ppvPolygonVertices[ 0];
-    itPolygon->mp_iSurface =
-      pOS->osc_aomtMaterials.Index( opoPolygon.opo_Material);
+    itPolygon->mp_iSurface = triangle.ct_iMaterial;
     iPolygon++;
   }
-
-	objRestFrame.ob_aoscSectors[0].UnlockAll();
-  // unlock all dynamic arrays in sector
-	objMipSourceFrame.ob_aoscSectors[0].UnlockAll();
-  objRestFrame.ob_aoscSectors.Unlock();
-  objMipSourceFrame.ob_aoscSectors.Unlock();
 
   if( ctInvalidVertices != 0)
   {

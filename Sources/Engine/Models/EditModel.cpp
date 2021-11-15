@@ -43,8 +43,8 @@ CProgressRoutines ProgresRoutines;
 // constants important to this module
 #define MAX_ALLOWED_DISTANCE 0.0001f
 
-#define	PC_ALLWAYS_ON (1UL << 30)
-#define	PC_ALLWAYS_OFF (1UL << 31)
+#define  PC_ALLWAYS_ON (1UL << 30)
+#define  PC_ALLWAYS_OFF (1UL << 31)
 
 
 // origin triangle for transforming object
@@ -60,16 +60,16 @@ void CThumbnailSettings::Read_t( CTStream *strFile)
   *strFile>>ts_bSet;
   *strFile>>ts_plLightPlacement;
   *strFile>>ts_plModelPlacement;
-	*strFile>>ts_fTargetDistance;
-	*strFile>>ts_vTarget;
-	*strFile>>ts_angViewerOrientation;
+  *strFile>>ts_fTargetDistance;
+  *strFile>>ts_vTarget;
+  *strFile>>ts_angViewerOrientation;
   *strFile>>ts_LightDistance;
   *strFile>>ts_LightColor;
   *strFile>>ts_colAmbientColor;
-	*strFile>>ts_PaperColor;
-	*strFile>>ts_InkColor;
-	*strFile>>ts_IsWinBcgTexture;
-	*strFile>>ts_WinBcgTextureName;
+  *strFile>>ts_PaperColor;
+  *strFile>>ts_InkColor;
+  *strFile>>ts_IsWinBcgTexture;
+  *strFile>>ts_WinBcgTextureName;
   ts_RenderPrefs.Read_t( strFile);
 }
 
@@ -78,16 +78,16 @@ void CThumbnailSettings::Write_t( CTStream *strFile)
   *strFile<<ts_bSet;
   *strFile<<ts_plLightPlacement;
   *strFile<<ts_plModelPlacement;
-	*strFile<<ts_fTargetDistance;
-	*strFile<<ts_vTarget;
-	*strFile<<ts_angViewerOrientation;
+  *strFile<<ts_fTargetDistance;
+  *strFile<<ts_vTarget;
+  *strFile<<ts_angViewerOrientation;
   *strFile<<ts_LightDistance;
   *strFile<<ts_LightColor;
   *strFile<<ts_colAmbientColor;
-	*strFile<<ts_PaperColor;
-	*strFile<<ts_InkColor;
-	*strFile<<ts_IsWinBcgTexture;
-	*strFile<<ts_WinBcgTextureName;
+  *strFile<<ts_PaperColor;
+  *strFile<<ts_InkColor;
+  *strFile<<ts_IsWinBcgTexture;
+  *strFile<<ts_WinBcgTextureName;
   ts_RenderPrefs.Write_t( strFile);
 }
 
@@ -114,7 +114,7 @@ CProgressRoutines::CProgressRoutines()
   SetProgressState = NULL;
 }
 
-void CreateBoneTriangles(ImportedMesh& mesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D& transform)
+void CreateBoneTriangles(ImportedMesh& mesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D& transform, FLOAT stretch)
 {
   size_t materialIndex = -1;
   for (size_t boneIndex = 0; boneIndex < mesh.m_bonesNames.size(); ++boneIndex)
@@ -127,8 +127,8 @@ void CreateBoneTriangles(ImportedMesh& mesh, const ImportedSkeleton& skeleton, c
 
     const FLOATmatrix4D boneTransform = bone.GetAbsoluteTransform();
     FLOAT4D v0(0.0f, 0.0f, 0.0f, 1.0f);
-    FLOAT4D v1(0.0f, 0.25f, 0.0f, 1.0f);
-    FLOAT4D v2(0.0f, 0.0f, -0.25f, 1.0f);
+    FLOAT4D v1(0.0f, 0.25f / stretch, 0.0f, 1.0f);
+    FLOAT4D v2(0.0f, 0.0f, -0.25f / stretch, 1.0f);
     v0 = v0 * boneTransform;
     v1 = v1 * boneTransform;
     v2 = v2 * boneTransform;
@@ -302,13 +302,11 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
         frames.emplace_back();
         auto& frame = frames.back();
         frame.m_filename = sourceFile.c_str();
-        frame.m_generator = [&baseMesh, &skeleton, mStretch, importedAnimation, frameIndex](CObject3D& outObject)
+        frame.m_generator = [&baseMesh, &skeleton, mStretch, importedAnimation, frameIndex](ImportedMesh& mesh)
         {
-          auto skinnedMesh = baseMesh;
+          mesh = baseMesh;
           const auto& animSkeleton = importedAnimation->m_frames[frameIndex];
-          skinnedMesh.ApplySkinning(skeleton, animSkeleton, mStretch);
-          outObject.Clear();
-          outObject.FillFromMesh(skinnedMesh);
+          mesh.ApplySkinning(skeleton, animSkeleton, mStretch);
         };
       }
 
@@ -404,10 +402,9 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
           frames.emplace_back();
           auto& frame = frames.back();
           frame.m_filename = *itStrFrame;
-          frame.m_generator = [mStretch, filename = *itStrFrame](CObject3D& outObject)
+          frame.m_generator = [mStretch, filename = *itStrFrame](ImportedMesh& mesh)
           {
-            outObject.Clear();
-            outObject.FillFromMesh(ImportedMesh(filename, mStretch));
+            mesh.FillFromFile(filename, mStretch);
           };
         }
         poaOneAnim->oa_FrameIndices[iFrame] = frameIndex;
@@ -457,33 +454,31 @@ struct VertexNeighbors { CStaticStackArray<INDEX> vp_aiNeighbors; };
 void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch) // throw char *
 {
   INDEX i;
-	CObject3D OB3D;
 
-	FLOATaabbox3D OneFrameBB;
-	FLOATaabbox3D AllFramesBB;
+  FLOATaabbox3D OneFrameBB;
+  FLOATaabbox3D AllFramesBB;
 
   INDEX ctFramesBefore = edm_md.md_FramesCt;
   edm_md.ClearAnimations();
 
-	OB3D.ob_aoscSectors.Lock();
-	// there must be at least one mip model loaded, throw if not
-	if( edm_md.md_VerticesCt == 0) {
-		throw( "Trying to update model's animations, but model doesn't exists!");
-	}
+  // there must be at least one mip model loaded, throw if not
+  if( edm_md.md_VerticesCt == 0) {
+    throw( "Trying to update model's animations, but model doesn't exists!");
+  }
   auto frameGenerators = LoadFrameGenerators(edm_md, pFile, baseMesh, skeleton, mStretch);
 
   // if recreating animations, frame count must be the same
   if( (ctFramesBefore != 0) && (frameGenerators.size() != ctFramesBefore) )
   {
-		throw( "If you are updating animations, you can't change number of frames. \
+    throw( "If you are updating animations, you can't change number of frames. \
       If you want to add or remove some frames or animations, please recreate the model.");
   }
-	edm_md.md_FramesCt = frameGenerators.size();
+  edm_md.md_FramesCt = frameGenerators.size();
 
-	/*
-	 * Now we will allocate frames and frames info array and array od 3D objects,
-	 * one for each frame.
-	 */
+  /*
+   * Now we will allocate frames and frames info array and array od 3D objects,
+   * one for each frame.
+   */
 
   if( ProgresRoutines.SetProgressMessage != NULL) {
     ProgresRoutines.SetProgressMessage( "Calculating bounding boxes ...");
@@ -493,14 +488,15 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
   }
 
   edm_md.md_FrameInfos.New( edm_md.md_FramesCt);
-	if( edm_md.md_Flags & MF_COMPRESSED_16BIT) {
+  if( edm_md.md_Flags & MF_COMPRESSED_16BIT) {
     edm_md.md_FrameVertices16.New( edm_md.md_FramesCt * edm_md.md_VerticesCt);
   } else {
     edm_md.md_FrameVertices8.New( edm_md.md_FramesCt * edm_md.md_VerticesCt);
   }
 
-	INDEX iO3D = 0;                        // index used for progress dialog
-  CStaticStackArray<FLOAT3D> avVertices; // for caching all vertices in all frames
+  INDEX iO3D = 0;                        // index used for progress dialog
+  std::vector<FLOAT3D> avVertices; // for caching all vertices in all frames
+  avVertices.reserve(baseMesh.m_vertices.size() * frameGenerators.size());
 
   BOOL bOrigin = FALSE;
   FLOATmatrix3D mOrientation;
@@ -511,18 +507,20 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
   }
 
   for (auto& frameGenerator : frameGenerators)
-	{
+  {
     if( ProgresRoutines.SetProgressState != NULL) ProgresRoutines.SetProgressState(iO3D);
-    frameGenerator.m_generator(OB3D);
-    if( edm_md.md_VerticesCt != OB3D.ob_aoscSectors[0].osc_aovxVertices.Count()) {
-			ThrowF_t( "File %s, one of animation frame files has wrong number of points.", 
+    ImportedMesh mesh;
+    frameGenerator.m_generator(mesh);
+
+    if( edm_md.md_VerticesCt != mesh.m_vertices.size()) {
+      ThrowF_t( "File %s, one of animation frame files has wrong number of points.", 
         frameGenerator.m_filename);
-		}
+    }
     if(bOrigin)
     {
       // calc matrix for vertex transform
-      FLOAT3D vY = DOUBLEtoFLOAT(OB3D.ob_aoscSectors[0].osc_aovxVertices[aiTransVtx[2]]-OB3D.ob_aoscSectors[0].osc_aovxVertices[aiTransVtx[0]]);
-      FLOAT3D vZ = DOUBLEtoFLOAT(OB3D.ob_aoscSectors[0].osc_aovxVertices[aiTransVtx[0]]-OB3D.ob_aoscSectors[0].osc_aovxVertices[aiTransVtx[1]]);
+      FLOAT3D vY = mesh.m_vertices[aiTransVtx[2]]-mesh.m_vertices[aiTransVtx[0]];
+      FLOAT3D vZ = mesh.m_vertices[aiTransVtx[0]]-mesh.m_vertices[aiTransVtx[1]];
       FLOAT3D vX = vY*vZ;
       vY = vZ*vX;
       // make a rotation matrix from those vectors
@@ -537,31 +535,29 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
     }
 
     // normalize (clear) our Bounding Box
-		OB3D.ob_aoscSectors[0].LockAll();
-    OneFrameBB = FLOATaabbox3D();				 		 
+    OneFrameBB = FLOATaabbox3D();
     // Bounding Box makes union with all points in this frame
-    for( i=0; i<edm_md.md_VerticesCt; i++)	{ 
-      FLOAT3D vVtx = DOUBLEtoFLOAT( OB3D.ob_aoscSectors[0].osc_aovxVertices[i]);
+    for( i=0; i<edm_md.md_VerticesCt; i++) {
+      FLOAT3D vVtx = mesh.m_vertices[i];
       if(bOrigin)
       {
         // transform vertex
-        vVtx -= DOUBLEtoFLOAT(OB3D.ob_aoscSectors[0].osc_aovxVertices[aiTransVtx[0]]);
+        vVtx -= mesh.m_vertices[aiTransVtx[0]];
         vVtx *= mOrientation;
       }
       OneFrameBB |= FLOATaabbox3D(vVtx);
-      avVertices.Push() = vVtx;  // cache vertex
+      avVertices.emplace_back(vVtx);
     }
-		OB3D.ob_aoscSectors[0].UnlockAll();
     // remember this frame's Bounding Box
-		edm_md.md_FrameInfos[iO3D].mfi_Box = OneFrameBB;	
+    edm_md.md_FrameInfos[iO3D].mfi_Box = OneFrameBB;
     // make union with Bounding Box of all frames
-		AllFramesBB |= OneFrameBB;							
+    AllFramesBB |= OneFrameBB;
     // load next frame
-		iO3D++;																	
+    iO3D++;
   }
 
   // calculate stretch vector
-	edm_md.md_Stretch = AllFramesBB.Size()/2.0f;       // get size of bounding box
+  edm_md.md_Stretch = AllFramesBB.Size()/2.0f;       // get size of bounding box
 
   // correct invalid stretch factors
   if( edm_md.md_Stretch(1) == 0.0f) edm_md.md_Stretch(1) = 1.0f;
@@ -571,41 +567,13 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
   // build links from vertices to polygons
   CStaticArray<VertexNeighbors> avnVertices;
   avnVertices.New( edm_md.md_VerticesCt);
-  
-  // lost 1st frame (one frame is enough because all frames has same poly->edge->vertex links)
-	OB3D.Clear();
-  OB3D.FillFromMesh(baseMesh);
-	OB3D.ob_aoscSectors[0].LockAll();
 
   // loop thru polygons
-  INDEX iPolyNo=0;
-  {FOREACHINDYNAMICARRAY( OB3D.ob_aoscSectors[0].osc_aopoPolygons, CObjectPolygon, itPoly)
+  for (const auto& triangle : baseMesh.m_triangles)
   {
-    CObjectPolygon &opo = *itPoly;
-    // get all 3 vetrices of current polygon and sorted them
-    opo.opo_PolygonEdges.Lock();
-    CObjectPolygonEdge &opeCurr = opo.opo_PolygonEdges[0];
-    CObjectPolygonEdge &opeNext = opo.opo_PolygonEdges[1];
-    CObjectVertex *povxCurr, *povxPrev, *povxNext;
-    if( !opeCurr.ope_Backward) {
-      povxCurr = opeCurr.ope_Edge->oed_Vertex1;
-      povxPrev = opeCurr.ope_Edge->oed_Vertex0;
-      ASSERT( opeNext.ope_Edge->oed_Vertex0 == povxCurr);
-    } else {
-      povxCurr = opeCurr.ope_Edge->oed_Vertex0;
-      povxPrev = opeCurr.ope_Edge->oed_Vertex1;
-      ASSERT( opeNext.ope_Edge->oed_Vertex1 == povxCurr);
-    }
-    if( !opeNext.ope_Backward) {
-      povxNext = opeNext.ope_Edge->oed_Vertex1;
-      ASSERT( opeNext.ope_Edge->oed_Vertex0 == povxCurr);
-    } else {
-      povxNext = opeNext.ope_Edge->oed_Vertex0;
-      ASSERT( opeNext.ope_Edge->oed_Vertex1 == povxCurr);
-    }
-    INDEX iVtx0 = OB3D.ob_aoscSectors[0].osc_aovxVertices.Index(povxPrev);
-    INDEX iVtx1 = OB3D.ob_aoscSectors[0].osc_aovxVertices.Index(povxCurr);
-    INDEX iVtx2 = OB3D.ob_aoscSectors[0].osc_aovxVertices.Index(povxNext);
+    INDEX iVtx0 = triangle.ct_iVtx[0];
+    INDEX iVtx1 = triangle.ct_iVtx[1];
+    INDEX iVtx2 = triangle.ct_iVtx[2];
     // add neighbor vertices for each of this vertices
     avnVertices[iVtx0].vp_aiNeighbors.Push() = iVtx2;
     avnVertices[iVtx0].vp_aiNeighbors.Push() = iVtx1;
@@ -613,13 +581,8 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
     avnVertices[iVtx1].vp_aiNeighbors.Push() = iVtx2;
     avnVertices[iVtx2].vp_aiNeighbors.Push() = iVtx1;
     avnVertices[iVtx2].vp_aiNeighbors.Push() = iVtx0;
-    // advance to next poly
-    opo.opo_PolygonEdges.Unlock();
-    iPolyNo++;
-  }}
+  }
   // vertex->polygons links created
-	OB3D.ob_aoscSectors[0].UnlockAll();
-
 
   // cache strecthing reciprocal for faster calc
   FLOAT f1oStretchX, f1oStretchY, f1oStretchZ;
@@ -636,7 +599,7 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
   // remember center vector
   FLOAT3D vCenter = AllFramesBB.Center();  // obtain bbox center
   edm_md.md_vCenter = vCenter;
-	
+
   // prepare progress bar
   if( ProgresRoutines.SetProgressMessage != NULL) {
     ProgresRoutines.SetProgressMessage( "Calculating gouraud normals and stretching vertices ...");
@@ -647,29 +610,29 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
 
   // loop thru frames
   iO3D=0;  // index for progress
-	INDEX iFVtx=0;  // count for all vertices in all frames
+  INDEX iFVtx=0;  // count for all vertices in all frames
   for( INDEX iFr=0; iFr<edm_md.md_FramesCt; iFr++)
   {
     // calculate all polygon normals for this frame
     if( ProgresRoutines.SetProgressState != NULL) ProgresRoutines.SetProgressState(iO3D);
-		for( INDEX iVtx=0; iVtx<edm_md.md_VerticesCt; iVtx++)	// for all vertices in one frame
-		{
+    for( INDEX iVtx=0; iVtx<edm_md.md_VerticesCt; iVtx++)  // for all vertices in one frame
+    {
       FLOAT3D &vVtx = avVertices[iFVtx];
-    	if( edm_md.md_Flags & MF_COMPRESSED_16BIT) {
+      if( edm_md.md_Flags & MF_COMPRESSED_16BIT) {
         edm_md.md_FrameVertices16[iFVtx].mfv_SWPoint = SWPOINT3D(
-			    FloatToInt( (vVtx(1) - vCenter(1)) * f1oStretchX),
-			    FloatToInt( (vVtx(2) - vCenter(2)) * f1oStretchY),
-			    FloatToInt( (vVtx(3) - vCenter(3)) * f1oStretchZ) );
+          FloatToInt( (vVtx(1) - vCenter(1)) * f1oStretchX),
+          FloatToInt( (vVtx(2) - vCenter(2)) * f1oStretchY),
+          FloatToInt( (vVtx(3) - vCenter(3)) * f1oStretchZ) );
       } else {                                                              
         edm_md.md_FrameVertices8[iFVtx].mfv_SBPoint = SBPOINT3D(           
-			    FloatToInt( (vVtx(1) - vCenter(1)) * f1oStretchX),
-			    FloatToInt( (vVtx(2) - vCenter(2)) * f1oStretchY),
-			    FloatToInt( (vVtx(3) - vCenter(3)) * f1oStretchZ) );
+          FloatToInt( (vVtx(1) - vCenter(1)) * f1oStretchX),
+          FloatToInt( (vVtx(2) - vCenter(2)) * f1oStretchY),
+          FloatToInt( (vVtx(3) - vCenter(3)) * f1oStretchZ) );
       }
 
-			// calculate vector of gouraud normal in this vertice
+      // calculate vector of gouraud normal in this vertice
       ANGLE   aSum = 0;
-			FLOAT3D vSum( 0.0f, 0.0f, 0.0f);
+      FLOAT3D vSum( 0.0f, 0.0f, 0.0f);
       INDEX iFrOffset = edm_md.md_VerticesCt * iFr;
       VertexNeighbors &vnCurr = avnVertices[iVtx];
       for( INDEX iNVtx=0; iNVtx<vnCurr.vp_aiNeighbors.Count(); iNVtx+=2) { // loop thru neighbors
@@ -685,7 +648,7 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
         //ASSERT( a>=0 && a<=180);
         aSum += a;
         vSum += (v/fLength) * a;
-			}
+      }
 
       // normalize sum of polygon normals
       //ASSERT( aSum>=0);
@@ -693,16 +656,16 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
       vSum.Normalize();
 
       // save compressed gouraud normal
-    	if( edm_md.md_Flags & MF_COMPRESSED_16BIT) {
+      if( edm_md.md_Flags & MF_COMPRESSED_16BIT) {
         CompressNormal_HQ( vSum, edm_md.md_FrameVertices16[iFVtx].mfv_ubNormH,
                                  edm_md.md_FrameVertices16[iFVtx].mfv_ubNormP);
       } else {
-			  edm_md.md_FrameVertices8[iFVtx].mfv_NormIndex = (UBYTE)GouraudNormal(vSum);
+        edm_md.md_FrameVertices8[iFVtx].mfv_NormIndex = (UBYTE)GouraudNormal(vSum);
       }
 
       // advance to next vertex in model
-			iFVtx++;
-		}
+      iFVtx++;
+    }
 
     // advance to next frame
     iO3D++;
@@ -723,9 +686,6 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
     edm_md.md_Stretch(2) /= 127.0f;
     edm_md.md_Stretch(3) /= 127.0f;
   }
-
-  // all done
-	OB3D.ob_aoscSectors.Unlock();
 }
 
 
@@ -1285,23 +1245,21 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 {
   INDEX i;
   CTFileStream File;
-	CObject3D O3D;
-	char ld_line[ 128];
-	char flag_str[ 128];
-	char base_path[ PATH_MAX] = "";
-	char file_name[ PATH_MAX];
+  char ld_line[ 128];
+  char flag_str[ 128];
+  char base_path[ PATH_MAX] = "";
+  char file_name[ PATH_MAX];
   char mapping_file_name[ PATH_MAX] = "";
-	char full_path[ PATH_MAX];
+  char full_path[ PATH_MAX];
   FLOATmatrix3D mStretch;
   mStretch.Diagonal(1.0f);
-	BOOL bMappingDimFound ;
-	BOOL bAnimationsFound;
+  BOOL bMappingDimFound ;
+  BOOL bAnimationsFound;
   BOOL bLoadInitialMapping;
   ImportedMesh baseMesh;
   ImportedSkeleton skeleton;
 
-	O3D.ob_aoscSectors.Lock();
-	File.Open_t( fnScriptName);				// open script file for reading
+  File.Open_t( fnScriptName);        // open script file for reading
 
   // to hold number of line's chars
   int iLineChars;
@@ -1333,10 +1291,10 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
       continue;
     }
 
-    if (EQUAL_SUB_STR("ANIMATION "))
-      hasRegularAnimation = true;
-    else if (EQUAL_SUB_STR("SKELETAL_ANIMATION "))
+    if (EQUAL_SUB_STR("SKELETAL_ANIMATION "))
       hasSkeletalAnimation = true;
+    else if (EQUAL_SUB_STR("ANIMATION "))
+      hasRegularAnimation = true;
     else if (EQUAL_SUB_STR("NO_BONE_TRIANGLES"))
     {
       allowedToCreateBoneTriangles = false;
@@ -1345,94 +1303,94 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
   }
   File.SetPos_t(startPos);
 
-	// if these flags will not be TRUE at the end of script, throw error
-	bMappingDimFound = FALSE;
-	bAnimationsFound = FALSE;
+  // if these flags will not be TRUE at the end of script, throw error
+  bMappingDimFound = FALSE;
+  bAnimationsFound = FALSE;
   bLoadInitialMapping = FALSE;
+  FLOAT fStretch = 1.0f;
 
-	FOREVER
-	{
-		do
+  FOREVER
+  {
+    do
     {
       File.GetLine_t(ld_line, 128);
       iLineChars = strlen( ld_line);
     }
-		while( (iLineChars == 0) || (ld_line[0]==';') );
+    while( (iLineChars == 0) || (ld_line[0]==';') );
 
-		// If key-word is "DIRECTORY", remember base path it and add "\" character at the
-		// end of new path if it is not yet there
-		if( EQUAL_SUB_STR( "DIRECTORY"))
-		{
-			_strupr( ld_line);
-      sscanf( ld_line, "DIRECTORY %s", base_path);
-			if( base_path[ strlen( base_path) - 1] != '\\')
-				strcat( base_path,"\\");
-		}
-		// Key-word "SIZE" defines stretch factor
-		else if( EQUAL_SUB_STR( "SIZE"))
-		{
-  	  _strupr( ld_line);
-      FLOAT fStretch = 1.0f;
-		  sscanf( ld_line, "SIZE %g", &fStretch);
-      mStretch *= fStretch;
-		}
-		else if( EQUAL_SUB_STR( "TRANSFORM")) 
+    // If key-word is "DIRECTORY", remember base path it and add "\" character at the
+    // end of new path if it is not yet there
+    if( EQUAL_SUB_STR( "DIRECTORY"))
     {
-  	  _strupr( ld_line);
+      _strupr( ld_line);
+      sscanf( ld_line, "DIRECTORY %s", base_path);
+      if( base_path[ strlen( base_path) - 1] != '\\')
+        strcat( base_path,"\\");
+    }
+    // Key-word "SIZE" defines stretch factor
+    else if( EQUAL_SUB_STR( "SIZE"))
+    {
+      _strupr( ld_line);
+      sscanf( ld_line, "SIZE %g", &fStretch);
+      mStretch *= fStretch;
+    }
+    else if( EQUAL_SUB_STR( "TRANSFORM")) 
+    {
+      _strupr( ld_line);
       FLOATmatrix3D mTran;
       mTran.Diagonal(1.0f);
-		  sscanf( ld_line, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
+      sscanf( ld_line, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
         &mTran(1,1), &mTran(1,2), &mTran(1,3),
         &mTran(2,1), &mTran(2,2), &mTran(2,3),
         &mTran(3,1), &mTran(3,2), &mTran(3,3));
       mStretch *= mTran;
     }
-		// Key-word "FLAT" means that model will be mapped as face - forward, using only
+    // Key-word "FLAT" means that model will be mapped as face - forward, using only
     // zooming of texture
-		else if( EQUAL_SUB_STR( "FLAT"))
-		{
-  	  _strupr( ld_line);
-		  sscanf( ld_line, "FLAT %s", flag_str);
+    else if( EQUAL_SUB_STR( "FLAT"))
+    {
+      _strupr( ld_line);
+      sscanf( ld_line, "FLAT %s", flag_str);
       if( strcmp( flag_str, "YES") == 0)
       {
         edm_md.md_Flags |= MF_FACE_FORWARD;
         edm_md.md_Flags &= ~MF_HALF_FACE_FORWARD;
       }
-		}
-		else if( EQUAL_SUB_STR( "HALF_FLAT"))
-		{
-  	  _strupr( ld_line);
-		  sscanf( ld_line, "HALF_FLAT %s", flag_str);
+    }
+    else if( EQUAL_SUB_STR( "HALF_FLAT"))
+    {
+      _strupr( ld_line);
+      sscanf( ld_line, "HALF_FLAT %s", flag_str);
       if( strcmp( flag_str, "YES") == 0)
         edm_md.md_Flags |= MF_FACE_FORWARD|MF_HALF_FACE_FORWARD;
-		}
+    }
     else if( EQUAL_SUB_STR( "STRETCH_DETAIL"))
     {
-  	  _strupr( ld_line);
-		  sscanf( ld_line, "STRETCH_DETAIL %s", flag_str);
+      _strupr( ld_line);
+      sscanf( ld_line, "STRETCH_DETAIL %s", flag_str);
       if( strcmp( flag_str, "YES") == 0)
       {
         edm_md.md_Flags |= MF_STRETCH_DETAIL;
       }
     }
-		else if( EQUAL_SUB_STR( "HI_QUALITY"))
-		{
-  	  _strupr( ld_line);
-		  sscanf( ld_line, "HI_QUALITY %s", flag_str);
+    else if( EQUAL_SUB_STR( "HI_QUALITY"))
+    {
+      _strupr( ld_line);
+      sscanf( ld_line, "HI_QUALITY %s", flag_str);
       if( strcmp( flag_str, "YES") == 0)
       {
         edm_md.md_Flags |= MF_COMPRESSED_16BIT;
       }
-		}
-		// Key-word "REFLECTIONS" has been used in old reflections
-		else if( EQUAL_SUB_STR( "REFLECTIONS"))
+    }
+    // Key-word "REFLECTIONS" has been used in old reflections
+    else if( EQUAL_SUB_STR( "REFLECTIONS"))
     {
     }
-		// Key-word "MAX_SHADOW" determines maximum quality of shading that model can obtain
-		else if( EQUAL_SUB_STR( "MAX_SHADOW"))
+    // Key-word "MAX_SHADOW" determines maximum quality of shading that model can obtain
+    else if( EQUAL_SUB_STR( "MAX_SHADOW"))
     {
-  	  _strupr( ld_line);
-		  INDEX iShadowQuality;
+      _strupr( ld_line);
+      INDEX iShadowQuality;
       sscanf( ld_line, "MAX_SHADOW %d", &iShadowQuality);
       edm_md.md_ShadowQuality = iShadowQuality;
     }
@@ -1443,15 +1401,15 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
       sprintf(full_path, "%s%s", base_path, file_name);
       skeleton.FillFromFile(CTString(full_path));
     }
-		// Key-word "MipModel" must follow name of this mipmodel file
+    // Key-word "MipModel" must follow name of this mipmodel file
     else if( EQUAL_SUB_STR( "MIP_MODELS"))
     {
-			INDEX iMipCt;
+      INDEX iMipCt;
       sscanf( ld_line, "MIP_MODELS %d", &iMipCt);
       if( (iMipCt <= 0) || (iMipCt >= MAX_MODELMIPS))
-			{
-				ThrowF_t("Invalid number of mip models. Number must range from 0 to %d.", MAX_MODELMIPS-1);
-			}
+      {
+        ThrowF_t("Invalid number of mip models. Number must range from 0 to %d.", MAX_MODELMIPS-1);
+      }
       if( ProgresRoutines.SetProgressMessage != NULL)
         ProgresRoutines.SetProgressMessage( "Loading and creating mip-models ...");
       if( ProgresRoutines.SetProgressRange != NULL)
@@ -1460,102 +1418,98 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
       {
         if( ProgresRoutines.SetProgressState != NULL)
           ProgresRoutines.SetProgressState( i);
-		    do
+        do
         {
           File.GetLine_t(ld_line, 128);
         }
-		    while( (strlen( ld_line)== 0) || (ld_line[0]==';'));
-			  _strupr( ld_line);
-			  sscanf( ld_line, "%s", file_name);
-			  sprintf( full_path, "%s%s", base_path, file_name);
+        while( (strlen( ld_line)== 0) || (ld_line[0]==';'));
+        _strupr( ld_line);
+        sscanf( ld_line, "%s", file_name);
+        sprintf( full_path, "%s%s", base_path, file_name);
         if (skeleton.Empty())
           skeleton.FillFromFile(CTString(full_path));
         ImportedMesh mesh(CTString(full_path), mStretch);
         if (baseMesh.m_vertices.empty())
         {
           if (allowedToCreateBoneTriangles && hasSkeletalAnimation && !hasRegularAnimation)
-            CreateBoneTriangles(mesh, skeleton, mStretch);
+            CreateBoneTriangles(mesh, skeleton, mStretch, fStretch);
           baseMesh = mesh;
         }
-			  O3D.Clear();                            // clear possible existing O3D's data
-        O3D.FillFromMesh(baseMesh);
         // If there are no vertices in model, call New Model and calculate UV mapping
-			  if( edm_md.md_VerticesCt == 0)					
-			  {
-				  if( bMappingDimFound == FALSE)
-				  {
-					  ThrowF_t("Found key word \"MIP_MODELS\" but texture dimension wasn't found.\n"
-					    "There must be key word \"TEXTURE_DIM\" before key word \"MIP_MODELS\" in script file.");
-				  }
-				  NewModel( &O3D);
-			  }
+        if( edm_md.md_VerticesCt == 0)          
+        {
+          if( bMappingDimFound == FALSE)
+          {
+            ThrowF_t("Found key word \"MIP_MODELS\" but texture dimension wasn't found.\n"
+              "There must be key word \"TEXTURE_DIM\" before key word \"MIP_MODELS\" in script file.");
+          }
+          NewModel(mesh);
+        }
         else
         {
-          O3D.ob_aoscSectors[0].LockAll();
-				  AddMipModel( &O3D);										// else this is one of model's mip definitions so call Add Mip Model
-	        O3D.ob_aoscSectors[0].UnlockAll();
+          AddMipModel(mesh);
         }
-		  }
+      }
       // set default mip factors
       // all mip models will be spreaded beetween distance 0 and default maximum distance
       edm_md.SpreadMipSwitchFactors( 0, 5.0f);
     }
-		/*
-		 * Line containing key-word "TEXTURE_DIM" gives us texture dimensions
-		 * so we can create default mapping
-		 */
-		else if( EQUAL_SUB_STR( "TEXTURE_DIM"))
-		{
-			_strupr( ld_line);
-			FLOAT fWidth, fHeight;
-      sscanf( ld_line, "TEXTURE_DIM %f %f", &fWidth, &fHeight);	// read given texture dimensions
-			edm_md.md_Width = MEX_METERS( fWidth);
+    /*
+     * Line containing key-word "TEXTURE_DIM" gives us texture dimensions
+     * so we can create default mapping
+     */
+    else if( EQUAL_SUB_STR( "TEXTURE_DIM"))
+    {
+      _strupr( ld_line);
+      FLOAT fWidth, fHeight;
+      sscanf( ld_line, "TEXTURE_DIM %f %f", &fWidth, &fHeight);  // read given texture dimensions
+      edm_md.md_Width = MEX_METERS( fWidth);
       edm_md.md_Height = MEX_METERS( fHeight);
       bMappingDimFound = TRUE;
-		}
-		// Key-word "ANIM_START" starts loading of Animation Data object
-		else if( EQUAL_SUB_STR( "ANIM_START"))
-		{
-			LoadModelAnimationData_t( &File, baseMesh, skeleton, mStretch);	// loads and sets model's animation data
+    }
+    // Key-word "ANIM_START" starts loading of Animation Data object
+    else if( EQUAL_SUB_STR( "ANIM_START"))
+    {
+      LoadModelAnimationData_t( &File, baseMesh, skeleton, mStretch);  // loads and sets model's animation data
       // add one collision box
       edm_md.md_acbCollisionBox.New();
       // reset attaching sounds
       CreateEmptyAttachingSounds();
-			bAnimationsFound = TRUE;				// mark that we found animations section in script-file
-		}
+      bAnimationsFound = TRUE;        // mark that we found animations section in script-file
+    }
     else if( EQUAL_SUB_STR( "ORIGIN_TRI"))
     {
-      sscanf( ld_line, "ORIGIN_TRI %d %d %d", &aiTransVtx[0], &aiTransVtx[1], &aiTransVtx[2]);	// read given vertices
+      sscanf( ld_line, "ORIGIN_TRI %d %d %d", &aiTransVtx[0], &aiTransVtx[1], &aiTransVtx[2]);  // read given vertices
     }
-		// Key-word "END" ends infinite loop and script loading is over
-		else if( EQUAL_SUB_STR( "END"))
-		{
-			break;
-		}
+    // Key-word "END" ends infinite loop and script loading is over
+    else if( EQUAL_SUB_STR( "END"))
+    {
+      break;
+    }
     else if (EQUAL_SUB_STR("NO_BONE_TRIANGLES")) {}
     // ignore old key-words
     else if( EQUAL_SUB_STR( "MAPPING")) {}
-		else if( EQUAL_SUB_STR( "TEXTURE_REFLECTION")) {}
-		else if( EQUAL_SUB_STR( "TEXTURE_SPECULAR")) {}
-		else if( EQUAL_SUB_STR( "TEXTURE_BUMP")) {}
-		else if( EQUAL_SUB_STR( "TEXTURE")) {}
+    else if( EQUAL_SUB_STR( "TEXTURE_REFLECTION")) {}
+    else if( EQUAL_SUB_STR( "TEXTURE_SPECULAR")) {}
+    else if( EQUAL_SUB_STR( "TEXTURE_BUMP")) {}
+    else if( EQUAL_SUB_STR( "TEXTURE")) {}
     else if( EQUAL_SUB_STR( "DEFINE_MAPPING")) {}
     else if( EQUAL_SUB_STR( "IMPORT_MAPPING")) {}
-		// If none of known key-words isnt recognised, we have wierd key-word, so throw error
-		else
-		{
+    // If none of known key-words isnt recognised, we have wierd key-word, so throw error
+    else
+    {
       ThrowF_t("Unrecognizible key-word found in line: \"%s\".", ld_line);
-		}
-	}
-	/*
-	 * At the end we check if we found animations in script file and if initial mapping was done
-	 * during loading of script file what means that key-word 'TEXTURE_DIM' was found
-	 */
-	if( bAnimationsFound != TRUE)
-		throw( "There are no animations defined for this model, and that can't be. Probable cause: script missing key-word \"ANIM_START\".");
+    }
+  }
+  /*
+   * At the end we check if we found animations in script file and if initial mapping was done
+   * during loading of script file what means that key-word 'TEXTURE_DIM' was found
+   */
+  if( bAnimationsFound != TRUE)
+    throw( "There are no animations defined for this model, and that can't be. Probable cause: script missing key-word \"ANIM_START\".");
 
-	if( bMappingDimFound != TRUE)
-		throw( "Initial mapping not done, and that can't be. Probable cause: script missing key-word \"TEXTURE_DIM\".");
+  if( bMappingDimFound != TRUE)
+    throw( "Initial mapping not done, and that can't be. Probable cause: script missing key-word \"TEXTURE_DIM\".");
 
   edm_md.LinkDataForSurfaces(TRUE);
 
@@ -1572,9 +1526,6 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
     (void)strError;
   }
 
-  CalculateMappingForMips();
-
-  O3D.ob_aoscSectors.Unlock();
   File.Close();
 
   if( edm_aasAttachedSounds.Count() == 0)
@@ -1586,28 +1537,22 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
  * Routine takes Object 3D class as input and creates new model (model data)
  * with its polygons, vertices, surfaces
  */
-void CEditModel::NewModel(CObject3D *pO3D)
+void CEditModel::NewModel(const ImportedMesh& mesh)
 {
-  pO3D->ob_aoscSectors.Lock();
-  pO3D->ob_aoscSectors[0].LockAll();
-  edm_md.md_VerticesCt = pO3D->ob_aoscSectors[0].osc_aovxVertices.Count();	// see how many vertices we will have
-	edm_md.md_TransformedVertices.New( edm_md.md_VerticesCt); // create buffer for rotated vertices
+  edm_md.md_VerticesCt = mesh.m_vertices.size();  // see how many vertices we will have
+  edm_md.md_TransformedVertices.New( edm_md.md_VerticesCt); // create buffer for rotated vertices
   edm_md.md_MainMipVertices.New( edm_md.md_VerticesCt); // create buffer for main mip vertices
-	edm_md.md_VertexMipMask.New( edm_md.md_VerticesCt);	// create buffer for vertex masks
+  edm_md.md_VertexMipMask.New( edm_md.md_VerticesCt);  // create buffer for vertex masks
 
   for( INDEX i=0; i<edm_md.md_VerticesCt; i++)
-	{
+  {
     // copy vertex coordinates into md_MainMipVertices array so we colud make
-		// mip-models later (we will search original coordinates in this array)
-		edm_md.md_MainMipVertices[ i] =
-      DOUBLEtoFLOAT(pO3D->ob_aoscSectors[0].osc_aovxVertices[ i]);
-    edm_md.md_VertexMipMask[ i] = 0L; // mark to all vertices that they don't exist in any mip-model
-	}
+    // mip-models later (we will search original coordinates in this array)
+    edm_md.md_MainMipVertices[ i] = mesh.m_vertices[i];
+    edm_md.md_VertexMipMask[i] = 0L; // mark to all vertices that they don't exist in any mip-model
+  }
 
-  AddMipModel(pO3D);								 // we add main model, first mip-model
-
-	pO3D->ob_aoscSectors[0].UnlockAll();
-  pO3D->ob_aoscSectors.Unlock();
+  AddMipModel(mesh);                 // we add main model, first mip-model
 }
 
 //----------------------------------------------------------------------------------------------
@@ -1617,14 +1562,14 @@ void CEditModel::NewModel(CObject3D *pO3D)
  * array. If minimum distance is found, set that this vertice exists. Loop for all vertices.
  * Throw error if minimum distance isn't found. Set also new mip-model polygons info.
  */
-void CEditModel::AddMipModel(	CObject3D *pO3D)
+void CEditModel::AddMipModel(const ImportedMesh& mesh)
 {
   INDEX i, j;
 
   // this is mask for vertices in current mip level
   ULONG mip_vtx_mask = (1L) << edm_md.md_MipCt;
 
-	struct ModelMipInfo *pmmpi = &edm_md.md_MipInfos[ edm_md.md_MipCt]; // point to mip model that we will create
+  struct ModelMipInfo *pmmpi = &edm_md.md_MipInfos[ edm_md.md_MipCt]; // point to mip model that we will create
 
   // for each vertex
   for( INDEX iVertex=0; iVertex<edm_md.md_VerticesCt; iVertex++)
@@ -1633,16 +1578,17 @@ void CEditModel::AddMipModel(	CObject3D *pO3D)
     edm_md.md_VertexMipMask[ iVertex] &= ~mip_vtx_mask;
   }
 
-	INDEX o3dvct = pO3D->ob_aoscSectors[0].osc_aovxVertices.Count();
-	/*
-	 * For each vertex in 3D object we calculate distances to all vertices in main mip-model.
-	 * If distance (size of vector that is result of substraction of two vertice vectors) is
-	 * less than some minimal float number, we assume that these vertices are the same.
-	 * Processed vertex of 3D object gets its main-mip-model-vertex-friend's index as tag and
-	 * mask value showing that it exists in this mip-model.
-	 */
-	for( i=0; i<o3dvct; i++)
-	{
+  INDEX o3dvct = mesh.m_vertices.size();
+  /*
+   * For each vertex in 3D object we calculate distances to all vertices in main mip-model.
+   * If distance (size of vector that is result of substraction of two vertice vectors) is
+   * less than some minimal float number, we assume that these vertices are the same.
+   * Processed vertex of 3D object gets its main-mip-model-vertex-friend's index as tag and
+   * mask value showing that it exists in this mip-model.
+   */
+  std::vector<INDEX> verticesRemap(mesh.m_vertices.size(), 0);
+  for( i=0; i<o3dvct; i++)
+  {
     INDEX same_index = -1;
 
     if (edm_md.md_MipCt == 0)
@@ -1653,7 +1599,7 @@ void CEditModel::AddMipModel(	CObject3D *pO3D)
     {
       for (j = 0; j < edm_md.md_VerticesCt; j++)
       {
-        FLOAT3D vVertex = DOUBLEtoFLOAT(pO3D->ob_aoscSectors[0].osc_aovxVertices[i]);
+        FLOAT3D vVertex = mesh.m_vertices[i];
         FLOAT fAbsoluteDistance = Abs((vVertex - edm_md.md_MainMipVertices[j]).Length());
         if (fAbsoluteDistance < MAX_ALLOWED_DISTANCE)
         {
@@ -1663,50 +1609,51 @@ void CEditModel::AddMipModel(	CObject3D *pO3D)
       }
     }
 
-    if (same_index == -1)	// if no vertice close enough is found, we have error
+    if (same_index == -1)  // if no vertice close enough is found, we have error
     {
       ThrowF_t("Vertex from mip model %d with number %d, coordinates (%f,%f,%f), can't be found in main mip model.\n"
         "There can't be new vertices in rougher mip-models,"
         "but only vertices from main mip model can be removed and polygons reorganized.\n",
         edm_md.md_MipCt, i,
-        pO3D->ob_aoscSectors[0].osc_aovxVertices[i](1), pO3D->ob_aoscSectors[0].osc_aovxVertices[i](2), pO3D->ob_aoscSectors[0].osc_aovxVertices[i](3));
+        mesh.m_vertices[i](1), mesh.m_vertices[i](2), mesh.m_vertices[i](3));
     }
 
     edm_md.md_VertexMipMask[same_index] |= mip_vtx_mask; // we mark that this vertice exists in this mip model
-    pO3D->ob_aoscSectors[0].osc_aovxVertices[i].ovx_Tag = same_index; // remapping verice index must be remembered
-	}
+    verticesRemap[i] = same_index; // remapping verice index must be remembered
+  }
 
-	/*
-	 * We will create three arays for this mip polygon info:
-	 *	1) array for polygons
-	 *	2) array for mapping surfaces
-	 *	3) array for polygon vertices
-	 *	4) array for texture vertices
-	 */
+  /*
+   * We will create three arays for this mip polygon info:
+   *  1) array for polygons
+   *  2) array for mapping surfaces
+   *  3) array for polygon vertices
+   *  4) array for texture vertices
+   */
 
-	/*
-	 * First we create array large enough to accept object 3D's polygons.
-	 */
-	pmmpi->mmpi_PolygonsCt = pO3D->ob_aoscSectors[0].osc_aopoPolygons.Count();
-	pmmpi->mmpi_Polygons.New( pmmpi->mmpi_PolygonsCt);
+  /*
+   * First we create array large enough to accept object 3D's polygons.
+   */
+  pmmpi->mmpi_PolygonsCt = mesh.m_triangles.size();
+  pmmpi->mmpi_Polygons.New( pmmpi->mmpi_PolygonsCt);
 
-	/*
-	 * Then we will create array for mapping surfaces and set their names
-	 */
-  pmmpi->mmpi_MappingSurfaces.New( pO3D->ob_aoscSectors[0].osc_aomtMaterials.Count());	// create array for mapping surfaces
-	for( i=0; i<pO3D->ob_aoscSectors[0].osc_aomtMaterials.Count(); i++)
-	{
+  /*
+   * Then we will create array for mapping surfaces and set their names
+   */
+  pmmpi->mmpi_MappingSurfaces.New(mesh.m_materials.size());  // create array for mapping surfaces
+  for( i=0; i<mesh.m_materials.size(); i++)
+  {
     MappingSurface &ms = pmmpi->mmpi_MappingSurfaces[ i];
-    ms.ms_ulOnColor = PC_ALLWAYS_ON;							// set default ON and OFF masking colors
-		ms.ms_ulOffColor = PC_ALLWAYS_OFF;
-		ms.ms_Name = CTFileName( pO3D->ob_aoscSectors[0].osc_aomtMaterials[ i].omt_Name);
+    ms.ms_ulOnColor = PC_ALLWAYS_ON;              // set default ON and OFF masking colors
+    ms.ms_ulOffColor = PC_ALLWAYS_OFF;
+    ms.ms_Name = CTFileName( mesh.m_materials[i].cm_strName);
 
     ms.ms_colColor =
-      pO3D->ob_aoscSectors[0].osc_aomtMaterials[ i].omt_Color | CT_OPAQUE; // copy surface color, set no alpha
+      mesh.m_materials[i].cm_colColor | CT_OPAQUE; // copy surface color, set no alpha
     ms.ms_sstShadingType = SST_MATTE;
     ms.ms_sttTranslucencyType = STT_OPAQUE;
     ms.ms_ulRenderingFlags = SRF_DIFFUSE|SRF_NEW_TEXTURE_FORMAT;
-	}
+  }
+
 
   struct VertexRemap
   {
@@ -1734,25 +1681,13 @@ void CEditModel::AddMipModel(	CObject3D *pO3D)
   std::unordered_map<VertexRemap, INDEX, VertexRemap::Hasher> uniqueTexCoords;
   std::vector<FLOAT2D> orderedUniqueTexCoords;
   std::vector<INDEX> texCoordsRemap;
-  {FOREACHINDYNAMICARRAY(pO3D->ob_aoscSectors[0].osc_aopoPolygons, CObjectPolygon, it1)
+  for (const auto& triangle : mesh.m_triangles)
   {
-    INDEX iPolySurface = pO3D->ob_aoscSectors[0].osc_aomtMaterials.Index(it1->opo_Material);
-
-    CMappingVectors mappingVectors;
-    mappingVectors.FromPlane_DOUBLE(*(it1->opo_Plane));
-    CMappingDefinition currentMapping = it1->opo_amdMappings[0];
-    currentMapping.md_fVoS *= -1.0f;
-    currentMapping.md_fVoT *= -1.0f;
-    currentMapping.md_fUOffset *= -1.0f;
-
-    FOREACHINDYNAMICARRAY(it1->opo_PolygonEdges, CObjectPolygonEdge, it2)
+    for (size_t e = 0; e < 3; ++e)
     {
-      DOUBLE3D* vtxPos = it2->ope_Edge->oed_Vertex0;
-      FLOAT2D vtxUV = currentMapping.GetTextureCoordinates(mappingVectors, DOUBLEtoFLOAT(*vtxPos));
+      FLOAT2D vtxUV(mesh.m_uvs[0][triangle.ct_iTVtx[0][e]]);
 
-      INDEX globalIndex = pO3D->ob_aoscSectors[0].osc_aovxVertices.Index(it2->ope_Edge->oed_Vertex0);
-
-      VertexRemap vertex_remap{ vtxUV, iPolySurface, globalIndex };
+      VertexRemap vertex_remap{ vtxUV, triangle.ct_iMaterial, triangle.ct_iVtx[e] };
       auto found_pos = uniqueTexCoords.find(vertex_remap);
       if (found_pos == uniqueTexCoords.end())
       {
@@ -1765,7 +1700,7 @@ void CEditModel::AddMipModel(	CObject3D *pO3D)
         texCoordsRemap.push_back(found_pos->second);
       }
     }
-  }}
+  }
 
   pmmpi->mmpi_TextureVertices.New(orderedUniqueTexCoords.size());
 
@@ -1776,7 +1711,7 @@ void CEditModel::AddMipModel(	CObject3D *pO3D)
     uv_coord(1) *= edm_md.md_Width / 1024.0f;
     uv_coord(2) *= edm_md.md_Height / 1024.0f;
 
-    pmmpi->mmpi_TextureVertices[i].mtv_UVW = FLOAT3D(uv_coord(1), -uv_coord(2), 0.0f);
+    pmmpi->mmpi_TextureVertices[i].mtv_UVW = FLOAT3D(uv_coord(1), uv_coord(2), 0.0f);
     MEX2D mexUV;
     mexUV(1) = MEX_METERS(pmmpi->mmpi_TextureVertices[i].mtv_UVW(1));
     mexUV(2) = MEX_METERS(pmmpi->mmpi_TextureVertices[i].mtv_UVW(2));
@@ -1788,117 +1723,32 @@ void CEditModel::AddMipModel(	CObject3D *pO3D)
    * texture and transformed vertex ptrs)
    */
   INDEX mpvct = 0;
-  for (i = 0; i < pmmpi->mmpi_PolygonsCt; i++)				// loop all model polygons
+  for (i = 0; i < pmmpi->mmpi_PolygonsCt; i++)        // loop all model polygons
   {
-    struct ModelPolygon* pmp = &pmmpi->mmpi_Polygons[i];		// ptr to activ model polygon
-    pmp->mp_Surface = pO3D->ob_aoscSectors[0].osc_aomtMaterials.Index(pO3D->ob_aoscSectors[0].osc_aopoPolygons[i].opo_Material); // copy surface index
+    const auto& triangle = mesh.m_triangles[i];
+    struct ModelPolygon* pmp = &pmmpi->mmpi_Polygons[i];    // ptr to activ model polygon
+    pmp->mp_Surface = triangle.ct_iMaterial; // copy surface index
     pmp->mp_ColorAndAlpha =
-      pO3D->ob_aoscSectors[0].osc_aopoPolygons[i].opo_Material->omt_Color | CT_OPAQUE; // copy surface color, set no alpha
+      mesh.m_materials[triangle.ct_iMaterial].cm_colColor | CT_OPAQUE; // copy surface color, set no alpha
 
-    auto& o3d_polygon = pO3D->ob_aoscSectors[0].osc_aopoPolygons[i];
-
-    auto& polygon_edges = o3d_polygon.opo_PolygonEdges;
-    INDEX ctVertices = polygon_edges.Count(); // set no of polygon's vertices
-    pmp->mp_PolygonVertices.New(ctVertices); // create array for them
-    for (j = 0; j < ctVertices; j++)				// fill data for this polygon's vertices
+    pmp->mp_PolygonVertices.New(3); // create array for them
+    for (j = 0; j < 3; j++)        // fill data for this polygon's vertices
     {
       /*
        * Here we really remap one mip models's vertex in a way that we set its transformed
        * vertex ptr after remapping it using link (tag) to its original mip-model's vertex
        */
-      CObjectVertex* o3d_vertex = polygon_edges[j].ope_Edge->oed_Vertex0;
+      INDEX o3d_vertex = triangle.ct_iVtx[j];
 
       pmp->mp_PolygonVertices[j].mpv_ptvTransformedVertex =
-        &edm_md.md_TransformedVertices[(INDEX)o3d_vertex->ovx_Tag]; // remapped ptr to transformed vertex
+        &edm_md.md_TransformedVertices[verticesRemap[o3d_vertex]];
 
       pmp->mp_PolygonVertices[j].mpv_ptvTextureVertex =
         &pmmpi->mmpi_TextureVertices[texCoordsRemap[mpvct++]];
     }
   }
 
-  edm_md.md_MipCt ++;	// finally, this mip-model is done.
-}
-
-//----------------------------------------------------------------------------------------------
-/*
- * Routine calculate mapping for mip models (except for main mip)
- */
-void CEditModel::CalculateMappingForMips( void)
-{
-  // for each mip model except first
-  for( INDEX iCurMip = 1; iCurMip< edm_md.md_MipCt; iCurMip++)
-  {
-    // get current mip model
-    struct ModelMipInfo *pMMICur = &edm_md.md_MipInfos[ iCurMip];
-    // get previous mip model
-    struct ModelMipInfo *pMMIPrev = &edm_md.md_MipInfos[ iCurMip-1];
-    // for each surface in current mip model
-    for( INDEX iSurfaceCur = 0; iSurfaceCur < pMMICur->mmpi_MappingSurfaces.Count(); iSurfaceCur++)
-    {
-      MappingSurface *pmsSurfCur = &pMMICur->mmpi_MappingSurfaces[iSurfaceCur];
-      // for each texture vertex in surface
-      for(INDEX iSurfCurTV=0; iSurfCurTV<pmsSurfCur->ms_aiTextureVertices.Count(); iSurfCurTV++)
-      {
-        INDEX iCurGlobalTV = pmsSurfCur->ms_aiTextureVertices[iSurfCurTV];
-        ModelTextureVertex *pmtvCur = &pMMICur->mmpi_TextureVertices[iCurGlobalTV];
-        // obtain index of model vertex
-        INDEX iCurMV = pmtvCur->mtv_iTransformedVertex;
-        
-        // get 3D coordinate of vertex from main mip
-        FLOAT3D vMainMipCoordCur = edm_md.md_MainMipVertices[ iCurMV];
-
-        // -------- Find closest vertex (using 3D coordinate) in previous mip
- 
-        // in previous mip model find surface with same name
-        MappingSurface *pmsSurfPrev = NULL;
-        for( INDEX iSurfacePrev = 0; iSurfacePrev < pMMIPrev->mmpi_MappingSurfaces.Count(); iSurfacePrev++)
-        {
-          pmsSurfPrev = &pMMIPrev->mmpi_MappingSurfaces[iSurfacePrev];
-          if( pmsSurfCur->ms_Name == pmsSurfPrev->ms_Name)
-          {
-            break;
-          }
-        }
-          
-        // new surfaces can't appear 
-        ASSERT(pmsSurfPrev != NULL);
-        if( pmsSurfPrev == NULL)
-        {
-          WarningMessage( "Mip model %d has surface that does not exist in previous mip. That is not allowed.", iCurMip);
-          break;
-        }
-
-        // set hudge distance as current minimum
-        FLOAT fMinDistance = 99999999.0f;
-        ModelTextureVertex *pmtvClosestPrev = NULL;
-
-        // for each texture vertex in previous mip's surface with same name
-        for(INDEX iSurfPrevTV=0; iSurfPrevTV<pmsSurfPrev->ms_aiTextureVertices.Count(); iSurfPrevTV++)
-        {
-          INDEX iPrevGlobalTV = pmsSurfPrev->ms_aiTextureVertices[iSurfPrevTV];
-          ModelTextureVertex *pmtvPrev = &pMMIPrev->mmpi_TextureVertices[iPrevGlobalTV];
-          // obtain index of model vertex
-          INDEX iPrevMV = pmtvPrev->mtv_iTransformedVertex;
-          // get 3D coordinate of vertex from main mip
-          FLOAT3D vMainMipCoordPrev = edm_md.md_MainMipVertices[ iPrevMV];
-          // get distance of these two vertices
-          FLOAT fAbsoluteDistance = Abs( (vMainMipCoordPrev - vMainMipCoordCur).Length());
-			    if( fAbsoluteDistance < fMinDistance)
-          {
-            // remember current texture vertex as closest one
-            fMinDistance = fAbsoluteDistance;
-            pmtvClosestPrev = pmtvPrev;
-          }
-        }
-        ASSERT( pmtvClosestPrev != NULL);
-        // copy mapping coordinates from closest mapping vertex in previous mip
-        pmtvCur->mtv_UVW = pmtvClosestPrev->mtv_UVW;
-        pmtvCur->mtv_UV  = pmtvClosestPrev->mtv_UV;
-        pmtvCur->mtv_vU  = pmtvClosestPrev->mtv_vU;
-        pmtvCur->mtv_vV  = pmtvClosestPrev->mtv_vV;
-      }
-    }
-  }
+  edm_md.md_MipCt ++;  // finally, this mip-model is done.
 }
 
 /*
@@ -1907,40 +1757,40 @@ void CEditModel::CalculateMappingForMips( void)
  */
 void CEditModel::UpdateAnimations_t(CTFileName &fnScriptName) // throw char *
 {
-	CTFileStream File;
-	char ld_line[ 128];
+  CTFileStream File;
+  char ld_line[ 128];
   char base_path[PATH_MAX] = "";
   char full_path[PATH_MAX];
   char file_name[PATH_MAX];
-	CListHead FrameNamesList;
+  CListHead FrameNamesList;
   ImportedMesh baseMesh;
   ImportedSkeleton skeleton;
   FLOATmatrix3D mStretch;
   mStretch.Diagonal(1.0f);
 
-	File.Open_t( fnScriptName); // open script file for reading
+  File.Open_t( fnScriptName); // open script file for reading
 
   FOREVER
-	{
-		do
+  {
+    do
     {
       File.GetLine_t(ld_line, 128);
     }
-		while( (strlen( ld_line)== 0) || (ld_line[0]==';'));
+    while( (strlen( ld_line)== 0) || (ld_line[0]==';'));
 
-		if( EQUAL_SUB_STR( "SIZE"))
+    if( EQUAL_SUB_STR( "SIZE"))
     {
-  	  _strupr( ld_line);
+      _strupr( ld_line);
       FLOAT fStretch = 1.0f;
-		  sscanf( ld_line, "SIZE %g", &fStretch);
+      sscanf( ld_line, "SIZE %g", &fStretch);
       mStretch *= fStretch;
     }
-		else if( EQUAL_SUB_STR( "TRANSFORM")) 
+    else if( EQUAL_SUB_STR( "TRANSFORM")) 
     {
-  	  _strupr( ld_line);
+      _strupr( ld_line);
       FLOATmatrix3D mTran;
       mTran.Diagonal(1.0f);
-		  sscanf( ld_line, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
+      sscanf( ld_line, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
         &mTran(1,1), &mTran(1,2), &mTran(1,3),
         &mTran(2,1), &mTran(2,2), &mTran(2,3),
         &mTran(3,1), &mTran(3,2), &mTran(3,3));
@@ -1974,35 +1824,33 @@ void CEditModel::UpdateAnimations_t(CTFileName &fnScriptName) // throw char *
       sprintf(full_path, "%s%s", base_path, file_name);
       baseMesh.FillFromFile(CTString(full_path), mStretch);
     }
-		else if( EQUAL_SUB_STR( "ANIM_START"))
-		{
-			LoadModelAnimationData_t( &File, baseMesh, skeleton, mStretch);	// load and set model's animation data
-			break;													// we found our animations, we loaded them so we will stop forever loop
-		}
+    else if( EQUAL_SUB_STR( "ANIM_START"))
+    {
+      LoadModelAnimationData_t( &File, baseMesh, skeleton, mStretch);  // load and set model's animation data
+      break;                          // we found our animations, we loaded them so we will stop forever loop
+    }
     else if( EQUAL_SUB_STR( "ORIGIN_TRI"))
     {
-      sscanf( ld_line, "ORIGIN_TRI %d %d %d", &aiTransVtx[0], &aiTransVtx[1], &aiTransVtx[2]);	// read given vertices
+      sscanf( ld_line, "ORIGIN_TRI %d %d %d", &aiTransVtx[0], &aiTransVtx[1], &aiTransVtx[2]);  // read given vertices
     }
-	}
+  }
   File.Close();
 
   CreateEmptyAttachingSounds();
 }
 //----------------------------------------------------------------------------------------------
-void CEditModel::CreateMipModels_t(CObject3D &objRestFrame, CObject3D &objMipSourceFrame,
-         INDEX iVertexRemoveRate, INDEX iSurfacePreservingFactor)
+void CEditModel::CreateMipModels_t(const ImportedMesh& baseMesh, INDEX iVertexRemoveRate, INDEX iSurfacePreservingFactor)
 {
   // free possible mip-models except main mip model
   INDEX iMipModel=1;
   for( ; iMipModel<edm_md.md_MipCt; iMipModel++)
-	{
-		edm_md.md_MipInfos[ iMipModel].Clear();
-	}
-	edm_md.md_MipCt = 1;
+  {
+    edm_md.md_MipInfos[ iMipModel].Clear();
+  }
+  edm_md.md_MipCt = 1;
 
   // create mip model structure
-  CMipModel mmMipModel;
-  mmMipModel.FromObject3D_t( objRestFrame, objMipSourceFrame);
+  CMipModel mmMipModel(baseMesh);
 
   if( ProgresRoutines.SetProgressMessage != NULL)
     ProgresRoutines.SetProgressMessage( "Calculating mip models ...");
@@ -2020,19 +1868,11 @@ void CEditModel::CreateMipModels_t(CObject3D &objRestFrame, CObject3D &objMipSou
     }
     if( ProgresRoutines.SetProgressState != NULL)
       ProgresRoutines.SetProgressState(ctVerticesInRestFrame - mmMipModel.mm_amvVertices.Count());
-    CObject3D objMipModel;
-    mmMipModel.ToObject3D( objMipModel);
-
-    objMipModel.ob_aoscSectors.Lock();
-    objMipModel.ob_aoscSectors[0].LockAll();
-    AddMipModel( &objMipModel);
-    objMipModel.ob_aoscSectors[0].UnlockAll();
-    objMipModel.ob_aoscSectors.Unlock();
+    AddMipModel(mmMipModel.GetMesh());
   }
   ProgresRoutines.SetProgressState(ctVerticesInRestFrame);
   edm_md.SpreadMipSwitchFactors( 0, 5.0f);
   edm_md.LinkDataForSurfaces(FALSE);
-  CalculateMappingForMips();
 }
 //----------------------------------------------------------------------------------------------
 /*
@@ -2042,81 +1882,77 @@ void CEditModel::CreateMipModels_t(CObject3D &objRestFrame, CObject3D &objMipSou
  */
 void CEditModel::UpdateMipModels_t(CTFileName &fnScriptName) // throw char *
 {
-	CTFileStream File;
-	CObject3D O3D;
-	char base_path[ PATH_MAX] = "";
-	char file_name[ PATH_MAX];
-	char full_path[ PATH_MAX];
-	char ld_line[ 128];
+  CTFileStream File;
+  char base_path[ PATH_MAX] = "";
+  char file_name[ PATH_MAX];
+  char full_path[ PATH_MAX];
+  char ld_line[ 128];
   FLOATmatrix3D mStretch;
   mStretch.Diagonal(1.0f);
 
-	O3D.ob_aoscSectors.Lock();
-
   ASSERT( edm_md.md_VerticesCt != 0);
 
-	File.Open_t( fnScriptName); // open script file for reading
+  File.Open_t( fnScriptName); // open script file for reading
 
   INDEX i=1;
-	for( ; i<edm_md.md_MipCt; i++)
-	{
-		edm_md.md_MipInfos[ i].Clear();	// free possible mip-models except main mip model
-	}
-	edm_md.md_MipCt = 1;
+  for( ; i<edm_md.md_MipCt; i++)
+  {
+    edm_md.md_MipInfos[ i].Clear();  // free possible mip-models except main mip model
+  }
+  edm_md.md_MipCt = 1;
 
-	FOREVER
-	{
-		do
+  FOREVER
+  {
+    do
     {
       File.GetLine_t(ld_line, 128);
     }
-		while( (strlen( ld_line)== 0) || (ld_line[0]==';'));
+    while( (strlen( ld_line)== 0) || (ld_line[0]==';'));
 
-		if( EQUAL_SUB_STR( "SIZE"))
+    if( EQUAL_SUB_STR( "SIZE"))
     {
-  	  _strupr( ld_line);
+      _strupr( ld_line);
       FLOAT fStretch = 1.0f;
-		  sscanf( ld_line, "SIZE %g", &fStretch);
+      sscanf( ld_line, "SIZE %g", &fStretch);
       mStretch *= fStretch;
     }
-		else if( EQUAL_SUB_STR( "TRANSFORM")) 
+    else if( EQUAL_SUB_STR( "TRANSFORM")) 
     {
-  	  _strupr( ld_line);
+      _strupr( ld_line);
       FLOATmatrix3D mTran;
       mTran.Diagonal(1.0f);
-		  sscanf( ld_line, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
+      sscanf( ld_line, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
         &mTran(1,1), &mTran(1,2), &mTran(1,3),
         &mTran(2,1), &mTran(2,2), &mTran(2,3),
         &mTran(3,1), &mTran(3,2), &mTran(3,3));
       mStretch *= mTran;
     }
-		else if( EQUAL_SUB_STR( "DIRECTORY"))
-		{
-			_strupr( ld_line);
-			sscanf( ld_line, "DIRECTORY %s", base_path);
-			if( base_path[ strlen( base_path) - 1] != '\\')
-				strcat( base_path,"\\");
-		}
-		else if( EQUAL_SUB_STR( "MIP_MODELS"))
-		{
-			_strupr( ld_line);
-			INDEX no_of_mip_models;
+    else if( EQUAL_SUB_STR( "DIRECTORY"))
+    {
+      _strupr( ld_line);
+      sscanf( ld_line, "DIRECTORY %s", base_path);
+      if( base_path[ strlen( base_path) - 1] != '\\')
+        strcat( base_path,"\\");
+    }
+    else if( EQUAL_SUB_STR( "MIP_MODELS"))
+    {
+      _strupr( ld_line);
+      INDEX no_of_mip_models;
       sscanf( ld_line, "MIP_MODELS %d", &no_of_mip_models);
 
       // Jump over first mip model file name
       File.GetLine_t(ld_line, 128);
 
-			for( i=0; i<no_of_mip_models-1; i++)
-			{
+      for( i=0; i<no_of_mip_models-1; i++)
+      {
         File.GetLine_t(ld_line, 128);
-  			_strupr( ld_line);
-				sscanf( ld_line, "%s", file_name);
-				sprintf( full_path, "%s%s", base_path, file_name);
+        _strupr( ld_line);
+        sscanf( ld_line, "%s", file_name);
+        sprintf( full_path, "%s%s", base_path, file_name);
 
-			  O3D.Clear();                            // clear possible existing O3D's data
-				O3D.FillFromMesh(ImportedMesh(CTString(full_path), mStretch));
+        ImportedMesh mesh(CTString(full_path), mStretch);
 
-        if( edm_md.md_VerticesCt < O3D.ob_aoscSectors[0].osc_aovxVertices.Count())
+        if( edm_md.md_VerticesCt < mesh.m_vertices.size())
         {
           ThrowF_t(
             "It is unlikely that mip-model \"%s\" is valid.\n"
@@ -2125,27 +1961,24 @@ void CEditModel::UpdateMipModels_t(CTFileName &fnScriptName) // throw char *
         }
 
         if( edm_md.md_MipCt < MAX_MODELMIPS)
-				{
-	        O3D.ob_aoscSectors[0].LockAll();;
-					AddMipModel( &O3D);	// else this is one of model's mip definitions so call Add Mip Model
-	        O3D.ob_aoscSectors[0].UnlockAll();;
-				}
-				else
-				{
+        {
+          AddMipModel(mesh);
+        }
+        else
+        {
           ThrowF_t("There are too many mip-models defined in script file. Maximum of %d mip-models allowed.", MAX_MODELMIPS-1);
-				}
-			}
-		}
+        }
+      }
+    }
     else if( EQUAL_SUB_STR( "ORIGIN_TRI"))
     {
-      sscanf( ld_line, "ORIGIN_TRI %d %d %d", &aiTransVtx[0], &aiTransVtx[1], &aiTransVtx[2]);	// read given vertices
+      sscanf( ld_line, "ORIGIN_TRI %d %d %d", &aiTransVtx[0], &aiTransVtx[1], &aiTransVtx[2]);  // read given vertices
     }
-		else if( EQUAL_SUB_STR( "END"))
-		{
-			break;
-		}
-	}
-	O3D.ob_aoscSectors.Unlock();
+    else if( EQUAL_SUB_STR( "END"))
+    {
+      break;
+    }
+  }
   edm_md.LinkDataForSurfaces(TRUE);
 }
 
@@ -2268,7 +2101,7 @@ void CEditModel::PrintSurfaceNumbers( CDrawPort *pDP, CFontData *pFont,
 {
   char achrLine[ 256];
 
- 	// clear Z-buffer
+   // clear Z-buffer
   pDP->FillZBuffer( ZBUF_BACK);
 
   // get mip model ptr

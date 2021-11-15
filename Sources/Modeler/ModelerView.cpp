@@ -3354,9 +3354,6 @@ void CModelerView::OnUpdateRecreateTexture(CCmdUI* pCmdUI)
 void CModelerView::OnCreateMipModels() 
 {
   CMainFrame* pMainFrame = STATIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	CObject3D objRestFrame, objMipSourceFrame;
-	CListHead FrameNamesList;
-  CTFileName fnFrameFileName;
 	char achrLine[ 128];
   char achrBasePath[ PATH_MAX] = "";
 	char achrRestFrame[ PATH_MAX] = "";
@@ -3370,7 +3367,7 @@ void CModelerView::OnCreateMipModels()
     fnScriptName.RemoveApplicationPath_t();
   	// open script file
     CTFileStream File;
-    File.Open_t( fnScriptName);				
+    File.Open_t( fnScriptName);
     
     FLOATmatrix3D mStretch;
     mStretch.Diagonal(1.0f);
@@ -3416,97 +3413,71 @@ void CModelerView::OnCreateMipModels()
             &mTran(3,1), &mTran(3,2), &mTran(3,3));
           mStretch *= mTran;
         }
-		    else if( EQUAL_SUB_STR( "ANIM_START"))
-        {
-  	      pDoc->m_emEditModel.edm_md.LoadFromScript_t( &File, &FrameNamesList);
-          // extract file name of last rendered frame
-          INDEX iFrame = 0;
-          FOREACHINLIST( CFileNameNode, cfnn_Node, FrameNamesList, itFrameName)
-          {
-            if( m_iCurrentFrame == iFrame)
-            {
-              fnFrameFileName = CTString(itFrameName->cfnn_FileName);
-              break;
-            }
-            iFrame++;
-          }
-          // clear list of frames
-          FORDELETELIST( CFileNameNode, cfnn_Node, FrameNamesList, litDel)
-            delete &litDel.Current();
-        }
       }
     }
     catch( char *pstrError)
     {
       (void) pstrError;
     }
-    // if frame name is extracted properly
-    if( fnFrameFileName != "")
+
+    // show progres dialog
+    CRect rectMainFrameSize;
+    CRect rectProgress, rectProgressNew;
+    pMainFrame->GetWindowRect( &rectMainFrameSize);
+    pMainFrame->m_NewProgress.Create( IDD_NEW_PROGRESS, pMainFrame);
+    pMainFrame->m_NewProgress.GetWindowRect( &rectProgress);
+    rectProgressNew.left = rectMainFrameSize.Width()/2 - rectProgress.Width()/2;
+    rectProgressNew.top = rectMainFrameSize.Height()/2 - rectProgress.Height()/2;
+    rectProgressNew.right = rectProgressNew.left + rectProgress.Width();
+    rectProgressNew.bottom = rectProgressNew.top + rectProgress.Height();
+    pMainFrame->m_NewProgress.MoveWindow( rectProgressNew);
+    pMainFrame->m_NewProgress.ShowWindow(SW_SHOW);
+
+    CDlgAutoMipModeling dlgAutoMipModeling;
+    if( (dlgAutoMipModeling.DoModal() != IDOK) ||
+        (dlgAutoMipModeling.m_iVerticesToRemove<=0) ||
+        (dlgAutoMipModeling.m_iSurfacePreservingFactor<1) ||
+        (dlgAutoMipModeling.m_iSurfacePreservingFactor>99) )
     {
-      // load rest frame
-      objRestFrame.FillFromMesh(ImportedMesh(CTString(achrRestFrameFullPath), mStretch));
-      // load mip source frame
-      objMipSourceFrame.FillFromMesh(ImportedMesh(fnFrameFileName, mStretch));
-
-      // show progres dialog
-      CRect rectMainFrameSize;
-      CRect rectProgress, rectProgressNew;
-      pMainFrame->GetWindowRect( &rectMainFrameSize);
-      pMainFrame->m_NewProgress.Create( IDD_NEW_PROGRESS, pMainFrame);
-      pMainFrame->m_NewProgress.GetWindowRect( &rectProgress);
-      rectProgressNew.left = rectMainFrameSize.Width()/2 - rectProgress.Width()/2;
-      rectProgressNew.top = rectMainFrameSize.Height()/2 - rectProgress.Height()/2;
-      rectProgressNew.right = rectProgressNew.left + rectProgress.Width();
-      rectProgressNew.bottom = rectProgressNew.top + rectProgress.Height();
-      pMainFrame->m_NewProgress.MoveWindow( rectProgressNew);
-      pMainFrame->m_NewProgress.ShowWindow(SW_SHOW);
-
-      CDlgAutoMipModeling dlgAutoMipModeling;
-      if( (dlgAutoMipModeling.DoModal() != IDOK) ||
-          (dlgAutoMipModeling.m_iVerticesToRemove<=0) ||
-          (dlgAutoMipModeling.m_iSurfacePreservingFactor<1) ||
-          (dlgAutoMipModeling.m_iSurfacePreservingFactor>99) )
-      {
-        pMainFrame->m_NewProgress.DestroyWindow();
-        return;
-      }
-      // create mip models
-      pDoc->m_emEditModel.CreateMipModels_t( objRestFrame, objMipSourceFrame,
-        dlgAutoMipModeling.m_iVerticesToRemove, dlgAutoMipModeling.m_iSurfacePreservingFactor);
-      // copy mapping from main mip model
-      pDoc->m_emEditModel.SaveMapping_t( CTString("Temp\\ForAutoMipMapping.map"), 0);
-      // paste mapping over all smaller mip models
-      INDEX iMipModel=1;
-      for( ; iMipModel<pDoc->m_emEditModel.edm_md.md_MipCt; iMipModel++)
-      {
-        pDoc->m_emEditModel.LoadMapping_t( CTString("Temp\\ForAutoMipMapping.map"), iMipModel);
-      }
-
-      for( INDEX iSurface=1; 
-        iSurface<pDoc->m_emEditModel.edm_md.md_MipInfos[0].mmpi_MappingSurfaces.Count();
-        iSurface++)
-      {
-        // get rendering flags from main mip model for current surface
-        ULONG ulRenderFlags;
-        enum SurfaceShadingType sstShading;
-        enum SurfaceTranslucencyType sttTranslucency;
-        m_ModelObject.GetSurfaceRenderFlags( 0, iSurface, sstShading, sttTranslucency, ulRenderFlags);
-        // get color of surface
-        UBYTE ubSurfaceTransparency = (UBYTE) (m_ModelObject.GetSurfaceColor( 0, iSurface) & CT_OPAQUE);
-        for( iMipModel=1; iMipModel<pDoc->m_emEditModel.edm_md.md_MipCt; iMipModel++)
-        {
-          // set render flags
-          m_ModelObject.SetSurfaceRenderFlags( iMipModel, iSurface, sstShading, sttTranslucency, ulRenderFlags);
-          COLOR colSurfaceColor = m_ModelObject.GetSurfaceColor( iMipModel, iSurface);
-          // set remembered transparency
-          colSurfaceColor = (colSurfaceColor & 0xFFFFFF00) | ubSurfaceTransparency;
-          // set new surface color
-          m_ModelObject.SetSurfaceColor( iMipModel, iSurface, colSurfaceColor);
-        }
-      }
-      // destroy progres window
       pMainFrame->m_NewProgress.DestroyWindow();
+      return;
     }
+    // create mip models
+    pDoc->m_emEditModel.CreateMipModels_t(ImportedMesh(CTString(achrRestFrameFullPath), mStretch),
+      dlgAutoMipModeling.m_iVerticesToRemove, dlgAutoMipModeling.m_iSurfacePreservingFactor);
+    // copy mapping from main mip model
+    pDoc->m_emEditModel.SaveMapping_t( CTString("Temp\\ForAutoMipMapping.map"), 0);
+    // paste mapping over all smaller mip models
+    INDEX iMipModel=1;
+    for( ; iMipModel<pDoc->m_emEditModel.edm_md.md_MipCt; iMipModel++)
+    {
+      pDoc->m_emEditModel.LoadMapping_t( CTString("Temp\\ForAutoMipMapping.map"), iMipModel);
+    }
+
+    for( INDEX iSurface=1; 
+      iSurface<pDoc->m_emEditModel.edm_md.md_MipInfos[0].mmpi_MappingSurfaces.Count();
+      iSurface++)
+    {
+      // get rendering flags from main mip model for current surface
+      ULONG ulRenderFlags;
+      enum SurfaceShadingType sstShading;
+      enum SurfaceTranslucencyType sttTranslucency;
+      m_ModelObject.GetSurfaceRenderFlags( 0, iSurface, sstShading, sttTranslucency, ulRenderFlags);
+      // get color of surface
+      UBYTE ubSurfaceTransparency = (UBYTE) (m_ModelObject.GetSurfaceColor( 0, iSurface) & CT_OPAQUE);
+      for( iMipModel=1; iMipModel<pDoc->m_emEditModel.edm_md.md_MipCt; iMipModel++)
+      {
+        // set render flags
+        m_ModelObject.SetSurfaceRenderFlags( iMipModel, iSurface, sstShading, sttTranslucency, ulRenderFlags);
+        COLOR colSurfaceColor = m_ModelObject.GetSurfaceColor( iMipModel, iSurface);
+        // set remembered transparency
+        colSurfaceColor = (colSurfaceColor & 0xFFFFFF00) | ubSurfaceTransparency;
+        // set new surface color
+        m_ModelObject.SetSurfaceColor( iMipModel, iSurface, colSurfaceColor);
+      }
+    }
+    // destroy progres window
+    pMainFrame->m_NewProgress.DestroyWindow();
   }
   catch( char *pStrError)
   {
