@@ -114,7 +114,7 @@ CProgressRoutines::CProgressRoutines()
   SetProgressState = NULL;
 }
 
-void CreateBoneTriangles(ImportedMesh& mesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D& transform)
+void CreateBoneTriangles(ImportedMesh& mesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D& transform, FLOAT stretch)
 {
   size_t materialIndex = -1;
   for (size_t boneIndex = 0; boneIndex < mesh.m_bonesNames.size(); ++boneIndex)
@@ -127,8 +127,8 @@ void CreateBoneTriangles(ImportedMesh& mesh, const ImportedSkeleton& skeleton, c
 
     const FLOATmatrix4D boneTransform = bone.GetAbsoluteTransform();
     FLOAT4D v0(0.0f, 0.0f, 0.0f, 1.0f);
-    FLOAT4D v1(0.0f, 0.25f, 0.0f, 1.0f);
-    FLOAT4D v2(0.0f, 0.0f, -0.25f, 1.0f);
+    FLOAT4D v1(0.0f, 0.25f / stretch, 0.0f, 1.0f);
+    FLOAT4D v2(0.0f, 0.0f, -0.25f / stretch, 1.0f);
     v0 = v0 * boneTransform;
     v1 = v1 * boneTransform;
     v2 = v2 * boneTransform;
@@ -1307,6 +1307,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
   bMappingDimFound = FALSE;
   bAnimationsFound = FALSE;
   bLoadInitialMapping = FALSE;
+  FLOAT fStretch = 1.0f;
 
   FOREVER
   {
@@ -1330,7 +1331,6 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
     else if( EQUAL_SUB_STR( "SIZE"))
     {
       _strupr( ld_line);
-      FLOAT fStretch = 1.0f;
       sscanf( ld_line, "SIZE %g", &fStretch);
       mStretch *= fStretch;
     }
@@ -1432,7 +1432,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
         if (baseMesh.m_vertices.empty())
         {
           if (allowedToCreateBoneTriangles && hasSkeletalAnimation && !hasRegularAnimation)
-            CreateBoneTriangles(mesh, skeleton, mStretch);
+            CreateBoneTriangles(mesh, skeleton, mStretch, fStretch);
           baseMesh = mesh;
         }
         // If there are no vertices in model, call New Model and calculate UV mapping
