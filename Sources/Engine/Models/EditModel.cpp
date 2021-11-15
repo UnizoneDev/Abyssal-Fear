@@ -546,8 +546,7 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
         vVtx *= mOrientation;
       }
       OneFrameBB |= FLOATaabbox3D(vVtx);
-      avVertices.emplace_back();
-      avVertices.back() = vVtx;  // cache vertex
+      avVertices.emplace_back(vVtx);
     }
     // remember this frame's Bounding Box
     edm_md.md_FrameInfos[iO3D].mfi_Box = OneFrameBB;
