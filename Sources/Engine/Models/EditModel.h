@@ -133,11 +133,11 @@ private:
   struct FrameGenerator
   {
     CTString m_filename;
-    std::function<void(CObject3D&)> m_generator;
+    std::function<void(ImportedMesh&)> m_generator;
   };
 
- 	void NewModel(CObject3D *pO3D);									// creates new model, surface, vertice and polygon arrays
-  void AddMipModel(CObject3D *pO3D);							// adds one mip model
+  void NewModel(const ImportedMesh& mesh);									// creates new model, surface, vertice and polygon arrays
+  void AddMipModel(const ImportedMesh& mesh);							// adds one mip model
   // loads and converts model's animation data from script file
   std::vector<FrameGenerator> LoadFrameGenerators(CAnimData& ad, CTStream* File, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch);
   void LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch);	// throw char *
@@ -174,8 +174,7 @@ public:
   void UpdateAnimations_t(CTFileName &fnScriptName);	// throw char *
   // updates mip models configuration, looses their mapping !
 	void UpdateMipModels_t(CTFileName &fnScriptName); // throw char *
-  void CreateMipModels_t(CObject3D &objRestFrame, CObject3D &objMipSourceFrame,
-    INDEX iVertexRemoveRate, INDEX iSurfacePreservingFactor);
+  void CreateMipModels_t(const ImportedMesh& baseMesh, INDEX iVertexRemoveRate, INDEX iSurfacePreservingFactor);
 	void DefaultMapping( INDEX iCurrentMip, INDEX iSurface=-1);// sets default mapping for given mip-model and surface (or all surfaces -1)
   void CalculateMapping( INDEX iCurrentMip, INDEX iSurfaceNo); // calculate mapping coordinates
   void CalculateMappingAll( INDEX iCurrentMip);

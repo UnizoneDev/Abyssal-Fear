@@ -38,6 +38,7 @@ public:
   ImportedMesh(const CTFileName& fileName, const FLOATmatrix3D& mTransform);
   ImportedMesh(const ImportedMesh&) = default;
 
+  void Clear();
   void ApplySkinning(const ImportedSkeleton& baseSkeleton, const ImportedSkeleton& animSkeleton, const FLOATmatrix3D& mTransform);
   void FillFromFile(const CTFileName& fileName, const FLOATmatrix3D& mTransform);
 
@@ -65,7 +66,6 @@ public:
   std::vector<std::string> m_bonesNames;
 
 private:
-  void Clear();
   void FillConversionArrays_t(const FLOATmatrix3D& mTransform, const aiScene* aiSceneMain);
 };
 
