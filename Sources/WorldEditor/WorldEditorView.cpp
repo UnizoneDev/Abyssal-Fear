@@ -7360,18 +7360,18 @@ void CWorldEditorView::OnCenterEntity(CEntity* entity)
 
   FLOAT3D vPos = entity->GetPlacement().pl_PositionVector;
   FLOATaabbox3D boxEntity;
+  entity->GetSize(boxEntity);
 
   if( (ppidProperty != NULL) && (ppidProperty->pid_eptType == CEntityProperty::EPT_RANGE))
   {
     // obtain property ptr
     CEntityProperty *penpProperty = entity->PropertyForName( ppidProperty->pid_strName);
-    // get editing range
-    FLOAT fRange = ENTITYPROPERTY(entity, penpProperty->ep_slOffset, FLOAT);
-    boxEntity |= FLOATaabbox3D( FLOAT3D(0.0f, 0.0f ,0.0f), fRange);
-  }
-  else
-  {
-    entity->GetSize( boxEntity);
+    if (penpProperty)
+    {
+      // get editing range
+      FLOAT fRange = ENTITYPROPERTY(entity, penpProperty->ep_slOffset, FLOAT);
+      boxEntity = FLOATaabbox3D(FLOAT3D(0.0f, 0.0f, 0.0f), fRange);
+    }
   }
   boxEntity+=vPos;
   boxBoundingBox |= boxEntity;
