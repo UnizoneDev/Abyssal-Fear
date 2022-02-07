@@ -22,8 +22,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <Engine/Base/Profiling.h>
 #include <Engine/Models/ImportedMesh.h>
+#include <Engine/Templates/Stock_CTextureData.h>
 #include <Engine/Build.h>
 #include <direct.h>
+
+#include <filesystem>
+#include <unordered_set>
 
 #ifdef _DEBUG
 #undef new
@@ -34,6 +38,52 @@ static char THIS_FILE[] = __FILE__;
 
 #pragma optimize("p", on) // this is in effect for entire file!
 extern COLOR acol_ColorizePallete[];
+
+namespace
+{
+  static const char* g_CommonExportPrefix = "_EXPORT\\Content\\Engine110Export\\";
+
+  CTFileName _GenerateExportPrefix(const CTFileName& root_filename)
+  {
+    return _fnmMod + root_filename.FileDir() + root_filename.FileName() + g_CommonExportPrefix;
+  }
+
+  CTFileName _GenerateExportDir(const CTFileName& root_filename)
+  {
+    return _GenerateExportPrefix(root_filename) + _fnmMod + root_filename.FileDir() + root_filename.FileName() + "\\";
+  }
+
+  void _CreateDirectory(const CTFileName& relative_path)
+  {
+    std::filesystem::create_directories((_fnmApplicationPath + _fnmMod + relative_path).str_String);
+  }
+
+  void _ExportTexture(const CTFileName& root_filename, const CTFileName& texture_filename)
+  {
+    const CTFileName texture_export_file = texture_filename.NoExt() + ".tga";
+    const CTFileName target_filename = _fnmApplicationPath + _GenerateExportPrefix(root_filename) + _fnmMod + texture_export_file;
+    if (std::filesystem::exists(target_filename.str_String))
+      return;
+
+    bool delete_original = false;
+    if (!FileExists(texture_export_file))
+    {
+      delete_original = true;
+      CTextureData* td = _pTextureStock->Obtain_t(texture_filename);
+      CImageInfo ii;
+      td->Export_t(ii, 0);
+      ii.SaveTGA_t(texture_export_file);
+      ii.Clear();
+      _pTextureStock->Release(td);
+    }
+
+    const CTFileName abs_exported_file = _fnmApplicationPath + _fnmMod + texture_export_file;
+    std::filesystem::create_directories(target_filename.FileDir().str_String);
+    std::filesystem::copy_file(abs_exported_file.str_String, target_filename.str_String);
+    if (delete_original)
+      std::filesystem::remove(abs_exported_file.str_String);
+  }
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // CWorldEditorDoc
@@ -4625,15 +4675,15 @@ void CWorldEditorDoc::OnPopupVtxNumeric()
   dlg.DoModal();
 }
 
-
 void CWorldEditorDoc::OnExportPlacements()
 {
   CStaticStackArray<CTString> astrNeddedSmc;
   try
   {
-    CTFileName fnWorld=m_woWorld.wo_fnmFileName;
+    const CTFileName fnWorld=m_woWorld.wo_fnmFileName;
+    const CTFileName exportBaseDir = _GenerateExportDir(fnWorld);
     // "entity placement and names"
-    CTFileName fnExport=fnWorld.FileDir()+fnWorld.FileName()+".epn";
+    CTFileName fnExport=exportBaseDir+fnWorld.FileName()+".epn";
     // open text file
     CTFileStream strmFile;
     strmFile.Create_t( fnExport, CTStream::CM_TEXT);
@@ -4715,7 +4765,7 @@ void CWorldEditorDoc::OnExportPlacements()
     }
     
     // "entity placement and names"
-    CTFileName fnSml=fnWorld.FileDir()+fnWorld.FileName()+".sml";
+    CTFileName fnSml=exportBaseDir+fnWorld.FileName()+".sml";
     // open text file
     CTFileStream strmSmlFile;
     strmSmlFile.Create_t( fnSml, CTStream::CM_TEXT);
@@ -4933,7 +4983,7 @@ BOOL IsPolygonVisible(const CBrushPolygon &bpo)
 
 // Exports one layer of given type
 void ExportLayer_t(CWorldEditorDoc *pDoc, CEntity &en, ExportType etExportType, CBrushMip *pbmMip, CTFileStream &strmAmf,
-                   const CString &strLayerName, INDEX iLayerNo, BOOL bFieldBrush, BOOL bCollisionOnlyBrush)
+                   const CString &strLayerName, INDEX iLayerNo, BOOL bFieldBrush, BOOL bCollisionOnlyBrush, std::unordered_set<std::string>* oTexturesToExport = nullptr)
 {
   // sort brush polygons for their textures
   CDynamicContainer<CAmfSurface> cbpoSurfaces;
@@ -5161,11 +5211,14 @@ void ExportLayer_t(CWorldEditorDoc *pDoc, CEntity &en, ExportType etExportType, 
       // export material info
       CString strMaterial = pDoc->m_woWorld.wo_astSurfaceTypes[asSurf.sf_ubMaterial].st_strName;
       strmAmf.FPrintF_t("        Material \"%s\";\n", strMaterial);
-      // export first layer data
-      CTFileName strPath;
-      strPath = bpo.bpo_abptTextures[0].bpt_toTexture.GetName();
-      strPath = CorrectSlashes(strPath);
-      strPath = RemapDetailTexturePath(strPath);
+      // export first nonempty layer data
+      int nonempty_layer = -1;
+      for (int i = 0; i < 3 && nonempty_layer < 0; ++i)
+      {
+        const CTFileName texture_path = bpo.bpo_abptTextures[i].bpt_toTexture.GetName();
+        if (texture_path.Length() > 0)
+          nonempty_layer = i;
+      }
       if(bFieldBrush) {
         strmAmf.FPrintF_t("        \"base color\" Color %d;\n", C_GREEN|128);
         strmAmf.FPrintF_t("        \"blend type\" BlendType \"%translucent\";\n");
@@ -5175,10 +5228,14 @@ void ExportLayer_t(CWorldEditorDoc *pDoc, CEntity &en, ExportType etExportType, 
         if( (bpo.bpo_ulFlags&BPOF_PORTAL) && (bpo.bpo_ulFlags&BPOF_TRANSLUCENT) ) {
           strmAmf.FPrintF_t("        \"blend type\" BlendType \"%translucent\";\n");
         }
-        //strPath.SetAbsolutePath();
-        //strPath.ReplaceSubstr("\\", "\\\\");
-        //strmAmf.FPrintF_t("        \"base texture\" Texture \"%s\";\n", strPath);
-        //strmAmf.FPrintF_t("        \"base uvmap\" UVMap \"Texture 1\";\n");
+        if (nonempty_layer >= 0)
+        {
+          const CTFileName strPath = bpo.bpo_abptTextures[nonempty_layer].bpt_toTexture.GetName();
+          strmAmf.FPrintF_t("        \"base texture\" Texture \"Content/Engine110Export/%s\";\n", CorrectSlashes(strPath).str_String);
+          strmAmf.FPrintF_t("        \"base uvmap\" UVMap \"Texture %d\";\n", nonempty_layer + 1);
+          if (oTexturesToExport)
+            oTexturesToExport->insert(strPath.str_String);
+        }
         strmAmf.FPrintF_t("        \"base color\" Color %d;\n", bpo.bpo_abptTextures[0].s.bpt_colColor);
         // export second layer data
         //strPath = bpo.bpo_abptTextures[1].bpt_toTexture.GetName();
@@ -5362,7 +5419,7 @@ BOOL IsBrushEmpty(CEntity &en)
 }
 
 // Exports given brush mip into .amf format
-void ExportEntityToAMF_t(CWorldEditorDoc *pDoc, CEntity &en, const CTFileName &fnAmf, BOOL bFieldBrush, BOOL bInvisibleBrush, BOOL bEmptyBrush)
+void ExportEntityToAMF_t(CWorldEditorDoc *pDoc, CEntity &en, const CTFileName &fnAmf, BOOL bFieldBrush, BOOL bInvisibleBrush, BOOL bEmptyBrush, std::unordered_set<std::string>* oTexturesToExport = nullptr)
 {
   // fetch first mip
   CBrushMip *pbmMip = en.en_pbrBrush->GetFirstMip();
@@ -5398,7 +5455,7 @@ void ExportEntityToAMF_t(CWorldEditorDoc *pDoc, CEntity &en, const CTFileName &f
     if(bInvisibleBrush) {
       ExportLayer_t(pDoc, en, ET_RENDERING, pbmMip, strmAmf, "Collision", 0, bFieldBrush, TRUE);
     } else {
-      ExportLayer_t(pDoc, en, ET_RENDERING, pbmMip, strmAmf, "Rendering", 0, bFieldBrush, FALSE);
+      ExportLayer_t(pDoc, en, ET_RENDERING, pbmMip, strmAmf, "Rendering", 0, bFieldBrush, FALSE, oTexturesToExport);
     }
     if(ctLayers>1) {
       ExportLayer_t(pDoc, en, ET_VISIBILITY, pbmMip, strmAmf, "Visibility", 1, bFieldBrush, FALSE);
@@ -5415,12 +5472,17 @@ void CWorldEditorDoc::OnExportEntities()
   CStaticStackArray<CTString> astrNeddedSmc;
   try
   {
-    CTFileName fnWorld=m_woWorld.wo_fnmFileName;
+    const CTFileName fnWorld = m_woWorld.wo_fnmFileName;
+    const CTFileName exportBaseDir = _GenerateExportDir(fnWorld);
+    _CreateDirectory(exportBaseDir);
+
     // "entity placement and names"
-    CTFileName fnExport=fnWorld.FileDir()+fnWorld.FileName()+".awf";
+    CTFileName fnExport= exportBaseDir+fnWorld.FileName()+".awf";
     // open text file
     CTFileStream strmFile;
     strmFile.Create_t( fnExport, CTStream::CM_TEXT);
+
+    std::unordered_set<std::string> texturesToExport;
 
     // prepare container of entities to export
     CDynamicContainer<CEntity> dcEntitiesToExport;
@@ -5634,9 +5696,9 @@ void CWorldEditorDoc::OnExportEntities()
         CTString strEntityID;
         strEntityID.PrintF("%d", en.en_ulID);
         CTFileName fnAmf;
-        fnAmf.PrintF("%s_%s.amf", fnWorld.FileDir()+fnWorld.FileName(), strEntityID);
+        fnAmf.PrintF("%s_%s.amf", exportBaseDir+fnWorld.FileName(), strEntityID);
         BOOL bFieldBrush = en.en_RenderType==CEntity::RT_FIELDBRUSH;
-        ExportEntityToAMF_t(this, en, fnAmf, bFieldBrush, bInvisibleBrush, bEmptyBrush);
+        ExportEntityToAMF_t(this, en, fnAmf, bFieldBrush, bInvisibleBrush, bEmptyBrush, &texturesToExport);
       }
 
       // close entity attributes section
@@ -5649,7 +5711,7 @@ void CWorldEditorDoc::OnExportEntities()
     strmFile.PutLine_t(strLine);
     
     // "entity placement and names"
-    CTFileName fnSml=fnWorld.FileDir()+fnWorld.FileName()+".sml";
+    CTFileName fnSml=exportBaseDir+fnWorld.FileName()+".sml";
     // open text file
     CTFileStream strmSmlFile;
     strmSmlFile.Create_t( fnSml, CTStream::CM_TEXT);
@@ -5658,6 +5720,9 @@ void CWorldEditorDoc::OnExportEntities()
     {
       strmSmlFile.PutLine_t(astrNeddedSmc[iSmc]);
     }
+
+    for (const auto& texture_path : texturesToExport)
+      _ExportTexture(fnWorld, CTString(texture_path.c_str()));
 
     AfxMessageBox(L"Entities exported!", MB_OK|MB_ICONINFORMATION);
   }
