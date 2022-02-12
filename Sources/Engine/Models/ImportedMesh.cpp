@@ -239,7 +239,7 @@ ImportedMesh::ImportedMesh(const CTFileName& fnmFileName, const FLOATmatrix3D& m
   FillFromFile(fnmFileName, mTransform);
 }
 
-void ImportedMesh::ApplySkinning(const ImportedSkeleton& baseSkeleton, const ImportedSkeleton& animSkeleton, const FLOATmatrix3D& mTransform)
+void ImportedMesh::ApplySkinning(const ImportedSkeleton& animSkeleton, const FLOATmatrix3D& mTransform)
 {
   struct _TransformsCache
   {
@@ -251,16 +251,8 @@ void ImportedMesh::ApplySkinning(const ImportedSkeleton& baseSkeleton, const Imp
         return foundPos->second;
       return m_transforms.insert({ &bone, bone.GetAbsoluteTransform() }).first->second;
     }
-    const FLOATmatrix4D& GetInverseAbsoluteTransform(const ImportedSkeleton::Bone& bone) const
-    {
-      auto foundPos = m_inverseTransforms.find(&bone);
-      if (foundPos != m_inverseTransforms.end())
-        return foundPos->second;
-      return m_inverseTransforms.insert({ &bone, InverseMatrix(bone.GetAbsoluteTransform()) }).first->second;
-    }
   private:
     mutable std::unordered_map<const ImportedSkeleton::Bone*, FLOATmatrix4D> m_transforms;
-    mutable std::unordered_map<const ImportedSkeleton::Bone*, FLOATmatrix4D> m_inverseTransforms;
   };
   _TransformsCache transformCache;
 
@@ -278,12 +270,12 @@ void ImportedMesh::ApplySkinning(const ImportedSkeleton& baseSkeleton, const Imp
     for (const auto& weight : weights)
     {
       const auto& boneName = m_bonesNames[weight.first];
-      auto baseIt = baseSkeleton.m_bones.find(boneName);
-      if (baseIt == baseSkeleton.m_bones.end())
+      auto baseOffsetIt = m_boneOffsets.find(boneName);
+      if (baseOffsetIt == m_boneOffsets.end())
         continue;
-      const auto& baseBone = baseIt->second;
+      const auto& baseOffset = baseOffsetIt->second;
       const auto& animBone = animSkeleton.m_bones.find(boneName)->second;
-      const FLOATmatrix4D transform = transformCache.GetAbsoluteTransform(animBone) * transformCache.GetInverseAbsoluteTransform(baseBone);
+      const FLOATmatrix4D transform = transformCache.GetAbsoluteTransform(animBone) * baseOffset;
       result += (vertex * transform) * weight.second;
     }
 
@@ -363,6 +355,15 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
     {
       if (mesh->HasTextureCoords(j))
         coordsRemap[uvIndex++] = j;
+    }
+    for (int i = 0; i < mesh->mNumBones; ++i)
+    {
+      const auto* bone = mesh->mBones[i];
+      auto& offset = m_boneOffsets[bone->mName.C_Str()];
+      const auto aiOffset = bone->mOffsetMatrix * aiMatrix4x4(meshTransform.at(mesh)).Inverse();
+      for (int row = 0; row < 4; ++row)
+        for (int col = 0; col < 4; ++col)
+          offset(row + 1, col + 1) = aiOffset[row][col];
     }
   }
 

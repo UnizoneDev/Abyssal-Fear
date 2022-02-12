@@ -114,18 +114,16 @@ CProgressRoutines::CProgressRoutines()
   SetProgressState = NULL;
 }
 
-void CreateBoneTriangles(ImportedMesh& mesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D& transform, FLOAT stretch)
+void CreateBoneTriangles(ImportedMesh& mesh, const FLOATmatrix3D& transform, FLOAT stretch)
 {
   size_t materialIndex = -1;
   for (size_t boneIndex = 0; boneIndex < mesh.m_bonesNames.size(); ++boneIndex)
   {
-    auto foundPos = skeleton.m_bones.find(mesh.m_bonesNames[boneIndex]);
-    if (foundPos == skeleton.m_bones.end())
+    auto foundPos = mesh.m_boneOffsets.find(mesh.m_bonesNames[boneIndex]);
+    if (foundPos == mesh.m_boneOffsets.end())
       continue;
 
-    const auto& bone = foundPos->second;
-
-    const FLOATmatrix4D boneTransform = bone.GetAbsoluteTransform();
+    const FLOATmatrix4D boneTransform = InverseMatrix(foundPos->second);
     FLOAT4D v0(0.0f, 0.0f, 0.0f, 1.0f);
     FLOAT4D v1(0.0f, 0.25f / stretch, 0.0f, 1.0f);
     FLOAT4D v2(0.0f, 0.0f, -0.25f / stretch, 1.0f);
@@ -302,11 +300,11 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
         frames.emplace_back();
         auto& frame = frames.back();
         frame.m_filename = sourceFile.c_str();
-        frame.m_generator = [&baseMesh, &skeleton, mStretch, importedAnimation, frameIndex](ImportedMesh& mesh)
+        frame.m_generator = [&baseMesh, mStretch, importedAnimation, frameIndex](ImportedMesh& mesh)
         {
           mesh = baseMesh;
           const auto& animSkeleton = importedAnimation->m_frames[frameIndex];
-          mesh.ApplySkinning(skeleton, animSkeleton, mStretch);
+          mesh.ApplySkinning(animSkeleton, mStretch);
         };
       }
 
@@ -1432,7 +1430,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
         if (baseMesh.m_vertices.empty())
         {
           if (allowedToCreateBoneTriangles && hasSkeletalAnimation && !hasRegularAnimation)
-            CreateBoneTriangles(mesh, skeleton, mStretch, fStretch);
+            CreateBoneTriangles(mesh, mStretch, fStretch);
           baseMesh = mesh;
         }
         // If there are no vertices in model, call New Model and calculate UV mapping

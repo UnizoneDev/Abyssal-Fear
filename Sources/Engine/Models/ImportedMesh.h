@@ -39,7 +39,7 @@ public:
   ImportedMesh(const ImportedMesh&) = default;
 
   void Clear();
-  void ApplySkinning(const ImportedSkeleton& baseSkeleton, const ImportedSkeleton& animSkeleton, const FLOATmatrix3D& mTransform);
+  void ApplySkinning(const ImportedSkeleton& animSkeleton, const FLOATmatrix3D& mTransform);
   void FillFromFile(const CTFileName& fileName, const FLOATmatrix3D& mTransform);
 
   struct Triangle
@@ -64,6 +64,7 @@ public:
   std::vector<TWeights> m_verticeWeights;
   std::array<std::vector<FLOAT2D>, 3> m_uvs;
   std::vector<std::string> m_bonesNames;
+  std::map<std::string, FLOATmatrix4D> m_boneOffsets;
 
 private:
   void FillConversionArrays_t(const FLOATmatrix3D& mTransform, const aiScene* aiSceneMain);
