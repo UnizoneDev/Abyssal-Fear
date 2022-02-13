@@ -55,6 +55,12 @@ public:
     COLOR cm_colColor;
   };
 
+  struct WeightBone
+  {
+    std::string m_name;
+    FLOATmatrix4D m_offset;
+  };
+
   using TWeights = std::map<size_t, float>;
 
 public:
@@ -63,8 +69,7 @@ public:
   std::vector<FLOAT3D> m_vertices;
   std::vector<TWeights> m_verticeWeights;
   std::array<std::vector<FLOAT2D>, 3> m_uvs;
-  std::vector<std::string> m_bonesNames;
-  std::map<std::string, FLOATmatrix4D> m_boneOffsets;
+  std::vector<WeightBone> m_weightBones;
 
 private:
   void FillConversionArrays_t(const FLOATmatrix3D& mTransform, const aiScene* aiSceneMain);

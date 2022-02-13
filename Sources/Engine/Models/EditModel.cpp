@@ -117,13 +117,11 @@ CProgressRoutines::CProgressRoutines()
 void CreateBoneTriangles(ImportedMesh& mesh, const FLOATmatrix3D& transform, FLOAT stretch)
 {
   size_t materialIndex = -1;
-  for (size_t boneIndex = 0; boneIndex < mesh.m_bonesNames.size(); ++boneIndex)
+  for (size_t boneIndex = 0; boneIndex < mesh.m_weightBones.size(); ++boneIndex)
   {
-    auto foundPos = mesh.m_boneOffsets.find(mesh.m_bonesNames[boneIndex]);
-    if (foundPos == mesh.m_boneOffsets.end())
-      continue;
+    const auto& weightBone = mesh.m_weightBones.at(boneIndex);
 
-    const FLOATmatrix4D boneTransform = InverseMatrix(foundPos->second);
+    const FLOATmatrix4D boneTransform = InverseMatrix(weightBone.m_offset);
     FLOAT4D v0(0.0f, 0.0f, 0.0f, 1.0f);
     FLOAT4D v1(0.0f, 0.25f / stretch, 0.0f, 1.0f);
     FLOAT4D v2(0.0f, 0.0f, -0.25f / stretch, 1.0f);

@@ -269,13 +269,14 @@ void ImportedMesh::ApplySkinning(const ImportedSkeleton& animSkeleton, const FLO
 
     for (const auto& weight : weights)
     {
-      const auto& boneName = m_bonesNames[weight.first];
-      auto baseOffsetIt = m_boneOffsets.find(boneName);
-      if (baseOffsetIt == m_boneOffsets.end())
-        continue;
-      const auto& baseOffset = baseOffsetIt->second;
-      const auto& animBone = animSkeleton.m_bones.find(boneName)->second;
-      const FLOATmatrix4D transform = transformCache.GetAbsoluteTransform(animBone) * baseOffset;
+      const auto& weightBone = m_weightBones.at(weight.first);
+      FLOATmatrix4D animBoneTransform;
+      const auto& animBoneIt = animSkeleton.m_bones.find(weightBone.m_name);
+      if (animBoneIt != animSkeleton.m_bones.end())
+        animBoneTransform = transformCache.GetAbsoluteTransform(animBoneIt->second);
+      else
+        animBoneTransform.Diagonal(1.0f);
+      const FLOATmatrix4D transform = animBoneTransform * weightBone.m_offset;
       result += (vertex * transform) * weight.second;
     }
 
@@ -323,7 +324,7 @@ void ImportedMesh::Clear()
   m_verticeWeights.clear();
   for (auto& uv : m_uvs)
     uv.clear();
-  m_bonesNames.clear();
+  m_weightBones.clear();
 }
 
 void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const aiScene* aiSceneMain)
@@ -347,6 +348,7 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
 
   // ------------  Find UV map indices
   std::map<aiMesh*, std::array<unsigned int, 3>> uvChannels;
+  std::map<std::string, FLOATmatrix4D> boneOffsets;
   for (auto* mesh : validMeshes)
   {
     auto& coordsRemap = uvChannels[mesh];
@@ -359,7 +361,7 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
     for (int i = 0; i < mesh->mNumBones; ++i)
     {
       const auto* bone = mesh->mBones[i];
-      auto& offset = m_boneOffsets[bone->mName.C_Str()];
+      auto& offset = boneOffsets[bone->mName.C_Str()];
       const auto aiOffset = bone->mOffsetMatrix * aiMatrix4x4(meshTransform.at(mesh)).Inverse();
       for (int row = 0; row < 4; ++row)
         for (int col = 0; col < 4; ++col)
@@ -387,7 +389,19 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
       }
     }
   }
-  m_bonesNames = vertexWeights.GetBones();
+  const auto boneNames = vertexWeights.GetBones();
+  m_weightBones.reserve(boneNames.size());
+  for (const auto& boneName : boneNames)
+  {
+    m_weightBones.emplace_back();
+    auto& weightBone = m_weightBones.back();
+    weightBone.m_name = boneName;
+    const auto offsetIt = boneOffsets.find(boneName);
+    if (offsetIt != boneOffsets.end())
+      weightBone.m_offset = offsetIt->second;
+    else
+      weightBone.m_offset.Diagonal(1.0f);
+  }
 
   // ------------ Convert object's mapping vertices (texture vertices)
   std::unordered_map<aiVector3D, INDEX> uniqueTexCoords[3];
