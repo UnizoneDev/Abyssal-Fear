@@ -61,27 +61,15 @@ public:
 
     QObject::connect(editor, &CheckListWidget::Changed, this, [this]
       {
-        ULONG bits_to_clear = MAX_ULONG;
-        ULONG bits_to_set = 0;
+        INDEX bits_to_set = 0;
 
         for (auto* flag : m_flags)
         {
-          if (flag->checkState() == Qt::Unchecked)
-            bits_to_clear &= ~static_cast<ULONG>(flag->data().toUInt());
-          else if (flag->checkState() == Qt::Checked)
-            bits_to_set |= static_cast<ULONG>(flag->data().toUInt());
+          if (flag->checkState() == Qt::Checked)
+            bits_to_set |= flag->data().toInt();
         }
 
-        for (auto* entity : m_entities)
-        {
-          auto& weapons = _GetWeapons(entity);
-          weapons &= bits_to_clear;
-          weapons |= bits_to_set;
-        }
-
-        CWorldEditorDoc* pDoc = theApp.GetDocument();
-        pDoc->SetModifiedFlag(TRUE);
-        pDoc->UpdateAllViews(NULL);
+        _WritePropertyT<INDEX>(bits_to_set);
       });
 
     return editor;
@@ -102,13 +90,13 @@ private:
     return "WEAPONS";
   }
 
-  void _AddFlag(CheckListWidget* editor, const QString& label, ULONG flag)
+  void _AddFlag(CheckListWidget* editor, const QString& label, INDEX flag)
   {
-    static_assert(sizeof(ULONG) == sizeof(unsigned int));
+    static_assert(sizeof(INDEX) == sizeof(unsigned int));
     m_flags.push_back(editor->AddItem(label, _GetFlagState(flag), static_cast<unsigned int>(flag)));
   }
 
-  Qt::CheckState _GetFlagState(ULONG flag) const
+  Qt::CheckState _GetFlagState(INDEX flag) const
   {
     auto it = m_entities.begin();
     const bool flag_is_set = _GetWeapons(*it) & flag;
@@ -123,7 +111,7 @@ private:
     return Qt::Unchecked;
   }
 
-  INDEX& _GetWeapons(CEntity* entity) const
+  INDEX _GetWeapons(CEntity* entity) const
   {
     CEntityProperty* actual_property = entity->PropertyForName(mp_property->pid_strName);
     return ENTITYPROPERTY(entity, actual_property->ep_slOffset, INDEX);
