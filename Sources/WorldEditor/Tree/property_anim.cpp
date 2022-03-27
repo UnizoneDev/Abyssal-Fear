@@ -78,6 +78,7 @@ public:
 
     editor->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
     editor->installEventFilter(this);
+    editor->setMinimumWidth(30);
 
     QObject::connect(editor, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this, editor]
       (int index)
