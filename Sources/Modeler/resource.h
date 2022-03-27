@@ -677,6 +677,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define ID_LAST_FRAME                   -32378
 #define ID_TESSELLATE_MORE              33159
 #define ID_TESSELLATE_LESS              33160
+#define ID_APP_ABOUT_QT                 33161
 #define IDW_TOOLBAR_MAIN                0xE800
 #define IDW_STATUS_BAR                  0xE801
 #define IDW_TOOLBAR_ANIMATION           0xE802
@@ -699,7 +700,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
 #define _APS_NEXT_RESOURCE_VALUE        190
-#define _APS_NEXT_COMMAND_VALUE         33161
+#define _APS_NEXT_COMMAND_VALUE         33162
 #define _APS_NEXT_CONTROL_VALUE         1314
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

@@ -28,6 +28,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <htmlhelp.h>
 
+#include <QMfcApp>
+
 #define ENGINE_INTERNAL 1
 #include <EngineGUI/EngineGUI.h>
 #include "Modeler.h"

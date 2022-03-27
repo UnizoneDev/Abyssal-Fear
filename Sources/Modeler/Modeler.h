@@ -86,6 +86,11 @@ public:
 class CModelerApp : public CWinApp
 {
 private:
+  void OnQtAbout();
+
+private:
+  bool m_showing_modal_dialog;
+
 public:
 	BOOL SubInitInstance(void);
   BOOL m_bRefreshPatchPalette;
@@ -139,6 +144,12 @@ public:
   // variables for display modes for different modes
 	CChangeable m_chPlacement;
 	CChangeable m_chGlobal;
+
+  struct ModalGuard
+  {
+    ModalGuard();
+    ~ModalGuard();
+  };
 
   CModelerApp();
   ~CModelerApp();

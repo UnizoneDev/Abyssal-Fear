@@ -20,6 +20,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/Stock_CModelData.h>
 #include <Engine/Templates/Stock_CTextureData.h>
 
+#include <QtWin>
+#include <QIcon>
+#include <QMessageBox>
+#include <QWinWidget>
+
 #ifdef _DEBUG
 #undef new
 #define new DEBUG_NEW
@@ -110,6 +115,7 @@ void SetColorToProfile( CTString strVarName, COLOR colValue)
 
 BEGIN_MESSAGE_MAP(CModelerApp, CWinApp)
 	//{{AFX_MSG_MAP(CModelerApp)
+  ON_COMMAND(ID_APP_ABOUT_QT, OnQtAbout)
 	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
 	ON_COMMAND(ID_FILE_NEW, OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
@@ -233,6 +239,16 @@ CModelerApp::~CModelerApp()
 
 CModelerApp theApp;
 
+CModelerApp::ModalGuard::ModalGuard()
+{
+  theApp.m_showing_modal_dialog = true;
+}
+
+CModelerApp::ModalGuard::~ModalGuard()
+{
+  theApp.m_showing_modal_dialog = false;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CModelerApp initialization
 
@@ -247,6 +263,12 @@ BOOL CModelerApp::InitInstance()
 
 BOOL CModelerApp::SubInitInstance()
 {
+  HICON app_icon = (HICON)LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDR_MAINFRAME), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+  QMfcApp::instance(this)->setWindowIcon(QIcon(QtWin::fromHICON(app_icon)));
+  ::DestroyIcon(app_icon);
+
+  m_showing_modal_dialog = false;
+
   wchar_t strIni[ 128];
 	// Standard initialization
 	// If you are not using these features and wish to reduce the size
@@ -441,6 +463,13 @@ BOOL CModelerApp::SubInitInstance()
   return TRUE;
 }
 
+void CModelerApp::OnQtAbout()
+{
+  CModelerApp::ModalGuard guard;
+  QWinWidget modal_widget(m_pMainWnd->GetSafeHwnd(), nullptr, Qt::WindowFlags {});
+  QMessageBox::aboutQt(&modal_widget, "About Qt");
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog used for App About
 
@@ -500,6 +529,9 @@ void CModelerApp::OnAppAbout()
 static TIME timeLastTick=TIME(0);
 BOOL CModelerApp::OnIdle(LONG lCount) 
 {
+  if (m_showing_modal_dialog)
+    return CWinApp::OnIdle(lCount);
+
   if( _pTimer != NULL)
   {
     TIME timeCurrentTick = _pTimer->GetRealTimeTick();
@@ -965,9 +997,10 @@ int CModelerApp::Run()
 {
   int iResult;
   CTSTREAM_BEGIN {
-    iResult=CWinApp::Run();
+    iResult=QMfcApp::run(this);
   } CTSTREAM_END;
-	return CWinApp::Run();
+  delete qApp;
+  return iResult;
 }
 
 CModelerView* CModelerApp::GetActiveView(void)

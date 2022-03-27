@@ -105,6 +105,7 @@ BEGIN
     BUTTON      ID_EDIT_COPY
     BUTTON      ID_EDIT_PASTE
     SEPARATOR
+    BUTTON      ID_APP_ABOUT_QT
     BUTTON      ID_APP_ABOUT
     BUTTON      ID_CONTEXT_HELP
 END
@@ -293,6 +294,7 @@ BEGIN
     BEGIN
         MENUITEM "&Help Topics",                ID_HELP_FINDER
         MENUITEM SEPARATOR
+        MENUITEM "About Qt...",                 ID_APP_ABOUT_QT
         MENUITEM "&About Serious Modeler...",   ID_APP_ABOUT
         MENUITEM "Mouse help\tCtrl+M",          ID_VIEW_HELP_MOUSE
     END
@@ -356,6 +358,7 @@ BEGIN
     POPUP "&Help"
     BEGIN
         MENUITEM "&Help Topics",                ID_HELP_FINDER
+        MENUITEM "About Qt...",                 ID_APP_ABOUT_QT
         MENUITEM "&About Modeler...",           ID_APP_ABOUT
     END
 END
@@ -463,6 +466,7 @@ BEGIN
     BEGIN
         MENUITEM "&Help Topics",                ID_HELP_FINDER
         MENUITEM SEPARATOR
+        MENUITEM "About Qt...",                 ID_APP_ABOUT_QT
         MENUITEM "&About Serious Modeler...",   ID_APP_ABOUT
         MENUITEM "Mouse help\tCtrl+M",          ID_VIEW_HELP_MOUSE
     END
@@ -1914,6 +1918,7 @@ END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
+    ID_APP_ABOUT_QT         "Display information about Qt\nAbout Qt"
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
     ID_HELP_FINDER          "List Help topics\nHelp Topics"
