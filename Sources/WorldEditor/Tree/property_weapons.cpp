@@ -92,8 +92,7 @@ private:
 
   void _AddFlag(CheckListWidget* editor, const QString& label, INDEX flag)
   {
-    static_assert(sizeof(INDEX) == sizeof(unsigned int));
-    m_flags.push_back(editor->AddItem(label, _GetFlagState(flag), static_cast<unsigned int>(flag)));
+    m_flags.push_back(editor->AddItem(label, _GetFlagState(flag), flag));
   }
 
   Qt::CheckState _GetFlagState(INDEX flag) const
