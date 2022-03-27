@@ -29,20 +29,28 @@ UIPropertyFactory& UIPropertyFactory::Instance()
   return instance;
 }
 
-void UIPropertyFactory::Register(CEntityProperty::PropertyType prop_type, TFactory&& factory)
+void UIPropertyFactory::Register(CEntityProperty::PropertyType prop_type, TFactoryAndPropertyName&& factory_and_name)
 {
-  auto [inserted_pos, was_new] = m_factories.emplace(prop_type, std::move(factory));
+  auto& factories = m_factories[prop_type];
+  auto [inserted_pos, was_new] = factories.emplace(std::move(factory_and_name.second), std::move(factory_and_name.first));
   if (!was_new)
-    throw std::runtime_error(std::string("Factory for ") + std::to_string(static_cast<int>(prop_type)) + " already registered!");
+    throw std::runtime_error(std::string("Factory for ") + std::to_string(static_cast<int>(prop_type)) + "and name \"" + factory_and_name.second + "\" already registered!");
 }
 
-const UIPropertyFactory::TFactory& UIPropertyFactory::GetFactoryFor(CEntityProperty::PropertyType prop_type) const
+const UIPropertyFactory::TFactory& UIPropertyFactory::GetFactoryFor(CEntityProperty::PropertyType prop_type, const std::string& prop_name) const
 {
   auto found_pos = m_factories.find(prop_type);
   if (found_pos == m_factories.end())
     throw std::runtime_error(std::string("Factory for ") + std::to_string(static_cast<int>(prop_type)) + " is not registered!");
 
-  return found_pos->second;
+  auto& factories = found_pos->second;
+  auto found_factory = factories.find(prop_name);
+  if (found_factory == factories.end())
+    found_factory = factories.find("");
+  if (found_factory == factories.end())
+    throw std::runtime_error(std::string("Factory for property name \"" + prop_name + "\" is not registered!"));
+
+  return found_factory->second;
 }
 
 bool UIPropertyFactory::HasFactoryFor(CEntityProperty::PropertyType prop_type) const
@@ -52,5 +60,10 @@ bool UIPropertyFactory::HasFactoryFor(CEntityProperty::PropertyType prop_type) c
 
 UIPropertyFactory::Registrar::Registrar(CEntityProperty::PropertyType prop_type, TFactory&& factory)
 {
-  UIPropertyFactory::Instance().Register(prop_type, std::move(factory));
+  UIPropertyFactory::Instance().Register(prop_type, TFactoryAndPropertyName(std::move(factory), ""));
+}
+
+UIPropertyFactory::Registrar::Registrar(CEntityProperty::PropertyType prop_type, TFactoryAndPropertyName&& factory_and_name)
+{
+  UIPropertyFactory::Instance().Register(prop_type, std::move(factory_and_name));
 }

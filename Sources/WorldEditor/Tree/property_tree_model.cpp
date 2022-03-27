@@ -313,7 +313,7 @@ void PropertyTreeModel::_FillSubProperties(const QModelIndex& parent, const std:
     std::unique_ptr<CPropertyID>& property = *it;
     if (UIPropertyFactory::Instance().HasFactoryFor(property->pid_eptType))
     {
-      std::unique_ptr<BaseEntityPropertyTreeItem> new_item(UIPropertyFactory::Instance().GetFactoryFor(property->pid_eptType)(parent_item));
+      std::unique_ptr<BaseEntityPropertyTreeItem> new_item(UIPropertyFactory::Instance().GetFactoryFor(property->pid_eptType, property->pid_strName.str_String)(parent_item));
       if (property->pid_eptType == CEntityProperty::EPT_PARENT || property->pid_eptType == CEntityProperty::EPT_ENTITYPTR)
         pointer_properties.push_back(new_item.get());
 
