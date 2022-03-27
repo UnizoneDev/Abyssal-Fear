@@ -75,17 +75,23 @@ void CDlgPgTexture::DoDataExchange(CDataExchange* pDX)
   // if dialog is receiving data and control windows are valid
   if( (pDX->m_bSaveAndValidate == FALSE) && IsWindow( m_comboScroll.m_hWnd) )
   {
-	  m_comboScroll.ResetContent();
-    for(INDEX iScroll=0; iScroll<256; iScroll++)
+    if (m_dirty || mp_last_world != &pDoc->m_woWorld)
     {
-      CTString strScrollName = pDoc->m_woWorld.wo_attTextureTransformations[iScroll].tt_strName;
-      if( strScrollName != CTString("") ) m_comboScroll.AddString( CString(strScrollName));
-    }
-	  m_comboBlend.ResetContent();
-    for(INDEX iBlend=0; iBlend<256; iBlend++)
-    {
-      CTString strBlendName = pDoc->m_woWorld.wo_atbTextureBlendings[iBlend].tb_strName;
-      if( strBlendName != CTString("") ) m_comboBlend.AddString( CString(strBlendName));
+      m_dirty = false;
+      mp_last_world = &pDoc->m_woWorld;
+
+      m_comboScroll.ResetContent();
+      for (INDEX iScroll = 0; iScroll < 256; iScroll++)
+      {
+        CTString strScrollName = pDoc->m_woWorld.wo_attTextureTransformations[iScroll].tt_strName;
+        if (strScrollName != CTString("")) m_comboScroll.AddString(CString(strScrollName));
+      }
+      m_comboBlend.ResetContent();
+      for (INDEX iBlend = 0; iBlend < 256; iBlend++)
+      {
+        CTString strBlendName = pDoc->m_woWorld.wo_atbTextureBlendings[iBlend].tb_strName;
+        if (strBlendName != CTString("")) m_comboBlend.AddString(CString(strBlendName));
+      }
     }
 
     m_radioTexture = pDoc->m_iTexture;
@@ -113,7 +119,7 @@ void CDlgPgTexture::DoDataExchange(CDataExchange* pDX)
     GetDlgItem( IDC_REFLECTIVE)->EnableWindow( bSelectionExists);
     GetDlgItem( IDC_AFTER_SHADOW)->EnableWindow( bSelectionExists);
     GetDlgItem( IDC_PREVIEW_FRAME)->EnableWindow( bSelectionExists);
-	  m_ctrlCombineColor.EnableWindow( bSelectionExists);
+    m_ctrlCombineColor.EnableWindow( bSelectionExists);
 
     m_comboScroll.EnableWindow( bSelectionExists);
     m_comboBlend.EnableWindow( bSelectionExists);
@@ -475,6 +481,12 @@ void CDlgPgTexture::OnDropFiles(HDROP hDropInfo)
   {
     AfxMessageBox( CString(err_str));
   }
+}
+
+BOOL CDlgPgTexture::OnSetActive()
+{
+  m_dirty = true;
+  return CPropertyPage::OnSetActive();
 }
 
 BOOL CDlgPgTexture::PreTranslateMessage(MSG* pMsg)
