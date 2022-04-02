@@ -31,7 +31,7 @@ typedef char FILE_NAME[PATH_MAX];
 /*
  * An object used for obtaining animation's information
  */
-class CAnimInfo {
+class ENGINE_API CAnimInfo {
 public:
   NAME ai_AnimName;
   TIME ai_SecsPerFrame;	    // speed of this animation
@@ -41,7 +41,7 @@ public:
 /*
  * One animation of an animateable object
  */
-class COneAnim {
+class ENGINE_API COneAnim {
 public:
   COneAnim();
   ~COneAnim();
@@ -140,8 +140,6 @@ public:
   ENGINE_API INDEX GetAnimsCt(void) const;
 	// load list of frames from script file
   ENGINE_API void LoadFromScript_t( CTStream *File, CListHead *FrameFileList); // throw char *
-  // print #define <animation name> lines for all animations into given file
-  void ExportAnimationNames_t( CTStream *ostrFile, CTString strAnimationPrefix);  // throw char *
 	void Read_t( CTStream *istrFile); // throw char *
 	void Write_t( CTStream *ostrFile); // throw char *
 };

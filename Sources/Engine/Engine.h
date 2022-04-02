@@ -122,7 +122,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Models/ModelObject.h>
 #include <Engine/Models/ModelData.h>
 #include <Engine/Models/Model_internal.h>
-#include <Engine/Models/EditModel.h>
 #include <Engine/Models/RenderModel.h>
 
 #include <Engine/Ska/ModelInstance.h>

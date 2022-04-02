@@ -219,8 +219,10 @@ $(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\Debug\QtSolutions_MFCMig
     <ClCompile Include="DlgPgInfoAttachingSound.cpp" />
     <ClCompile Include="DlgPleaseWait.cpp" />
     <ClCompile Include="DlgPreferences.cpp" />
+    <ClCompile Include="EditModel.cpp" />
     <ClCompile Include="LinkedSurfaceList.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MipMaker.cpp" />
     <ClCompile Include="Modeler.cpp" />
     <ClCompile Include="ModelerDoc.cpp" />
     <ClCompile Include="ModelerView.cpp" />
@@ -342,8 +344,10 @@ $(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\Debug\QtSolutions_MFCMig
     <ClInclude Include="DlgPgInfoAttachingSound.h" />
     <ClInclude Include="DlgPleaseWait.h" />
     <ClInclude Include="DlgPreferences.h" />
+    <ClInclude Include="EditModel.h" />
     <ClInclude Include="LinkedSurfaceList.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="MipMaker.h" />
     <ClInclude Include="Modeler.h" />
     <ClInclude Include="ModelerDoc.h" />
     <ClInclude Include="ModelerView.h" />

@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 struct aiAnimation;
 
-struct ImportedSkeletalAnimation
+struct ENGINE_API ImportedSkeletalAnimation
 {
 public:
   ImportedSkeletalAnimation(

@@ -30,7 +30,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <vector>
 #include <functional>
 
-#define MAX_MODELERTEXTURES		32
 #define MAPPING_VERSION_WITHOUT_POLYGONS_PER_SURFACE "0001"
 #define MAPPING_VERSION_WITHOUT_SOUNDS_AND_ATTACHMENTS "0002"
 #define MAPPING_VERSION_WITHOUT_COLLISION "0003"
@@ -38,7 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define MAPPING_WITHOUT_SURFACE_COLORS "0005"
 #define MAPPING_VERSION "0006"
 
-class ENGINE_API CProgressRoutines
+class CProgressRoutines
 {
 public:
   CProgressRoutines();
@@ -47,9 +46,9 @@ public:
   void (*SetProgressState)( INDEX iCurrentStep);      // sets current modeler's "new progress dialog" state
 };
 
-ENGINE_API extern CProgressRoutines ProgresRoutines;
+extern CProgressRoutines ProgresRoutines;
 
-class ENGINE_API CTextureDataInfo
+class CTextureDataInfo
 {
 public:
   CListNode tdi_ListNode;
@@ -57,24 +56,7 @@ public:
   CTFileName tdi_FileName;
 };
 
-#define UNDO_VERTEX   0
-#define UNDO_SURFACE  1
-
-class ENGINE_API CMappingUndo
-{
-public:
-  CListNode mu_ListNode;
-  INDEX mu_Action;
-  ModelTextureVertex *mu_ClosestVertex;
-  FLOAT3D mu_UndoCoordinate;
-  INDEX mu_iCurrentMip;
-  INDEX mu_iCurrentSurface;
-  FLOAT mu_Zoom;
-  FLOAT3D mu_Center;
-  FLOAT3D mu_HPB;
-};
-
-class ENGINE_API CAttachedModel {
+class CAttachedModel {
 public:
   BOOL am_bVisible;
   CModelObject am_moAttachedModel; // used as smart pointer (holds file name of attachment), never rendered
@@ -89,7 +71,7 @@ public:
   void Clear(void); // clear the object.
 };
 
-class ENGINE_API CAttachedSound {
+class CAttachedSound {
 public:
   BOOL as_bLooping;
   BOOL as_bPlaying;
@@ -102,7 +84,7 @@ public:
   void Clear(void) { as_fnAttachedSound = CTString("");};
 };
 
-class ENGINE_API CThumbnailSettings {
+class CThumbnailSettings {
 public:
   BOOL ts_bSet;
   CPlacement3D ts_plLightPlacement;
@@ -127,7 +109,7 @@ public:
 struct ImportedMesh;
 struct ImportedSkeleton;
 
-class ENGINE_API CEditModel : public CSerial
+class CEditModel : public CSerial
 {
 private:
   struct FrameGenerator

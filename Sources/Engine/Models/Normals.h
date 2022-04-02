@@ -23,9 +23,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 extern FLOAT3D  avGouraudNormals[MAX_GOURAUDNORMALS];
 
 /* Find nearest Gouraud normal for a vector. */
-INDEX GouraudNormal(    const FLOAT3D &vNormal);
-void CompressNormal_HQ( const FLOAT3D &vNormal, UBYTE &ubH, UBYTE &ubP);
-void DecompressNormal_HQ(     FLOAT3D &vNormal, UBYTE  ubH, UBYTE  ubP);
+ENGINE_API INDEX GouraudNormal(    const FLOAT3D &vNormal);
+ENGINE_API void CompressNormal_HQ( const FLOAT3D &vNormal, UBYTE &ubH, UBYTE &ubP);
+ENGINE_API void DecompressNormal_HQ(     FLOAT3D &vNormal, UBYTE  ubH, UBYTE  ubP);
 
 
 #endif  /* include-once check. */

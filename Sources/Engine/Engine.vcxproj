@@ -437,8 +437,6 @@
     <ClCompile Include="Sound\SoundObject.cpp" />
     <ClCompile Include="Sound\SoundProfile.cpp" />
     <ClCompile Include="Sound\Wave.cpp" />
-    <ClCompile Include="Models\EditModel.cpp" />
-    <ClCompile Include="Models\MipMaker.cpp" />
     <ClCompile Include="Models\Model.cpp" />
     <ClCompile Include="Models\ModelProfile.cpp" />
     <ClCompile Include="Models\Normals.cpp" />
@@ -794,8 +792,6 @@
     <ClInclude Include="Sound\SoundObject.h" />
     <ClInclude Include="Sound\SoundProfile.h" />
     <ClInclude Include="Sound\Wave.h" />
-    <ClInclude Include="Models\EditModel.h" />
-    <ClInclude Include="Models\MipMaker.h" />
     <ClInclude Include="Models\Model.h" />
     <ClInclude Include="Models\Model_internal.h" />
     <ClInclude Include="Models\ModelData.h" />

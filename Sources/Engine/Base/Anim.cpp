@@ -426,21 +426,6 @@ void CAnimData::Write_t( CTStream *ostrFile)  // throw char *
 	}
 };
 
-// print #define <animation name> lines for all animations into given file
-void CAnimData::ExportAnimationNames_t( CTStream *ostrFile, CTString strAnimationPrefix) // throw char *
-{
-  char chrLine[ 256];
-  // for each animation
-  for( INDEX iAnimation=0; iAnimation<ad_NumberOfAnims; iAnimation++)
-  {
-    // prepare one #define line (add prefix)
-    sprintf( chrLine, "#define %s%s %d", strAnimationPrefix, ad_Anims[ iAnimation].oa_Name,
-             iAnimation);
-    // put it into file
-    ostrFile->PutLine_t( chrLine);
-  }
-}
-
 // Get info about some animation
 void CAnimData::GetAnimInfo(INDEX iAnimNo, CAnimInfo &aiInfo) const
 {

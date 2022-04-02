@@ -147,6 +147,12 @@
     <ClCompile Include="TextureComboBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EditModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MipMaker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Modeler.rc">
@@ -281,6 +287,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureComboBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EditModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MipMaker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

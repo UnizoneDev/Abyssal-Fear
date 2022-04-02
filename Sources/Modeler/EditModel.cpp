@@ -13,12 +13,10 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include "stdh.h"
+#include "stdafx.h"
 
 #include <Engine/Models/ModelObject.h>
 #include <Engine/Models/ModelData.h>
-#include <Engine/Models/EditModel.h>
-#include <Engine/Models/MipMaker.h>
 #include <Engine/Models/ImportedMesh.h>
 #include <Engine/Models/ImportedSkeleton.h>
 #include <Engine/Models/ImportedSkeletalAnimation.h>
@@ -33,9 +31,31 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/DynamicArray.cpp>
 #include <Engine/Templates/Stock_CTextureData.h>
 
+#include "EditModel.h"
+#include "MipMaker.h"
+
 #include <unordered_map>
 #include <vector>
 #include <memory>
+
+namespace {
+
+// print #define <animation name> lines for all animations into given file
+void ExportAnimationNames_t(CAnimData& animData, CTStream* ostrFile, CTString strAnimationPrefix) // throw char *
+{
+  char chrLine[256];
+  // for each animation
+  for (INDEX iAnimation = 0; iAnimation < animData.ad_NumberOfAnims; iAnimation++)
+  {
+    // prepare one #define line (add prefix)
+    sprintf(chrLine, "#define %s%s %d", strAnimationPrefix, animData.ad_Anims[iAnimation].oa_Name,
+      iAnimation);
+    // put it into file
+    ostrFile->PutLine_t(chrLine);
+  }
+}
+
+} // anonymous namespace
 
 // Globally instanciated object containing routines for dealing with progres messages
 CProgressRoutines ProgresRoutines;
@@ -225,7 +245,7 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
       }
       auto oneAnim = std::make_unique<COneAnim>();
       _strupr(ld_line);
-      sscanf(ld_line, "SKELETAL_ANIMATION %s", oneAnim->oa_Name);
+      sscanf(ld_line, "SKELETAL_ANIMATION %s", &oneAnim->oa_Name[0]);
 
       SLONG slLastPos;
       std::string sourceFile;
@@ -320,7 +340,7 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
       // Create new animation
       auto poaOneAnim = std::make_unique<COneAnim>();
       _strupr(ld_line);
-      sscanf(ld_line, "ANIMATION %s", poaOneAnim->oa_Name);
+      sscanf(ld_line, "ANIMATION %s", &poaOneAnim->oa_Name[0]);
       File->GetLine_t(ld_line, 128);
       if (!EQUAL_SUB_STR("SPEED"))
       {
@@ -707,7 +727,7 @@ void CEditModel::SaveIncludeFile_t( CTFileName fnFileName, CTString strDefinePre
   strcpy( achrUprName, strDefinePrefix);
   strcat( achrUprName, "_ANIM_");
   CTString strAnimationPrefix = achrUprName;
-  edm_md.ExportAnimationNames_t( &strmHFile, achrUprName);
+  ExportAnimationNames_t(edm_md, &strmHFile, achrUprName);
 
   sprintf( line, "\n// Color names\n");
   strmHFile.Write_t( line, strlen( line));

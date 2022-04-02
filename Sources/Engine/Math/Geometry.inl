@@ -1,3 +1,4 @@
+#pragma once
 
 // mirror a position vector by a given plane
 inline void ReflectPositionVectorByPlane(const FLOATplane3D &plPlane, FLOAT3D &vPoint)

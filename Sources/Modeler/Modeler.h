@@ -23,6 +23,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "resource.h"       // main symbols
 #include <windows.h>
 
+#include "EditModel.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // CModelerApp:
 // See Modeler.cpp for the implementation of this class
