@@ -33,6 +33,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "EditModel.h"
 #include "MipMaker.h"
+#include "Script/ScriptIO.h"
 
 #include <unordered_map>
 #include <vector>
@@ -1172,86 +1173,20 @@ void CEditModel::Write_t( CTStream *pFile) // throw char *
 }
 //----------------------------------------------------------------------------------------------
 /*
- * Routine saves defult script file containing only one animation with default data
- * Input file name is .LWO file name, not .SCR
+ * Routine saves default script file containing only one animation with default data
  */
 void CEditModel::CreateScriptFile_t(CTFileName &fnO3D) // throw char *
 {
-  CTFileName fnScriptName = fnO3D.FileDir() + fnO3D.FileName() + ".scr";
-  CTFileStream File;
-  char line[ 256];
+  ModelScript script;
+  script.m_mipModels.push_back(fnO3D);
+  script.m_animations.emplace_back();
+  auto& anim = script.m_animations.back();
+  anim.m_type = ModelScript::Animation::Type::Vertex;
+  anim.m_name = "Default";
+  anim.m_frames.push_back(fnO3D);
 
-  File.Create_t( fnScriptName, CTStream::CM_TEXT);
-  File.PutLine_t( ";******* Creation settings");
-  File.PutLine_t( "TEXTURE_DIM 2.0 2.0");
-  File.PutLine_t( "SIZE 1.0");
-  File.PutLine_t( "MAX_SHADOW 0");
-  File.PutLine_t( "HI_QUALITY YES");
-  File.PutLine_t( "FLAT NO");
-  File.PutLine_t( "HALF_FLAT NO");
-  File.PutLine_t( "STRETCH_DETAIL NO");
-  File.PutLine_t( "");
-  File.PutLine_t( ";******* Mip models");
-  sprintf( line, "DIRECTORY %s", (CTString&)fnO3D.FileDir());
-  File.PutLine_t( line);
-  File.PutLine_t("");
-  File.PutLine_t(";******* You can also optionally specify a skeleton here!");
-  File.PutLine_t(";        Just uncomment the ';' at the beginning of the line and edit the filename.");
-  File.PutLine_t(";        If this line is not present, skeleton will be extracted from the 1st mip level file (if possible)");
-  File.PutLine_t(";SKELETON <skeleton_file>");
-  File.PutLine_t("");
-  File.PutLine_t( "MIP_MODELS 1");
-  sprintf( line, "    %s", (CTString&)(fnO3D.FileName() + fnO3D.FileExt()));
-  File.PutLine_t( line);
-  File.PutLine_t( "");
-  File.PutLine_t( "ANIM_START");
-  File.PutLine_t( ";******* Start of animation block");
-  File.PutLine_t("/*");
-  File.PutLine_t("******* Instead of old animations, you can now use skeletal anims!");
-  File.PutLine_t("        They will be baked into old-fashioned frame anims during import");
-  File.PutLine_t("        Compatible with 1.07!");
-  File.PutLine_t("        2 lines below should usually be enough. But following OPTIONAL directives are also available:");
-  File.PutLine_t("SKELETAL_ANIMATION <anim_name>");
-  File.PutLine_t("SOURCE_FILE <anim_file>");
-  File.PutLine_t("");
-  File.PutLine_t("******* Following OPTIONAL directives are also available:");
-  File.PutLine_t("ORIG_SKELETON <skeleton_file>");
-  File.PutLine_t("     Optional skeleton, used to capture this animation.");
-  File.PutLine_t("     This directive is useful when current skeleton is a deformed version of original one");
-  File.PutLine_t("     Not required unless it is clear that animation looks wrong and fits other skeleton");
-  File.PutLine_t("");
-  File.PutLine_t("ANIM_NAME_IN_FILE <anim_src_name>");
-  File.PutLine_t("     Optional name of animation inside specified SOURCE_FILE");
-  File.PutLine_t("     This directive is required when SOURCE_FILE contains multiple animations");
-  File.PutLine_t("     One must be picked among them");
-  File.PutLine_t("");
-  File.PutLine_t("NUM_FRAMES <number_of_frame>");
-  File.PutLine_t("     Optional desired number of frames");
-  File.PutLine_t("     Directive is used to specify number of frames to be baked from this animation.");
-  File.PutLine_t("     Might be useful when correct number cannot be deduced from SOURCE_FILE");
-  File.PutLine_t("");
-  File.PutLine_t("DURATION <anim_length_in_seconds>");
-  File.PutLine_t("     Optional length of animation");
-  File.PutLine_t("     Useful when correct duration cannot be deduced from SOURCE_FILE");
-  File.PutLine_t("");
-  File.PutLine_t("******* NOTE *******");
-  File.PutLine_t("        When model contains ONLY skeletal animations, modeler will generate helper triangles for EACH BONE");
-  File.PutLine_t("        That way one can easily use them for attachments. For example, add a weapon to a hand, etc");
-  File.PutLine_t("        If this is not desired for some reason, place following optional directive anywhere in the script:");
-  File.PutLine_t("NO_BONE_TRIANGLES");
-  File.PutLine_t("*/");
-  sprintf( line, "DIRECTORY %s", (CTString&)fnO3D.FileDir());
-  File.PutLine_t( line);
-  File.PutLine_t( "ANIMATION Default");
-  File.PutLine_t( "SPEED 0.1");
-  sprintf( line, "    %s", (CTString&)(fnO3D.FileName() + fnO3D.FileExt()));
-  File.PutLine_t( line);
-  File.PutLine_t( "");
-  File.PutLine_t( ";******* End of animation block");
-  File.PutLine_t( "ANIM_END");
-  File.PutLine_t( "");
-  File.PutLine_t( "END");
-  File.Close();
+  const CTFileName fnScriptName = fnO3D.FileDir() + fnO3D.FileName() + ".scr";
+  ScriptIO::SaveToFile(script, fnScriptName);
 }
 //----------------------------------------------------------------------------------------------
 /*

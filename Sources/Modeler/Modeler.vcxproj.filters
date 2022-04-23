@@ -19,6 +19,12 @@
     <Filter Include="Wizard Files">
       <UniqueIdentifier>{b933183f-60c0-4afe-a38e-e176b4dcb145}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Script">
+      <UniqueIdentifier>{c989f1c2-618a-4112-8ab1-e7439247effe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Script">
+      <UniqueIdentifier>{a96e6e74-31ba-43c1-9c18-5ea1e937a379}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimComboBox.cpp">
@@ -152,6 +158,9 @@
     </ClCompile>
     <ClCompile Include="MipMaker.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\ScriptIO.cpp">
+      <Filter>Source Files\Script</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -294,6 +303,12 @@
     </ClInclude>
     <ClInclude Include="MipMaker.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Script.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\ScriptIO.h">
+      <Filter>Header Files\Script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
