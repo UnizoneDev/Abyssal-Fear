@@ -184,7 +184,6 @@ void CreateBoneTriangles(ImportedMesh& mesh, const FLOATmatrix3D& transform, FLO
 
 //----------------------------------------------------------------------------------------------
 std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(
-  CAnimData& ad,
   const ModelScript::Animations& animations,
   const ImportedMesh& baseMesh,
   const ImportedSkeleton& skeleton,
@@ -193,13 +192,13 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(
   std::vector<CEditModel::FrameGenerator> frames;
 
   // clears possible animations
-  ad.CAnimData::Clear();
-  ad.ad_NumberOfAnims = static_cast<INDEX>(animations.size());
-  ad.ad_Anims = new COneAnim[animations.size()];
+  edm_md.CAnimData::Clear();
+  edm_md.ad_NumberOfAnims = static_cast<INDEX>(animations.size());
+  edm_md.ad_Anims = new COneAnim[animations.size()];
   size_t i = 0;
   for (const auto& anim : animations)
   {
-    auto& one_anim = ad.ad_Anims[i++];
+    auto& one_anim = edm_md.ad_Anims[i++];
     strcpy(&one_anim.oa_Name[0], anim.m_name.substr(0, NAME_SIZE - 1).c_str());
 
     if (anim.m_type == ModelScript::Animation::Type::Skeletal)
@@ -289,7 +288,7 @@ void CEditModel::LoadModelAnimationData_t(
   if( edm_md.md_VerticesCt == 0) {
     throw( "Trying to update model's animations, but model doesn't exists!");
   }
-  auto frameGenerators = LoadFrameGenerators(edm_md, animations, baseMesh, skeleton, mStretch);
+  auto frameGenerators = LoadFrameGenerators(animations, baseMesh, skeleton, mStretch);
 
   // if recreating animations, frame count must be the same
   if( (ctFramesBefore != 0) && (frameGenerators.size() != ctFramesBefore) )

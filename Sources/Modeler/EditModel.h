@@ -123,7 +123,7 @@ private:
   void NewModel(const ImportedMesh& mesh);									// creates new model, surface, vertice and polygon arrays
   void AddMipModel(const ImportedMesh& mesh);							// adds one mip model
   // loads and converts model's animation data from script file
-  std::vector<FrameGenerator> LoadFrameGenerators(CAnimData& ad, const ModelScript::Animations& animations, const ImportedMesh& baseMesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch);
+  std::vector<FrameGenerator> LoadFrameGenerators(const ModelScript::Animations& animations, const ImportedMesh& baseMesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch);
   void LoadModelAnimationData_t(const ModelScript::Animations& animations, const ImportedMesh& baseMesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch);	// throw char *
   INDEX edm_iActiveCollisionBox;                  // collision box that is currently edited
 public:
