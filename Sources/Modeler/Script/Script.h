@@ -47,6 +47,8 @@ struct ModelScript {
     Full
   };
 
+  using Animations = std::vector<Animation>;
+
   FLOATmatrix3D m_transformation;
   FLOAT2D m_textureScale = FLOAT2D(2.0f, 2.0f);
   FLOAT m_scale = 1.0f;
@@ -57,7 +59,7 @@ struct ModelScript {
   bool m_boneTriangles = true;
   std::optional<CTFileName> m_skeleton;
   std::vector<CTFileName> m_mipModels;
-  std::vector<Animation> m_animations;
+  Animations m_animations;
 };
 
 #endif // SCRIPT_H

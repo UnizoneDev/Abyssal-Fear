@@ -67,10 +67,6 @@ CProgressRoutines ProgresRoutines;
 #define  PC_ALLWAYS_ON (1UL << 30)
 #define  PC_ALLWAYS_OFF (1UL << 31)
 
-
-// origin triangle for transforming object
-INDEX aiTransVtx[3] = {-1,-1,-1};
-
 CThumbnailSettings::CThumbnailSettings( void)
 {
   ts_bSet = FALSE;
@@ -187,138 +183,51 @@ void CreateBoneTriangles(ImportedMesh& mesh, const FLOATmatrix3D& transform, FLO
 }
 
 //----------------------------------------------------------------------------------------------
-/*
- * This routine loads animation data from opened model script file and converts loaded data
- * to model's frame vertices format
- */
-#define EQUAL_SUB_STR( str) (strnicmp( ld_line, str, strlen(str)) == 0)
-
-std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimData& ad, CTStream* File, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch)
+std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(
+  CAnimData& ad,
+  const ModelScript::Animations& animations,
+  const ImportedMesh& baseMesh,
+  const ImportedSkeleton& skeleton,
+  const FLOATmatrix3D& mStretch)
 {
-  UWORD i;
-  char error_str[256];
-  char key_word[256];
-  char base_path[PATH_MAX] = "";
-  char file_name[PATH_MAX];
-  char anim_name[256];
-  char full_path[PATH_MAX];
-  char ld_line[128];
   std::vector<CEditModel::FrameGenerator> frames;
-  std::vector<std::unique_ptr<COneAnim>> TempAnimationList;
-  SLONG lc;
-  BOOL ret_val;
 
   // clears possible animations
   ad.CAnimData::Clear();
-
-  ret_val = TRUE;
-  FOREVER
+  ad.ad_NumberOfAnims = static_cast<INDEX>(animations.size());
+  ad.ad_Anims = new COneAnim[animations.size()];
+  size_t i = 0;
+  for (const auto& anim : animations)
   {
-    // Repeat reading of one line of script file until it is not empty or comment
-    do
-    {
-      File->GetLine_t(ld_line, 128);
-    } while ((strlen(ld_line) == 0) || (ld_line[0] == ';'));
+    auto& one_anim = ad.ad_Anims[i++];
+    strcpy(&one_anim.oa_Name[0], anim.m_name.substr(0, NAME_SIZE - 1).c_str());
 
-    // If key-word is "/*", search end of comment block
-    if (EQUAL_SUB_STR("/*"))
+    if (anim.m_type == ModelScript::Animation::Type::Skeletal)
     {
-      do
-      {
-        File->GetLine_t(ld_line, 128);
-      } while (!EQUAL_SUB_STR("*/"));
-    }
-    // If key-word is "DIRECTORY", remember it and add "\" character at the end of new path
-    // if it is not yet there
-    else if (EQUAL_SUB_STR("NO_BONE_TRIANGLES")) {}
-    else if (EQUAL_SUB_STR("DIRECTORY"))
-    {
-      _strupr(ld_line);
-      sscanf(ld_line, "DIRECTORY %s", base_path);
-      if (base_path[strlen(base_path) - 1] != '\\')
-        strcat(base_path,"\\");
-    }
-    else if (EQUAL_SUB_STR("SKELETAL_ANIMATION"))
-    {
-      if (strlen(ld_line) <= (strlen("SKELETAL_ANIMATION") + 1))
-      {
-        throw("You have to give descriptive name to every animation.");
-      }
-      auto oneAnim = std::make_unique<COneAnim>();
-      _strupr(ld_line);
-      sscanf(ld_line, "SKELETAL_ANIMATION %s", &oneAnim->oa_Name[0]);
-
-      SLONG slLastPos;
-      std::string sourceFile;
-      std::string optAnimName;
-      std::string optRefSkeleton;
-      double optAnimDuration = 0.0;
-      size_t optNumFrames = 0;
-      FOREVER
-      {
-        slLastPos = File->GetPos_t();
-        File->GetLine_t(ld_line, 128);
-        _strupr(ld_line);
-        if (ld_line[0] == ';') continue;
-        // key words that start or end animations or empty line breaks frame reading
-        if ((EQUAL_SUB_STR("ANIMATION")) ||
-          (EQUAL_SUB_STR("SKELETAL_ANIMATION")) ||
-          (strlen(ld_line) == 0) ||
-          (EQUAL_SUB_STR("ANIM_END"))) break;
-
-        if (EQUAL_SUB_STR("SOURCE_FILE"))
-        {
-          sscanf(ld_line, "SOURCE_FILE %s", file_name);
-          sprintf(full_path, "%s%s", base_path, file_name);
-          sourceFile = full_path;
-        }
-        else if (EQUAL_SUB_STR("ANIM_NAME_IN_FILE"))
-        {
-          sscanf(ld_line, "ANIM_NAME_IN_FILE %s", file_name);
-          optAnimName = file_name;
-        }
-        else if (EQUAL_SUB_STR("ORIG_SKELETON"))
-        {
-          sscanf(ld_line, "ORIG_SKELETON %s", file_name);
-          sprintf(full_path, "%s%s", base_path, file_name);
-          optRefSkeleton = full_path;
-        }
-        else if (EQUAL_SUB_STR("DURATION"))
-        {
-          sscanf(ld_line, "DURATION %lf", &optAnimDuration);
-        }
-        else if (EQUAL_SUB_STR("NUM_FRAMES"))
-        {
-          sscanf(ld_line, "NUM_FRAMES %u", &optNumFrames);
-        }
-      }
-      File->SetPos_t(slLastPos);
-      if (sourceFile.empty())
-        ThrowF_t("Animation %s has no source file provided!\n'SOURCE_FILE <filename>' expected!", oneAnim->oa_Name);
-
       auto importedAnimation = std::make_shared<ImportedSkeletalAnimation>(
-        CTFileName(CTString(sourceFile.c_str())),
-        optAnimName,
+        anim.m_frames.front(),
+        anim.m_customSourceName.value_or(""),
         skeleton,
-        optNumFrames,
-        optAnimDuration);
-      if (!optRefSkeleton.empty())
+        anim.m_optNumFrames.value_or(0),
+        anim.m_optDuration.value_or(0.0));
+
+      if (anim.m_optRefSkeleton.has_value())
       {
         ImportedSkeleton refSkeleton;
-        refSkeleton.FillFromFile(CTFileName(CTString(optRefSkeleton.c_str())));
+        refSkeleton.FillFromFile(*anim.m_optRefSkeleton);
         importedAnimation->ReapplyByReference(refSkeleton);
       }
 
-      oneAnim->oa_NumberOfFrames = importedAnimation->m_frames.size();
-      oneAnim->oa_SecsPerFrame = importedAnimation->m_duration / importedAnimation->m_frames.size();
-      oneAnim->oa_FrameIndices = (INDEX*)AllocMemory(oneAnim->oa_NumberOfFrames * sizeof(INDEX));
+      one_anim.oa_NumberOfFrames = importedAnimation->m_frames.size();
+      one_anim.oa_SecsPerFrame = importedAnimation->m_duration / importedAnimation->m_frames.size();
+      one_anim.oa_FrameIndices = (INDEX*)AllocMemory(one_anim.oa_NumberOfFrames * sizeof(INDEX));
 
       for (size_t frameIndex = 0; frameIndex < importedAnimation->m_frames.size(); ++frameIndex)
       {
-        oneAnim->oa_FrameIndices[frameIndex] = frames.size();
+        one_anim.oa_FrameIndices[frameIndex] = frames.size();
         frames.emplace_back();
         auto& frame = frames.back();
-        frame.m_filename = sourceFile.c_str();
+        frame.m_filename = anim.m_frames.front();
         frame.m_generator = [&baseMesh, mStretch, importedAnimation, frameIndex](ImportedMesh& mesh)
         {
           mesh = baseMesh;
@@ -326,91 +235,22 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
           mesh.ApplySkinning(animSkeleton, mStretch);
         };
       }
-
-      TempAnimationList.push_back(std::move(oneAnim));
-      ad.ad_NumberOfAnims++;
     }
-    // Key-word animation must follow its name (in same line),
-    // its speed and its number of frames (new lines)
-    else if (EQUAL_SUB_STR("ANIMATION"))
+    else // vertex animation
     {
-      if (strlen(ld_line) <= (strlen("ANIMATION") + 1))
-      {
-        throw("You have to give descriptive name to every animation.");
-      }
-      // Create new animation
-      auto poaOneAnim = std::make_unique<COneAnim>();
-      _strupr(ld_line);
-      sscanf(ld_line, "ANIMATION %s", &poaOneAnim->oa_Name[0]);
-      File->GetLine_t(ld_line, 128);
-      if (!EQUAL_SUB_STR("SPEED"))
-      {
-        throw("Expecting key word \"SPEED\" after key word \"ANIMATION\".");
-      }
-      _strupr(ld_line);
-      sscanf(ld_line, "SPEED %f", &poaOneAnim->oa_SecsPerFrame);
-
-      CDynamicArray<CTString> astrFrames;
-      SLONG slLastPos;
-      FOREVER
-      {
-        slLastPos = File->GetPos_t();
-        File->GetLine_t(ld_line, 128);
-        _strupr(ld_line);
-        // jump over old key word "FRAMES" and comments
-        if (EQUAL_SUB_STR("FRAMES") || (ld_line[0] == ';')) continue;
-        // key words that start or end animations or empty line breaks frame reading
-        if ((EQUAL_SUB_STR("ANIMATION")) ||
-            (EQUAL_SUB_STR("SKELETAL_ANIMATION")) ||
-            (strlen(ld_line) == 0) ||
-            (EQUAL_SUB_STR("ANIM_END"))) break;
-
-        sscanf(ld_line, "%s", key_word);
-        if (key_word == CTString("ANIM"))
-        {
-          // read file name from line and add it at the end of last path string loaded
-          sscanf(ld_line, "%s %s", error_str, anim_name);
-          // search trough all allready readed animations for macro one
-          for (auto& oneAnim : TempAnimationList)
-          {
-            if (oneAnim->oa_Name == CTString(anim_name))
-            {
-              CTString* pstrMacroFrames = astrFrames.New(oneAnim->oa_NumberOfFrames);
-              for (INDEX iMacroFrame = 0; iMacroFrame < oneAnim->oa_NumberOfFrames; iMacroFrame++)
-              {
-                *pstrMacroFrames = frames[oneAnim->oa_FrameIndices[iMacroFrame]].m_filename;
-                pstrMacroFrames++;
-              }
-            }
-          }
-        }
-        else
-        {
-          // read file name from line and add it at the end of last path string loaded
-          sscanf(ld_line, "%s", file_name);
-          sprintf(full_path, "%s%s", base_path, file_name);
-          CTString* pstrNewFile = astrFrames.New(1);
-          *pstrNewFile = CTString(full_path);
-        }
-      }
-      if (astrFrames.Count() == 0)
-      {
-        ThrowF_t("Can't find any frames for animation %s.\nThere must be at least 1 frame "
-          "per animation.\nList of frames must start at line after line containing key"
-          "word SPEED.", poaOneAnim->oa_Name);
-      }
-      // set position before last line readed
-      File->SetPos_t(slLastPos);
-      // Allocate array of indices
-      poaOneAnim->oa_NumberOfFrames = astrFrames.Count();
-      poaOneAnim->oa_FrameIndices = (INDEX*)AllocMemory(poaOneAnim->oa_NumberOfFrames * sizeof(INDEX));
+      one_anim.oa_NumberOfFrames = anim.m_frames.size();
+      if (anim.m_optDuration.has_value())
+        one_anim.oa_SecsPerFrame = (*anim.m_optDuration) / anim.m_frames.size();
+      else
+        one_anim.oa_SecsPerFrame = 0.1f;
+      one_anim.oa_FrameIndices = (INDEX*)AllocMemory(one_anim.oa_NumberOfFrames * sizeof(INDEX));
 
       INDEX iFrame = 0;
-      FOREACHINDYNAMICARRAY(astrFrames, CTString, itStrFrame)
+      for (const auto& frame_filename : anim.m_frames)
       {
         // find existing index (of insert new one) for this file name into FileNameList
         auto foundFrame = std::find_if(frames.begin(), frames.end(),
-          [&itStrFrame](const FrameGenerator& frame) { return frame.m_filename == *itStrFrame; });
+          [&](const FrameGenerator& frame) { return frame.m_filename == frame_filename; });
         size_t frameIndex = frames.size();
         if (foundFrame != frames.end())
         {
@@ -418,59 +258,26 @@ std::vector<CEditModel::FrameGenerator> CEditModel::LoadFrameGenerators(CAnimDat
         } else {
           frames.emplace_back();
           auto& frame = frames.back();
-          frame.m_filename = *itStrFrame;
-          frame.m_generator = [mStretch, filename = *itStrFrame](ImportedMesh& mesh)
+          frame.m_filename = frame_filename;
+          frame.m_generator = [mStretch, frame_filename](ImportedMesh& mesh)
           {
-            mesh.FillFromFile(filename, mStretch);
+            mesh.FillFromFile(frame_filename, mStretch);
           };
         }
-        poaOneAnim->oa_FrameIndices[iFrame] = frameIndex;
-        iFrame++;
+        one_anim.oa_FrameIndices[iFrame++] = frameIndex;
       }
-      // clear used array
-      astrFrames.Clear();
-      // Add this new animation instance to temporary animation list
-      TempAnimationList.push_back(std::move(poaOneAnim));
-      ad.ad_NumberOfAnims++;
-    }
-    else if (EQUAL_SUB_STR("ANIM_END"))
-      break;
-    else
-    {
-      sprintf(error_str, "Incorrect word readed from script file.\n");
-      strcat(error_str, "Probable cause: missing \"ANIM_END\" key-word at end of animation list.");
-      throw(error_str);
     }
   }
-
-  lc = TempAnimationList.size();
-  ASSERT(lc != 0);
-
-  // create array of OneAnim object containing members as many as temporary list
-  ad.ad_Anims = new COneAnim[lc];
-
-  // copy list to array
-  lc = 0;
-  for (auto& oneAnim : TempAnimationList)
-  {
-    strcpy(ad.ad_Anims[lc].oa_Name, oneAnim->oa_Name);
-    ad.ad_Anims[lc].oa_SecsPerFrame = oneAnim->oa_SecsPerFrame;
-    ad.ad_Anims[lc].oa_NumberOfFrames = oneAnim->oa_NumberOfFrames;
-    ad.ad_Anims[lc].oa_FrameIndices = (INDEX*)AllocMemory(ad.ad_Anims[lc].oa_NumberOfFrames *
-      sizeof(INDEX));
-    for (i = 0; i < oneAnim->oa_NumberOfFrames; i++)
-      ad.ad_Anims[lc].oa_FrameIndices[i] = oneAnim->oa_FrameIndices[i];
-    lc++;
-  }
-
   return frames;
 }
 
-struct VertexNeighbors { CStaticStackArray<INDEX> vp_aiNeighbors; };
-
-void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch) // throw char *
+void CEditModel::LoadModelAnimationData_t(
+  const ModelScript::Animations& animations,
+  const ImportedMesh& baseMesh,
+  const ImportedSkeleton& skeleton,
+  const FLOATmatrix3D &mStretch)
 {
-  INDEX i;
+  struct VertexNeighbors { CStaticStackArray<INDEX> vp_aiNeighbors; };
 
   FLOATaabbox3D OneFrameBB;
   FLOATaabbox3D AllFramesBB;
@@ -482,7 +289,7 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
   if( edm_md.md_VerticesCt == 0) {
     throw( "Trying to update model's animations, but model doesn't exists!");
   }
-  auto frameGenerators = LoadFrameGenerators(edm_md, pFile, baseMesh, skeleton, mStretch);
+  auto frameGenerators = LoadFrameGenerators(edm_md, animations, baseMesh, skeleton, mStretch);
 
   // if recreating animations, frame count must be the same
   if( (ctFramesBefore != 0) && (frameGenerators.size() != ctFramesBefore) )
@@ -515,14 +322,6 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
   std::vector<FLOAT3D> avVertices; // for caching all vertices in all frames
   avVertices.reserve(baseMesh.m_vertices.size() * frameGenerators.size());
 
-  BOOL bOrigin = FALSE;
-  FLOATmatrix3D mOrientation;
-  // set bOrigin if aiTransVtx is valid
-  if((aiTransVtx[0] >=0) && (aiTransVtx[1] >=0) && (aiTransVtx[2] >=0))
-  {
-    bOrigin = TRUE;
-  }
-
   for (auto& frameGenerator : frameGenerators)
   {
     if( ProgresRoutines.SetProgressState != NULL) ProgresRoutines.SetProgressState(iO3D);
@@ -533,35 +332,12 @@ void CEditModel::LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMe
       ThrowF_t( "File %s, one of animation frame files has wrong number of points.", 
         frameGenerator.m_filename);
     }
-    if(bOrigin)
-    {
-      // calc matrix for vertex transform
-      FLOAT3D vY = mesh.m_vertices[aiTransVtx[2]]-mesh.m_vertices[aiTransVtx[0]];
-      FLOAT3D vZ = mesh.m_vertices[aiTransVtx[0]]-mesh.m_vertices[aiTransVtx[1]];
-      FLOAT3D vX = vY*vZ;
-      vY = vZ*vX;
-      // make a rotation matrix from those vectors
-      vX.Normalize();
-      vY.Normalize();
-      vZ.Normalize();
-
-      mOrientation(1,1) = vX(1); mOrientation(1,2) = vY(1); mOrientation(1,3) = vZ(1);
-      mOrientation(2,1) = vX(2); mOrientation(2,2) = vY(2); mOrientation(2,3) = vZ(2);
-      mOrientation(3,1) = vX(3); mOrientation(3,2) = vY(3); mOrientation(3,3) = vZ(3);
-      mOrientation = !mOrientation;
-    }
 
     // normalize (clear) our Bounding Box
     OneFrameBB = FLOATaabbox3D();
     // Bounding Box makes union with all points in this frame
-    for( i=0; i<edm_md.md_VerticesCt; i++) {
+    for(INDEX i=0; i<edm_md.md_VerticesCt; i++) {
       FLOAT3D vVtx = mesh.m_vertices[i];
-      if(bOrigin)
-      {
-        // transform vertex
-        vVtx -= mesh.m_vertices[aiTransVtx[0]];
-        vVtx *= mOrientation;
-      }
       OneFrameBB |= FLOATaabbox3D(vVtx);
       avVertices.emplace_back(vVtx);
     }
@@ -1194,274 +970,59 @@ void CEditModel::CreateScriptFile_t(CTFileName &fnO3D) // throw char *
  */
 void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 {
-  INDEX i;
-  CTFileStream File;
-  char ld_line[ 128];
-  char flag_str[ 128];
-  char base_path[ PATH_MAX] = "";
-  char file_name[ PATH_MAX];
-  char mapping_file_name[ PATH_MAX] = "";
-  char full_path[ PATH_MAX];
-  FLOATmatrix3D mStretch;
-  mStretch.Diagonal(1.0f);
-  BOOL bMappingDimFound ;
-  BOOL bAnimationsFound;
-  BOOL bLoadInitialMapping;
-  ImportedMesh baseMesh;
+  const auto script = ScriptIO::ReadFromFile(fnScriptName);
+
+  if (script.m_flat == ModelScript::Flat::Half)
+    edm_md.md_Flags |= MF_FACE_FORWARD | MF_HALF_FACE_FORWARD;
+  else if (script.m_flat == ModelScript::Flat::Full)
+    edm_md.md_Flags |= MF_FACE_FORWARD;
+
+  if (script.m_stretchDetail)
+    edm_md.md_Flags |= MF_STRETCH_DETAIL;
+
+  if (script.m_highQuality)
+    edm_md.md_Flags |= MF_COMPRESSED_16BIT;
+
+  edm_md.md_ShadowQuality = script.m_maxShadow;
+
+  edm_md.md_Width = MEX_METERS(script.m_textureScale(1));
+  edm_md.md_Height = MEX_METERS(script.m_textureScale(2));
+
+  const FLOATmatrix3D mStretch = script.m_transformation * script.m_scale;
+
+  const bool allowedToCreateBoneTriangles =
+    script.m_boneTriangles &&
+    std::all_of(script.m_animations.begin(), script.m_animations.end(),
+      [](const ModelScript::Animation& a)
+      { return a.m_type == ModelScript::Animation::Type::Skeletal; });
+
   ImportedSkeleton skeleton;
+  if (script.m_skeleton.has_value())
+    skeleton.FillFromFile(*script.m_skeleton);
+  if (skeleton.Empty())
+    skeleton.FillFromFile(script.m_mipModels.front());
 
-  File.Open_t( fnScriptName);        // open script file for reading
-
-  // to hold number of line's chars
-  int iLineChars;
-
-  bool allowedToCreateBoneTriangles = true;
-  bool hasSkeletalAnimation = false;
-  bool hasRegularAnimation = false;
-  bool readingComment = false;
-  auto startPos = File.GetPos_t();
-  while (!File.AtEOF())
+  ImportedMesh baseMesh;
+  for (const auto& mip_file : script.m_mipModels)
   {
-    File.GetLine_t(ld_line, 128);
-    iLineChars = strlen(ld_line);
-    if (iLineChars == 0)
-      continue;
-
-    if (EQUAL_SUB_STR("/*"))
+    ImportedMesh mesh(mip_file, mStretch);
+    if (baseMesh.m_vertices.empty())
     {
-      readingComment = true;
-      continue;
+      if (allowedToCreateBoneTriangles)
+        CreateBoneTriangles(mesh, mStretch, script.m_scale);
+      baseMesh = mesh;
     }
-    else if (EQUAL_SUB_STR("*/"))
-    {
-      readingComment = false;
-      continue;
-    }
-    else if (readingComment)
-    {
-      continue;
-    }
-
-    if (EQUAL_SUB_STR("SKELETAL_ANIMATION "))
-      hasSkeletalAnimation = true;
-    else if (EQUAL_SUB_STR("ANIMATION "))
-      hasRegularAnimation = true;
-    else if (EQUAL_SUB_STR("NO_BONE_TRIANGLES"))
-    {
-      allowedToCreateBoneTriangles = false;
-      break;
-    }
-  }
-  File.SetPos_t(startPos);
-
-  // if these flags will not be TRUE at the end of script, throw error
-  bMappingDimFound = FALSE;
-  bAnimationsFound = FALSE;
-  bLoadInitialMapping = FALSE;
-  FLOAT fStretch = 1.0f;
-
-  FOREVER
-  {
-    do
-    {
-      File.GetLine_t(ld_line, 128);
-      iLineChars = strlen( ld_line);
-    }
-    while( (iLineChars == 0) || (ld_line[0]==';') );
-
-    // If key-word is "DIRECTORY", remember base path it and add "\" character at the
-    // end of new path if it is not yet there
-    if( EQUAL_SUB_STR( "DIRECTORY"))
-    {
-      _strupr( ld_line);
-      sscanf( ld_line, "DIRECTORY %s", base_path);
-      if( base_path[ strlen( base_path) - 1] != '\\')
-        strcat( base_path,"\\");
-    }
-    // Key-word "SIZE" defines stretch factor
-    else if( EQUAL_SUB_STR( "SIZE"))
-    {
-      _strupr( ld_line);
-      sscanf( ld_line, "SIZE %g", &fStretch);
-      mStretch *= fStretch;
-    }
-    else if( EQUAL_SUB_STR( "TRANSFORM")) 
-    {
-      _strupr( ld_line);
-      FLOATmatrix3D mTran;
-      mTran.Diagonal(1.0f);
-      sscanf( ld_line, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
-        &mTran(1,1), &mTran(1,2), &mTran(1,3),
-        &mTran(2,1), &mTran(2,2), &mTran(2,3),
-        &mTran(3,1), &mTran(3,2), &mTran(3,3));
-      mStretch *= mTran;
-    }
-    // Key-word "FLAT" means that model will be mapped as face - forward, using only
-    // zooming of texture
-    else if( EQUAL_SUB_STR( "FLAT"))
-    {
-      _strupr( ld_line);
-      sscanf( ld_line, "FLAT %s", flag_str);
-      if( strcmp( flag_str, "YES") == 0)
-      {
-        edm_md.md_Flags |= MF_FACE_FORWARD;
-        edm_md.md_Flags &= ~MF_HALF_FACE_FORWARD;
-      }
-    }
-    else if( EQUAL_SUB_STR( "HALF_FLAT"))
-    {
-      _strupr( ld_line);
-      sscanf( ld_line, "HALF_FLAT %s", flag_str);
-      if( strcmp( flag_str, "YES") == 0)
-        edm_md.md_Flags |= MF_FACE_FORWARD|MF_HALF_FACE_FORWARD;
-    }
-    else if( EQUAL_SUB_STR( "STRETCH_DETAIL"))
-    {
-      _strupr( ld_line);
-      sscanf( ld_line, "STRETCH_DETAIL %s", flag_str);
-      if( strcmp( flag_str, "YES") == 0)
-      {
-        edm_md.md_Flags |= MF_STRETCH_DETAIL;
-      }
-    }
-    else if( EQUAL_SUB_STR( "HI_QUALITY"))
-    {
-      _strupr( ld_line);
-      sscanf( ld_line, "HI_QUALITY %s", flag_str);
-      if( strcmp( flag_str, "YES") == 0)
-      {
-        edm_md.md_Flags |= MF_COMPRESSED_16BIT;
-      }
-    }
-    // Key-word "REFLECTIONS" has been used in old reflections
-    else if( EQUAL_SUB_STR( "REFLECTIONS"))
-    {
-    }
-    // Key-word "MAX_SHADOW" determines maximum quality of shading that model can obtain
-    else if( EQUAL_SUB_STR( "MAX_SHADOW"))
-    {
-      _strupr( ld_line);
-      INDEX iShadowQuality;
-      sscanf( ld_line, "MAX_SHADOW %d", &iShadowQuality);
-      edm_md.md_ShadowQuality = iShadowQuality;
-    }
-    else if (EQUAL_SUB_STR("SKELETON"))
-    {
-      _strupr(ld_line);
-      sscanf(ld_line, "SKELETON %s", file_name);
-      sprintf(full_path, "%s%s", base_path, file_name);
-      skeleton.FillFromFile(CTString(full_path));
-    }
-    // Key-word "MipModel" must follow name of this mipmodel file
-    else if( EQUAL_SUB_STR( "MIP_MODELS"))
-    {
-      INDEX iMipCt;
-      sscanf( ld_line, "MIP_MODELS %d", &iMipCt);
-      if( (iMipCt <= 0) || (iMipCt >= MAX_MODELMIPS))
-      {
-        ThrowF_t("Invalid number of mip models. Number must range from 0 to %d.", MAX_MODELMIPS-1);
-      }
-      if( ProgresRoutines.SetProgressMessage != NULL)
-        ProgresRoutines.SetProgressMessage( "Loading and creating mip-models ...");
-      if( ProgresRoutines.SetProgressRange != NULL)
-        ProgresRoutines.SetProgressRange( iMipCt);
-      for( i=0; i<iMipCt; i++)
-      {
-        if( ProgresRoutines.SetProgressState != NULL)
-          ProgresRoutines.SetProgressState( i);
-        do
-        {
-          File.GetLine_t(ld_line, 128);
-        }
-        while( (strlen( ld_line)== 0) || (ld_line[0]==';'));
-        _strupr( ld_line);
-        sscanf( ld_line, "%s", file_name);
-        sprintf( full_path, "%s%s", base_path, file_name);
-        if (skeleton.Empty())
-          skeleton.FillFromFile(CTString(full_path));
-        ImportedMesh mesh(CTString(full_path), mStretch);
-        if (baseMesh.m_vertices.empty())
-        {
-          if (allowedToCreateBoneTriangles && hasSkeletalAnimation && !hasRegularAnimation)
-            CreateBoneTriangles(mesh, mStretch, fStretch);
-          baseMesh = mesh;
-        }
-        // If there are no vertices in model, call New Model and calculate UV mapping
-        if( edm_md.md_VerticesCt == 0)          
-        {
-          if( bMappingDimFound == FALSE)
-          {
-            ThrowF_t("Found key word \"MIP_MODELS\" but texture dimension wasn't found.\n"
-              "There must be key word \"TEXTURE_DIM\" before key word \"MIP_MODELS\" in script file.");
-          }
-          NewModel(mesh);
-        }
-        else
-        {
-          AddMipModel(mesh);
-        }
-      }
-      // set default mip factors
-      // all mip models will be spreaded beetween distance 0 and default maximum distance
-      edm_md.SpreadMipSwitchFactors( 0, 5.0f);
-    }
-    /*
-     * Line containing key-word "TEXTURE_DIM" gives us texture dimensions
-     * so we can create default mapping
-     */
-    else if( EQUAL_SUB_STR( "TEXTURE_DIM"))
-    {
-      _strupr( ld_line);
-      FLOAT fWidth, fHeight;
-      sscanf( ld_line, "TEXTURE_DIM %f %f", &fWidth, &fHeight);  // read given texture dimensions
-      edm_md.md_Width = MEX_METERS( fWidth);
-      edm_md.md_Height = MEX_METERS( fHeight);
-      bMappingDimFound = TRUE;
-    }
-    // Key-word "ANIM_START" starts loading of Animation Data object
-    else if( EQUAL_SUB_STR( "ANIM_START"))
-    {
-      LoadModelAnimationData_t( &File, baseMesh, skeleton, mStretch);  // loads and sets model's animation data
-      // add one collision box
-      edm_md.md_acbCollisionBox.New();
-      // reset attaching sounds
-      CreateEmptyAttachingSounds();
-      bAnimationsFound = TRUE;        // mark that we found animations section in script-file
-    }
-    else if( EQUAL_SUB_STR( "ORIGIN_TRI"))
-    {
-      sscanf( ld_line, "ORIGIN_TRI %d %d %d", &aiTransVtx[0], &aiTransVtx[1], &aiTransVtx[2]);  // read given vertices
-    }
-    // Key-word "END" ends infinite loop and script loading is over
-    else if( EQUAL_SUB_STR( "END"))
-    {
-      break;
-    }
-    else if (EQUAL_SUB_STR("NO_BONE_TRIANGLES")) {}
-    // ignore old key-words
-    else if( EQUAL_SUB_STR( "MAPPING")) {}
-    else if( EQUAL_SUB_STR( "TEXTURE_REFLECTION")) {}
-    else if( EQUAL_SUB_STR( "TEXTURE_SPECULAR")) {}
-    else if( EQUAL_SUB_STR( "TEXTURE_BUMP")) {}
-    else if( EQUAL_SUB_STR( "TEXTURE")) {}
-    else if( EQUAL_SUB_STR( "DEFINE_MAPPING")) {}
-    else if( EQUAL_SUB_STR( "IMPORT_MAPPING")) {}
-    // If none of known key-words isnt recognised, we have wierd key-word, so throw error
+    if (edm_md.md_VerticesCt == 0)
+      NewModel(mesh);
     else
-    {
-      ThrowF_t("Unrecognizible key-word found in line: \"%s\".", ld_line);
-    }
+      AddMipModel(mesh);
   }
-  /*
-   * At the end we check if we found animations in script file and if initial mapping was done
-   * during loading of script file what means that key-word 'TEXTURE_DIM' was found
-   */
-  if( bAnimationsFound != TRUE)
-    throw( "There are no animations defined for this model, and that can't be. Probable cause: script missing key-word \"ANIM_START\".");
+  edm_md.SpreadMipSwitchFactors(0, 5.0f);
 
-  if( bMappingDimFound != TRUE)
-    throw( "Initial mapping not done, and that can't be. Probable cause: script missing key-word \"TEXTURE_DIM\".");
+  LoadModelAnimationData_t(script.m_animations, baseMesh, skeleton, mStretch);
 
+  edm_md.md_acbCollisionBox.New();
+  CreateEmptyAttachingSounds();
   edm_md.LinkDataForSurfaces(TRUE);
 
   // try to
@@ -1477,9 +1038,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
     (void)strError;
   }
 
-  File.Close();
-
-  if( edm_aasAttachedSounds.Count() == 0)
+  if (edm_aasAttachedSounds.Count() == 0)
     CreateEmptyAttachingSounds();
 }
 
@@ -1708,84 +1267,29 @@ void CEditModel::AddMipModel(const ImportedMesh& mesh)
  */
 void CEditModel::UpdateAnimations_t(CTFileName &fnScriptName) // throw char *
 {
-  CTFileStream File;
-  char ld_line[ 128];
-  char base_path[PATH_MAX] = "";
-  char full_path[PATH_MAX];
-  char file_name[PATH_MAX];
-  CListHead FrameNamesList;
-  ImportedMesh baseMesh;
-  ImportedSkeleton skeleton;
-  FLOATmatrix3D mStretch;
-  mStretch.Diagonal(1.0f);
+  const auto script = ScriptIO::ReadFromFile(fnScriptName);
 
-  File.Open_t( fnScriptName); // open script file for reading
+  const FLOATmatrix3D mStretch = script.m_transformation * script.m_scale;
 
-  FOREVER
-  {
-    do
-    {
-      File.GetLine_t(ld_line, 128);
-    }
-    while( (strlen( ld_line)== 0) || (ld_line[0]==';'));
-
-    if( EQUAL_SUB_STR( "SIZE"))
-    {
-      _strupr( ld_line);
-      FLOAT fStretch = 1.0f;
-      sscanf( ld_line, "SIZE %g", &fStretch);
-      mStretch *= fStretch;
-    }
-    else if( EQUAL_SUB_STR( "TRANSFORM")) 
-    {
-      _strupr( ld_line);
-      FLOATmatrix3D mTran;
-      mTran.Diagonal(1.0f);
-      sscanf( ld_line, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
-        &mTran(1,1), &mTran(1,2), &mTran(1,3),
-        &mTran(2,1), &mTran(2,2), &mTran(2,3),
-        &mTran(3,1), &mTran(3,2), &mTran(3,3));
-      mStretch *= mTran;
-    }
-    else if (EQUAL_SUB_STR("DIRECTORY"))
-    {
-      _strupr(ld_line);
-      sscanf(ld_line, "DIRECTORY %s", base_path);
-      if (base_path[strlen(base_path) - 1] != '\\')
-        strcat(base_path, "\\");
-    }
-    else if (EQUAL_SUB_STR("SKELETON"))
-    {
-      _strupr(ld_line);
-      sscanf(ld_line, "SKELETON %s", file_name);
-      sprintf(full_path, "%s%s", base_path, file_name);
-      skeleton.FillFromFile(CTString(full_path));
-    }
-    // Key-word "MipModel" must follow name of this mipmodel file
-    else if (EQUAL_SUB_STR("MIP_MODELS") && baseMesh.m_vertices.empty())
-    {
-      INDEX iMipCt;
-      sscanf(ld_line, "MIP_MODELS %d", &iMipCt);
-      do
+  const bool allowedToCreateBoneTriangles =
+    script.m_boneTriangles &&
+    std::all_of(script.m_animations.begin(), script.m_animations.end(),
+      [](const ModelScript::Animation& a)
       {
-        File.GetLine_t(ld_line, 128);
-      } while ((strlen(ld_line) == 0) || (ld_line[0] == ';'));
-      _strupr(ld_line);
-      sscanf(ld_line, "%s", file_name);
-      sprintf(full_path, "%s%s", base_path, file_name);
-      baseMesh.FillFromFile(CTString(full_path), mStretch);
-    }
-    else if( EQUAL_SUB_STR( "ANIM_START"))
-    {
-      LoadModelAnimationData_t( &File, baseMesh, skeleton, mStretch);  // load and set model's animation data
-      break;                          // we found our animations, we loaded them so we will stop forever loop
-    }
-    else if( EQUAL_SUB_STR( "ORIGIN_TRI"))
-    {
-      sscanf( ld_line, "ORIGIN_TRI %d %d %d", &aiTransVtx[0], &aiTransVtx[1], &aiTransVtx[2]);  // read given vertices
-    }
-  }
-  File.Close();
+        return a.m_type == ModelScript::Animation::Type::Skeletal;
+      });
+
+  ImportedSkeleton skeleton;
+  if (script.m_skeleton.has_value())
+    skeleton.FillFromFile(*script.m_skeleton);
+  if (skeleton.Empty())
+    skeleton.FillFromFile(script.m_mipModels.front());
+
+  ImportedMesh baseMesh(script.m_mipModels.front(), mStretch);
+  if (allowedToCreateBoneTriangles)
+    CreateBoneTriangles(baseMesh, mStretch, script.m_scale);
+
+  LoadModelAnimationData_t(script.m_animations, baseMesh, skeleton, mStretch);
 
   CreateEmptyAttachingSounds();
 }
@@ -1833,103 +1337,28 @@ void CEditModel::CreateMipModels_t(const ImportedMesh& baseMesh, INDEX iVertexRe
  */
 void CEditModel::UpdateMipModels_t(CTFileName &fnScriptName) // throw char *
 {
-  CTFileStream File;
-  char base_path[ PATH_MAX] = "";
-  char file_name[ PATH_MAX];
-  char full_path[ PATH_MAX];
-  char ld_line[ 128];
-  FLOATmatrix3D mStretch;
-  mStretch.Diagonal(1.0f);
+  const auto script = ScriptIO::ReadFromFile(fnScriptName);
 
+  const FLOATmatrix3D mStretch = script.m_transformation * script.m_scale;
   ASSERT( edm_md.md_VerticesCt != 0);
 
-  File.Open_t( fnScriptName); // open script file for reading
-
-  INDEX i=1;
-  for( ; i<edm_md.md_MipCt; i++)
-  {
-    edm_md.md_MipInfos[ i].Clear();  // free possible mip-models except main mip model
-  }
+  // free possible mip-models except main mip model
+  for (INDEX i = 1; i<edm_md.md_MipCt; i++)
+    edm_md.md_MipInfos[i].Clear();
   edm_md.md_MipCt = 1;
 
-  FOREVER
+  for (size_t i = 1; i < script.m_mipModels.size(); ++i)
   {
-    do
-    {
-      File.GetLine_t(ld_line, 128);
-    }
-    while( (strlen( ld_line)== 0) || (ld_line[0]==';'));
-
-    if( EQUAL_SUB_STR( "SIZE"))
-    {
-      _strupr( ld_line);
-      FLOAT fStretch = 1.0f;
-      sscanf( ld_line, "SIZE %g", &fStretch);
-      mStretch *= fStretch;
-    }
-    else if( EQUAL_SUB_STR( "TRANSFORM")) 
-    {
-      _strupr( ld_line);
-      FLOATmatrix3D mTran;
-      mTran.Diagonal(1.0f);
-      sscanf( ld_line, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
-        &mTran(1,1), &mTran(1,2), &mTran(1,3),
-        &mTran(2,1), &mTran(2,2), &mTran(2,3),
-        &mTran(3,1), &mTran(3,2), &mTran(3,3));
-      mStretch *= mTran;
-    }
-    else if( EQUAL_SUB_STR( "DIRECTORY"))
-    {
-      _strupr( ld_line);
-      sscanf( ld_line, "DIRECTORY %s", base_path);
-      if( base_path[ strlen( base_path) - 1] != '\\')
-        strcat( base_path,"\\");
-    }
-    else if( EQUAL_SUB_STR( "MIP_MODELS"))
-    {
-      _strupr( ld_line);
-      INDEX no_of_mip_models;
-      sscanf( ld_line, "MIP_MODELS %d", &no_of_mip_models);
-
-      // Jump over first mip model file name
-      File.GetLine_t(ld_line, 128);
-
-      for( i=0; i<no_of_mip_models-1; i++)
-      {
-        File.GetLine_t(ld_line, 128);
-        _strupr( ld_line);
-        sscanf( ld_line, "%s", file_name);
-        sprintf( full_path, "%s%s", base_path, file_name);
-
-        ImportedMesh mesh(CTString(full_path), mStretch);
-
-        if( edm_md.md_VerticesCt < mesh.m_vertices.size())
-        {
-          ThrowF_t(
-            "It is unlikely that mip-model \"%s\" is valid.\n"
-            "It contains more vertices than main mip-model so it can't be mip-model.", 
-            full_path);
-        }
-
-        if( edm_md.md_MipCt < MAX_MODELMIPS)
-        {
-          AddMipModel(mesh);
-        }
-        else
-        {
-          ThrowF_t("There are too many mip-models defined in script file. Maximum of %d mip-models allowed.", MAX_MODELMIPS-1);
-        }
-      }
-    }
-    else if( EQUAL_SUB_STR( "ORIGIN_TRI"))
-    {
-      sscanf( ld_line, "ORIGIN_TRI %d %d %d", &aiTransVtx[0], &aiTransVtx[1], &aiTransVtx[2]);  // read given vertices
-    }
-    else if( EQUAL_SUB_STR( "END"))
-    {
-      break;
-    }
+    const auto& mip = script.m_mipModels.at(i);
+    ImportedMesh mesh(mip, mStretch);
+    if (edm_md.md_VerticesCt < mesh.m_vertices.size())
+      ThrowF_t(
+        "It is unlikely that mip-model \"%s\" is valid.\n"
+        "It contains more vertices than main mip-model so it can't be mip-model.",
+        mip);
+    AddMipModel(mesh);
   }
+
   edm_md.LinkDataForSurfaces(TRUE);
 }
 

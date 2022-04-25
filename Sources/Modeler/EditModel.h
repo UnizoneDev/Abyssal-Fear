@@ -27,6 +27,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/StaticArray.h>
 #include <Engine/Models/RenderModel.h>
 
+#include "Script/Script.h"
+
 #include <vector>
 #include <functional>
 
@@ -114,15 +116,15 @@ class CEditModel : public CSerial
 private:
   struct FrameGenerator
   {
-    CTString m_filename;
+    CTFileName m_filename;
     std::function<void(ImportedMesh&)> m_generator;
   };
 
   void NewModel(const ImportedMesh& mesh);									// creates new model, surface, vertice and polygon arrays
   void AddMipModel(const ImportedMesh& mesh);							// adds one mip model
   // loads and converts model's animation data from script file
-  std::vector<FrameGenerator> LoadFrameGenerators(CAnimData& ad, CTStream* File, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch);
-  void LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch);	// throw char *
+  std::vector<FrameGenerator> LoadFrameGenerators(CAnimData& ad, const ModelScript::Animations& animations, const ImportedMesh& baseMesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch);
+  void LoadModelAnimationData_t(const ModelScript::Animations& animations, const ImportedMesh& baseMesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch);	// throw char *
   INDEX edm_iActiveCollisionBox;                  // collision box that is currently edited
 public:
 	CEditModel();																		// default contructor
