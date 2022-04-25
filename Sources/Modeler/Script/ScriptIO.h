@@ -20,6 +20,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace ScriptIO {
 
+ModelScript ReadFromFile(const CTFileName& filename);
+
 void SaveToFile(const ModelScript& script, const CTFileName& filename);
 
 } // namespace ScriptIO
