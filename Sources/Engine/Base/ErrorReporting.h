@@ -20,9 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #endif
 
 /* Throw an exception of formatted string. */
-ENGINE_API extern void ThrowF_t(char *strFormat, ...); // throws char *
+ENGINE_API extern void ThrowF_t [[noreturn]] (char *strFormat, ...); // throws char *
 /* Report error and terminate program. */
-ENGINE_API extern void FatalError(const char *strFormat, ...);
+ENGINE_API extern void FatalError [[noreturn]] (const char *strFormat, ...);
 /* Report warning without terminating program (stops program until user responds). */
 ENGINE_API extern void WarningMessage(const char *strFormat, ...);
 /* Report information message to user (stops program until user responds). */

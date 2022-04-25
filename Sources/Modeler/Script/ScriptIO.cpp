@@ -20,6 +20,42 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <sstream>
 
 namespace {
+double _stod(const std::string& str)
+{
+  try
+  {
+    return std::stod(str);
+  }
+  catch (const std::logic_error& e)
+  {
+    ThrowF_t("Failed to read number '%s': %s", str.c_str(), e.what());
+  }
+}
+
+float _stof(const std::string& str)
+{
+  try
+  {
+    return std::stof(str);
+  }
+  catch (const std::logic_error& e)
+  {
+    ThrowF_t("Failed to read number '%s': %s", str.c_str(), e.what());
+  }
+}
+
+int _stoi(const std::string& str)
+{
+  try
+  {
+    return std::stoi(str);
+  }
+  catch (const std::logic_error& e)
+  {
+    ThrowF_t("Failed to read number '%s': %s", str.c_str(), e.what());
+  }
+}
+
 std::string Trim(std::string str)
 {
   size_t i = 0;
@@ -179,12 +215,12 @@ ModelScript ReadFromFile(const CTFileName& filename)
       else if (StartsWith(line, "DURATION "))
       {
         auto& anim = script.m_animations.back();
-        anim.m_optDuration = std::stod(std::string{ line.begin() + strlen("DURATION "), line.end() });
+        anim.m_optDuration = _stod({ line.begin() + strlen("DURATION "), line.end() });
       }
       else if (StartsWith(line, "NUM_FRAMES "))
       {
         auto& anim = script.m_animations.back();
-        anim.m_optNumFrames = static_cast<int>(std::stoi(std::string{ line.begin() + strlen("NUM_FRAMES "), line.end()}));
+        anim.m_optNumFrames = static_cast<size_t>(_stoi({ line.begin() + strlen("NUM_FRAMES "), line.end()}));
       }
       else if (std::any_of(std::begin(other_state_keywords), std::end(other_state_keywords),
         [&](const char* k) { return StartsWith(line, k); }))
@@ -195,6 +231,10 @@ ModelScript ReadFromFile(const CTFileName& filename)
         if (anim.m_frames.empty())
           ThrowF_t("Animation %s has no source file provided!\n'SOURCE_FILE <filename>' expected!", anim.m_name.c_str());
         continue;
+      }
+      else
+      {
+        ThrowF_t("Unrecognizable keyword found in line during skeletal animation parsing: \"%s\".", line.c_str());
       }
     }
     else if (state == ReadState::Frames)
@@ -238,7 +278,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
       if (StartsWith(line, "SPEED "))
       { // store speed and recompute as duration after all frames are read
         auto& anim = script.m_animations.back();
-        anim.m_optDuration = std::stof(std::string{ line.begin() + strlen("SPEED "), line.end() });
+        anim.m_optDuration = _stof({ line.begin() + strlen("SPEED "), line.end() });
         state = ReadState::Frames;
         continue;
       }
@@ -281,7 +321,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
     {
       if (StartsWith(line, "SIZE "))
       {
-        script.m_scale = std::stof(std::string{ line.begin() + strlen("SIZE "), line.end() });
+        script.m_scale = _stof({ line.begin() + strlen("SIZE "), line.end() });
       }
       else if (StartsWith(line, "TRANSFORM "))
       {
@@ -309,7 +349,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
       }
       else if (StartsWith(line, "MAX_SHADOW "))
       {
-        script.m_maxShadow = std::stoi(std::string{ line.begin() + strlen("MAX_SHADOW "), line.end() });
+        script.m_maxShadow = _stoi({ line.begin() + strlen("MAX_SHADOW "), line.end() });
       }
       else if (StartsWith(line, "SKELETON "))
       {
@@ -320,7 +360,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
       {
         if (mips_read > 0)
           throw "MIP_MODELS tag should appear only once!";
-        mip_count = std::stoi(std::string{ line.begin() + strlen("MIP_MODELS "), line.end() });
+        mip_count = _stoi({ line.begin() + strlen("MIP_MODELS "), line.end() });
         if (mip_count <= 0 || mip_count >= MAX_MODELMIPS)
           ThrowF_t("Invalid number of mip models. Number must range from 0 to %d.", MAX_MODELMIPS - 1);
         state = ReadState::Mips;
