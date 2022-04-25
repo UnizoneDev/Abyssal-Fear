@@ -312,7 +312,7 @@ void ImportedMesh::FillFromFile(const CTFileName& fnmFileName, const FLOATmatrix
   }
   else
   {
-    ThrowF_t("Unable to load 3D object: %s", (const char*)fnmFileName);
+    ThrowF_t("Unable to load file %s: %s", (const char*)fnmFileName, importerWithoutNormals.GetErrorString());
   }
 }
 

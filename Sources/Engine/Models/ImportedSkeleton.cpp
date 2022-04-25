@@ -74,7 +74,7 @@ void ImportedSkeleton::FillFromFile(const CTFileName& fileName)
   }
   else
   {
-    ThrowF_t("Unable to load skeleton: %s", (const char*)fileName);
+    ThrowF_t("Unable to load file %s: %s", (const char*)fileName, importer.GetErrorString());
   }
 }
 

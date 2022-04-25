@@ -150,7 +150,7 @@ ImportedSkeletalAnimation::ImportedSkeletalAnimation(
   const aiScene* aiSceneMain = importer.ReadFile(acFile, 0);
 
   if (!aiSceneMain)
-    ThrowF_t("Unable to load animation file '%s'", (const char*)fileName);
+    ThrowF_t("Unable to load file %s: %s", (const char*)fileName, importer.GetErrorString());
 
   if (aiSceneMain->mNumAnimations == 0)
     ThrowF_t("'%s' contains no animations!", (const char*)fileName);
