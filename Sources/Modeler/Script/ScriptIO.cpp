@@ -198,7 +198,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
         auto& anim = script.m_animations.back();
         if (!anim.m_frames.empty())
           ThrowF_t("Animation %s has multiple source files provided!", anim.m_name.c_str());
-        const auto src = ToUpper(Trim({ line.begin() + strlen("SOURCE_FILE "), line.end() }));
+        const auto src = base_dir + ToUpper(Trim({ line.begin() + strlen("SOURCE_FILE "), line.end() }));
         anim.m_frames.emplace_back(CTString(src.c_str()));
       }
       else if (StartsWith(line, "ANIM_NAME_IN_FILE "))
