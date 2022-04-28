@@ -497,7 +497,7 @@ void SaveToFile(const ModelScript& script, const CTFileName& filename)
 
       double speed = 0.1;
       if (!anim.m_frames.empty() && anim.m_optDuration.has_value() && *anim.m_optDuration > 0.001)
-        speed = anim.m_frames.size() / (*anim.m_optDuration);
+        speed = (*anim.m_optDuration) / anim.m_frames.size();
       file << "SPEED " << static_cast<float>(speed) << '\n';
 
       for (const auto& frame : anim.m_frames)
