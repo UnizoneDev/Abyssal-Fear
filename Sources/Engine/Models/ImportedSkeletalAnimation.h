@@ -37,6 +37,8 @@ public:
 
   void ReapplyByReference(const ImportedSkeleton& refSkeleton);
 
+  static std::vector<std::string> GetAnimationsInFile(const CTFileName& fileName);
+
 public:
   double m_duration;
   std::vector<ImportedSkeleton> m_frames;

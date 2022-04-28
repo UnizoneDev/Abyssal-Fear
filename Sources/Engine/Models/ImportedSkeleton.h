@@ -44,8 +44,9 @@ public:
 
   ImportedSkeleton& operator=(const ImportedSkeleton& other);
 
-  bool Empty() const;
   void FillFromFile(const CTFileName& fileName);
+
+  static bool ContainsSkeleton(const CTFileName& fileName);
 
 public:
   std::map<std::string, Bone> m_bones;

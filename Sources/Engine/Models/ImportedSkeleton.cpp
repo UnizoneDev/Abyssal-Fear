@@ -23,9 +23,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-#undef W
-#undef NONE
-
 FLOATmatrix4D ImportedSkeleton::Bone::GetAbsoluteTransform() const
 {
   if (mp_parent)
@@ -60,22 +57,25 @@ ImportedSkeleton& ImportedSkeleton::operator=(const ImportedSkeleton& other)
 
 void ImportedSkeleton::FillFromFile(const CTFileName& fileName)
 {
-  CTString strFile = _fnmApplicationPath + fileName;
-  char acFile[MAX_PATH];
-  wsprintfA(acFile, "%s", strFile);
+  const CTString strFile = _fnmApplicationPath + fileName;
 
   Assimp::Importer importer;
-  const aiScene* aiSceneMain = importer.ReadFile(acFile, 0);
+  const aiScene* aiSceneMain = importer.ReadFile(strFile.str_String, 0);
 
-  // if scene is successefuly loaded
   if (aiSceneMain)
-  {
     FillFromScene(*aiSceneMain);
-  }
   else
-  {
     ThrowF_t("Unable to load file %s: %s", (const char*)fileName, importer.GetErrorString());
-  }
+}
+
+bool ImportedSkeleton::ContainsSkeleton(const CTFileName& fileName)
+{
+  const CTString strFile = _fnmApplicationPath + fileName;
+
+  Assimp::Importer importer;
+  const aiScene* aiSceneMain = importer.ReadFile(strFile.str_String, 0);
+
+  return aiSceneMain && aiSceneMain->mRootNode->mNumChildren > 0;
 }
 
 void ImportedSkeleton::FillFromScene(const aiScene& scene)
@@ -110,9 +110,4 @@ const ImportedSkeleton::Bone* ImportedSkeleton::AppendBone(const aiNode* node, c
     bone.m_children.push_back(AppendBone(node->mChildren[childIndex], &bone));
 
   return &bone;
-}
-
-bool ImportedSkeleton::Empty() const
-{
-  return m_bones.empty();
 }

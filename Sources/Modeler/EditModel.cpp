@@ -998,7 +998,7 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
   ImportedSkeleton skeleton;
   if (script.m_skeleton.has_value())
     skeleton.FillFromFile(*script.m_skeleton);
-  else if (skeleton.Empty())
+  else
     skeleton.FillFromFile(script.m_mipModels.front());
 
   ImportedMesh baseMesh;
@@ -1281,7 +1281,7 @@ void CEditModel::UpdateAnimations_t(CTFileName &fnScriptName) // throw char *
   ImportedSkeleton skeleton;
   if (script.m_skeleton.has_value())
     skeleton.FillFromFile(*script.m_skeleton);
-  else if (skeleton.Empty())
+  else
     skeleton.FillFromFile(script.m_mipModels.front());
 
   ImportedMesh baseMesh(script.m_mipModels.front(), mStretch);

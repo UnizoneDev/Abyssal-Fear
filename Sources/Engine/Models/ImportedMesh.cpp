@@ -291,14 +291,12 @@ void ImportedMesh::FillFromFile(const CTFileName& fnmFileName, const FLOATmatrix
 {
   Clear();
   // call file load with file's full path name
-  CTString strFile = _fnmApplicationPath + fnmFileName;
-  char acFile[MAX_PATH];
-  wsprintfA(acFile, "%s", strFile);
+  const CTString strFile = _fnmApplicationPath + fnmFileName;
 
   Assimp::Importer importerWithoutNormals;
   // do not read normals from input file
   importerWithoutNormals.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS);
-  const aiScene* aiSceneMain = importerWithoutNormals.ReadFile(acFile,
+  const aiScene* aiSceneMain = importerWithoutNormals.ReadFile(strFile.str_String,
     aiProcess_JoinIdenticalVertices |
     aiProcess_Triangulate |
     aiProcess_GenUVCoords |
