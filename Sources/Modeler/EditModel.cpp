@@ -954,11 +954,29 @@ void CEditModel::CreateScriptFile_t(CTFileName &fnO3D) // throw char *
 {
   ModelScript script;
   script.m_mipModels.push_back(fnO3D);
-  script.m_animations.emplace_back();
-  auto& anim = script.m_animations.back();
-  anim.m_type = ModelScript::Animation::Type::Vertex;
-  anim.m_name = "Default";
-  anim.m_frames.push_back(fnO3D);
+
+  const auto skel_anims = ImportedSkeletalAnimation::GetAnimationsInFile(fnO3D);
+  if (ImportedSkeleton::ContainsSkeleton(fnO3D) && !skel_anims.empty())
+  {
+    for (const auto& anim_name : skel_anims)
+    {
+      script.m_animations.emplace_back();
+      auto& anim = script.m_animations.back();
+      anim.m_type = ModelScript::Animation::Type::Skeletal;
+      anim.m_name = anim_name;
+      if (skel_anims.size() > 1)
+        anim.m_customSourceName = anim_name;
+      anim.m_frames.push_back(fnO3D);
+    }
+  }
+  else
+  {
+    script.m_animations.emplace_back();
+    auto& anim = script.m_animations.back();
+    anim.m_type = ModelScript::Animation::Type::Vertex;
+    anim.m_name = "Default";
+    anim.m_frames.push_back(fnO3D);
+  }
 
   const CTFileName fnScriptName = fnO3D.FileDir() + fnO3D.FileName() + ".scr";
   ScriptIO::SaveToFile(script, fnScriptName);
