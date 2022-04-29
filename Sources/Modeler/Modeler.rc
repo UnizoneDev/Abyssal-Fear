@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -27,18 +25,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"
@@ -66,36 +64,53 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON    DISCARDABLE     "res\\Modeler.ico"
-IDR_MDLDOCTYPE          ICON    DISCARDABLE     "res\\ModelerDoc.ico"
-IDI_PICK                ICON    DISCARDABLE     "res\\pick.ico"
-IDR_SCRIPTDOCTYPE       ICON    DISCARDABLE     "res\\idr_scri.ico"
-IDI_PATCH_ACTIVE        ICON    DISCARDABLE     "res\\icon1.ico"
-IDI_PATCH_INACTIVE      ICON    DISCARDABLE     "res\\stain_ac.ico"
-IDI_PATCH_EXIST         ICON    DISCARDABLE     "res\\stain_in.ico"
+IDR_MAINFRAME           ICON                    "res\\Modeler.ico"
+
+IDR_MDLDOCTYPE          ICON                    "res\\ModelerDoc.ico"
+
+IDI_PICK                ICON                    "res\\pick.ico"
+
+IDR_SCRIPTDOCTYPE       ICON                    "res\\idr_scri.ico"
+
+IDI_PATCH_ACTIVE        ICON                    "res\\icon1.ico"
+
+IDI_PATCH_INACTIVE      ICON                    "res\\stain_ac.ico"
+
+IDI_PATCH_EXIST         ICON                    "res\\stain_in.ico"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Bitmap
 //
 
-IDR_MAINFRAME           BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
-IDR_TEXTURECONTROL      BITMAP  DISCARDABLE     "res\\texturec.bmp"
-IDR_SCRIPTCONTROL       BITMAP  DISCARDABLE     "res\\bmp00001.bmp"
-IDR_MIPANDLIGHT         BITMAP  DISCARDABLE     "res\\toolbar1.bmp"
-IDR_RENDERCONTROL       BITMAP  DISCARDABLE     "res\\bmp00002.bmp"
-IDR_ANIMCONTROL         BITMAP  DISCARDABLE     "res\\stainsco.bmp"
-IDR_STAINSCONTROL       BITMAP  DISCARDABLE     "res\\animcont.bmp"
-IDR_ROTATE              BITMAP  DISCARDABLE     "res\\bmp00003.bmp"
-IDR_MAPPING             BITMAP  DISCARDABLE     "res\\mipandli.bmp"
-IDR_FX_CONTROL          BITMAP  DISCARDABLE     "res\\bmp00004.bmp"
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+
+IDR_TEXTURECONTROL      BITMAP                  "res\\texturec.bmp"
+
+IDR_SCRIPTCONTROL       BITMAP                  "res\\bmp00001.bmp"
+
+IDR_MIPANDLIGHT         BITMAP                  "res\\toolbar1.bmp"
+
+IDR_RENDERCONTROL       BITMAP                  "res\\bmp00002.bmp"
+
+IDR_ANIMCONTROL         BITMAP                  "res\\stainsco.bmp"
+
+IDR_STAINSCONTROL       BITMAP                  "res\\animcont.bmp"
+
+IDR_ROTATE              BITMAP                  "res\\bmp00003.bmp"
+
+IDR_MAPPING             BITMAP                  "res\\mipandli.bmp"
+
+IDR_FX_CONTROL          BITMAP                  "res\\bmp00004.bmp"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Toolbar
 //
 
-IDR_MAINFRAME TOOLBAR DISCARDABLE  16, 15
+IDR_MAINFRAME TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_FILE_NEW
     BUTTON      ID_FILE_OPEN
@@ -110,7 +125,7 @@ BEGIN
     BUTTON      ID_CONTEXT_HELP
 END
 
-IDR_TEXTURECONTROL TOOLBAR DISCARDABLE  16, 15
+IDR_TEXTURECONTROL TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_FILE_CREATE_TEXTURE
     BUTTON      ID_RECREATE_TEXTURE
@@ -123,16 +138,15 @@ BEGIN
     BUTTON      ID_NEXT_TEXTURE
 END
 
-IDR_SCRIPTCONTROL TOOLBAR DISCARDABLE  16, 15
+IDR_SCRIPTCONTROL TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_SCRIPT_OPEN
-    BUTTON      ID_SCRIPT_MAKE_MODEL
     SEPARATOR
     BUTTON      ID_SCRIPT_UPDATE_ANIMATIONS
     BUTTON      ID_SCRIPT_UPDATE_MIPMODELS
 END
 
-IDR_MIPANDLIGHT TOOLBAR DISCARDABLE  16, 15
+IDR_MIPANDLIGHT TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_OPT_AUTO_MIP_MODELING
     BUTTON      ID_ANIM_MIP_PRECIZE
@@ -148,7 +162,7 @@ BEGIN
     BUTTON      ID_MAPPING_ON
 END
 
-IDR_RENDERCONTROL TOOLBAR DISCARDABLE  16, 15
+IDR_RENDERCONTROL TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_REND_BBOX_FRAME
     BUTTON      ID_REND_BBOX_ALL
@@ -169,7 +183,7 @@ BEGIN
     BUTTON      ID_BUTTON33146
 END
 
-IDR_ANIMCONTROL TOOLBAR DISCARDABLE  16, 15
+IDR_ANIMCONTROL TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_Z_SPEED
     BUTTON      ID_Z_LOOP_TIMES
@@ -187,7 +201,7 @@ BEGIN
     BUTTON      ID_ANIM_NEXTFRAME
 END
 
-IDR_STAINSCONTROL TOOLBAR DISCARDABLE  16, 15
+IDR_STAINSCONTROL TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_STAINS_ADD
     BUTTON      ID_STAINS_REMOVE
@@ -201,7 +215,7 @@ BEGIN
     BUTTON      ID_STAINS_NEXT_STAIN
 END
 
-IDR_ROTATE TOOLBAR DISCARDABLE  16, 15
+IDR_ROTATE TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_HEADING
     BUTTON      ID_PITCH
@@ -216,7 +230,7 @@ BEGIN
     BUTTON      ID_DOLLY_MIP_MODELING
 END
 
-IDR_MAPPING TOOLBAR DISCARDABLE  16, 15
+IDR_MAPPING TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_TOGGLE_ALL_SURFACES
     BUTTON      ID_LINK_SURFACES
@@ -228,7 +242,7 @@ BEGIN
     BUTTON      ID_TILE_TEXTURE
 END
 
-IDR_FX_CONTROL TOOLBAR DISCARDABLE  16, 15
+IDR_FX_CONTROL TOOLBAR 16, 15
 BEGIN
     BUTTON      ID_CREATE_REFLECTION_TEXTURE
     SEPARATOR
@@ -252,7 +266,7 @@ END
 // Menu
 //
 
-IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+IDR_MAINFRAME MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -282,7 +296,6 @@ BEGIN
         MENUITEM "Scri&pt control",             ID_VIEW_SCRIPTCONTROL
         MENUITEM "&Render control",             ID_VIEW_RENDERCONTROL
         MENUITEM "S&hading and shadow control", ID_VIEW_SHADINGANDSHADOWCONTROL
-
         MENUITEM "Rotat&e control",             ID_VIEW_ROTATE
         MENUITEM "Mapping c&ontrol",            ID_VIEW_MAPPING
         MENUITEM SEPARATOR
@@ -300,7 +313,7 @@ BEGIN
     END
 END
 
-IDR_MDLDOCTYPE MENU PRELOAD DISCARDABLE 
+IDR_MDLDOCTYPE MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -338,7 +351,6 @@ BEGIN
         MENUITEM "Scri&pt control",             ID_VIEW_SCRIPTCONTROL
         MENUITEM "&Render control",             ID_VIEW_RENDERCONTROL
         MENUITEM "S&hading and shadow control", ID_VIEW_SHADINGANDSHADOWCONTROL
-
         MENUITEM "Rotat&e control",             ID_VIEW_ROTATE
         MENUITEM "Mapping c&ontrol",            ID_VIEW_MAPPING
         MENUITEM SEPARATOR
@@ -363,15 +375,14 @@ BEGIN
     END
 END
 
-IDR_MODEL_VIEW_POPUP MENU DISCARDABLE 
+IDR_MODEL_VIEW_POPUP MENU
 BEGIN
     POPUP "Main"
     BEGIN
         MENUITEM "Toggle tools info\tQ",        ID_VIEW_INFO
         MENUITEM "Mapping view\tM",             ID_MAPPING_ON
         MENUITEM "Open model's script\tS",      ID_SCRIPT_OPEN
-        MENUITEM "Update model's animations\tCtrl+Shift+A", 
-                                                ID_SCRIPT_UPDATE_ANIMATIONS
+        MENUITEM "Update model's animations\tCtrl+Shift+A", ID_SCRIPT_UPDATE_ANIMATIONS
         MENUITEM SEPARATOR
         POPUP "Rendering"
         BEGIN
@@ -394,14 +405,13 @@ BEGIN
             MENUITEM "All frames",                  ID_REND_BBOX_ALL
         END
         MENUITEM "Toggle background image\tCtrl+B", ID_BACKGROUND_TEXTURE
-        MENUITEM "Change background color\tCtrl+Shift+B", 
-                                                ID_PREFS_CHANGE_PAPER
+        MENUITEM "Change background color\tCtrl+Shift+B", ID_PREFS_CHANGE_PAPER
         MENUITEM SEPARATOR
         MENUITEM "Take screen shoot\tAlt+S",    ID_TAKE_SCREEN_SHOOT
     END
 END
 
-IDR_SCRIPTDOCTYPE MENU PRELOAD DISCARDABLE 
+IDR_SCRIPTDOCTYPE MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -445,7 +455,6 @@ BEGIN
         MENUITEM "Scri&pt control",             ID_VIEW_SCRIPTCONTROL
         MENUITEM "&Render control",             ID_VIEW_RENDERCONTROL
         MENUITEM "S&hading and shadow control", ID_VIEW_SHADINGANDSHADOWCONTROL
-
         MENUITEM "Rotat&e control",             ID_VIEW_ROTATE
         MENUITEM "Mapping c&ontrol",            ID_VIEW_MAPPING
         MENUITEM SEPARATOR
@@ -472,7 +481,7 @@ BEGIN
     END
 END
 
-IDR_MAPPING_VIEW_POPUP MENU DISCARDABLE 
+IDR_MAPPING_VIEW_POPUP MENU
 BEGIN
     POPUP "Main"
     BEGIN
@@ -506,7 +515,7 @@ BEGIN
     END
 END
 
-IDR_COLOR_BUTTON MENU DISCARDABLE 
+IDR_COLOR_BUTTON MENU
 BEGIN
     POPUP "Main"
     BEGIN
@@ -522,7 +531,7 @@ END
 // Accelerator
 //
 
-IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+IDR_MAINFRAME ACCELERATORS
 BEGIN
     "-",            ID_TESSELLATE_LESS,     ASCII,  NOINVERT
     "=",            ID_TESSELLATE_MORE,     ASCII,  NOINVERT
@@ -533,8 +542,7 @@ BEGIN
     "P",            ID_FILE_PREFERENCES,    VIRTKEY, CONTROL, NOINVERT
     "Q",            ID_WINDOW_CLOSE,        VIRTKEY, ALT, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
-    "T",            ID_FILE_CREATE_TEXTURE, VIRTKEY, SHIFT, CONTROL, 
-                                                    NOINVERT
+    "T",            ID_FILE_CREATE_TEXTURE, VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_DELETE,      ID_STAINS_REMOVE,       VIRTKEY, CONTROL, NOINVERT
     VK_F1,          ID_HELP,                VIRTKEY, NOINVERT
     VK_F1,          ID_CONTEXT_HELP,        VIRTKEY, SHIFT, NOINVERT
@@ -546,18 +554,16 @@ BEGIN
     "`",            ID_WINDOW_TOGGLEMAX,    ASCII,  ALT, NOINVERT
 END
 
-IDR_MDLDOCTYPE ACCELERATORS PRELOAD MOVEABLE PURE 
+IDR_MDLDOCTYPE ACCELERATORS
 BEGIN
     ",",            ID_PICK_COLOR_MODE,     ASCII,  NOINVERT
     "A",            ID_KEY_A,               VIRTKEY, NOINVERT
     "A",            ID_LIST_ANIMATIONS,     VIRTKEY, ALT, NOINVERT
-    "A",            ID_SCRIPT_UPDATE_ANIMATIONS, VIRTKEY, SHIFT, CONTROL, 
-                                                    NOINVERT
+    "A",            ID_SCRIPT_UPDATE_ANIMATIONS, VIRTKEY, SHIFT, CONTROL, NOINVERT
     "B",            ID_BACKGROUND_TEXTURE,  VIRTKEY, NOINVERT
     "B",            ID_SKIN_TEXTURE,        VIRTKEY, CONTROL, NOINVERT
     "B",            ID_ANIMATE_BACKGROUND,  VIRTKEY, ALT, NOINVERT
-    "B",            ID_PREFS_CHANGE_PAPER,  VIRTKEY, SHIFT, CONTROL, 
-                                                    NOINVERT
+    "B",            ID_PREFS_CHANGE_PAPER,  VIRTKEY, SHIFT, CONTROL, NOINVERT
     "C",            ID_WINDOW_CENTER,       VIRTKEY, NOINVERT
     "C",            ID_COLLISION_BOX,       VIRTKEY, NOINVERT
     "C",            ID_REND_SURFACE_COLORS, VIRTKEY, ALT, NOINVERT
@@ -572,15 +578,13 @@ BEGIN
     "L",            ID_LIGHT_ON,            VIRTKEY, CONTROL, NOINVERT
     "M",            ID_MAPPING_ON,          VIRTKEY, NOINVERT
     "N",            ID_REND_NO_TEXTURE,     VIRTKEY, NOINVERT
-    "N",            ID_NEW_TEXTURE_SIZE,    VIRTKEY, SHIFT, CONTROL, 
-                                                    NOINVERT
+    "N",            ID_NEW_TEXTURE_SIZE,    VIRTKEY, SHIFT, CONTROL, NOINVERT
     "O",            ID_OPT_AUTO_MIP_MODELING, VIRTKEY, NOINVERT
     "Q",            ID_TOGGLE_MEASURE_VTX,  VIRTKEY, CONTROL, NOINVERT
     "R",            ID_RECREATE_TEXTURE,    VIRTKEY, NOINVERT
     "R",            ID_FILE_REMOVE_TEXTURE, VIRTKEY, CONTROL, NOINVERT
     "R",            ID_FRAME_RATE,          VIRTKEY, ALT, NOINVERT
-    "R",            ID_RECREATE_TEXTURE,    VIRTKEY, SHIFT, CONTROL, 
-                                                    NOINVERT
+    "R",            ID_RECREATE_TEXTURE,    VIRTKEY, SHIFT, CONTROL, NOINVERT
     "S",            ID_SCRIPT_OPEN,         VIRTKEY, NOINVERT
     "S",            ID_TAKE_SCREEN_SHOOT,   VIRTKEY, ALT, NOINVERT
     "T",            ID_KEY_T,               VIRTKEY, NOINVERT
@@ -633,14 +637,12 @@ BEGIN
     "]",            ID_ANIM_MIP_PRECIZE,    ASCII,  NOINVERT
 END
 
-IDR_SCRIPTDOCTYPE ACCELERATORS DISCARDABLE 
+IDR_SCRIPTDOCTYPE ACCELERATORS
 BEGIN
     "A",            ID_EDIT_SELECT_ALL,     VIRTKEY, CONTROL, NOINVERT
     "F",            ID_EDIT_FIND,           VIRTKEY, CONTROL, NOINVERT
     "I",            ID_VIEW_INFO,           VIRTKEY, CONTROL, NOINVERT
     "R",            ID_EDIT_REPLACE,        VIRTKEY, CONTROL, NOINVERT
-    "S",            ID_SCRIPT_MAKE_MODEL,   VIRTKEY, SHIFT, CONTROL, 
-                                                    NOINVERT
 END
 
 
@@ -649,38 +651,34 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 216, 87
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_ABOUTBOX DIALOG 0, 0, 216, 87
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About Modeler"
 FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_MAINFRAME,IDC_STATIC,108,7,21,20
     DEFPUSHBUTTON   "OK",IDOK,177,7,32,14,WS_GROUP
     CTEXT           "Serious Engine",IDC_STATIC,7,9,58,8,SS_NOPREFIX
-    LTEXT           "Copyright © 2000 CroTeam LLC. All rights reserved.",
-                    IDC_STATIC,7,72,197,8
+    LTEXT           "Copyright © 2000 CroTeam LLC. All rights reserved.",IDC_STATIC,7,72,197,8
     CTEXT           "Serious Modeler",IDC_STATIC,7,18,60,8,SS_NOPREFIX
-    LTEXT           "For licensing Serious Engine email:",IDC_STATIC,7,42,
-                    115,8
+    LTEXT           "For licensing Serious Engine email:",IDC_STATIC,7,42,115,8
     LTEXT           "licensing@croteam.com",IDC_STATIC,129,42,80,8
-    LTEXT           "Please visit Croteam's WWW site at:",IDC_STATIC,7,51,
-                    121,8
+    LTEXT           "Please visit Croteam's WWW site at:",IDC_STATIC,7,51,121,8
     LTEXT           "www.croteam.com",IDC_STATIC,129,51,80,8
 END
 
-IDD_CHOOSEANIMATION DIALOG DISCARDABLE  0, 0, 298, 245
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_CHOOSEANIMATION DIALOG 0, 0, 298, 245
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Choose animation"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LISTBOX         IDC_LIST1,7,7,214,228,LBS_NOINTEGRALHEIGHT | 
-                    LBS_DISABLENOSCROLL | WS_VSCROLL | WS_TABSTOP
+    LISTBOX         IDC_LIST1,7,7,214,228,LBS_NOINTEGRALHEIGHT | LBS_DISABLENOSCROLL | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,240,6,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,240,23,50,14
 END
 
-IDD_INFO_GLOBAL DIALOG DISCARDABLE  0, 0, 222, 87
-STYLE WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+IDD_INFO_GLOBAL DIALOG 0, 0, 222, 87
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
 CAPTION "Global"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -692,11 +690,9 @@ BEGIN
     LTEXT           "Static",IDC_WINDOW_SIZE,50,14,43,8
     LTEXT           "Reflections:",IDC_REFLECTIONS_T,7,34,43,8
     LTEXT           "Static",IDC_REFLECTIONS,50,34,165,8
-    CONTROL         "",IDC_SPECULAR_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    117,70,41,14
+    CONTROL         "",IDC_SPECULAR_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,117,70,41,14
     CTEXT           "Specularity",IDC_SPECULAR_COLOR_T,117,61,41,8
-    CONTROL         "",IDC_REFLECTION_COLOR,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,65,70,41,14
+    CONTROL         "",IDC_REFLECTION_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,65,70,41,14
     CTEXT           "Reflections",IDC_REFLECTION_COLOR_T,65,61,41,8
     LTEXT           "High quality:",IDC_HIGH_QUALITY_T,161,6,41,8
     LTEXT           "Static",IDC_HIGH_QUALITY,202,6,20,8
@@ -708,152 +704,108 @@ BEGIN
     LTEXT           "Static",IDC_MAX_SHADOW,161,14,43,8
     LTEXT           "Bump:",IDC_BUMP_T,7,50,43,8
     LTEXT           "Static",IDC_BUMP,50,50,165,8
-    CONTROL         "",IDC_BUMP_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,169,
-                    70,41,14
+    CONTROL         "",IDC_BUMP_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,169,70,41,14
     CTEXT           "Bump",IDC_BUMP_COLOR_T,169,61,41,8
-    CONTROL         "",IDC_DIFUSE_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    13,70,41,14
+    CONTROL         "",IDC_DIFUSE_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,13,70,41,14
     CTEXT           "Difuse",IDC_DIFUSE_COLOR_T,13,61,41,8
 END
 
 IDD_COLORS_PALETTE DIALOGEX 0, 0, 95, 87
-STYLE DS_SYSMODAL | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SYSMODAL | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_TOOLWINDOW | WS_EX_CLIENTEDGE
 CAPTION "Color palette"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     EDITTEXT        IDC_EDIT_COLOR_NAME,29,73,58,12,ES_AUTOHSCROLL
     PUSHBUTTON      "Button3",IDC_PICK_COLOR,71,46,17,14,BS_ICON
-    CONTROL         "",IDC_CURRENT_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    29,46,38,14
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON1,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,8,2,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON2,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,18,2,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON3,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,28,2,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON4,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,38,2,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON5,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,48,2,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON6,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,58,2,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON7,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,68,2,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON8,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,78,2,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON9,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,8,12,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON10,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,18,12,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON11,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,28,12,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON12,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,38,12,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON13,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,48,12,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON14,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,58,12,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON15,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,68,12,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON16,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,78,12,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON17,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,8,23,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON18,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,18,23,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON19,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,28,23,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON20,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,38,23,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON21,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,48,23,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON22,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,58,23,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON23,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,68,23,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON24,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,78,23,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON25,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,8,33,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON26,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,18,33,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON27,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,28,33,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON28,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,38,33,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON29,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,48,33,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON30,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,58,33,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON31,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,68,33,10,10
-    CONTROL         "",IDC_COLOR_PALETTE_BUTTON32,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,78,33,10,10
+    CONTROL         "",IDC_CURRENT_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,29,46,38,14
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON1,"Button",BS_OWNERDRAW | WS_TABSTOP,8,2,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON2,"Button",BS_OWNERDRAW | WS_TABSTOP,18,2,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON3,"Button",BS_OWNERDRAW | WS_TABSTOP,28,2,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON4,"Button",BS_OWNERDRAW | WS_TABSTOP,38,2,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON5,"Button",BS_OWNERDRAW | WS_TABSTOP,48,2,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON6,"Button",BS_OWNERDRAW | WS_TABSTOP,58,2,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON7,"Button",BS_OWNERDRAW | WS_TABSTOP,68,2,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON8,"Button",BS_OWNERDRAW | WS_TABSTOP,78,2,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON9,"Button",BS_OWNERDRAW | WS_TABSTOP,8,12,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON10,"Button",BS_OWNERDRAW | WS_TABSTOP,18,12,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON11,"Button",BS_OWNERDRAW | WS_TABSTOP,28,12,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON12,"Button",BS_OWNERDRAW | WS_TABSTOP,38,12,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON13,"Button",BS_OWNERDRAW | WS_TABSTOP,48,12,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON14,"Button",BS_OWNERDRAW | WS_TABSTOP,58,12,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON15,"Button",BS_OWNERDRAW | WS_TABSTOP,68,12,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON16,"Button",BS_OWNERDRAW | WS_TABSTOP,78,12,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON17,"Button",BS_OWNERDRAW | WS_TABSTOP,8,23,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON18,"Button",BS_OWNERDRAW | WS_TABSTOP,18,23,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON19,"Button",BS_OWNERDRAW | WS_TABSTOP,28,23,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON20,"Button",BS_OWNERDRAW | WS_TABSTOP,38,23,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON21,"Button",BS_OWNERDRAW | WS_TABSTOP,48,23,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON22,"Button",BS_OWNERDRAW | WS_TABSTOP,58,23,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON23,"Button",BS_OWNERDRAW | WS_TABSTOP,68,23,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON24,"Button",BS_OWNERDRAW | WS_TABSTOP,78,23,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON25,"Button",BS_OWNERDRAW | WS_TABSTOP,8,33,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON26,"Button",BS_OWNERDRAW | WS_TABSTOP,18,33,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON27,"Button",BS_OWNERDRAW | WS_TABSTOP,28,33,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON28,"Button",BS_OWNERDRAW | WS_TABSTOP,38,33,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON29,"Button",BS_OWNERDRAW | WS_TABSTOP,48,33,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON30,"Button",BS_OWNERDRAW | WS_TABSTOP,58,33,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON31,"Button",BS_OWNERDRAW | WS_TABSTOP,68,33,10,10
+    CONTROL         "",IDC_COLOR_PALETTE_BUTTON32,"Button",BS_OWNERDRAW | WS_TABSTOP,78,33,10,10
     LTEXT           "Name:",IDC_STATIC,7,75,20,9
     LTEXT           "Color:",IDC_STATIC,7,49,19,8
     LTEXT           "Mode: On",IDC_MODE,6,62,83,8
 END
 
-IDD_NEW_PROGRESS DIALOG DISCARDABLE  0, 0, 186, 55
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+IDD_NEW_PROGRESS DIALOG 0, 0, 186, 55
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
 CAPTION "Please wait"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,
-                    7,31,172,11
-    LTEXT           "Calculating gouraud normals and stretching vertices ...",
-                    IDC_PROGRESS_MESSAGE,7,11,172,8
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,7,31,172,11
+    LTEXT           "Calculating gouraud normals and stretching vertices ...",IDC_PROGRESS_MESSAGE,7,11,172,8
 END
 
-IDD_INFO_NONE DIALOG DISCARDABLE  0, 0, 88, 70
-STYLE WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+IDD_INFO_NONE DIALOG 0, 0, 88, 70
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
 CAPTION "None"
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "No info available",IDC_STATIC,18,29,54,8
 END
 
-IDD_CREATE_TEXTURE DIALOG DISCARDABLE  0, 0, 292, 130
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_CREATE_TEXTURE DIALOG 0, 0, 292, 130
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Create texture"
 FONT 8, "MS Sans Serif"
 BEGIN
-    COMBOBOX        IDC_COMBO1,156,21,129,55,CBS_DROPDOWNLIST | WS_VSCROLL | 
-                    WS_TABSTOP
-    COMBOBOX        IDC_COMBO2,156,37,129,54,CBS_DROPDOWNLIST | WS_VSCROLL | 
-                    WS_TABSTOP
-    CONTROL         "&Add to modeler's list of working textures",
-                    IDC_ADD_TO_MODELER_CHECK,"Button",BS_AUTOCHECKBOX | 
-                    BS_LEFTTEXT | WS_TABSTOP,7,88,149,8
+    COMBOBOX        IDC_COMBO1,156,21,129,55,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO2,156,37,129,54,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "&Add to modeler's list of working textures",IDC_ADD_TO_MODELER_CHECK,
+                    "Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,7,88,149,8
     DEFPUSHBUTTON   "Create",IDOK,175,105,50,15
     PUSHBUTTON      "Cancel",IDCANCEL,235,106,50,14
     LTEXT           "Source picture size (pixels):",IDC_STATIC,7,52,88,8
     LTEXT           "Created textue size (meters):",IDC_STATIC,7,64,92,8
-    LTEXT           "Max mip level, size in mexels (cca milimiters):",
-                    IDC_STATIC,7,24,139,9
-    LTEXT           "Current model allowed texture size (meters):",
-                    IDC_STATIC,7,76,139,8
+    LTEXT           "Max mip level, size in mexels (cca milimiters):",IDC_STATIC,7,24,139,9
+    LTEXT           "Current model allowed texture size (meters):",IDC_STATIC,7,76,139,8
     LTEXT           "1000x1000",IDC_SOURCE_SIZE,156,52,79,8
     LTEXT           "1000x1000",IDC_CREATED_SIZE,156,64,79,8
     LTEXT           "1000x1000",IDC_ALLOWED_SIZE,156,76,79,8
-    LTEXT           "Created texture name:",IDC_CREATED_TEXTURE_NAME_T,7,7,
-                    278,8
+    LTEXT           "Created texture name:",IDC_CREATED_TEXTURE_NAME_T,7,7,278,8
     LTEXT           "Max mip maps:",IDC_STATIC,7,40,139,9
 END
 
-IDD_PLEASE_WAIT DIALOG DISCARDABLE  0, 0, 212, 49
-STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+IDD_PLEASE_WAIT DIALOG 0, 0, 212, 49
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Please wait"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LTEXT           "Please wait while creating texture file :",
-                    IDC_MESSAGE_T,7,12,198,8
+    LTEXT           "Please wait while creating texture file :",IDC_MESSAGE_T,7,12,198,8
     LTEXT           "Created texture name",IDC_MESSAGE_ARGUMENT_T,7,24,198,8
 END
 
-IDD_INFO_ANIMATION DIALOG DISCARDABLE  0, 0, 221, 81
-STYLE WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+IDD_INFO_ANIMATION DIALOG 0, 0, 221, 81
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
 CAPTION "Animation"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -868,19 +820,17 @@ BEGIN
     LTEXT           "Static",IDC_ANIM_CURRENT_FRAME,90,56,27,8
     LTEXT           "Animation state:",IDC_ANIM_STATE_T2,7,66,83,8
     LTEXT           "Static",IDC_ANIM_STATE,90,66,27,8
-    LTEXT           "Animation lenght (sec):",IDC_ANIMATION_LENGHT_T,7,36,83,
-                    8
+    LTEXT           "Animation lenght (sec):",IDC_ANIMATION_LENGHT_T,7,36,83,8
     LTEXT           "Static",IDC_ANIMATION_LENGHT,90,36,27,8
     LTEXT           "Animations:",IDC_NO_OF_ANIMATIONS_T,129,16,55,8
     LTEXT           "Total frames:",IDC_NO_OF_FRAMES_T,129,26,55,8
     LTEXT           "Static",IDC_NO_OF_ANIMATIONS,189,16,24,8
     LTEXT           "Static",IDC_NO_OF_FRAMES,189,26,24,8
-    EDITTEXT        IDC_ANIM_SPEED,89,24,37,12,ES_AUTOHSCROLL | NOT 
-                    WS_TABSTOP
+    EDITTEXT        IDC_ANIM_SPEED,89,24,37,12,ES_AUTOHSCROLL | NOT WS_TABSTOP
 END
 
-IDD_INFO_POSITION DIALOG DISCARDABLE  0, 0, 179, 66
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_INFO_POSITION DIALOG 0, 0, 179, 66
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Position"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -902,56 +852,41 @@ BEGIN
     EDITTEXT        IDC_EDIT_PITCH,132,18,40,12,ES_AUTOHSCROLL
 END
 
-IDD_PREFERENCES DIALOG DISCARDABLE  0, 0, 269, 189
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_PREFERENCES DIALOG 0, 0, 269, 189
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Modeler preferences"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CONTROL         "Allways see &background",IDC_PREFS_ALLWAYS_BCG,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,16,9,110,9
-    CONTROL         "Floor is visible by default",
-                    IDC_FLOOR_IS_VISIBLE_BY_DEFAULT,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,16,18,110,8
-    CONTROL         "&Copy state of existing window",IDC_PREFS_COPY,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,16,27,110,8
+    CONTROL         "Allways see &background",IDC_PREFS_ALLWAYS_BCG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,9,110,9
+    CONTROL         "Floor is visible by default",IDC_FLOOR_IS_VISIBLE_BY_DEFAULT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,18,110,8
+    CONTROL         "&Copy state of existing window",IDC_PREFS_COPY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,27,110,8
     CONTROL         "Set &default colors",IDC_PREFS_SET_DEFAULT_COLORS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,36,110,8
-    CONTROL         "Ma&ximize window on open",IDC_PREFS_MAXIMIZE,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,16,44,110,10
+    CONTROL         "Ma&ximize window on open",IDC_PREFS_MAXIMIZE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,44,110,10
     CONTROL         "Automatic &window fit (mapping)",IDC_PREFS_WINDOW_FIT,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,54,110,10
-    CONTROL         "Allways see &lamp",IDC_PREFS_ALLWAYS_LAMP,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,16,64,110,10
-    CONTROL         "Model view",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | 
-                    WS_GROUP,187,122,35,8
+    CONTROL         "Allways see &lamp",IDC_PREFS_ALLWAYS_LAMP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,64,110,10
+    CONTROL         "Model view",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,187,122,35,8
     LTEXT           "Default paper color:",IDC_STATIC,151,135,71,8
-    CONTROL         "",IDC_MODEL_PAPER,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    227,134,35,10
+    CONTROL         "",IDC_MODEL_PAPER,"Button",BS_OWNERDRAW | WS_TABSTOP,227,134,35,10
     LTEXT           "Default ink color:",IDC_STATIC,151,147,71,8
-    CONTROL         "",IDC_MODEL_INK,"Button",BS_OWNERDRAW | WS_TABSTOP,227,
-                    146,35,10
-    CONTROL         "Mapping view",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | 
-                    WS_GROUP,46,109,43,8
+    CONTROL         "",IDC_MODEL_INK,"Button",BS_OWNERDRAW | WS_TABSTOP,227,146,35,10
+    CONTROL         "Mapping view",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,46,109,43,8
     LTEXT           "Win background color",IDC_STATIC,16,122,80,8
-    CONTROL         "",IDC_WIN_BCG_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    92,121,34,10
+    CONTROL         "",IDC_WIN_BCG_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,92,121,34,10
     LTEXT           "Paper color:",IDC_STATIC,16,135,80,8
-    CONTROL         "",IDC_MAPPING_PAPER,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    92,133,34,10
+    CONTROL         "",IDC_MAPPING_PAPER,"Button",BS_OWNERDRAW | WS_TABSTOP,92,133,34,10
     LTEXT           "Active surface color:",IDC_STATIC,16,146,80,8
-    CONTROL         "",IDC_MAPPING_ACTIVE_INK,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,92,145,34,10
+    CONTROL         "",IDC_MAPPING_ACTIVE_INK,"Button",BS_OWNERDRAW | WS_TABSTOP,92,145,34,10
     LTEXT           "Inactive surface color:",IDC_STATIC,16,158,80,8
-    CONTROL         "",IDC_MAPPING_INACTIVE_INK,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,92,157,34,10
+    CONTROL         "",IDC_MAPPING_INACTIVE_INK,"Button",BS_OWNERDRAW | WS_TABSTOP,92,157,34,10
     CTEXT           "Current bcg texture",IDC_STATIC,151,7,111,8
-    COMBOBOX        IDC_COMBO_WIN_BCG_TEXTURE,151,24,111,50,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_WIN_BCG_TEXTURE,151,24,111,50,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "&Remove",IDC_REMOVE_WORKING_TEXTURE,218,44,44,12
     PUSHBUTTON      "Add &new",IDC_ADD_WORKING_TEXTURE,151,44,45,12
     LTEXT           "Default ambient color:",IDC_STATIC,16,85,74,10
-    CONTROL         "",IDC_DEFAULT_AMBIENT_COLOR,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,92,84,34,10
+    CONTROL         "",IDC_DEFAULT_AMBIENT_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,92,84,34,10
     CTEXT           "Default position:",IDC_STATIC,182,69,49,8
     LTEXT           "Heading:",IDC_STATIC,151,87,29,8
     EDITTEXT        IDC_DEFAULT_HEADING,182,85,27,12,ES_AUTOHSCROLL
@@ -963,27 +898,23 @@ BEGIN
     EDITTEXT        IDC_DEFAULT_FOW,234,103,27,12,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "&OK",IDOK,151,167,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,212,167,50,14
-    CONTROL         "Allow sound lock",IDC_PREFS_ALLOW_SOUND_LOCK,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,16,73,110,10
-    COMBOBOX        IDC_API,71,168,71,100,CBS_DROPDOWNLIST | WS_VSCROLL | 
-                    WS_TABSTOP
+    CONTROL         "Allow sound lock",IDC_PREFS_ALLOW_SOUND_LOCK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,73,110,10
+    COMBOBOX        IDC_API,71,168,71,100,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Display API:",IDC_STATIC,16,172,51,8
 END
 
-IDD_CHOOSE_WORKING_TEXTURE DIALOG DISCARDABLE  0, 0, 299, 125
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_CHOOSE_WORKING_TEXTURE DIALOG 0, 0, 299, 125
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Choose background texture"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LISTBOX         IDC_LIST1,7,7,227,111,LBS_NOINTEGRALHEIGHT | 
-                    LBS_DISABLENOSCROLL | WS_VSCROLL | WS_HSCROLL | 
-                    WS_TABSTOP
+    LISTBOX         IDC_LIST1,7,7,227,111,LBS_NOINTEGRALHEIGHT | LBS_DISABLENOSCROLL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
     PUSHBUTTON      "Choose",IDOK,242,7,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,242,25,50,14
 END
 
 IDD_PATCH_PALETTE DIALOGEX 0, 0, 95, 87
-STYLE DS_SYSMODAL | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SYSMODAL | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_TOOLWINDOW | WS_EX_CLIENTEDGE
 CAPTION "Patch palette"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
@@ -993,74 +924,42 @@ BEGIN
     EDITTEXT        IDC_EDIT_PATCH_STRETCH,36,59,51,12,ES_AUTOHSCROLL
     LTEXT           "Name:",IDC_PATCH_NAME_T,6,76,20,9
     EDITTEXT        IDC_EDIT_PATCH_NAME,29,73,58,12,ES_AUTOHSCROLL
-    CONTROL         "",IDC_PATCH_BUTTON9,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    8,12,10,10
-    CONTROL         "",IDC_PATCH_BUTTON10,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    18,12,10,10
-    CONTROL         "",IDC_PATCH_BUTTON12,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    38,12,10,10
-    CONTROL         "",IDC_PATCH_BUTTON14,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    58,12,10,10
-    CONTROL         "",IDC_PATCH_BUTTON15,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    68,12,10,10
-    CONTROL         "",IDC_PATCH_BUTTON1,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    8,2,10,10
-    CONTROL         "",IDC_PATCH_BUTTON2,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    18,2,10,10
-    CONTROL         "",IDC_PATCH_BUTTON3,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    28,2,10,10
-    CONTROL         "",IDC_PATCH_BUTTON4,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    38,2,10,10
-    CONTROL         "",IDC_PATCH_BUTTON5,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    48,2,10,10
-    CONTROL         "",IDC_PATCH_BUTTON6,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    58,2,10,10
-    CONTROL         "",IDC_PATCH_BUTTON7,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    68,2,10,10
-    CONTROL         "",IDC_PATCH_BUTTON8,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    78,2,10,10
-    CONTROL         "",IDC_PATCH_BUTTON11,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    28,12,10,10
-    CONTROL         "",IDC_PATCH_BUTTON13,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    48,12,10,10
-    CONTROL         "",IDC_PATCH_BUTTON16,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    78,12,10,10
-    CONTROL         "",IDC_PATCH_BUTTON17,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    8,23,10,10
-    CONTROL         "",IDC_PATCH_BUTTON18,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    18,23,10,10
-    CONTROL         "",IDC_PATCH_BUTTON19,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    28,23,10,10
-    CONTROL         "",IDC_PATCH_BUTTON20,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    38,23,10,10
-    CONTROL         "",IDC_PATCH_BUTTON21,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    48,23,10,10
-    CONTROL         "",IDC_PATCH_BUTTON22,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    58,23,10,10
-    CONTROL         "",IDC_PATCH_BUTTON23,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    68,23,10,10
-    CONTROL         "",IDC_PATCH_BUTTON24,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    78,23,10,10
-    CONTROL         "",IDC_PATCH_BUTTON25,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    8,33,10,10
-    CONTROL         "",IDC_PATCH_BUTTON26,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    18,33,10,10
-    CONTROL         "",IDC_PATCH_BUTTON27,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    28,33,10,10
-    CONTROL         "",IDC_PATCH_BUTTON28,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    38,33,10,10
-    CONTROL         "",IDC_PATCH_BUTTON29,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    48,33,10,10
-    CONTROL         "",IDC_PATCH_BUTTON30,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    58,33,10,10
-    CONTROL         "",IDC_PATCH_BUTTON31,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    68,33,10,10
-    CONTROL         "",IDC_PATCH_BUTTON32,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    78,33,10,10
+    CONTROL         "",IDC_PATCH_BUTTON9,"Button",BS_OWNERDRAW | WS_TABSTOP,8,12,10,10
+    CONTROL         "",IDC_PATCH_BUTTON10,"Button",BS_OWNERDRAW | WS_TABSTOP,18,12,10,10
+    CONTROL         "",IDC_PATCH_BUTTON12,"Button",BS_OWNERDRAW | WS_TABSTOP,38,12,10,10
+    CONTROL         "",IDC_PATCH_BUTTON14,"Button",BS_OWNERDRAW | WS_TABSTOP,58,12,10,10
+    CONTROL         "",IDC_PATCH_BUTTON15,"Button",BS_OWNERDRAW | WS_TABSTOP,68,12,10,10
+    CONTROL         "",IDC_PATCH_BUTTON1,"Button",BS_OWNERDRAW | WS_TABSTOP,8,2,10,10
+    CONTROL         "",IDC_PATCH_BUTTON2,"Button",BS_OWNERDRAW | WS_TABSTOP,18,2,10,10
+    CONTROL         "",IDC_PATCH_BUTTON3,"Button",BS_OWNERDRAW | WS_TABSTOP,28,2,10,10
+    CONTROL         "",IDC_PATCH_BUTTON4,"Button",BS_OWNERDRAW | WS_TABSTOP,38,2,10,10
+    CONTROL         "",IDC_PATCH_BUTTON5,"Button",BS_OWNERDRAW | WS_TABSTOP,48,2,10,10
+    CONTROL         "",IDC_PATCH_BUTTON6,"Button",BS_OWNERDRAW | WS_TABSTOP,58,2,10,10
+    CONTROL         "",IDC_PATCH_BUTTON7,"Button",BS_OWNERDRAW | WS_TABSTOP,68,2,10,10
+    CONTROL         "",IDC_PATCH_BUTTON8,"Button",BS_OWNERDRAW | WS_TABSTOP,78,2,10,10
+    CONTROL         "",IDC_PATCH_BUTTON11,"Button",BS_OWNERDRAW | WS_TABSTOP,28,12,10,10
+    CONTROL         "",IDC_PATCH_BUTTON13,"Button",BS_OWNERDRAW | WS_TABSTOP,48,12,10,10
+    CONTROL         "",IDC_PATCH_BUTTON16,"Button",BS_OWNERDRAW | WS_TABSTOP,78,12,10,10
+    CONTROL         "",IDC_PATCH_BUTTON17,"Button",BS_OWNERDRAW | WS_TABSTOP,8,23,10,10
+    CONTROL         "",IDC_PATCH_BUTTON18,"Button",BS_OWNERDRAW | WS_TABSTOP,18,23,10,10
+    CONTROL         "",IDC_PATCH_BUTTON19,"Button",BS_OWNERDRAW | WS_TABSTOP,28,23,10,10
+    CONTROL         "",IDC_PATCH_BUTTON20,"Button",BS_OWNERDRAW | WS_TABSTOP,38,23,10,10
+    CONTROL         "",IDC_PATCH_BUTTON21,"Button",BS_OWNERDRAW | WS_TABSTOP,48,23,10,10
+    CONTROL         "",IDC_PATCH_BUTTON22,"Button",BS_OWNERDRAW | WS_TABSTOP,58,23,10,10
+    CONTROL         "",IDC_PATCH_BUTTON23,"Button",BS_OWNERDRAW | WS_TABSTOP,68,23,10,10
+    CONTROL         "",IDC_PATCH_BUTTON24,"Button",BS_OWNERDRAW | WS_TABSTOP,78,23,10,10
+    CONTROL         "",IDC_PATCH_BUTTON25,"Button",BS_OWNERDRAW | WS_TABSTOP,8,33,10,10
+    CONTROL         "",IDC_PATCH_BUTTON26,"Button",BS_OWNERDRAW | WS_TABSTOP,18,33,10,10
+    CONTROL         "",IDC_PATCH_BUTTON27,"Button",BS_OWNERDRAW | WS_TABSTOP,28,33,10,10
+    CONTROL         "",IDC_PATCH_BUTTON28,"Button",BS_OWNERDRAW | WS_TABSTOP,38,33,10,10
+    CONTROL         "",IDC_PATCH_BUTTON29,"Button",BS_OWNERDRAW | WS_TABSTOP,48,33,10,10
+    CONTROL         "",IDC_PATCH_BUTTON30,"Button",BS_OWNERDRAW | WS_TABSTOP,58,33,10,10
+    CONTROL         "",IDC_PATCH_BUTTON31,"Button",BS_OWNERDRAW | WS_TABSTOP,68,33,10,10
+    CONTROL         "",IDC_PATCH_BUTTON32,"Button",BS_OWNERDRAW | WS_TABSTOP,78,33,10,10
 END
 
-IDD_INFO_COLLISION DIALOG DISCARDABLE  0, 0, 222, 81
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_INFO_COLLISION DIALOG 0, 0, 222, 81
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Collision"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -1071,8 +970,7 @@ BEGIN
     PUSHBUTTON      ">",IDC_NEXT_COLLISION_BOX,126,10,13,12
     PUSHBUTTON      "A&dd",IDC_ADD_COLLISION_BOX,151,10,26,12
     PUSHBUTTON      "&Remove",IDC_REMOVE_COLLISION_BOX,181,10,34,12
-    CONTROL         "&Collide as box",IDC_COLLIDE_AS_BOX,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,101,28,64,10
+    CONTROL         "&Collide as box",IDC_COLLIDE_AS_BOX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,101,28,64,10
     PUSHBUTTON      "&Allign to size",IDC_ALLIGN_TO_SIZE,166,25,49,12
     LTEXT           "Width:",IDC_STATIC_WIDTH,7,45,36,8
     EDITTEXT        IDC_EDIT_WIDTH,43,41,40,12,ES_AUTOHSCROLL
@@ -1086,59 +984,42 @@ BEGIN
     EDITTEXT        IDC_EDIT_YDOWN,126,52,40,12,ES_AUTOHSCROLL
     LTEXT           "Z center:",IDC_STATIC_ZCENTER,96,67,30,8
     EDITTEXT        IDC_EDIT_ZCENTER,126,63,40,12,ES_AUTOHSCROLL
-    CONTROL         "H=W (&1)",IDC_H_EQ_W,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP | WS_TABSTOP,170,45,49,8
-    CONTROL         "L=W (&2)",IDC_L_EQ_W,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,170,56,49,8
-    CONTROL         "L=H (&3)",IDC_L_EQ_H,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,170,67,49,8
+    CONTROL         "H=W (&1)",IDC_H_EQ_W,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,170,45,49,8
+    CONTROL         "L=W (&2)",IDC_L_EQ_W,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,170,56,49,8
+    CONTROL         "L=H (&3)",IDC_L_EQ_H,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,170,67,49,8
 END
 
-IDD_INFO_RENDERING DIALOG DISCARDABLE  0, 0, 222, 90
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_INFO_RENDERING DIALOG 0, 0, 222, 90
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Rendering"
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "Surface:",IDC_SURFACE_NAME,8,1,178,8
     LTEXT           "Mip:",IDC_MIP_MODEL,192,1,26,8
     LTEXT           "Shading:",IDC_SHADING_T,7,17,31,8
-    COMBOBOX        IDC_SHADING,39,13,60,186,CBS_DROPDOWNLIST | WS_VSCROLL | 
-                    WS_TABSTOP
+    COMBOBOX        IDC_SHADING,39,13,60,186,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Translucency:",IDC_TRANSLUCENCY_T,104,17,47,8
-    COMBOBOX        IDC_TRANSLUCENCY,154,13,63,186,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
-    CONTROL         "&Difuse",IDC_USE_DIFUSE,"Button",BS_AUTO3STATE | 
-                    WS_GROUP | WS_TABSTOP,7,30,53,8
-    CONTROL         "Refle&ctions",IDC_USE_REFLECTIVITY,"Button",
-                    BS_AUTO3STATE | WS_GROUP | WS_TABSTOP,7,38,53,8
-    CONTROL         "&Specularity",IDC_USE_SPECULAR,"Button",BS_AUTO3STATE | 
-                    WS_GROUP | WS_TABSTOP,7,46,53,8
-    CONTROL         "&Bump",IDC_USE_BUMP,"Button",BS_AUTO3STATE | WS_GROUP | 
-                    WS_TABSTOP,7,54,53,8
-    CONTROL         "&Double sided",IDC_DOUBLE_SIDED,"Button",BS_AUTO3STATE | 
-                    WS_GROUP | WS_TABSTOP,68,30,61,8
-    CONTROL         "&Invisible",IDC_INVISIBLE,"Button",BS_AUTO3STATE | 
-                    WS_GROUP | WS_TABSTOP,68,38,62,8
+    COMBOBOX        IDC_TRANSLUCENCY,154,13,63,186,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "&Difuse",IDC_USE_DIFUSE,"Button",BS_AUTO3STATE | WS_GROUP | WS_TABSTOP,7,30,53,8
+    CONTROL         "Refle&ctions",IDC_USE_REFLECTIVITY,"Button",BS_AUTO3STATE | WS_GROUP | WS_TABSTOP,7,38,53,8
+    CONTROL         "&Specularity",IDC_USE_SPECULAR,"Button",BS_AUTO3STATE | WS_GROUP | WS_TABSTOP,7,46,53,8
+    CONTROL         "&Bump",IDC_USE_BUMP,"Button",BS_AUTO3STATE | WS_GROUP | WS_TABSTOP,7,54,53,8
+    CONTROL         "&Double sided",IDC_DOUBLE_SIDED,"Button",BS_AUTO3STATE | WS_GROUP | WS_TABSTOP,68,30,61,8
+    CONTROL         "&Invisible",IDC_INVISIBLE,"Button",BS_AUTO3STATE | WS_GROUP | WS_TABSTOP,68,38,62,8
     CTEXT           "Diffuse",IDC_DIFFUSE_COLOR_T,13,64,41,8
-    CONTROL         "",IDC_DIFUSE_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    13,73,41,14
+    CONTROL         "",IDC_DIFUSE_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,13,73,41,14
     CTEXT           "Reflections",IDC_REFLECTION_COLOR_T2,65,64,41,8
-    CONTROL         "",IDC_REFLECTION_COLOR,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,65,73,41,14
+    CONTROL         "",IDC_REFLECTION_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,65,73,41,14
     CTEXT           "Specularity",IDC_SPECULAR_COLOR_T2,117,64,41,8
-    CONTROL         "",IDC_SPECULAR_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    117,73,41,14
+    CONTROL         "",IDC_SPECULAR_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,117,73,41,14
     CTEXT           "Bump",IDC_BUMP_COLOR_T,169,64,41,8
-    CONTROL         "",IDC_BUMP_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,169,
-                    73,41,14
-    PUSHBUTTON      "Select &all surfaces",IDC_SELECT_ALL_SURFACES,147,49,69,
-                    13
-    CONTROL         "&Detai&l",IDC_DETAIL,"Button",BS_AUTO3STATE | WS_GROUP | 
-                    WS_TABSTOP,68,46,62,8
+    CONTROL         "",IDC_BUMP_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,169,73,41,14
+    PUSHBUTTON      "Select &all surfaces",IDC_SELECT_ALL_SURFACES,147,49,69,13
+    CONTROL         "&Detai&l",IDC_DETAIL,"Button",BS_AUTO3STATE | WS_GROUP | WS_TABSTOP,68,46,62,8
 END
 
-IDD_MULTIPLY_MAPPING DIALOG DISCARDABLE  0, 0, 186, 94
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_MULTIPLY_MAPPING DIALOG 0, 0, 186, 94
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Multiply mapping factors"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -1152,119 +1033,95 @@ BEGIN
     LTEXT           "Multiply zoom by:",IDC_STATIC,7,36,75,8
 END
 
-IDD_LINKED_SURFACES DIALOG DISCARDABLE  0, 0, 297, 246
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_LINKED_SURFACES DIALOG 0, 0, 297, 246
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Mark linked surfaces"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LISTBOX         IDC_SURFACE_LIST,7,7,218,232,LBS_SORT | 
-                    LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | 
-                    LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | 
-                    LBS_DISABLENOSCROLL | WS_VSCROLL | WS_HSCROLL | 
-                    WS_TABSTOP
+    LISTBOX         IDC_SURFACE_LIST,7,7,218,232,LBS_SORT | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | LBS_DISABLENOSCROLL | WS_VSCROLL | WS_HSCROLL | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,239,204,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,239,226,50,14
     PUSHBUTTON      "&Clear",ID_CLEAR_SELECTION,239,8,50,14
     PUSHBUTTON      "Select &all",ID_SELECT_ALL,239,30,50,14
 END
 
-IDD_AUTO_MIP_MODELING DIALOG DISCARDABLE  0, 0, 271, 84
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_AUTO_MIP_MODELING DIALOG 0, 0, 271, 84
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Auto mip modeling"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LTEXT           "Number of vertices to remove for another mip model:",
-                    IDC_STATIC,7,17,172,8
-    EDITTEXT        IDC_VERTICES_TO_REMOVE,179,13,65,12,ES_AUTOHSCROLL | 
-                    ES_NUMBER
-    LTEXT           "Surface preserving factor (1-99%):",IDC_STATIC,7,35,172,
-                    8
-    EDITTEXT        IDC_SURFACE_PRESERVING_FACTOR,179,31,65,12,
-                    ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Number of vertices to remove for another mip model:",IDC_STATIC,7,17,172,8
+    EDITTEXT        IDC_VERTICES_TO_REMOVE,179,13,65,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Surface preserving factor (1-99%):",IDC_STATIC,7,35,172,8
+    EDITTEXT        IDC_SURFACE_PRESERVING_FACTOR,179,31,65,12,ES_AUTOHSCROLL | ES_NUMBER
     CTEXT           "%",IDC_STATIC,250,35,14,8
     DEFPUSHBUTTON   "OK",IDOK,154,63,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,214,63,50,14
 END
 
-IDD_INFO_ATTACHING_PLACEMENT DIALOG DISCARDABLE  0, 0, 222, 89
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_INFO_ATTACHING_PLACEMENT DIALOG 0, 0, 222, 89
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Attachment"
 FONT 8, "MS Sans Serif"
 BEGIN
-    CONTROL         "&Visible",IDC_IS_VISIBLE,"Button",BS_AUTOCHECKBOX | 
-                    BS_LEFTTEXT | BS_RIGHT | WS_TABSTOP,180,47,34,8
+    CONTROL         "&Visible",IDC_IS_VISIBLE,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_RIGHT | WS_TABSTOP,180,47,34,8
     CTEXT           "1.",IDC_ATTACHING_PLACEMENT_INDEX_T,7,6,21,9
-    PUSHBUTTON      "&<",IDC_PREVIOUS_ATTACHING_PLACEMENT,30,3,13,12,NOT 
-                    WS_TABSTOP
+    PUSHBUTTON      "&<",IDC_PREVIOUS_ATTACHING_PLACEMENT,30,3,13,12,NOT WS_TABSTOP
     EDITTEXT        IDC_ATTACHING_PLACEMENT_NAME,43,3,91,12,ES_AUTOHSCROLL
-    PUSHBUTTON      "&>",IDC_NEXT_ATTACHING_PLACEMENT,134,3,13,12,NOT 
-                    WS_TABSTOP
+    PUSHBUTTON      "&>",IDC_NEXT_ATTACHING_PLACEMENT,134,3,13,12,NOT WS_TABSTOP
     LTEXT           "Model:",IDC_MODEL_T,7,21,36,8
-    LTEXT           "Weapons\\Weapon11.mdl",IDC_ATTACHING_MODEL_T,43,21,151,
-                    8
+    LTEXT           "Weapons\\Weapon11.mdl",IDC_ATTACHING_MODEL_T,43,21,151,8
     PUSHBUTTON      "&...",IDC_BROWSE_MODEL,198,17,17,12,NOT WS_TABSTOP
     LTEXT           "Vertices:",IDC_VERTICES_T,7,47,36,8
     LTEXT           "54, 32,123",IDC_ATTACHING_VERTICES,43,47,138,8
     LTEXT           "DX:",IDC_ATTACHING_PLACEMENT_X_OFFSET_T,7,61,14,8
-    EDITTEXT        IDC_ATTACHING_PLACEMENT_X_OFFSET,23,57,40,12,
-                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_ATTACHING_PLACEMENT_X_OFFSET,23,57,40,12,ES_AUTOHSCROLL
     LTEXT           "DY:",IDC_ATTACHING_PLACEMENT_Y_OFFSET_T,83,61,14,8
-    EDITTEXT        IDC_ATTACHING_PLACEMENT_Y_OFFSET,102,57,40,12,
-                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_ATTACHING_PLACEMENT_Y_OFFSET,102,57,40,12,ES_AUTOHSCROLL
     LTEXT           "DZ:",IDC_ATTACHING_PLACEMENT_Z_OFFSET_T,159,61,14,8
-    EDITTEXT        IDC_ATTACHING_PLACEMENT_Z_OFFSET,175,57,40,12,
-                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_ATTACHING_PLACEMENT_Z_OFFSET,175,57,40,12,ES_AUTOHSCROLL
     LTEXT           "H:",IDC_ATTACHING_PLACEMENT_HEADING_T,7,74,8,8
-    EDITTEXT        IDC_ATTACHING_PLACEMENT_HEADING,23,70,40,12,
-                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_ATTACHING_PLACEMENT_HEADING,23,70,40,12,ES_AUTOHSCROLL
     LTEXT           "P:",IDC_ATTACHING_PLACEMENT_PITCH_T,83,74,8,8
-    EDITTEXT        IDC_ATTACHING_PLACEMENT_PITCH,102,70,40,12,
-                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_ATTACHING_PLACEMENT_PITCH,102,70,40,12,ES_AUTOHSCROLL
     LTEXT           "B:",IDC_ATTACHING_PLACEMENT_BANKING_T,159,74,8,8
-    EDITTEXT        IDC_ATTACHING_PLACEMENT_BANKING,175,70,40,12,
-                    ES_AUTOHSCROLL
+    EDITTEXT        IDC_ATTACHING_PLACEMENT_BANKING,175,70,40,12,ES_AUTOHSCROLL
     PUSHBUTTON      "&Add",IDC_ADD_ATTACHING_PLACEMENT,151,3,26,12
     PUSHBUTTON      "&Remove",IDC_REMOVE_ATTACHING_PLACEMENT,181,3,34,12
-    COMBOBOX        IDC_ATTACHMENT_MODEL_ANIMATION_COMBO,43,30,172,91,
-                    CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ATTACHMENT_MODEL_ANIMATION_COMBO,43,30,172,91,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Animation:",IDC_MODEL_ANIMATION_T,7,34,36,8
 END
 
-IDD_INFO_ATTACHING_SOUND DIALOG DISCARDABLE  0, 0, 222, 89
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_INFO_ATTACHING_SOUND DIALOG 0, 0, 222, 89
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Sound"
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "Sound:",IDC_SOUND_T,7,10,36,8
-    LTEXT           "Sounds\\Waterfall.wav",IDC_ATTACHING_SOUND_T,43,10,116,
-                    8
+    LTEXT           "Sounds\\Waterfall.wav",IDC_ATTACHING_SOUND_T,43,10,116,8
     PUSHBUTTON      "&...",IDC_BROWSE_SOUND,162,6,17,12,NOT WS_TABSTOP
     PUSHBUTTON      "&None",IDC_ATTACHING_SOUND_NONE,182,6,34,12
-    CONTROL         "&Looping",IDC_IS_LOOPING,"Button",BS_AUTOCHECKBOX | 
-                    BS_LEFTTEXT | BS_LEFT | WS_TABSTOP,91,29,53,8
-    CONTROL         "&Playing",IDC_IS_PLAYING,"Button",BS_AUTOCHECKBOX | 
-                    BS_LEFTTEXT | BS_LEFT | WS_TABSTOP,157,29,53,8
+    CONTROL         "&Looping",IDC_IS_LOOPING,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_LEFT | WS_TABSTOP,91,29,53,8
+    CONTROL         "&Playing",IDC_IS_PLAYING,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | BS_LEFT | WS_TABSTOP,157,29,53,8
     LTEXT           "Delay:",IDC_SOUND_START_DELAY_T,7,29,29,8
     EDITTEXT        IDC_SOUND_START_DELAY,38,25,40,12,ES_AUTOHSCROLL
 END
 
-IDD_NEW_TEXTURE_SIZE DIALOG DISCARDABLE  0, 0, 148, 71
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_NEW_TEXTURE_SIZE DIALOG 0, 0, 148, 71
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Set new texture size for model"
 FONT 8, "MS Sans Serif"
 BEGIN
-    COMBOBOX        IDC_NEW_WIDTH,60,8,81,85,CBS_DROPDOWNLIST | WS_VSCROLL | 
-                    WS_TABSTOP
-    COMBOBOX        IDC_NEW_HEIGHT,60,25,81,84,CBS_DROPDOWNLIST | WS_VSCROLL | 
-                    WS_TABSTOP
+    COMBOBOX        IDC_NEW_WIDTH,60,8,81,85,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_NEW_HEIGHT,60,25,81,84,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,31,52,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,90,52,50,14
     LTEXT           "New width:",IDC_STATIC,7,12,48,8
     LTEXT           "New height:",IDC_STATIC,7,29,48,8
 END
 
-IDD_NUMERIC_ALPHA DIALOG DISCARDABLE  0, 0, 131, 57
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_NUMERIC_ALPHA DIALOG 0, 0, 131, 57
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Numeric alpha"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -1274,8 +1131,8 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,74,36,50,14
 END
 
-IDD_INFO_MIP DIALOG DISCARDABLE  0, 0, 222, 81
-STYLE WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
+IDD_INFO_MIP DIALOG 0, 0, 222, 81
+STYLE DS_SETFONT | WS_CHILD | WS_DISABLED | WS_CAPTION | WS_SYSMENU
 CAPTION "Mip"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -1291,71 +1148,56 @@ BEGIN
     LTEXT           "Static",IDC_CURRENT_MIP_MODEL,75,6,43,8
     LTEXT           "Mip triangles:",IDC_NO_OF_TRIANGLES_T,7,65,55,8
     LTEXT           "Static",IDC_NO_OF_TRIANGLES,75,65,43,8
-    CONTROL         "Has &patches",IDC_HAS_PATCHES,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,125,6,90,8
-    CONTROL         "Has &attached models",IDC_HAS_ATTACHED_MODELS,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,125,16,90,8
+    CONTROL         "Has &patches",IDC_HAS_PATCHES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,125,6,90,8
+    CONTROL         "Has &attached models",IDC_HAS_ATTACHED_MODELS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,125,16,90,8
     LTEXT           "Switch factor:",IDC_MODEL_FACTOR_T,7,31,59,8
     LTEXT           "Static",IDC_MODEL_SWITCH_FACTOR,75,31,43,8
 END
 
-IDD_CREATE_SPECULAR_TEXTURE DIALOG DISCARDABLE  0, 0, 281, 207
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_CREATE_SPECULAR_TEXTURE DIALOG 0, 0, 281, 207
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Create specularity texture"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "Create",IDOK,163,186,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,224,186,50,14
     CONTROL         "",IDC_GRAPH_FRAME,"Static",SS_BLACKFRAME,7,63,65,59
-    CONTROL         "",IDC_PREVIEW_FRAME,"Static",SS_BLACKFRAME | SS_NOTIFY,
-                    82,63,124,110
-    CONTROL         "Slider1",IDC_SPECULAR_EXPONENT,"msctls_trackbar32",
-                    TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,72,28,155,10
+    CONTROL         "",IDC_PREVIEW_FRAME,"Static",SS_BLACKFRAME | SS_NOTIFY,82,63,124,110
+    CONTROL         "Slider1",IDC_SPECULAR_EXPONENT,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,72,28,155,10
     LTEXT           "Specular exponent:",IDC_STATIC,7,30,65,8
     CTEXT           "Specular color",IDC_STATIC,209,100,65,8
-    CONTROL         "",IDC_SPECULAR_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    209,109,65,14
+    CONTROL         "",IDC_SPECULAR_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,209,109,65,14
     CTEXT           "Specularity graph",IDC_STATIC,7,55,65,8
     CTEXT           "Preview",IDC_STATIC,81,55,124,8
     CTEXT           "Ambient",IDC_STATIC,211,126,63,8
-    CONTROL         "",IDC_AMBIENT_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    211,134,63,14
+    CONTROL         "",IDC_AMBIENT_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,211,134,63,14
     CTEXT           "Light",IDC_STATIC,211,151,63,8
-    CONTROL         "",IDC_LIGHT_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    210,159,64,14
-    COMBOBOX        IDC_SIZE_IN_PIXELS,77,11,145,117,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_LIGHT_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,210,159,64,14
+    COMBOBOX        IDC_SIZE_IN_PIXELS,77,11,145,117,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Texture size (pixels):",IDC_STATIC,7,15,65,8
     LTEXT           "Static",IDC_NUMERIC_EXPONENT_T,229,30,45,8
-    CONTROL         "&Auto rotate",IDC_AUTO_ROTATE,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,211,63,63,10
+    CONTROL         "&Auto rotate",IDC_AUTO_ROTATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,211,63,63,10
 END
 
-IDD_CREATE_REFLECTION_TEXTURE DIALOG DISCARDABLE  0, 0, 296, 234
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_CREATE_REFLECTION_TEXTURE DIALOG 0, 0, 296, 234
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Create reflection texture"
 FONT 8, "MS Sans Serif"
 BEGIN
     DEFPUSHBUTTON   "Create",IDOK,179,213,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,239,213,50,14
     CONTROL         "",IDC_FRAME_FRONT,"Static",SS_BLACKFRAME,35,143,40,40
-    CONTROL         "",IDC_PREVIEW_FRAME,"Static",SS_BLACKFRAME | SS_NOTIFY,
-                    80,38,129,100
+    CONTROL         "",IDC_PREVIEW_FRAME,"Static",SS_BLACKFRAME | SS_NOTIFY,80,38,129,100
     CTEXT           "Reflection color",IDC_STATIC,224,68,65,8
-    CONTROL         "",IDC_REFLECTION_COLOR,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,224,77,65,14
+    CONTROL         "",IDC_REFLECTION_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,224,77,65,14
     CTEXT           "Preview",IDC_STATIC,81,30,124,8
     CTEXT           "Ambient",IDC_STATIC,226,95,63,8
-    CONTROL         "",IDC_AMBIENT_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    226,103,63,14
+    CONTROL         "",IDC_AMBIENT_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,226,103,63,14
     CTEXT           "Light",IDC_STATIC,226,120,63,8
-    CONTROL         "",IDC_LIGHT_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,
-                    225,128,64,14
-    COMBOBOX        IDC_SIZE_IN_PIXELS,77,11,145,117,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_LIGHT_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,225,128,64,14
+    COMBOBOX        IDC_SIZE_IN_PIXELS,77,11,145,117,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Texture size (pixels):",IDC_STATIC,7,15,65,8
-    CONTROL         "&Auto rotate",IDC_AUTO_ROTATE,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,226,38,63,10
+    CONTROL         "&Auto rotate",IDC_AUTO_ROTATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,226,38,63,10
     CONTROL         "",IDC_FRAME_RIGHT,"Static",SS_BLACKFRAME,79,143,40,40
     CONTROL         "",IDC_FRAME_BACK,"Static",SS_BLACKFRAME,123,143,42,40
     CONTROL         "",IDC_FRAME_LEFT,"Static",SS_BLACKFRAME,169,143,40,40
@@ -1369,43 +1211,33 @@ BEGIN
     CTEXT           "West",IDC_STATIC,169,187,40,8
 END
 
-IDD_EXPORT_FOR_SKINNIG DIALOG DISCARDABLE  0, 0, 294, 219
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_EXPORT_FOR_SKINNIG DIALOG 0, 0, 294, 219
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Export mapping pictures for skinning"
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "bla bla bla",IDC_EXPORT_FILE_NAME_T,19,21,259,8
     LTEXT           "Picture size (in pixels):",IDC_STATIC,8,49,74,8
-    COMBOBOX        IDC_EXPORT_PICTURE_SIZE,85,45,85,95,CBS_DROPDOWNLIST | 
-                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_EXPORT_PICTURE_SIZE,85,45,85,95,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Paper color:",IDC_STATIC,7,66,50,8
-    CONTROL         "",IDC_EXPORT_PAPER_COLOR,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,86,64,40,13
+    CONTROL         "",IDC_EXPORT_PAPER_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,86,64,40,13
     LTEXT           "Wire color:",IDC_STATIC,7,81,50,8
-    CONTROL         "",IDC_EXPORT_WIRE_COLOR,"Button",BS_OWNERDRAW | 
-                    WS_TABSTOP,86,79,40,13
-    GROUPBOX        "What you want to see on exported picture:",IDC_STATIC,7,
-                    103,280,44,BS_CENTER
-    CONTROL         "&Surfaces colors",IDC_COLORED_SURFACES,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,14,115,142,8
-    CONTROL         "&Wire frame",IDC_WIRE_FRAME,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,14,125,142,8
+    CONTROL         "",IDC_EXPORT_WIRE_COLOR,"Button",BS_OWNERDRAW | WS_TABSTOP,86,79,40,13
+    GROUPBOX        "What you want to see on exported picture:",IDC_STATIC,7,103,280,44,BS_CENTER
+    CONTROL         "&Surfaces colors",IDC_COLORED_SURFACES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,115,142,8
+    CONTROL         "&Wire frame",IDC_WIRE_FRAME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,125,142,8
     CONTROL         "Surface &numbers",IDC_COLORED_SURFACES_WITH_NUMBERS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,135,142,8
-    GROUPBOX        "Note for exporting surface numbers",IDC_STATIC,7,152,
-                    280,32,BS_CENTER
+    GROUPBOX        "Note for exporting surface numbers",IDC_STATIC,7,152,280,32,BS_CENTER
     LTEXT           "File:",IDC_STATIC,11,162,14,8
     LTEXT           "bla bla bla",IDC_SURFACE_LIST_T,32,162,255,8
-    LTEXT           "will be saved. This text file will contain surface names along with their numbers.",
-                    IDC_STATIC,11,171,270,8
+    LTEXT           "will be saved. This text file will contain surface names along with their numbers.",IDC_STATIC,11,171,270,8
     DEFPUSHBUTTON   "OK",IDOK,175,198,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,237,198,50,14
-    GROUPBOX        "Mapping picture will be saved as:",IDC_STATIC,13,13,268,
-                    19,BS_CENTER
+    GROUPBOX        "Mapping picture will be saved as:",IDC_STATIC,13,13,268,19,BS_CENTER
 END
 
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
@@ -1428,15 +1260,13 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "CompanyName", "\0"
-            VALUE "FileDescription", "MODELER MFC Application\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
-            VALUE "InternalName", "MODELER\0"
-            VALUE "LegalCopyright", "Copyright © 1997\0"
-            VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "MODELER.EXE\0"
-            VALUE "ProductName", "MODELER Application\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "FileDescription", "MODELER MFC Application"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "MODELER"
+            VALUE "LegalCopyright", "Copyright © 1997"
+            VALUE "OriginalFilename", "MODELER.EXE"
+            VALUE "ProductName", "MODELER Application"
+            VALUE "ProductVersion", "1, 0, 0, 1"
         END
     END
     BLOCK "VarFileInfo"
@@ -1445,8 +1275,6 @@ BEGIN
     END
 END
 
-#endif    // !_MAC
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1454,7 +1282,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -1802,7 +1630,8 @@ END
 // Cursor
 //
 
-IDC_NULLCURSOR          CURSOR  DISCARDABLE     "res\\nullcurs.cur"
+IDC_NULLCURSOR          CURSOR                  "res\\nullcurs.cur"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1880,20 +1709,20 @@ END
 // String Table
 //
 
-STRINGTABLE PRELOAD DISCARDABLE 
+STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "Serious Modeler"
     IDR_MDLDOCTYPE          "\nMdlDoc\nModel file\nSerious Modeler Files (*.mdl)\n.MDL\nSeriousModeler.Document\nSerious Modeler Document"
     IDR_SCRIPTDOCTYPE       "\nScrDoc\nScript file\nScript Files (*.scr)\n.SCR\nSeriousModeler.Document\nSerious Modeler Document"
 END
 
-STRINGTABLE PRELOAD DISCARDABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_APP_TITLE       "Modeler"
     AFX_IDS_IDLEMESSAGE     "Ready"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_INDICATOR_EXT        "EXT"
     ID_INDICATOR_CAPS       "CAP"
@@ -1903,7 +1732,7 @@ BEGIN
     ID_INDICATOR_REC        "REC"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_FILE_NEW             "Create a new document\nNew"
     ID_FILE_OPEN            "Open an existing document\nOpen"
@@ -1916,16 +1745,24 @@ BEGIN
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
+    ID_TOGGLE_MEASURE_VTX   "Toggle measure vertex (Ctrl+Q)\nToggle measure vertex (Ctrl+Q)"
+    ID_RESET_MEASURE_VTX    "Reset measure vertex (Alt+Z)\nToggle measure vertex (Ctrl+Q)"
+    ID_TESSELLATE_MORE      "Tesselate more (+)\nTesselate more (+)"
+    ID_TESSELLATE_LESS      "Tesselate less (-)\nTesselate less (-)"
     ID_APP_ABOUT_QT         "Display information about Qt\nAbout Qt"
+END
+
+STRINGTABLE
+BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
     ID_HELP_FINDER          "List Help topics\nHelp Topics"
     ID_CONTEXT_HELP         "Display help for clicked on buttons, menus and windows\nHelp"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_FILE_MRU_FILE1       "Open this document"
     ID_FILE_MRU_FILE2       "Open this document"
@@ -1945,13 +1782,13 @@ BEGIN
     ID_FILE_MRU_FILE16      "Open this document"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
     ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
     ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
@@ -1961,7 +1798,7 @@ BEGIN
     ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_EDIT_CLEAR           "Erase the selection\nErase"
     ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
@@ -1976,13 +1813,13 @@ BEGIN
     ID_EDIT_REDO            "Redo the previously undone action\nRedo"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
     ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_SCSIZE          "Change the window size"
     AFX_IDS_SCMOVE          "Change the window position"
@@ -1993,14 +1830,14 @@ BEGIN
     AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "Restore the window to normal size"
     AFX_IDS_SCTASKLIST      "Activate Task List"
     AFX_IDS_MDICHILD        "Activate this window"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
     IDS_INFO_TITLE          "Model info"
@@ -2008,7 +1845,7 @@ BEGIN
     IDS_DEFAULT_ARIAL       "Arial"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_ANIM_PLAY            "Play/Stop animation looping (Return)\nPlay/Stop looping (Return)"
     ID_VIEW_ANIMCONTROL     "Show or hide the animation control toolbar\nToggle animation tool bar"
@@ -2022,7 +1859,7 @@ BEGIN
     ID_MIP_PRECIZE          "Previous mip-model\nPrev mip model"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_ANIM_MIP_ROUGH       "Next (more rough) mip model\nRougher mip model (Ctrl+Up or .)"
     ID_ANIM_MIP_PRECIZE     "Previous (more precize) mip model\nMore precize mip model (Ctrl+Dn or ,)"
@@ -2033,7 +1870,7 @@ BEGIN
     ID_WINDOW_TOGGLEMAX     "Toggles maximization of current window\nToggle maximize"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_PREFS_CHANGE_PAPER   "Change background color (Ctrl+Shift+B)\nChange background color (Ctrl+Shift+B)"
     ID_PREFS_CHANGE_PICTURE "Select background picture"
@@ -2043,12 +1880,11 @@ BEGIN
     ID_FILE_CREATE_TEXTURE  "Create new texture\nCreate new texture (Ctrl+Shift+T)"
     ID_VIEW_TEXTURECONTROL  "Show or hide the texture control toolbar\nToggle Texture tool bar"
     ID_SCRIPT_OPEN          "Open current model's script file (S)\nOpen script (S)"
-    ID_SCRIPT_MAKE_MODEL    "Save script, create and load model (Ctrl+Shift+S)\nCreate model (Ctrl+Shift+S)"
     ID_UPDATE_FRAMES        "Update animations from script\nUpdate animations"
     ID_UPDATE_ANIMATIONS    "Update animations from script\nUpdate animations"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_UPDATE_MIPMODELS     "Update mip models from script\nUpdate mip models"
     ID_SCRIPT_UPDATE_ANIMATIONS 
@@ -2064,7 +1900,7 @@ BEGIN
     ID_REND_WIRE            "Toggle wire frame (W)\nToggle wire frame (W)"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_BUTTON32977          "Toggle hidden wire frame (H)\nToggle hidden wire frame (H)"
     ID_REND_TEXTURE_ON      "Render texture\nRender texture"
@@ -2075,7 +1911,7 @@ BEGIN
     ID_FILE_PREFERENCES     "Preferences"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_WINDOW_CENTER        "Center mapping area"
     ID_VIEW_MIPLIGHTCONTROL "Show or hide the mip and light control toolbar\nToggle mip and light tool bar"
@@ -2085,7 +1921,7 @@ BEGIN
     ID_ANIMATE_BACKGROUND   "Toggle animation of mapping texture"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_REND_WIRE_FRAME      "Toggle wire frame (W)\nToggle wire frame (W)"
     ID_VIEW_RENDERCONTROL   "Show or hide render control toolbar\nToggle render tool bar"
@@ -2093,14 +1929,14 @@ BEGIN
     ID_REND_FLOOR           "Toggle floor on/off (F)\nToggle floor on/off (F)"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_REND_WIRE_ONOFF      "Toggle wire frame (W)\nToggle wire frame (W)"
     ID_REND_HIDDEN_LINES    "Toggle hidden lines (H)\nToggle hidden lines (H)"
     ID_REND_NO_TEXTURE      "Set no texture mode (N)\nSet no texture mode (N)"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_REND_SURFACE_COLORS  "Render surface colors (Alt+C)\nRender surface colors (Alt+C)"
     ID_REND_ON_COLORS       "Render on colors (Num +)\nRender on colors (Num +)"
@@ -2113,7 +1949,7 @@ BEGIN
     ID_PREFS_CHANGE_INK     "Color of wire frame"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_STAINS_REMOVE        "Remove current working patch (Ctrl+Del)\nRemove working patch (Ctrl+Del)"
     ID_STAINS_CHOOSE        "Choose working patch"
@@ -2132,19 +1968,19 @@ BEGIN
     ID_FALL_DOWN            "Reset model position (Alt+Z)\nReset model position (Alt+Z)"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_VIEW_COLOR_PALETTE   "Toggle color palette"
     ID_VIEW_INFO            "Toggle tools info"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_MAGNIFY_MORE         "Magnify more, zoom in"
     ID_MAGNIFY_LESS         "Magnify less, zoom out"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_CHANGE_AMBIENT       "Change ambient color (A)\nAmbient color (A)"
     ID_SAVE_THUMBNAIL       "Save model's thumbnail (Alt+T)\nSave thumbnail (Alt+T)"
@@ -2157,7 +1993,7 @@ BEGIN
     ID_VIEW_ROTATE          "Show or hide rotation toolbar\nToggle rotation toolbar"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_COLLISION_BOX        "Toggle collision mode (C)\nCollision mode (C)"
     ID_RESET_VIEWER         "Reset position (BackSpace)\nReset position (BackSpace)"
@@ -2171,7 +2007,7 @@ BEGIN
     ID_EDIT_COPY_ALL        "Copy mapping of all surfaces (Ctrl+Shift+C)\nCopy mapping of all surfaces (Ctrl+Shift+C)"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_EDIT_PASTE_ALL       "Paste mapping of all surfaces (Ctrl+Shift+V)\nPaste mapping of all surfaces (Ctrl+Shift+V)"
     ID_VIEW_MAPPING         "Show or hide mapping toolbar\nToggle mapping toolbar"
@@ -2182,7 +2018,7 @@ BEGIN
     ID_RECREATE_TEXTURE     "Recreate texture (R)\nRecreate texture (R)"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_CREATE_MIP_MODELS    "Create mip models (I)\nCreate mip models (I)"
     ID_DOLLY_MIP_MODELING   "Toggle dolly model mode\nToggle dolly model mode"
@@ -2192,7 +2028,7 @@ BEGIN
     ID_TILE_TEXTURE         "Toggle texture tiling (T)\nToggle texture tiling (T)"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_ADD_REFLECTION_TEXTURE 
                             "Browse reflection texture (F2)\nBrowse reflection texture (F2)"
@@ -2203,7 +2039,7 @@ BEGIN
     ID_BUMP_TEXTURE         "Browse bump bexture\nBrowse bump bexture"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_REMOVE_BUMP_TEXTURE  "Remove bump texture\nRemove bump texture"
     ID_ADD_BUMP_TEXTURE     "Browse bump bexture (F4)\nBrowse bump bexture (F4)"
@@ -2214,7 +2050,7 @@ BEGIN
     ID_EXPORT_SURFACES      "Export surfaces with their numbers\nExport surfaces with their numbers"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     ID_EXPORT_FOR_SKINING   "Export mapping image to be used for creating skin\nExport mapping image"
     ID_RENDER_SURFACES_IN_COLORS 
@@ -2226,15 +2062,7 @@ BEGIN
     ID_TOGGLE_ALL_SURFACES  "Toggle all surfaces on/off (A)\nToggle all surfaces on/off (A)"
 END
 
-STRINGTABLE DISCARDABLE 
-BEGIN
-    ID_TOGGLE_MEASURE_VTX   "Toggle measure vertex (Ctrl+Q)\nToggle measure vertex (Ctrl+Q)"
-    ID_RESET_MEASURE_VTX    "Reset measure vertex (Alt+Z)\nToggle measure vertex (Ctrl+Q)"
-    ID_TESSELLATE_MORE      "Tesselate more (+)\nTesselate more (+)"
-    ID_TESSELLATE_LESS      "Tesselate less (-)\nTesselate less (-)"
-END
-
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

@@ -297,13 +297,6 @@ BOOL CModelerApp::SubInitInstance()
 		RUNTIME_CLASS(CChildFrame), // custom MDI child frame
 		RUNTIME_CLASS(CModelerView));
 	AddDocTemplate(pDocTemplate);
-  
-  m_pdtScriptTemplate = pDocTemplate = new CMultiDocTemplate(
-		IDR_SCRIPTDOCTYPE,
-		RUNTIME_CLASS(CScriptDoc),
-		RUNTIME_CLASS(CChildFrame), // custom MDI child frame
-		RUNTIME_CLASS(CScriptView));
-	AddDocTemplate(pDocTemplate);
 
   // initialize engine, without network
   SE_InitEngine("");  // DO NOT SPECIFY NAME HERE!
@@ -658,7 +651,7 @@ void CModelerApp::OnFileNew()
   }
 }
 /////////////////////////////////////////////////////////////////////////////
-void CModelerApp::OnFileOpen() 
+void CModelerApp::OnFileOpen()
 {
   // call file requester for opening documents
   CDynamicArray<CTFileName> afnOpenModel;
@@ -669,6 +662,16 @@ void CModelerApp::OnFileOpen()
     "All files (*.*)\0*.*\0\0",
     "Open model directory", "Models\\", "", &afnOpenModel);
 
+  FOREACHINDYNAMICARRAY(afnOpenModel, CTFileName, itModel)
+  {
+    const CTFileName modelFile = itModel.Current();
+    if (modelFile.FileExt() == ".scr")
+    {
+      return;
+    }
+  }
+
+
   // create new models
   FOREACHINDYNAMICARRAY( afnOpenModel, CTFileName, itModel)
   {
@@ -676,12 +679,6 @@ void CModelerApp::OnFileOpen()
     CTFileName fnFullRequestedFile = _fnmApplicationPath + itModel.Current();
     // choose right document template using file's extension
     CDocTemplate *pDocTemplate = m_pdtModelDocTemplate;
-    BOOL bScriptDocument = FALSE;
-    if( fnFullRequestedFile.FileExt() == ".scr")
-    {
-      pDocTemplate = m_pdtScriptTemplate;
-      bScriptDocument = TRUE;
-    }
 
     // Now we create document instance 
     CDocument* pDocument = pDocTemplate->CreateNewDocument();
@@ -694,14 +691,11 @@ void CModelerApp::OnFileOpen()
 	  ASSERT_VALID(pDocument);
 	  
     // Model documents must be opened before view creation
-    if( !bScriptDocument)
+    if( !pDocument->OnOpenDocument( CString(fnFullRequestedFile)))
     {
-      if( !pDocument->OnOpenDocument( CString(fnFullRequestedFile)))
-      {
-		    AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
-		    //delete pDocument;       // explicit delete on error
-		    return;
-      }
+		  AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
+		  //delete pDocument;       // explicit delete on error
+		  return;
     }
   
     // View creation
@@ -716,17 +710,6 @@ void CModelerApp::OnFileOpen()
 		  return;
 	  }
 	  ASSERT_VALID(pFrame);
-
-    // Script documents must be opened after view creation
-    if( bScriptDocument)
-    {
-      if( !pDocument->OnOpenDocument( CString(fnFullRequestedFile)))
-      {
-		    AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
-		    delete pDocument;       // explicit delete on error
-		    return;
-      }
-    }
 
     pDocument->SetModifiedFlag( FALSE);
     pDocument->SetPathName( CString(fnFullRequestedFile), TRUE);

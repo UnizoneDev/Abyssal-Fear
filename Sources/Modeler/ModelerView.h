@@ -234,6 +234,7 @@ public:
 	afx_msg void OnUpdateLightColor(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateMappingOn(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateScriptOpen(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateScriptMakeModel(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateScriptUpdateAnimations(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateScriptUpdateMipmodels(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateAnimNextanim(CCmdUI* pCmdUI);

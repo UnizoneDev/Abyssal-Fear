@@ -1,20 +1,5 @@
-/* Copyright (c) 2002-2012 Croteam Ltd. 
-This program is free software; you can redistribute it and/or modify
-it under the terms of version 2 of the GNU General Public License as published by
-the Free Software Foundation
-
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
-
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by Modeler.rc
 //
 #define ID_EXPORT                       3
@@ -535,7 +520,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define ID_FILE_CREATE_TEXTURE          32952
 #define ID_VIEW_TEXTURECONTROL          32955
 #define ID_SCRIPT_OPEN                  32956
-#define ID_SCRIPT_MAKE_MODEL            32957
 #define ID_UPDATE_FRAMES                32958
 #define ID_UPDATE_ANIMATIONS            32959
 #define ID_UPDATE_MIPMODELS             32960

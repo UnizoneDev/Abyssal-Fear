@@ -2163,11 +2163,12 @@ void CModelerView::OnFileRemoveTexture()
   Invalidate( FALSE);
 }
 
-void CModelerView::OnScriptOpen() 
+void CModelerView::OnScriptOpen()
 {
-	CModelerDoc *pDoc = (CModelerDoc *) GetDocument();
-  CTFileName fnDocName = CTString(CStringA(pDoc->GetPathName()));
-  AfxGetApp()->OpenDocumentFile( CString(fnDocName.FileDir() + fnDocName.FileName() + ".scr"));
+  const CModelerDoc *pDoc = (CModelerDoc *) GetDocument();
+  const CTFileName fnDocName = CTString(CStringA(pDoc->GetPathName()));
+  CTFileName fnScriptName = CTString(fnDocName.FileDir() + fnDocName.FileName() + ".scr");
+  fnScriptName.RemoveApplicationPath_t();
 }
 
 void CModelerView::OnScriptUpdateAnimations() 

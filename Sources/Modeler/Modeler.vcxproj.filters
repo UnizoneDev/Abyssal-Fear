@@ -135,12 +135,6 @@
     <ClCompile Include="PatchPaletteButton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ScriptDoc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ScriptView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SkyFloat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -278,12 +272,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScriptDoc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScriptView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SkyFloat.h">

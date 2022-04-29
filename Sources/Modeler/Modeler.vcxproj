@@ -234,8 +234,6 @@ $(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\Debug\QtSolutions_MFCMig
     <ClCompile Include="PaletteDialog.cpp" />
     <ClCompile Include="PatchPalette.cpp" />
     <ClCompile Include="PatchPaletteButton.cpp" />
-    <ClCompile Include="ScriptDoc.cpp" />
-    <ClCompile Include="ScriptView.cpp" />
     <ClCompile Include="Script\ScriptIO.cpp" />
     <ClCompile Include="SkyFloat.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
@@ -361,8 +359,6 @@ $(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\Debug\QtSolutions_MFCMig
     <ClInclude Include="PatchPalette.h" />
     <ClInclude Include="PatchPaletteButton.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="ScriptDoc.h" />
-    <ClInclude Include="ScriptView.h" />
     <ClInclude Include="Script\Script.h" />
     <ClInclude Include="Script\ScriptIO.h" />
     <ClInclude Include="SkyFloat.h" />
