@@ -92,7 +92,7 @@ bool StartsWith(const std::string_view& str, unsigned char c)
   if (str.empty())
     return false;
 
-  return std::tolower(static_cast<unsigned char>(str.at(0))) == c;
+  return std::tolower(static_cast<unsigned char>(str.at(0))) == std::tolower(c);
 }
 } // anonymous namespace
 
@@ -227,7 +227,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
       {
         file.seekg(last_read_pos);
         state = ReadState::Anims;
-        auto& anim = script.m_animations.back();
+        const auto& anim = script.m_animations.back();
         if (anim.m_frames.empty())
           ThrowF_t("Animation %s has no source file provided!\n'SOURCE_FILE <filename>' expected!", anim.m_name.c_str());
         continue;
