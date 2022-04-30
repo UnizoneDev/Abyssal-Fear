@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>edit-copy.png</file>
+    <file>go-down.png</file>
+    <file>go-up.png</file>
+    <file>list-add.png</file>
+    <file>list-remove.png</file>
+  </qresource>
+</RCC>

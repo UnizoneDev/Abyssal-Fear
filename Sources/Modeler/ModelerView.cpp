@@ -17,8 +17,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 //
 
 #include "stdafx.h"
+#include "Script/ModelConfigurationEditor.h"
+
 #include <Engine/Models/ImportedMesh.h>
 #include <Engine/Templates/Stock_CTextureData.h>
+
+#include <QWinWidget>
 
 #ifdef _DEBUG
 #undef new
@@ -2169,6 +2173,11 @@ void CModelerView::OnScriptOpen()
   const CTFileName fnDocName = CTString(CStringA(pDoc->GetPathName()));
   CTFileName fnScriptName = CTString(fnDocName.FileDir() + fnDocName.FileName() + ".scr");
   fnScriptName.RemoveApplicationPath_t();
+
+  CModelerApp::ModalGuard guard;
+  QWinWidget modal_widget(AfxGetApp()->m_pMainWnd->GetSafeHwnd(), nullptr, Qt::WindowFlags {});
+  ModelConfigurationEditor dialog(&modal_widget);
+  dialog.exec();
 }
 
 void CModelerView::OnScriptUpdateAnimations() 

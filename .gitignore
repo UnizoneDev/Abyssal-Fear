@@ -72,6 +72,7 @@ Temp/*.tmp
 *.vis
 *.moc
 *.qrc.h
+*.ui.h
 Data/*.pri
 Data/*.bin
 Scripts/PersistentSymbols.ini

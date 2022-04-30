@@ -234,6 +234,8 @@ $(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\Debug\QtSolutions_MFCMig
     <ClCompile Include="PaletteDialog.cpp" />
     <ClCompile Include="PatchPalette.cpp" />
     <ClCompile Include="PatchPaletteButton.cpp" />
+    <ClCompile Include="Script\ModelConfigurationEditor.cpp" />
+    <ClCompile Include="Script\ScriptIcons.qrc.cpp" />
     <ClCompile Include="Script\ScriptIO.cpp" />
     <ClCompile Include="SkyFloat.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
@@ -359,12 +361,37 @@ $(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\Debug\QtSolutions_MFCMig
     <ClInclude Include="PatchPalette.h" />
     <ClInclude Include="PatchPaletteButton.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Script\ModelConfigurationEditor.h" />
+    <ClInclude Include="Script\ModelConfigurationEditor.ui.h" />
     <ClInclude Include="Script\Script.h" />
+    <ClInclude Include="Script\ScriptIcons.qrc.h" />
     <ClInclude Include="Script\ScriptIO.h" />
     <ClInclude Include="SkyFloat.h" />
     <ClInclude Include="StainsComboBox.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="TextureComboBox.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Script\ModelConfigurationEditor.ui">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Script\ScriptIcons.qrc">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Qt_dir)\bin\rcc.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Qt_dir)\bin\rcc.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">$(Qt_dir)\bin\rcc.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

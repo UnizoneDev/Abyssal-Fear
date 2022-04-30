@@ -156,6 +156,12 @@
     <ClCompile Include="Script\ScriptIO.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
+    <ClCompile Include="Script\ScriptIcons.qrc.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\ModelConfigurationEditor.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Modeler.rc">
@@ -296,6 +302,15 @@
       <Filter>Header Files\Script</Filter>
     </ClInclude>
     <ClInclude Include="Script\ScriptIO.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\ModelConfigurationEditor.ui.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\ScriptIcons.qrc.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\ModelConfigurationEditor.h">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
   </ItemGroup>
@@ -449,6 +464,12 @@
     </CustomBuild>
     <CustomBuild Include="Modeler.clw">
       <Filter>Wizard Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Script\ModelConfigurationEditor.ui">
+      <Filter>Source Files\Script</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Script\ScriptIcons.qrc">
+      <Filter>Source Files\Script</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>
