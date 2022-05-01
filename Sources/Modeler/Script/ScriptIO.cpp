@@ -65,15 +65,6 @@ std::string Trim(std::string str)
   return { str.begin() + i, str.end() };
 }
 
-std::string ToUpper(std::string str)
-{
-  std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c)
-    {
-      return std::toupper(c);
-    });
-  return str;
-}
-
 bool StartsWith(const std::string_view& str, const std::string_view& what)
 {
   if (str.length() < what.length())
@@ -178,7 +169,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
     }
     else if (state == ReadState::Mips)
     {
-      const auto mip_file = base_dir + ToUpper(Trim(line));
+      const auto mip_file = base_dir + Trim(line);
       script.m_mipModels.emplace_back(CTString(mip_file.c_str()));
       if (mip_count == ++mips_read)
         state = ReadState::Generic;
@@ -186,7 +177,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
     }
     else if ((state == ReadState::Generic || state == ReadState::Anims) && StartsWith(line, "DIRECTORY "))
     {
-      base_dir = ToUpper(Trim({ line.begin() + strlen("DIRECTORY "), line.end() }));
+      base_dir = Trim({ line.begin() + strlen("DIRECTORY "), line.end() });
       if (base_dir.back() != '\\')
         base_dir += '\\';
       continue;
@@ -198,7 +189,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
         auto& anim = script.m_animations.back();
         if (!anim.m_frames.empty())
           ThrowF_t("Animation %s has multiple source files provided!", anim.m_name.c_str());
-        const auto src = base_dir + ToUpper(Trim({ line.begin() + strlen("SOURCE_FILE "), line.end() }));
+        const auto src = base_dir + Trim({ line.begin() + strlen("SOURCE_FILE "), line.end() });
         anim.m_frames.emplace_back(CTString(src.c_str()));
       }
       else if (StartsWith(line, "ANIM_NAME_IN_FILE "))
@@ -209,7 +200,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
       else if (StartsWith(line, "ORIG_SKELETON "))
       {
         auto& anim = script.m_animations.back();
-        const auto base_skel = base_dir + ToUpper(Trim({ line.begin() + strlen("ORIG_SKELETON "), line.end() }));
+        const auto base_skel = base_dir + Trim({ line.begin() + strlen("ORIG_SKELETON "), line.end() });
         anim.m_optRefSkeleton = CTString(base_skel.c_str());
       }
       else if (StartsWith(line, "DURATION "))
@@ -259,9 +250,9 @@ ModelScript ReadFromFile(const CTFileName& filename)
       }
       else if (StartsWith(line, "ANIM "))
       {
-        const auto macro_anim = ToUpper(Trim({ line.begin() + strlen("ANIM "), line.end() }));
+        const auto macro_anim = Trim({ line.begin() + strlen("ANIM "), line.end() });
         auto found_pos = std::find_if(script.m_animations.begin(), script.m_animations.end(),
-          [&](const ModelScript::Animation& anim) { return anim.m_name == macro_anim; });
+          [&](const ModelScript::Animation& anim) { return stricmp(anim.m_name.c_str(), macro_anim.c_str()) == 0; });
         if (found_pos == script.m_animations.end())
           ThrowF_t("Macro anim \"%s\" should be present before anim \"%s\"!", macro_anim.c_str(), script.m_animations.back().m_name.c_str());
         for (const auto& frame : found_pos->m_frames)
@@ -269,7 +260,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
       }
       else
       {
-        const auto frame = base_dir + ToUpper(Trim(line));
+        const auto frame = base_dir + Trim(line);
         script.m_animations.back().m_frames.emplace_back(CTString(frame.c_str()));
       }
     }
@@ -299,7 +290,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
         script.m_animations.emplace_back();
         auto& anim = script.m_animations.back();
         anim.m_type = ModelScript::Animation::Type::Vertex;
-        anim.m_name = ToUpper(Trim({ line.begin() + strlen("ANIMATION "), line.end() }));
+        anim.m_name = Trim({ line.begin() + strlen("ANIMATION "), line.end() });
         state = ReadState::Speed;
         continue;
       }
@@ -308,7 +299,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
         script.m_animations.emplace_back();
         auto& anim = script.m_animations.back();
         anim.m_type = ModelScript::Animation::Type::Skeletal;
-        anim.m_name = ToUpper(Trim({ line.begin() + strlen("SKELETAL_ANIMATION "), line.end() }));
+        anim.m_name = Trim({ line.begin() + strlen("SKELETAL_ANIMATION "), line.end() });
         state = ReadState::SkeletalAnim;
         continue;
       }
@@ -353,7 +344,7 @@ ModelScript ReadFromFile(const CTFileName& filename)
       }
       else if (StartsWith(line, "SKELETON "))
       {
-        const auto skeleton = base_dir + ToUpper(Trim({ line.begin() + strlen("SKELETON "), line.end() }));
+        const auto skeleton = base_dir + Trim({ line.begin() + strlen("SKELETON "), line.end() });
         script.m_skeleton = CTString(skeleton.c_str());
       }
       else if (StartsWith(line, "MIP_MODELS "))
