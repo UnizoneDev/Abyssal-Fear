@@ -975,6 +975,7 @@ void CEditModel::CreateScriptFile_t(CTFileName &fnO3D) // throw char *
     auto& anim = script.m_animations.back();
     anim.m_type = ModelScript::Animation::Type::Vertex;
     anim.m_name = "Default";
+    anim.m_optDuration = 0.1;
     anim.m_frames.push_back(fnO3D);
   }
 

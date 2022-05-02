@@ -162,6 +162,9 @@
     <ClCompile Include="Script\ModelConfigurationEditor.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
+    <ClCompile Include="Script\AnglePicker.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Modeler.rc">
@@ -310,7 +313,13 @@
     <ClInclude Include="Script\ScriptIcons.qrc.h">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
-    <ClInclude Include="Script\ModelConfigurationEditor.h">
+    <ClInclude Include="Script\ModelConfigurationEditor.h.moc">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\AnglePicker.ui.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\AnglePicker.h.moc">
       <Filter>Header Files\Script</Filter>
     </ClInclude>
   </ItemGroup>
@@ -470,6 +479,15 @@
     </CustomBuild>
     <CustomBuild Include="Script\ScriptIcons.qrc">
       <Filter>Source Files\Script</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Script\ModelConfigurationEditor.h">
+      <Filter>Header Files\Script</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Script\AnglePicker.ui">
+      <Filter>Source Files\Script</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Script\AnglePicker.h">
+      <Filter>Header Files\Script</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>

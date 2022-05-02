@@ -41,7 +41,7 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 }
 */
 
-std::vector<char> CEngineGUI::GetListOf3DFormats(bool include_scr)
+std::vector<char> CEngineGUI::GetListOf3DFormats()
 {
   std::vector<char> result;
   auto add_filter = [&result](const ImportedMesh::TFormatDescr& descr)
@@ -68,9 +68,6 @@ std::vector<char> CEngineGUI::GetListOf3DFormats(bool include_scr)
 
   for (const auto& format : formats)
     add_filter(format);
-
-  if (include_scr)
-    add_filter({ "SeriousModeler script (*.scr)", "*.scr" });
 
   add_filter({ "All files (*.*)", "*.*" });
 

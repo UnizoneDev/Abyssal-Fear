@@ -589,13 +589,11 @@ void CModelerApp::CreateNewDocument( CTFileName fnRequestedFile)
       return;
     }
   }
-  else if( GetFileAttributesA( _fnmApplicationPath + fnMdlFile) != -1)
+  else
   {
-    if( MessageBoxA( m_pMainWnd->m_hWnd, "Model file allready exists, do you want to "
-                    "overwrite it and loose all possible data describing mapping, "
-                    "colored polygons, patch positions, ... ?",
-                    "Warning !", MB_YESNO | MB_ICONWARNING | 
-                    MB_DEFBUTTON1| MB_SYSTEMMODAL | MB_TOPMOST) != IDYES)
+    MessageBoxA( m_pMainWnd->m_hWnd, "Can not create new model from .scr file! Select it in 'Open' dialog instead!",
+                  "Warning !", MB_OK | MB_ICONWARNING |
+                  MB_DEFBUTTON1| MB_SYSTEMMODAL | MB_TOPMOST);
       return;
   }
 
@@ -639,7 +637,7 @@ void CModelerApp::OnFileNew()
 {
   // call file requester for opening documents
   CDynamicArray<CTFileName> afnCreateModel;
-  auto file_filter = _EngineGUI.GetListOf3DFormats(true);
+  auto file_filter = _EngineGUI.GetListOf3DFormats();
   _EngineGUI.FileRequester( "Create new model from 3D or script file",
     file_filter.data(),
     "Create model directory", "Models\\", "", &afnCreateModel);
