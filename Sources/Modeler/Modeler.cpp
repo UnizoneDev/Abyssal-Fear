@@ -487,16 +487,14 @@ void CModelerApp::EditScriptAndReopenDocument(CTFileName fnScriptName)
     return;
   }
 
-  CTFileName fnModelName = fnScriptName.FileDir() + fnScriptName.FileName() + ".mdl";
+  CTFileName fnModelName = _fnmApplicationPath + fnScriptName.FileDir() + fnScriptName.FileName() + ".mdl";
+  fnModelName.SetAbsolutePath();
   POSITION pos = theApp.m_pdtModelDocTemplate->GetFirstDocPosition();
   while (pos != NULL)
   {
     CModelerDoc* pmdCurrent = (CModelerDoc*)theApp.m_pdtModelDocTemplate->GetNextDoc(pos);
     if (CTFileName(CTString(CStringA(pmdCurrent->GetPathName()))) == fnModelName)
-    {
       pmdCurrent->OnCloseDocument();
-      break;
-    }
   }
   CDocument* pDocument = theApp.m_pdtModelDocTemplate->CreateNewDocument();
   if (pDocument == NULL)
@@ -677,10 +675,8 @@ void CModelerApp::CreateNewDocument( CTFileName fnRequestedFile)
   }
   else
   {
-    MessageBoxA( m_pMainWnd->m_hWnd, "Can not create new model from .scr file! Select it in 'Open' dialog instead!",
-                  "Warning !", MB_OK | MB_ICONWARNING |
-                  MB_DEFBUTTON1| MB_SYSTEMMODAL | MB_TOPMOST);
-      return;
+    EditScriptAndReopenDocument(fnRequestedFile);
+    return;
   }
 
   // Now we create document instance of type CModelerDoc
@@ -723,7 +719,7 @@ void CModelerApp::OnFileNew()
 {
   // call file requester for opening documents
   CDynamicArray<CTFileName> afnCreateModel;
-  auto file_filter = _EngineGUI.GetListOf3DFormats();
+  auto file_filter = _EngineGUI.GetListOf3DFormats(true);
   _EngineGUI.FileRequester( "Create new model from 3D or script file",
     file_filter.data(),
     "Create model directory", "Models\\", "", &afnCreateModel);
@@ -746,22 +742,19 @@ void CModelerApp::OnFileOpen()
     "All files (*.*)\0*.*\0\0",
     "Open model directory", "Models\\", "", &afnOpenModel);
 
-  FOREACHINDYNAMICARRAY(afnOpenModel, CTFileName, itModel)
-  {
-    const CTFileName modelFile = itModel.Current();
-    if (modelFile.FileExt() == ".scr")
-    {
-      return;
-    }
-  }
-
-
   // create new models
   FOREACHINDYNAMICARRAY( afnOpenModel, CTFileName, itModel)
   {
     // we will use full file name to call OnOpenDocument()
     CTFileName fnFullRequestedFile = _fnmApplicationPath + itModel.Current();
-    // choose right document template using file's extension
+
+    BOOL bScriptDocument = FALSE;
+    if (fnFullRequestedFile.FileExt() == ".scr")
+    {
+      EditScriptAndReopenDocument(fnFullRequestedFile);
+      continue;
+    }
+
     CDocTemplate *pDocTemplate = m_pdtModelDocTemplate;
 
     // Now we create document instance 

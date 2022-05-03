@@ -35,7 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 class CEngineGUI
 {
 public:
-  ENGINEGUI_API std::vector<char> GetListOf3DFormats();
+  ENGINEGUI_API std::vector<char> GetListOf3DFormats(bool include_scr = false);
 
   /* Functions used by application for getting and setting registry keys concerning modes */
   ENGINEGUI_API void GetFullScreenModeFromRegistry( CTString strSectionName, CDisplayMode &dm, GfxAPIType &gat);
