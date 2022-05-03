@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 //
 
 #include "stdafx.h"
+#include "Script/ModelConfigurationEditor.h"
+#include "Script/ScriptIO.h"
+
 #include <Engine/Templates/Stock_CModelData.h>
 #include <Engine/Templates/Stock_CTextureData.h>
 
@@ -461,6 +464,89 @@ void CModelerApp::OnQtAbout()
   CModelerApp::ModalGuard guard;
   QWinWidget modal_widget(m_pMainWnd->GetSafeHwnd(), nullptr, Qt::WindowFlags {});
   QMessageBox::aboutQt(&modal_widget, "About Qt");
+}
+
+void CModelerApp::EditScriptAndReopenDocument(CTFileName fnScriptName)
+{
+  try
+  {
+    fnScriptName.RemoveApplicationPath_t();
+    auto script = ScriptIO::ReadFromFile(fnScriptName);
+
+    CModelerApp::ModalGuard guard;
+    QWinWidget modal_widget(AfxGetApp()->m_pMainWnd->GetSafeHwnd(), nullptr, Qt::WindowFlags {});
+    ModelConfigurationEditor dialog(script, &modal_widget);
+    if (dialog.exec() == QDialog::Rejected)
+      return;
+
+    ScriptIO::SaveToFile(script, fnScriptName);
+  }
+  catch (const char* error)
+  {
+    AfxMessageBox(CString(error));
+    return;
+  }
+
+  CTFileName fnModelName = fnScriptName.FileDir() + fnScriptName.FileName() + ".mdl";
+  POSITION pos = theApp.m_pdtModelDocTemplate->GetFirstDocPosition();
+  while (pos != NULL)
+  {
+    CModelerDoc* pmdCurrent = (CModelerDoc*)theApp.m_pdtModelDocTemplate->GetNextDoc(pos);
+    if (CTFileName(CTString(CStringA(pmdCurrent->GetPathName()))) == fnModelName)
+    {
+      pmdCurrent->OnCloseDocument();
+      break;
+    }
+  }
+  CDocument* pDocument = theApp.m_pdtModelDocTemplate->CreateNewDocument();
+  if (pDocument == NULL)
+  {
+    TRACE0("CDocTemplate::CreateNewDocument returned NULL.\n");
+    AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
+    return;
+  }
+  ASSERT_VALID(pDocument);
+
+  BOOL bAutoDelete = pDocument->m_bAutoDelete;
+  pDocument->m_bAutoDelete = FALSE;   // don't destroy if something goes wrong
+  CFrameWnd* pFrame = theApp.m_pdtModelDocTemplate->CreateNewFrame(pDocument, NULL);
+  pDocument->m_bAutoDelete = bAutoDelete;
+  if (pFrame == NULL)
+  {
+    AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
+    delete pDocument;       // explicit delete on error
+    return;
+  }
+  ASSERT_VALID(pFrame);
+
+  pDocument->SetPathName(CString(fnModelName), FALSE);
+  pDocument->SetTitle(CString(fnModelName.FileName() + fnModelName.FileExt()));
+
+  char strError[256];
+  if (!((CModelerDoc*)pDocument)->CreateModelFromScriptFile(fnScriptName, strError))
+  {
+    pDocument->OnCloseDocument();
+    AfxMessageBox(CString(strError));
+    return;
+  }
+  theApp.m_pdtModelDocTemplate->InitialUpdateFrame(pFrame, pDocument, TRUE);
+  ((CModelerDoc*)pDocument)->m_emEditModel.edm_md.md_bPreparedForRendering = FALSE;
+  pDocument->SetModifiedFlag();
+  CMainFrame* pMainFrame = STATIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+  pMainFrame->m_AnimComboBox.m_pvLastUpdatedView = NULL;
+  theApp.m_chGlobal.MarkChanged();
+
+  // add textures from .ini file
+  CTFileName fnIniFileName = fnScriptName.NoExt() + ".ini";
+  try
+  {
+    ((CModelerDoc*)pDocument)->m_emEditModel.CSerial::Load_t(fnIniFileName);
+  }
+  catch (char* strError)
+  {
+    // ignore errors
+    (void)strError;
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////

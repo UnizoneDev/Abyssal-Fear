@@ -90,7 +90,7 @@ ModelConfigurationEditor::ModelConfigurationEditor(ModelScript& script, QWidget*
     for (int col = 1; col <= 3; ++col)
     {
       m_uiTransform[row - 1][col - 1]->setValue(m_script.m_transformation(row, col));
-      connect(m_uiTransform[col - 1][row - 1], QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ModelConfigurationEditor::_AnalyzeTransform);
+      connect(m_uiTransform[row - 1][col - 1], QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ModelConfigurationEditor::_AnalyzeTransform);
     }
   _AnalyzeTransform();
 

@@ -94,6 +94,7 @@ private:
   bool m_showing_modal_dialog;
 
 public:
+  void EditScriptAndReopenDocument(CTFileName fnScriptName);
 	BOOL SubInitInstance(void);
   BOOL m_bRefreshPatchPalette;
   BOOL m_bFirstTimeStarted;

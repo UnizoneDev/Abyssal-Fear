@@ -17,13 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 //
 
 #include "stdafx.h"
-#include "Script/ModelConfigurationEditor.h"
-#include "Script/ScriptIO.h"
 
 #include <Engine/Models/ImportedMesh.h>
 #include <Engine/Templates/Stock_CTextureData.h>
-
-#include <QWinWidget>
 
 #ifdef _DEBUG
 #undef new
@@ -2170,26 +2166,9 @@ void CModelerView::OnFileRemoveTexture()
 
 void CModelerView::OnScriptOpen()
 {
-  const CModelerDoc *pDoc = (CModelerDoc *) GetDocument();
+  CModelerDoc* pDoc = (CModelerDoc *) GetDocument();
   const CTFileName fnDocName = CTString(CStringA(pDoc->GetPathName()));
-  CTFileName fnScriptName = CTString(fnDocName.FileDir() + fnDocName.FileName() + ".scr");
-  fnScriptName.RemoveApplicationPath_t();
-  try
-  {
-    auto script = ScriptIO::ReadFromFile(fnScriptName);
-
-    CModelerApp::ModalGuard guard;
-    QWinWidget modal_widget(AfxGetApp()->m_pMainWnd->GetSafeHwnd(), nullptr, Qt::WindowFlags {});
-    ModelConfigurationEditor dialog(script, &modal_widget);
-    if (dialog.exec() == QDialog::Rejected)
-      return;
-
-  }
-  catch (const char* error)
-  {
-    AfxMessageBox(CString(error));
-    return;
-  }
+  theApp.EditScriptAndReopenDocument(fnDocName.FileDir() + fnDocName.FileName() + ".scr");
 }
 
 void CModelerView::OnScriptUpdateAnimations() 
