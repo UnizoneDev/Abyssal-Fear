@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 //
 
 #include "stdafx.h"
+#include <afxpriv.h>
 #include "Script/ModelConfigurationEditor.h"
 #include "Script/ScriptIO.h"
 
@@ -26,6 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <QtWin>
 #include <QIcon>
 #include <QMessageBox>
+#include <QTimer>
 #include <QWinWidget>
 
 #ifdef _DEBUG
@@ -455,7 +457,7 @@ BOOL CModelerApp::SubInitInstance()
     // call preferences
     OnFilePreferences();
   }
-  
+  mp_qtContext = new QObject;
   return TRUE;
 }
 
@@ -630,6 +632,13 @@ BOOL CModelerApp::OnIdle(LONG lCount)
   // if application is active
   extern BOOL _bApplicationActive;
   if (_bApplicationActive) {
+    // QtMfcMigration library seems to have messed rapid idle handling
+    // this hotfix should compensate for that
+    if (mp_qtContext)
+      QTimer::singleShot(16, Qt::PreciseTimer, mp_qtContext, [this]
+        {
+          PostThreadMessage(WM_KICKIDLE, 0, 0);
+        });
     // never release idle
     return CWinApp::OnIdle(lCount) || TRUE;
   // if application is inactive
@@ -817,6 +826,8 @@ void CModelerApp::OnFilePreferences()
 
 int CModelerApp::ExitInstance() 
 {
+  delete mp_qtContext;
+  mp_qtContext = nullptr;
   CoUninitialize();
   m_Preferences.WriteToIniFile();
   WriteProfileInt(L"Display modes", L"SED Gfx API", m_iApi);

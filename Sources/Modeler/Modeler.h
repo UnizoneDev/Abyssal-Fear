@@ -91,6 +91,7 @@ private:
   void OnQtAbout();
 
 private:
+  QObject* mp_qtContext = nullptr;
   bool m_showing_modal_dialog;
 
 public:
