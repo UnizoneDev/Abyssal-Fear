@@ -145,7 +145,7 @@ extern FLOAT gfx_fEnvParticlesRange;
 #define CT_MAX_PARTICLES_TABLE 1024
 
 FLOAT afTimeOffsets[CT_MAX_PARTICLES_TABLE];
-FLOAT afStarsPositions[CT_MAX_PARTICLES_TABLE][3];
+FLOAT afStarsPositions[CT_MAX_PARTICLES_TABLE][4];
 UBYTE auStarsColors[CT_MAX_PARTICLES_TABLE][3];
 
 void InitParticleTables(void)
@@ -156,6 +156,7 @@ void InitParticleTables(void)
     afStarsPositions[iStar][0] = rand()/FLOAT(RAND_MAX)-0.5f;
     afStarsPositions[iStar][1] = rand()/FLOAT(RAND_MAX)-0.5f;
     afStarsPositions[iStar][2] = rand()/FLOAT(RAND_MAX)-0.5f;
+    afStarsPositions[iStar][3] = rand()/FLOAT(RAND_MAX)-0.5f;
     UBYTE ubR = UBYTE(rand()/FLOAT(RAND_MAX) * 255);
     UBYTE ubG = UBYTE(rand()/FLOAT(RAND_MAX) * 255);
     UBYTE ubB = UBYTE(rand()/FLOAT(RAND_MAX) * 255);
@@ -3190,10 +3191,10 @@ void Particles_Snow(CEntity *pen, FLOAT fGridSize, INDEX ctGrids, FLOAT fFactor,
 
   for( INDEX iZ=0; iZ<ctGrids; iZ++)
   {
-    INDEX iRndZ = (ULONG(vPos(3)+iZ*fGridSize)) % CT_MAX_PARTICLES_TABLE;
+    INDEX iRndZ = vPos(3)+iZ*fGridSize;
     for( INDEX iX=0; iX<ctGrids; iX++)
     {
-      INDEX iRndX = (ULONG(vPos(1)+iX*fGridSize)) % CT_MAX_PARTICLES_TABLE;
+      INDEX iRndX = vPos(1)+iX*fGridSize;
 
       INDEX iRndXZ=(iRndZ+iRndX*37)%CT_MAX_PARTICLES_TABLE;
       FLOAT fD = afStarsPositions[iRndXZ][1]*YGRID_SIZE;
