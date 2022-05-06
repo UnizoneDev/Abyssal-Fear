@@ -241,19 +241,38 @@ void ModelConfigurationEditor::_AddAnim()
   else if (p_action == p_skeletal)
   {
     const auto dir = m_script.m_mipModels.front().FileDir();
-    const auto [src, anims] = _PickFileWithAnimation(dir);
-    if (src == "")
+    const auto filesAndAnims = _PickFilesWithAnimations(dir);
+    if (filesAndAnims.empty())
       return;
 
-    m_script.m_animations.emplace_back();
-    auto& anim = m_script.m_animations.back();
-    anim.m_type = ModelScript::Animation::Type::Skeletal;
-    anim.m_name = "Animation " + std::to_string(m_script.m_animations.size());
-    if (anims.size() > 1)
-      anim.m_customSourceName = anims.front();
-    anim.m_frames.push_back(src);
+    for (const auto& [animFile, anims] : filesAndAnims)
+    {
+      if (anims.size() == 1)
+      {
+        m_script.m_animations.emplace_back();
+        auto& anim = m_script.m_animations.back();
+        anim.m_type = ModelScript::Animation::Type::Skeletal;
+        if (anims.front().empty())
+          anim.m_name = "Animation " + std::to_string(m_script.m_animations.size());
+        else
+          anim.m_name = anims.front();
+        anim.m_frames.push_back(animFile);
+      }
+      else
+      {
+        for (const auto& animName : anims)
+        {
+          m_script.m_animations.emplace_back();
+          auto& anim = m_script.m_animations.back();
+          anim.m_type = ModelScript::Animation::Type::Skeletal;
+          anim.m_name = animName;
+          anim.m_customSourceName = animName;
+          anim.m_frames.push_back(animFile);
+        }
+      }
+    }
   }
-  if (m_script.m_animations.size() == prevAnimCount + 1)
+  if (m_script.m_animations.size() > prevAnimCount)
   {
     _FillAnims();
     mp_ui->listAnims->setCurrentRow(prevAnimCount, QItemSelectionModel::Rows | QItemSelectionModel::ClearAndSelect);
@@ -634,7 +653,7 @@ void ModelConfigurationEditor::_AnalyzeTransform()
   mp_ui->labelTransformDesc->setText(status);
 }
 
-std::pair<CTFileName, std::vector<std::string>> ModelConfigurationEditor::_PickFileWithAnimation(const CTFileName& defaultDir)
+ModelConfigurationEditor::TFileAndAnims ModelConfigurationEditor::_PickFileWithAnimation(const CTFileName& defaultDir)
 {
   auto fileFilter = _EngineGUI.GetListOf3DFormats();
   const auto newSrc = _EngineGUI.FileRequester("Select animation file",
@@ -657,6 +676,38 @@ std::pair<CTFileName, std::vector<std::string>> ModelConfigurationEditor::_PickF
   }
 
   return { newSrc, anims };
+}
+
+std::vector<ModelConfigurationEditor::TFileAndAnims> ModelConfigurationEditor::_PickFilesWithAnimations(const CTFileName& defaultDir)
+{
+  CDynamicArray<CTFileName> newAnimsDynArr;
+  auto fileFilter = _EngineGUI.GetListOf3DFormats();
+  _EngineGUI.FileRequester("Select animation file(s)",
+    fileFilter.data(),
+    nullptr, defaultDir.str_String, "", &newAnimsDynArr);
+
+  if (newAnimsDynArr.Count() == 0)
+    return {};
+
+  std::vector<TFileAndAnims> filesAndAnims;
+  FOREACHINDYNAMICARRAY(newAnimsDynArr, CTFileName, itFile)
+  {
+    const auto& animFile = itFile.Current();
+    if (!ImportedSkeleton::ContainsSkeleton(animFile))
+    {
+      QMessageBox::warning(this, "Warning", QString("'%1' contains no skeleton!").arg(animFile.str_String));
+      continue;
+    }
+    const auto anims = ImportedSkeletalAnimation::GetAnimationsInFile(animFile);
+    if (anims.empty())
+    {
+      QMessageBox::warning(this, "Warning", QString("'%1' contains no animations!").arg(animFile.str_String));
+      continue;
+    }
+    filesAndAnims.push_back({ animFile, anims });
+  }
+
+  return filesAndAnims;
 }
 
 std::vector<CTFileName> ModelConfigurationEditor::_PickFrames(const CTFileName& defaultDir)

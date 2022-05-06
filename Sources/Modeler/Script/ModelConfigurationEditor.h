@@ -39,6 +39,8 @@ public:
   ~ModelConfigurationEditor();
 
 private:
+  using TFileAndAnims = std::pair<CTFileName, std::vector<std::string>>;
+
   void _SortFrames();
   void _FillFrames();
   void _FillAnims();
@@ -69,7 +71,8 @@ private:
   void _OnPickRefSkeleton(int index);
   void _OnPickTransform();
   void _AnalyzeTransform();
-  std::pair<CTFileName, std::vector<std::string>> _PickFileWithAnimation(const CTFileName& defaultDir);
+  TFileAndAnims _PickFileWithAnimation(const CTFileName& defaultDir);
+  std::vector<TFileAndAnims> _PickFilesWithAnimations(const CTFileName& defaultDir);
   std::vector<CTFileName> _PickFrames(const CTFileName& defaultDir);
 
 private:
