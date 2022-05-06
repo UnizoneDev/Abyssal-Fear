@@ -35,6 +35,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 class CEngineGUI
 {
 public:
+  ENGINEGUI_API std::vector<char> GetListOfExportImageFormats();
+  ENGINEGUI_API std::vector<char> GetListOfImportImageFormats(bool include_scr = false);
   ENGINEGUI_API std::vector<char> GetListOf3DFormats(bool include_scr = false);
 
   /* Functions used by application for getting and setting registry keys concerning modes */
@@ -60,9 +62,6 @@ public:
 
 /* Predefined file filters for file requester */
 #define FILTER_ALL            "All files (*.*)\0*.*\0"
-#define FILTER_PICTURES       "Pictures (*.pcx;*.tga)\0*.pcx;*.tga\0"
-#define FILTER_PCX            "PCX files (*.pcx)\0*.pcx\0"
-#define FILTER_TGA            "TGA files (*.tga)\0*.tga\0"
 #define FILTER_TEX            "Textures (*.tex)\0*.tex\0"
 #define FILTER_TBN            "Thumbnails (*.tbn)\0*.tbn\0"
 #define FILTER_MDL            "Models (*.mdl)\0*.mdl\0"
@@ -71,12 +70,11 @@ public:
 #define FILTER_ANI            "Animations (*.ani)\0*.ani\0"
 #define FILTER_TXT            "Text files (*.txt)\0*.txt\0"
 #define FILTER_LST            "List files (*.lst)\0*.lst\0"
-#define FILTER_TGA            "TGA files (*.tga)\0*.tga\0"
 #define FILTER_SMC            "SMC files (*.smc)\0*.smc\0"
 #define FILTER_END            "\0"
   /* File requester with thumbnail display */
   ENGINEGUI_API CTFileName FileRequester( char *pchrTitle="Choose file",
-                            char *pchrFilters=FILTER_ALL FILTER_END,
+                            const char *pchrFilters=FILTER_ALL FILTER_END,
                             char *pchrRegistry=KEY_NAME_REQUEST_FILE_DIR,
                             CTString strDefaultDir="", CTString strFileSelectedByDefault="",
                             CDynamicArray<CTFileName> *pafnCreatedTextures=NULL,

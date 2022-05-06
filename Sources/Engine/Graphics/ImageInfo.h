@@ -19,6 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   #pragma once
 #endif
 
+#include <vector>
+#include <string>
+
 /*
  * class of CroTeam RAW image description (bitmap) and several image manipulation routines
  */
@@ -26,6 +29,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define UNSUPPORTED_FILE 0L
 #define PCX_FILE         1L
 #define TGA_FILE         2L
+#define OTHER_IMAGE_FILE 3L
 
 class ENGINE_API CImageInfo {
 public:
@@ -56,7 +60,7 @@ public:
 
   // sets image info structure members with info form file of any supported graphic format,
   //  but does not load picture content nor palette; returns format type (see #defines)
-  //  (supported formats: CroTeam's RAW, PCX24, TGA32 uncompressed)
+  //  (supported formats: CroTeam's RAW, PCX24, TGA32 uncompressed, Qt supported images)
   INDEX GetGfxFileInfo_t( const CTFileName &strFileName); // throw char *
   // sets image info structure members with info form file of any supported graphic format
   //  and loads picture content and, eventually, palette
@@ -64,6 +68,9 @@ public:
 
   // converts image info structure and content to PCX or TGA format and saves it to file
   void SaveTGA_t( const CTFileName &strFileName) const; // throw char *
+
+  static std::vector<std::string> GetSupportedImportFormats();
+  static std::vector<std::string> GetSupportedExportFormats();
 };
 
 

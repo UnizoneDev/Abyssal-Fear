@@ -304,7 +304,7 @@ void CDlgGenerateFBM::OnRandomOffset()
 void CDlgGenerateFBM::OnFbmExport() 
 {
   CTFileName fnFBM=_EngineGUI.FileRequester(
-    "Export FBM texture", FILTER_TEX FILTER_PCX FILTER_ALL FILTER_END,
+    "Export FBM texture", FILTER_TEX FILTER_ALL FILTER_END,
     "Layer mask directory", "Textures\\");
   if( fnFBM=="") return;
 

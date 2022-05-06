@@ -711,8 +711,9 @@ void CDlgPgPrimitive::OnDropdownPrimitiveHistory()
 
 void CDlgPgPrimitive::OnDisplaceBrowse()
 {
+  const auto imageFilter = _EngineGUI.GetListOfImportImageFormats();
   CTFileName fnDisplace =  _EngineGUI.FileRequester(
-    "Choose picture for displacement", FILTER_TGA FILTER_PCX FILTER_ALL FILTER_END,
+    "Choose picture for displacement", imageFilter.data(),
     "Displacement pictures directory", "Textures\\",
     theApp.m_vfpCurrent.vfp_fnDisplacement.FileName()+
     theApp.m_vfpCurrent.vfp_fnDisplacement.FileExt());

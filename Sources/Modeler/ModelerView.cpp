@@ -2615,8 +2615,9 @@ void CModelerView::OnTakeScreenShoot()
   CImageInfo iiImageInfo;
   m_pDrawPort->GrabScreen( iiImageInfo, 1);
 
+  const auto imageFilter = _EngineGUI.GetListOfExportImageFormats();
   CTFileName fnSSFileName = _EngineGUI.FileRequester( "Select name for screen shot",
-                            FILTER_TGA FILTER_END, "Take screen shoots directory",
+                            imageFilter.data(), "Take screen shoots directory",
                             "ScreenShots\\", "", NULL, FALSE);
   if( fnSSFileName == "") return;
 
