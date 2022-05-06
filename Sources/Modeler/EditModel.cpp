@@ -49,7 +49,10 @@ void ExportAnimationNames_t(CAnimData& animData, CTStream* ostrFile, CTString st
   for (INDEX iAnimation = 0; iAnimation < animData.ad_NumberOfAnims; iAnimation++)
   {
     // prepare one #define line (add prefix)
-    sprintf(chrLine, "#define %s%s %d", strAnimationPrefix, animData.ad_Anims[iAnimation].oa_Name,
+    std::string animName = animData.ad_Anims[iAnimation].oa_Name;
+    std::transform(animName.begin(), animName.end(), animName.begin(), [](unsigned char c)
+      { return std::isspace(c) ? '_' : c; });
+    sprintf(chrLine, "#define %s%s %d", strAnimationPrefix, animName.c_str(),
       iAnimation);
     // put it into file
     ostrFile->PutLine_t(chrLine);
