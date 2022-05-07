@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "ModelConfigurationEditor.h.moc"
 #include "AnglePicker.h"
 
+#include <Engine/Models/ImportedMesh.h>
 #include <Engine/Models/ImportedSkeleton.h>
 #include <Engine/Models/ImportedSkeletalAnimation.h>
 
@@ -47,6 +48,7 @@ ModelConfigurationEditor::ModelConfigurationEditor(ModelScript& script, QWidget*
   _FillAnims();
   _FillSkeleton();
   _FillMips();
+  connect(mp_ui->comboUVMap, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int i) { m_script.m_defaultUVChannel = i; });
   connect(mp_ui->comboSkeleton, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ModelConfigurationEditor::_OnPickSkeleton);
   connect(mp_ui->listFrames, &QListWidget::currentItemChanged, this, &ModelConfigurationEditor::_OnFrameSelected);
   connect(mp_ui->listAnims, &QListWidget::currentItemChanged, this, &ModelConfigurationEditor::_OnAnimSelected);
@@ -158,6 +160,15 @@ void ModelConfigurationEditor::_FillMips()
 
   if (!m_script.m_skeleton.has_value())
     _FillSkeleton();
+
+  const size_t numUVs = ImportedMesh::GetUVChannelCount(m_script.m_mipModels.front());
+  QSignalBlocker block(mp_ui->comboUVMap);
+  mp_ui->comboUVMap->clear();
+  for (size_t i = 0; i < numUVs; ++i)
+    mp_ui->comboUVMap->addItem(QString::number(i));
+  if (m_script.m_defaultUVChannel >= numUVs)
+    m_script.m_defaultUVChannel = 0;
+  mp_ui->comboUVMap->setCurrentIndex(m_script.m_defaultUVChannel);
 }
 
 void ModelConfigurationEditor::_FillSkeleton()

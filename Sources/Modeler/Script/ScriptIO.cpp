@@ -322,6 +322,10 @@ ModelScript ReadFromFile(const CTFileName& filename)
           for (int col = 1; col <= 3; ++col)
             ss >> script.m_transformation(row, col);
       }
+      else if (StartsWith(line, "UVCHANNEL "))
+      {
+        script.m_defaultUVChannel = static_cast<size_t>(_stoi({ line.begin() + strlen("UVCHANNEL "), line.end() }));
+      }
       else if (StartsWith(line, "FLAT YES"))
       {
         script.m_flat = ModelScript::Flat::Full;
@@ -457,6 +461,9 @@ void SaveToFile(const ModelScript& script, const CTFileName& filename)
 
   if (!script.m_boneTriangles)
     file << "NO_BONE_TRIANGLES\n";
+
+  if (script.m_defaultUVChannel != 0)
+    file << "UVCHANNEL " << INDEX(script.m_defaultUVChannel) << '\n';
 
   file << '\n';
 

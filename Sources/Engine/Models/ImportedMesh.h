@@ -42,10 +42,12 @@ public:
   void ApplySkinning(const ImportedSkeleton& animSkeleton, const FLOATmatrix3D& mTransform);
   void FillFromFile(const CTFileName& fileName, const FLOATmatrix3D& mTransform);
 
+  static size_t GetUVChannelCount(const CTFileName& fileName);
+
   struct Triangle
   {
     std::array<INDEX, 3> ct_iVtx;                // indices of vertices
-    std::array<std::array<INDEX, 3>, 3> ct_iTVtx;// indices of texture vertices
+    std::vector<std::array<INDEX, 3>> ct_iTVtx;  // indices of texture vertices
     INDEX ct_iMaterial;                          // index of material
   };
 
@@ -68,8 +70,9 @@ public:
   std::vector<Material> m_materials;
   std::vector<FLOAT3D> m_vertices;
   std::vector<TWeights> m_verticeWeights;
-  std::array<std::vector<FLOAT2D>, 3> m_uvs;
+  std::vector<std::vector<FLOAT2D>> m_uvs;
   std::vector<WeightBone> m_weightBones;
+  size_t m_defaultUVChannel = 0;
 
 private:
   void FillConversionArrays_t(const FLOATmatrix3D& mTransform, const aiScene* aiSceneMain);

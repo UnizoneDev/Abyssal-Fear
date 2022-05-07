@@ -32,6 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <array>
 #include <limits>
 #include <unordered_map>
+#include <unordered_set>
 #include <map>
 #include <vector>
 
@@ -314,6 +315,31 @@ void ImportedMesh::FillFromFile(const CTFileName& fnmFileName, const FLOATmatrix
   }
 }
 
+size_t ImportedMesh::GetUVChannelCount(const CTFileName& fileName)
+{
+  const CTString strFile = _fnmApplicationPath + fileName;
+
+  Assimp::Importer importerWithoutNormals;
+  // do not read normals from input file
+  importerWithoutNormals.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS);
+  const aiScene* aiSceneMain = importerWithoutNormals.ReadFile(strFile.str_String,
+    aiProcess_JoinIdenticalVertices |
+    aiProcess_Triangulate |
+    aiProcess_GenUVCoords |
+    aiProcess_RemoveComponent |
+    aiProcess_FlipUVs);
+
+  if (!aiSceneMain)
+    return 0;
+
+  std::unordered_set<size_t> usedChannels;
+  for (auto* mesh : AI_GetValidMeshes(aiSceneMain))
+    for (size_t j = 0; j < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++j)
+      if (mesh->HasTextureCoords(j))
+        usedChannels.insert(j);
+  return std::max(size_t(1), usedChannels.size());
+}
+
 void ImportedMesh::Clear()
 {
   m_triangles.clear();
@@ -345,16 +371,23 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
   FLOAT bFlipped = fDet < 0;
 
   // ------------  Find UV map indices
-  std::map<aiMesh*, std::array<unsigned int, 3>> uvChannels;
+  std::map<aiMesh*, std::vector<unsigned int>> uvChannels;
+  std::map<size_t, size_t> channelRemap;
   std::map<std::string, FLOATmatrix4D> boneOffsets;
   for (auto* mesh : validMeshes)
   {
-    auto& coordsRemap = uvChannels[mesh];
-    coordsRemap = { AI_MAX_NUMBER_OF_TEXTURECOORDS, AI_MAX_NUMBER_OF_TEXTURECOORDS , AI_MAX_NUMBER_OF_TEXTURECOORDS };
-    for (size_t j = 0, uvIndex = 0; uvIndex < 3 && j < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++j)
+    auto& channelsOfMesh = uvChannels[mesh];
+    for (size_t j = 0; j < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++j)
     {
       if (mesh->HasTextureCoords(j))
-        coordsRemap[uvIndex++] = j;
+      {
+        if (channelRemap.find(j) == channelRemap.end())
+        {
+          size_t val = channelRemap.size();
+          channelRemap[j] = val;
+        }
+        channelsOfMesh.push_back(j);
+      }
     }
     for (int i = 0; i < mesh->mNumBones; ++i)
     {
@@ -366,6 +399,7 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
           offset(row + 1, col + 1) = aiOffset[row][col];
     }
   }
+  const size_t numUVChannels = channelRemap.size();
 
   // ------------  Convert object vertices (coordinates)
   _VertexWeights vertexWeights;
@@ -402,22 +436,20 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
   }
 
   // ------------ Convert object's mapping vertices (texture vertices)
-  std::unordered_map<aiVector3D, INDEX> uniqueTexCoords[3];
-  for (size_t iUVMapIndex = 0; iUVMapIndex < 3; ++iUVMapIndex)
+  m_uvs.resize(numUVChannels, {});
+  std::vector<std::unordered_map<aiVector3D, INDEX>> uniqueTexCoords(numUVChannels, std::unordered_map<aiVector3D, INDEX>());
+  for (auto* mesh : validMeshes)
   {
-    for (auto* mesh : validMeshes)
+    for (auto uv : uvChannels[mesh])
     {
-      size_t uv = uvChannels[mesh][iUVMapIndex];
-      if (!mesh->HasTextureCoords(uv))
-        continue;
-
+      const size_t uvIndex = channelRemap[uv];
       for (size_t v = 0; v < mesh->mNumVertices; ++v)
       {
-        if (uniqueTexCoords[iUVMapIndex].find(mesh->mTextureCoords[uv][v]) == uniqueTexCoords[iUVMapIndex].end())
+        if (uniqueTexCoords[uvIndex].find(mesh->mTextureCoords[uv][v]) == uniqueTexCoords[uvIndex].end())
         {
-          uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][v]] = m_uvs[iUVMapIndex].size();
+          uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][v]] = m_uvs[uvIndex].size();
           const auto& aiUV = mesh->mTextureCoords[uv][v];
-          m_uvs[iUVMapIndex].push_back(FLOAT2D(aiUV[0], aiUV[1]));
+          m_uvs[uvIndex].push_back(FLOAT2D(aiUV[0], aiUV[1]));
         }
       }
     }
@@ -462,23 +494,21 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
         }
       }
 
-
-      for (size_t iUVMapIndex = 0; iUVMapIndex < 3; ++iUVMapIndex)
+      ctTriangle.ct_iTVtx.resize(numUVChannels, { 0, 0, 0 });
+      for (auto uv : uvChannels[mesh])
       {
-        size_t uv = uvChannels[mesh][iUVMapIndex];
-        if (!mesh->HasTextureCoords(uv))
-          continue;
+        const size_t uvIndex = channelRemap[uv];
 
         // copy texture vertex indices
         if (bFlipped) {
-          ctTriangle.ct_iTVtx[iUVMapIndex][0] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[2]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex][1] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[1]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex][2] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[0]]];
+          ctTriangle.ct_iTVtx[uvIndex][0] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[2]]];
+          ctTriangle.ct_iTVtx[uvIndex][1] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[1]]];
+          ctTriangle.ct_iTVtx[uvIndex][2] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[0]]];
         }
         else {
-          ctTriangle.ct_iTVtx[iUVMapIndex][0] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[0]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex][1] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[1]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex][2] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[2]]];
+          ctTriangle.ct_iTVtx[uvIndex][0] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[0]]];
+          ctTriangle.ct_iTVtx[uvIndex][1] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[1]]];
+          ctTriangle.ct_iTVtx[uvIndex][2] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[2]]];
         }
       }
 

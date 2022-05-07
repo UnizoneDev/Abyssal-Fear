@@ -57,6 +57,7 @@ struct ModelScript {
   bool m_stretchDetail = false;
   bool m_highQuality = true;
   bool m_boneTriangles = true;
+  size_t m_defaultUVChannel = 0;
   std::optional<CTFileName> m_skeleton;
   std::vector<CTFileName> m_mipModels;
   Animations m_animations;

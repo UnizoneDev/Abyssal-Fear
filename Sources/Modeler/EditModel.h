@@ -124,7 +124,7 @@ private:
 
   void NewModel(const ImportedMesh& mesh);									// creates new model, surface, vertice and polygon arrays
   void AddMipModel(const ImportedMesh& mesh);							// adds one mip model
-  void CreateBoneTriangles(ImportedMesh& mesh, const FLOATmatrix3D& transform, FLOAT stretch);
+  void CreateBoneTriangles(ImportedMesh& mesh, const ImportedSkeleton& skel, const FLOATmatrix3D& transform, FLOAT stretch);
   std::vector<FrameGenerator> LoadFrameGenerators(const ModelScript::Animations& animations, const ImportedMesh& baseMesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch);
   // loads and converts model's animation data from script file
   void LoadModelAnimationData_t(const ModelScript::Animations& animations, const ImportedMesh& baseMesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch);	// throw char *

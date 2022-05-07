@@ -29,7 +29,7 @@ struct aiNode;
 struct ENGINE_API ImportedSkeleton
 {
 public:
-  struct Bone
+  struct ENGINE_API Bone
   {
     std::string m_name;
     FLOATmatrix4D m_transformToParent;

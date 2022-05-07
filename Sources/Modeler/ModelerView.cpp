@@ -3573,6 +3573,7 @@ void CModelerView::OnCreateMipModels()
     CTFileStream File;
     File.Open_t( fnScriptName);
     
+    size_t defaultUVChannel = 0;
     FLOATmatrix3D mStretch;
     mStretch.Diagonal(1.0f);
     try
@@ -3606,6 +3607,11 @@ void CModelerView::OnCreateMipModels()
 		      sscanf( achrLine, "SIZE %g", &fStretch);
           mStretch *= fStretch;
 		    }
+        else if (EQUAL_SUB_STR("UVCHANNEL"))
+        {
+          _strupr(achrLine);
+          sscanf(achrLine, "UVCHANNEL %zu", &defaultUVChannel);
+        }
 		    else if( EQUAL_SUB_STR( "TRANSFORM")) 
         {
   	      _strupr( achrLine);
@@ -3647,8 +3653,13 @@ void CModelerView::OnCreateMipModels()
       return;
     }
     // create mip models
-    pDoc->m_emEditModel.CreateMipModels_t(ImportedMesh(CTString(achrRestFrameFullPath), mStretch),
-      dlgAutoMipModeling.m_iVerticesToRemove, dlgAutoMipModeling.m_iSurfacePreservingFactor);
+    if (true)
+    {
+      ImportedMesh mesh(CTString(achrRestFrameFullPath), mStretch);
+      if (defaultUVChannel < mesh.m_uvs.size())
+        mesh.m_defaultUVChannel = defaultUVChannel;
+      pDoc->m_emEditModel.CreateMipModels_t(mesh, dlgAutoMipModeling.m_iVerticesToRemove, dlgAutoMipModeling.m_iSurfacePreservingFactor);
+    }
     // copy mapping from main mip model
     pDoc->m_emEditModel.SaveMapping_t( CTString("Temp\\ForAutoMipMapping.map"), 0);
     // paste mapping over all smaller mip models

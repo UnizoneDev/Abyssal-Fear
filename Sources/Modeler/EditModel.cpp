@@ -134,11 +134,22 @@ CProgressRoutines::CProgressRoutines()
   SetProgressState = NULL;
 }
 
-void CEditModel::CreateBoneTriangles(ImportedMesh& mesh, const FLOATmatrix3D& transform, FLOAT stretch)
+void CEditModel::CreateBoneTriangles(ImportedMesh& mesh, const ImportedSkeleton& skel, const FLOATmatrix3D& transform, FLOAT stretch)
 {
   size_t materialIndex = -1;
-  for (size_t boneIndex = 0; boneIndex < mesh.m_weightBones.size(); ++boneIndex)
+  for (const auto& [boneName, bone] : skel.m_bones)
   {
+    auto found_pos = std::find_if(mesh.m_weightBones.begin(), mesh.m_weightBones.end(), [&](const ImportedMesh::WeightBone& b)
+      {
+        return b.m_name == boneName;
+      });
+
+    size_t boneIndex = mesh.m_weightBones.size();
+    if (found_pos == mesh.m_weightBones.end())
+      mesh.m_weightBones.push_back({ boneName, InverseMatrix(bone.GetAbsoluteTransform()) });
+    else
+      boneIndex = std::distance(mesh.m_weightBones.begin(), found_pos);
+
     const auto& weightBone = mesh.m_weightBones.at(boneIndex);
 
     const FLOATmatrix4D boneTransform = InverseMatrix(weightBone.m_offset);
@@ -174,12 +185,10 @@ void CEditModel::CreateBoneTriangles(ImportedMesh& mesh, const FLOATmatrix3D& tr
     }
 
     ImportedMesh::Triangle triangle;
+    triangle.ct_iTVtx.resize(mesh.m_uvs.size(), { 0, 0, 0 });
     triangle.ct_iVtx[0] = baseIndex + 0;
     triangle.ct_iVtx[1] = baseIndex + 1;
     triangle.ct_iVtx[2] = baseIndex + 2;
-    for (size_t i = 0; i < 3; ++i)
-      for (size_t j = 0; j < 3; ++j)
-        triangle.ct_iTVtx[i][j] = 0;
     triangle.ct_iMaterial = materialIndex;
     mesh.m_triangles.push_back(triangle);
 
@@ -1065,10 +1074,12 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
   for (const auto& mip_file : script.m_mipModels)
   {
     ImportedMesh mesh(mip_file, mStretch);
+    if (script.m_defaultUVChannel < mesh.m_uvs.size())
+      mesh.m_defaultUVChannel = script.m_defaultUVChannel;
     if (baseMesh.m_vertices.empty())
     {
       if (allowedToCreateBoneTriangles)
-        CreateBoneTriangles(mesh, mStretch, script.m_scale);
+        CreateBoneTriangles(mesh, skeleton, mStretch, script.m_scale);
       baseMesh = mesh;
     }
     if (edm_md.md_VerticesCt == 0)
@@ -1250,11 +1261,12 @@ void CEditModel::AddMipModel(const ImportedMesh& mesh)
   std::unordered_map<VertexRemap, INDEX, VertexRemap::Hasher> uniqueTexCoords;
   std::vector<FLOAT2D> orderedUniqueTexCoords;
   std::vector<INDEX> texCoordsRemap;
+  const size_t uv0 = mesh.m_defaultUVChannel;
   for (const auto& triangle : mesh.m_triangles)
   {
     for (size_t e = 0; e < 3; ++e)
     {
-      FLOAT2D vtxUV(mesh.m_uvs[0][triangle.ct_iTVtx[0][e]]);
+      FLOAT2D vtxUV(mesh.m_uvs[uv0][triangle.ct_iTVtx[uv0][e]]);
 
       VertexRemap vertex_remap{ vtxUV, triangle.ct_iMaterial, triangle.ct_iVtx[e] };
       auto found_pos = uniqueTexCoords.find(vertex_remap);
@@ -1346,7 +1358,7 @@ void CEditModel::UpdateAnimations_t(CTFileName &fnScriptName) // throw char *
 
   ImportedMesh baseMesh(script.m_mipModels.front(), mStretch);
   if (allowedToCreateBoneTriangles)
-    CreateBoneTriangles(baseMesh, mStretch, script.m_scale);
+    CreateBoneTriangles(baseMesh, skeleton, mStretch, script.m_scale);
 
   LoadModelAnimationData_t(script.m_animations, baseMesh, skeleton, mStretch);
 
@@ -1410,6 +1422,8 @@ void CEditModel::UpdateMipModels_t(CTFileName &fnScriptName) // throw char *
   {
     const auto& mip = script.m_mipModels.at(i);
     ImportedMesh mesh(mip, mStretch);
+    if (script.m_defaultUVChannel < mesh.m_uvs.size())
+      mesh.m_defaultUVChannel = script.m_defaultUVChannel;
     if (edm_md.md_VerticesCt < mesh.m_vertices.size())
       ThrowF_t(
         "It is unlikely that mip-model \"%s\" is valid.\n"
