@@ -31,6 +31,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <vector>
 #include <functional>
+#include <map>
+#include <array>
 
 #define MAPPING_VERSION_WITHOUT_POLYGONS_PER_SURFACE "0001"
 #define MAPPING_VERSION_WITHOUT_SOUNDS_AND_ATTACHMENTS "0002"
@@ -122,14 +124,21 @@ private:
 
   void NewModel(const ImportedMesh& mesh);									// creates new model, surface, vertice and polygon arrays
   void AddMipModel(const ImportedMesh& mesh);							// adds one mip model
-  // loads and converts model's animation data from script file
+  void CreateBoneTriangles(ImportedMesh& mesh, const FLOATmatrix3D& transform, FLOAT stretch);
   std::vector<FrameGenerator> LoadFrameGenerators(const ModelScript::Animations& animations, const ImportedMesh& baseMesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch);
+  // loads and converts model's animation data from script file
   void LoadModelAnimationData_t(const ModelScript::Animations& animations, const ImportedMesh& baseMesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch);	// throw char *
   INDEX edm_iActiveCollisionBox;                  // collision box that is currently edited
+
+public:
+  using TBoneToTriangle = std::map<std::string, std::array<INDEX, 3>>;
+
 public:
 	CEditModel();																		// default contructor
 	~CEditModel();																	// default destructor
   CModelData edm_md;															// edited model data
+  TBoneToTriangle m_boneTriangleMapping; // If bone triangles were generated, this map shall contain triangle indices for each bone
+  INDEX m_boneTriangleMappingGeneration = 0;
   CDynamicArray<CAttachedModel> edm_aamAttachedModels;// array of attached models
   CStaticArray<CAttachedSound> edm_aasAttachedSounds;// array of attached sounds
   CThumbnailSettings edm_tsThumbnailSettings;     // remembered parameters for taking thumbnail

@@ -165,6 +165,9 @@
     <ClCompile Include="Script\AnglePicker.cpp">
       <Filter>Source Files\Script</Filter>
     </ClCompile>
+    <ClCompile Include="BonePicker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Modeler.rc">
@@ -321,6 +324,12 @@
     </ClInclude>
     <ClInclude Include="Script\AnglePicker.h.moc">
       <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="BonePicker.h.moc">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BonePicker.ui.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -489,5 +498,16 @@
     <CustomBuild Include="Script\AnglePicker.h">
       <Filter>Header Files\Script</Filter>
     </CustomBuild>
+    <CustomBuild Include="BonePicker.ui">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BonePicker.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\bone.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

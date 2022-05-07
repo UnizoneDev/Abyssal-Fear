@@ -134,7 +134,7 @@ CProgressRoutines::CProgressRoutines()
   SetProgressState = NULL;
 }
 
-void CreateBoneTriangles(ImportedMesh& mesh, const FLOATmatrix3D& transform, FLOAT stretch)
+void CEditModel::CreateBoneTriangles(ImportedMesh& mesh, const FLOATmatrix3D& transform, FLOAT stretch)
 {
   size_t materialIndex = -1;
   for (size_t boneIndex = 0; boneIndex < mesh.m_weightBones.size(); ++boneIndex)
@@ -182,6 +182,10 @@ void CreateBoneTriangles(ImportedMesh& mesh, const FLOATmatrix3D& transform, FLO
         triangle.ct_iTVtx[i][j] = 0;
     triangle.ct_iMaterial = materialIndex;
     mesh.m_triangles.push_back(triangle);
+
+    auto& triangleMapping = m_boneTriangleMapping[weightBone.m_name];
+    for (size_t i = 0; i < 3; ++i)
+      triangleMapping[i] = triangle.ct_iVtx[i];
   }
 }
 
@@ -900,6 +904,28 @@ void CEditModel::Read_t( CTStream *pFile) // throw char *
     pFile->ExpectID_t( CChunkID( "FXTB"));
     *pFile >> edm_fnBumpTexture;
   } catch( char *strError) { (void) strError; }
+
+  // load bone-triangle mapping
+  try
+  {
+    pFile->ExpectID_t(CChunkID("BTRM"));
+    INDEX generation = 0;
+    *pFile >> generation;
+    if (generation > m_boneTriangleMappingGeneration)
+    {
+      m_boneTriangleMappingGeneration = generation;
+      m_boneTriangleMapping.clear();
+      INDEX boneCount = 0;
+      *pFile >> boneCount;
+      for (size_t i = 0; i < boneCount; ++i)
+      {
+        CTString boneName;
+        *pFile >> boneName;
+        auto& triangle = m_boneTriangleMapping[boneName.str_String];
+        *pFile >> triangle[0] >> triangle[1] >> triangle[2];
+      }
+    }
+  } catch (const char*) { }
 }
 
 void CEditModel::Write_t( CTStream *pFile) // throw char *
@@ -948,6 +974,16 @@ void CEditModel::Write_t( CTStream *pFile) // throw char *
   // --- bump texture
   pFile->WriteID_t( CChunkID( "FXTB"));
   *pFile << edm_fnBumpTexture;
+
+  // write bone-triangle mapping
+  pFile->WriteID_t(CChunkID("BTRM"));
+  *pFile << m_boneTriangleMappingGeneration;
+  *pFile << static_cast<INDEX>(m_boneTriangleMapping.size());
+  for (const auto& [boneName, triangle] : m_boneTriangleMapping)
+  {
+    *pFile << CTString(boneName.c_str());
+    *pFile << triangle[0] << triangle[1] << triangle[2];
+  }
 }
 //----------------------------------------------------------------------------------------------
 /*
@@ -991,6 +1027,8 @@ void CEditModel::CreateScriptFile_t(CTFileName &fnO3D) // throw char *
  */
 void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 {
+  ++m_boneTriangleMappingGeneration;
+  m_boneTriangleMapping.clear();
   const auto script = ScriptIO::ReadFromFile(fnScriptName);
 
   if (script.m_flat == ModelScript::Flat::Half)

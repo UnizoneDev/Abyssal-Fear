@@ -63,6 +63,7 @@
 #define IDD_NEW_TEXTURE_SIZE            182
 #define IDD_CREATE_SPECULAR_TEXTURE     183
 #define IDD_EXPORT_FOR_SKINNIG          189
+#define IDI_BONE                        190
 #define IDR_COLOR_BUTTON                204
 #define IDD_NUMERIC_ALPHA               205
 #define IDD_INFO_MIP                    206
@@ -456,6 +457,7 @@
 #define IDC_SURFACE_LIST_T              1311
 #define IDC_EXPORT_PAPER_COLOR          1312
 #define IDC_EXPORT_FILE_NAME_T          1313
+#define IDC_PICK_ATTACHMENT_BONE        1314
 #define ID_RENDER_BBOX                  32700
 #define ID_RENDER_WIRE_NAKED            32701
 #define ID_RENDER_WIRE_SOLID            32702
@@ -684,9 +686,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        190
+#define _APS_NEXT_RESOURCE_VALUE        191
 #define _APS_NEXT_COMMAND_VALUE         33163
-#define _APS_NEXT_CONTROL_VALUE         1314
+#define _APS_NEXT_CONTROL_VALUE         1315
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

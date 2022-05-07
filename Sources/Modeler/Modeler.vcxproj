@@ -197,6 +197,7 @@ $(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\Debug\QtSolutions_MFCMig
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AnimComboBox.cpp" />
+    <ClCompile Include="BonePicker.cpp" />
     <ClCompile Include="ChildFrm.cpp" />
     <ClCompile Include="ChoosedColorButton.cpp" />
     <ClCompile Include="ColoredButton.cpp" />
@@ -324,6 +325,15 @@ $(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\Debug\QtSolutions_MFCMig
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimComboBox.h" />
+    <CustomBuild Include="BonePicker.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <ClInclude Include="BonePicker.ui.h" />
     <ClInclude Include="ChildFrm.h" />
     <ClInclude Include="ChoosedColorButton.h" />
     <ClInclude Include="ColoredButton.h" />
@@ -428,6 +438,25 @@ $(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\Debug\QtSolutions_MFCMig
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\AnglePicker.h.moc">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\bone.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="BonePicker.ui">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BonePicker.h.moc">
       <FileType>Document</FileType>
     </ClInclude>
   </ItemGroup>
