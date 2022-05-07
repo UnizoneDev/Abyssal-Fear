@@ -206,6 +206,7 @@ BEGIN_MESSAGE_MAP(CModelerView, CView)
 	ON_UPDATE_COMMAND_UI(ID_TOGGLE_MEASURE_VTX, OnUpdateToggleMeasureVtx)
 	ON_COMMAND(ID_FIRST_FRAME, OnFirstFrame)
 	ON_COMMAND(ID_LAST_FRAME, OnLastFrame)
+  ON_COMMAND(ID_ALTERNATIVE_MOVING_MODE, OnAlternativeMovingMode)
 	//}}AFX_MSG_MAP
 	// Standard printing commands
 	//ON_COMMAND(ID_FILE_PRINT, CView::OnFilePrint)
@@ -398,10 +399,8 @@ void CModelerView::SetProjectionData( CPerspectiveProjection3D &prProjection, CD
   prProjection.AspectRatioL() = 1.0f;
   prProjection.FrontClipDistanceL() = 0.05f;
 
-  prProjection.ViewerPlacementL().pl_PositionVector = m_vTarget;
-  prProjection.ViewerPlacementL().pl_OrientationAngle = m_angViewerOrientation;
+  prProjection.ViewerPlacementL() = _GetCameraPlacement();
   prProjection.Prepare();
-  prProjection.ViewerPlacementL().Translate_OwnSystem(FLOAT3D( 0.0f, 0.0f, m_fTargetDistance));
 }
 
 FLOAT CModelerView::GetModelToViewerDistance(void)
@@ -1855,6 +1854,209 @@ void CModelerView::OnUpdateAnimPrevframe(CCmdUI* pCmdUI)
     pCmdUI->Enable( FALSE);
   else
     pCmdUI->Enable(TRUE);
+}
+
+CPlacement3D CModelerView::_GetCameraPlacement() const
+{
+  CPlacement3D plCamera(m_vTarget, m_angViewerOrientation);
+  FLOAT3D vDirection;
+  AnglesToDirectionVector(plCamera.pl_OrientationAngle, vDirection);
+  plCamera.pl_PositionVector -= vDirection * m_fTargetDistance;
+  return plCamera;
+}
+
+void CModelerView::_SetCameraPlacement(const CPlacement3D& plCamera)
+{
+  FLOAT3D vDirection;
+  AnglesToDirectionVector(plCamera.pl_OrientationAngle, vDirection);
+  m_vTarget = plCamera.pl_PositionVector + vDirection * m_fTargetDistance;
+  m_angViewerOrientation = plCamera.pl_OrientationAngle;
+}
+
+void CModelerView::_ApplyFreeModeControls(CPlacement3D& pl, ANGLE3D& aAbs, BOOL bPrescan)
+{
+#define FB_SPEED 1.0f
+#define LR_SPEED 1.0f
+#define UD_SPEED 1.0f
+#define ROT_SPEED 0.75f
+
+  FLOAT fFB = 0.0f; // forward/backward movement
+  FLOAT fLR = 0.0f; // left/right movement
+  FLOAT fUD = 0.0f; // up/down movement
+  FLOAT fRLR = 0.0f; // rotate left/right
+  FLOAT fRUD = 0.0f; // rotate up/down
+
+  _pInput->GetInput(bPrescan);
+
+  if (!bPrescan)
+  {
+    BOOL bAlt = _pInput->GetButtonState(KID_LALT) || _pInput->GetButtonState(KID_RALT);
+
+    // ---------- Simulate moving as in fly mode
+    // forward
+    if (
+      _pInput->GetButtonState(KID_W) ||
+      _pInput->GetButtonState(KID_MOUSE2) ||
+      _pInput->GetButtonState(KID_ARROWUP))
+    {
+      fFB = -FB_SPEED * m_flyModeSpeedMultiplier;
+    }
+    // backward
+    if (
+      _pInput->GetButtonState(KID_S) ||
+      _pInput->GetButtonState(KID_MOUSE1) ||
+      _pInput->GetButtonState(KID_ARROWDOWN))
+    {
+      fFB = +FB_SPEED * m_flyModeSpeedMultiplier;
+    }
+    // strife left
+    if (
+      _pInput->GetButtonState(KID_Q) ||
+      _pInput->GetButtonState(KID_A) ||
+      _pInput->GetButtonState(KID_ARROWLEFT))
+    {
+      fLR = -LR_SPEED * m_flyModeSpeedMultiplier;
+    }
+    // strife right
+    if (
+      _pInput->GetButtonState(KID_E) ||
+      _pInput->GetButtonState(KID_D) ||
+      _pInput->GetButtonState(KID_ARROWRIGHT))
+    {
+      fLR = +LR_SPEED * m_flyModeSpeedMultiplier;
+    }
+    // up
+    if ((_pInput->GetButtonState(KID_R) && !bAlt) ||
+      _pInput->GetButtonState(KID_SPACE))
+    {
+      fUD = +UD_SPEED * m_flyModeSpeedMultiplier;
+    }
+    // down
+    if (_pInput->GetButtonState(KID_F) || _pInput->GetButtonState(KID_C))
+    {
+      fUD = -UD_SPEED * m_flyModeSpeedMultiplier;
+    }
+  }
+
+  // get current rotation
+  fRLR = _pInput->GetAxisValue(1) * ROT_SPEED;
+  fRUD = -_pInput->GetAxisValue(2) * ROT_SPEED;
+
+  // apply translation
+  if (!bPrescan)
+  {
+    pl.Translate_OwnSystem(FLOAT3D(fLR, fUD, fFB));
+    pl.pl_OrientationAngle = aAbs;
+  }
+  aAbs += ANGLE3D(-fRLR, -fRUD, 0);
+}
+
+void CModelerView::OnAlternativeMovingMode()
+{
+  if (m_bMappingMode)
+    return;
+
+  INDEX iAllowMouseAcceleration = _pShell->GetINDEX("inp_bAllowMouseAcceleration");
+  INDEX iFilterMouse = _pShell->GetINDEX("inp_bFilterMouse");
+
+  _pShell->SetINDEX("inp_bAllowMouseAcceleration", 1);
+  _pShell->SetINDEX("inp_bFilterMouse", 1);
+
+  CPlacement3D _plNew = _GetCameraPlacement();
+  CPlacement3D _plOld = _plNew;
+  ANGLE3D _aAbs = _plNew.pl_OrientationAngle;
+  TIME timeLastTick = _pTimer->GetRealTimeTick();
+
+  _pInput->EnableInput(m_pViewPort);
+
+  BOOL bRunning = TRUE;
+  INDEX iLastTick = 0;
+  CTimerValue tvStart = _pTimer->GetHighPrecisionTimer();
+
+  while (bRunning)
+  {
+    MSG msg;
+    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+      // use mouse wheel to increase/decrease moving speed
+      if (msg.message == WM_MOUSEWHEEL)
+      {
+        short zDelta = (short)HIWORD(msg.wParam);
+        INDEX iCount = zDelta / 120;
+        for (INDEX iKnee = 0; iKnee < Abs(iCount); iKnee++)
+        {
+          if (iCount < 0) m_flyModeSpeedMultiplier /= 2;
+          else         m_flyModeSpeedMultiplier *= 2;
+        }
+      }
+
+      // if it is not a mouse message
+      if (!(msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST))
+      {
+        // if not system key messages
+        if (!(msg.message == WM_KEYDOWN && msg.wParam == VK_F10
+          || msg.message == WM_SYSKEYDOWN))
+        {
+          // translate it
+          TranslateMessage(&msg);
+        }
+        // if paint message
+        if (msg.message == WM_PAINT)
+        {
+          // dispatch it
+          DispatchMessage(&msg);
+        }
+      }
+      // if should stop
+      if ((msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE)
+        || (msg.message == WM_ACTIVATE)
+        || (msg.message == WM_CANCELMODE)
+        || (msg.message == WM_KILLFOCUS)
+        || (msg.message == WM_ACTIVATEAPP))
+      {
+        // stop running
+        bRunning = FALSE;
+        break;
+      }
+    }
+
+    CTimerValue tvNow = _pTimer->GetHighPrecisionTimer();
+    FLOAT fPassed = (tvNow - tvStart).GetSeconds();
+    INDEX iNowTick = INDEX(fPassed / _pTimer->TickQuantum);
+    // apply controls for frame rates below tick quantum
+    while (iLastTick < iNowTick - 1)
+    {
+      _plOld = _plNew;
+      _ApplyFreeModeControls(_plNew, _aAbs, FALSE);
+      iLastTick++;
+    }
+    _ApplyFreeModeControls(_plNew, _aAbs, TRUE);
+
+    // set new viewer position
+    FLOAT fLerpFactor = (fPassed - iNowTick * _pTimer->TickQuantum) / _pTimer->TickQuantum;
+    ASSERT(fLerpFactor > 0 && fLerpFactor < 1.0f);
+
+    CPlacement3D plToSet;
+    plToSet.Lerp(_plOld, _plNew, Clamp(fLerpFactor, 0.0f, 1.0f));
+    plToSet.pl_OrientationAngle = _aAbs;
+    _SetCameraPlacement(plToSet);
+
+    // render view again
+    CDC* pDC = GetDC();
+    OnDraw(pDC);
+    ReleaseDC(pDC);
+
+    TIME timeCurrentTick = _pTimer->GetRealTimeTick();
+    if (timeCurrentTick > timeLastTick)
+    {
+      _pTimer->SetCurrentTick(timeCurrentTick);
+      timeLastTick = timeCurrentTick;
+    }
+  }
+  _pInput->DisableInput();
+
+  _pShell->SetINDEX("inp_bAllowMouseAcceleration", iAllowMouseAcceleration);
+  _pShell->SetINDEX("inp_bFilterMouse", iFilterMouse);
 }
 
 void CModelerView::OnIdle(void)
