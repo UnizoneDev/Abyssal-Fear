@@ -1877,10 +1877,10 @@ void CModelerView::_SetCameraPlacement(const CPlacement3D& plCamera)
 
 void CModelerView::_ApplyFreeModeControls(CPlacement3D& pl, ANGLE3D& aAbs, BOOL bPrescan)
 {
-#define FB_SPEED 1.0f
-#define LR_SPEED 1.0f
-#define UD_SPEED 1.0f
-#define ROT_SPEED 0.75f
+#define FB_SPEED 0.5f
+#define LR_SPEED 0.5f
+#define UD_SPEED 0.5f
+#define ROT_SPEED 0.5f
 
   FLOAT fFB = 0.0f; // forward/backward movement
   FLOAT fLR = 0.0f; // left/right movement
