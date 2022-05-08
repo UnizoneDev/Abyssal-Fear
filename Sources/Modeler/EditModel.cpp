@@ -41,6 +41,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 namespace {
 
+std::string _MakePrintable(std::string s)
+{
+  std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c)
+    { return std::isspace(c) ? '_' : std::toupper(c); });
+  return s;
+}
+
 // print #define <animation name> lines for all animations into given file
 void ExportAnimationNames_t(CAnimData& animData, CTStream* ostrFile, CTString strAnimationPrefix) // throw char *
 {
@@ -49,10 +56,7 @@ void ExportAnimationNames_t(CAnimData& animData, CTStream* ostrFile, CTString st
   for (INDEX iAnimation = 0; iAnimation < animData.ad_NumberOfAnims; iAnimation++)
   {
     // prepare one #define line (add prefix)
-    std::string animName = animData.ad_Anims[iAnimation].oa_Name;
-    std::transform(animName.begin(), animName.end(), animName.begin(), [](unsigned char c)
-      { return std::isspace(c) ? '_' : c; });
-    sprintf(chrLine, "#define %s%s %d", strAnimationPrefix, animName.c_str(),
+    sprintf(chrLine, "#define %s%s %d", strAnimationPrefix, _MakePrintable(animData.ad_Anims[iAnimation].oa_Name).c_str(),
       iAnimation);
     // put it into file
     ostrFile->PutLine_t(chrLine);
@@ -524,7 +528,7 @@ void CEditModel::SaveIncludeFile_t( CTFileName fnFileName, CTString strDefinePre
   {
     if( edm_md.md_ColorNames[ i] != "")
     {
-      sprintf( line, "#define %s_PART_%s ((1L) << %d)\n", strDefinePrefix, edm_md.md_ColorNames[ i], i);
+      sprintf( line, "#define %s_PART_%s ((1L) << %d)\n", strDefinePrefix, _MakePrintable(edm_md.md_ColorNames[ i].str_String).c_str(), i);
       strmHFile.Write_t( line, strlen( line));
     }
   }
@@ -536,7 +540,7 @@ void CEditModel::SaveIncludeFile_t( CTFileName fnFileName, CTString strDefinePre
     CTString strPatchName = edm_md.md_mpPatches[ iPatch].mp_strName;
     if( strPatchName != "")
     {
-      sprintf( line, "#define %s_PATCH_%s %d\n", strDefinePrefix, strPatchName, i);
+      sprintf( line, "#define %s_PATCH_%s %d\n", strDefinePrefix, _MakePrintable(strPatchName.str_String).c_str(), i);
       strmHFile.Write_t( line, strlen( line));
     }
   }
@@ -549,7 +553,7 @@ void CEditModel::SaveIncludeFile_t( CTFileName fnFileName, CTString strDefinePre
   for( INDEX iCollisionBox=0; iCollisionBox<edm_md.md_acbCollisionBox.Count(); iCollisionBox++)
   {
     // prepare collision box name as define
-    sprintf( line, "#define %s_COLLISION_BOX_%s %d\n", strDefinePrefix, GetCollisionBoxName( iCollisionBox),
+    sprintf( line, "#define %s_COLLISION_BOX_%s %d\n", strDefinePrefix, _MakePrintable(GetCollisionBoxName( iCollisionBox).str_String).c_str(),
       iCollisionBox);
     strmHFile.Write_t( line, strlen( line));
   }
@@ -561,10 +565,7 @@ void CEditModel::SaveIncludeFile_t( CTFileName fnFileName, CTString strDefinePre
   INDEX iAttachingPlcement = 0;
   FOREACHINDYNAMICARRAY(edm_aamAttachedModels, CAttachedModel, itam)
   {
-    char achrUpper[ 256];
-    strcpy( achrUpper, itam->am_strName);
-    strupr( achrUpper);
-    sprintf( line, "#define %s_ATTACHMENT_%s %d\n", strDefinePrefix, achrUpper, iAttachingPlcement);
+    sprintf( line, "#define %s_ATTACHMENT_%s %d\n", strDefinePrefix, _MakePrintable(itam->am_strName.str_String).c_str(), iAttachingPlcement);
     strmHFile.Write_t( line, strlen( line));
     iAttachingPlcement++;
   }
@@ -593,7 +594,7 @@ void CEditModel::SaveIncludeFile_t( CTFileName fnFileName, CTString strDefinePre
 
       sprintf( line, "//sound SOUND_%s_%-16s %-32s // %s, %s, %s\n",
         strDefinePrefix,
-        aiInfo.ai_AnimName,
+        _MakePrintable(aiInfo.ai_AnimName).c_str(),
         strWithQuotes,
         strAnimationPrefix+aiInfo.ai_AnimName,
         strLooping,
@@ -612,7 +613,7 @@ void CEditModel::Save_t( CTFileName fnFileName) // throw char *
   edm_md.Save_t( fnMdlFileName);
 
   CTFileName fnHFileName = fnFileName.FileDir() + fnFileName.FileName() + ".h";
-  CTString strPrefix = fnFileName.FileName();
+  CTString strPrefix = _MakePrintable(fnFileName.FileName().str_String).c_str();
   if (strPrefix.Length()>0 && !isalpha(strPrefix[0]) && strPrefix[0]!='_') {
     strPrefix="_"+strPrefix;
   }
