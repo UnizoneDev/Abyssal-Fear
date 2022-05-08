@@ -169,7 +169,11 @@ BOOL CDlgPgInfoAttachingPlacement::OnGetTooltip(UINT, NMHDR* pNMHDR, LRESULT* pR
   {
     if (::GetDlgCtrlID(reinterpret_cast<HWND>(pNMHDR->idFrom)) == IDC_PICK_ATTACHMENT_BONE)
     {
-      _stprintf_s(pTTT->szText, sizeof(pTTT->szText) / sizeof(TCHAR), _T("Attach to bone"));
+      const auto* button = GetDlgItem(IDC_PICK_ATTACHMENT_BONE);
+      _stprintf_s(pTTT->szText, sizeof(pTTT->szText) / sizeof(TCHAR),
+         button->IsWindowEnabled() ?
+        _T("Attach to bone") :
+        _T("Model must have bone triangles and have ONLY skeletal animations!"));
       pTTT->hinst = AfxGetResourceHandle();
       return TRUE;
     }
@@ -201,7 +205,7 @@ void CDlgPgInfoAttachingPlacement::DoDataExchange(CDataExchange* pDX)
   {
     
     BOOL bAttachmentExists = ( m_iActivePlacement != -1);
-    GetDlgItem( IDC_PICK_ATTACHMENT_BONE            )->ShowWindow( (bAttachmentExists && hasBoneTriangleMapping) ? SW_SHOW : SW_HIDE);
+    GetDlgItem( IDC_PICK_ATTACHMENT_BONE            )->EnableWindow( (bAttachmentExists && hasBoneTriangleMapping) ? SW_SHOW : SW_HIDE);
     GetDlgItem( IDC_ATTACHING_PLACEMENT_INDEX_T     )->EnableWindow( bAttachmentExists);
     GetDlgItem( IDC_PREVIOUS_ATTACHING_PLACEMENT    )->EnableWindow( bAttachmentExists);
     GetDlgItem( IDC_ATTACHING_PLACEMENT_NAME	      )->EnableWindow( bAttachmentExists);
