@@ -18,6 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "stdafx.h"
 
+#include "Script/ScriptIO.h"
+
 #include <Engine/Models/ImportedMesh.h>
 #include <Engine/Templates/Stock_CTextureData.h>
 
@@ -3554,14 +3556,9 @@ void CModelerView::OnUpdateRecreateTexture(CCmdUI* pCmdUI)
   }
 }
 
-#define EQUAL_SUB_STR( str) (strnicmp( achrLine, str, strlen(str)) == 0)
 void CModelerView::OnCreateMipModels() 
 {
   CMainFrame* pMainFrame = STATIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	char achrLine[ 128];
-  char achrBasePath[ PATH_MAX] = "";
-	char achrRestFrame[ PATH_MAX] = "";
-	char achrRestFrameFullPath[ PATH_MAX] = "";
 
   CModelerDoc* pDoc = GetDocument();
   CTFileName fnModelName = CTString(CStringA(pDoc->GetPathName()));
@@ -3569,68 +3566,9 @@ void CModelerView::OnCreateMipModels()
   try
   {
     fnScriptName.RemoveApplicationPath_t();
-  	// open script file
-    CTFileStream File;
-    File.Open_t( fnScriptName);
-    
-    size_t defaultUVChannel = 0;
-    FLOATmatrix3D mStretch;
-    mStretch.Diagonal(1.0f);
-    try
-    {
-		  FOREVER
-      {
-        do
-        {
-          File.GetLine_t(achrLine, 128);
-        }
-		    while( (strlen( achrLine)== 0) || (achrLine[0]==';'));
+    const auto script = ScriptIO::ReadFromFile(fnScriptName);
 
-		    if( EQUAL_SUB_STR( "DIRECTORY"))
-		    {
-			    _strupr( achrLine);
-          sscanf( achrLine, "DIRECTORY %s", achrBasePath);
-			    if( achrBasePath[ strlen( achrBasePath) - 1] != '\\')
-				    strcat( achrBasePath,"\\");
-		    }
-		    else if( EQUAL_SUB_STR( "MIP_MODELS"))
-        {
-          File.GetLine_t(achrLine, 128);
-  			  _strupr( achrLine);
-			    sscanf( achrLine, "%s", achrRestFrame);
-			    sprintf( achrRestFrameFullPath, "%s%s", achrBasePath, achrRestFrame);
-        }
-		    else if( EQUAL_SUB_STR( "SIZE"))
-        {
-  	      _strupr( achrLine);
-          FLOAT fStretch = 1.0f;
-		      sscanf( achrLine, "SIZE %g", &fStretch);
-          mStretch *= fStretch;
-		    }
-        else if (EQUAL_SUB_STR("UVCHANNEL"))
-        {
-          _strupr(achrLine);
-          sscanf(achrLine, "UVCHANNEL %zu", &defaultUVChannel);
-        }
-		    else if( EQUAL_SUB_STR( "TRANSFORM")) 
-        {
-  	      _strupr( achrLine);
-          FLOATmatrix3D mTran;
-          mTran.Diagonal(1.0f);
-		      sscanf( achrLine, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
-            &mTran(1,1), &mTran(1,2), &mTran(1,3),
-            &mTran(2,1), &mTran(2,2), &mTran(2,3),
-            &mTran(3,1), &mTran(3,2), &mTran(3,3));
-          mStretch *= mTran;
-        }
-      }
-    }
-    catch( char *pstrError)
-    {
-      (void) pstrError;
-    }
-
-    // show progres dialog
+    // show progress dialog
     CRect rectMainFrameSize;
     CRect rectProgress, rectProgressNew;
     pMainFrame->GetWindowRect( &rectMainFrameSize);
@@ -3655,9 +3593,10 @@ void CModelerView::OnCreateMipModels()
     // create mip models
     if (true)
     {
-      ImportedMesh mesh(CTString(achrRestFrameFullPath), mStretch);
-      if (defaultUVChannel < mesh.m_uvs.size())
-        mesh.m_defaultUVChannel = defaultUVChannel;
+      const FLOATmatrix3D mStretch = script.m_transformation * script.m_scale;
+      ImportedMesh mesh(script.m_mipModels.front(), mStretch);
+      if (script.m_defaultUVChannel < mesh.m_uvs.size())
+        mesh.m_defaultUVChannel = script.m_defaultUVChannel;
       pDoc->m_emEditModel.CreateMipModels_t(mesh, dlgAutoMipModeling.m_iVerticesToRemove, dlgAutoMipModeling.m_iSurfacePreservingFactor);
     }
     // copy mapping from main mip model
@@ -3691,7 +3630,7 @@ void CModelerView::OnCreateMipModels()
         m_ModelObject.SetSurfaceColor( iMipModel, iSurface, colSurfaceColor);
       }
     }
-    // destroy progres window
+    // destroy progress window
     pMainFrame->m_NewProgress.DestroyWindow();
   }
   catch( char *pStrError)
