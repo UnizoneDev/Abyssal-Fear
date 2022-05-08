@@ -346,8 +346,7 @@ void ImportedMesh::Clear()
   m_materials.clear();
   m_vertices.clear();
   m_verticeWeights.clear();
-  for (auto& uv : m_uvs)
-    uv.clear();
+  m_uvs.clear();
   m_weightBones.clear();
 }
 
