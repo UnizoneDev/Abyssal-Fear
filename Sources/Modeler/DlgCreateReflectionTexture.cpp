@@ -647,8 +647,9 @@ BOOL CDlgCreateReflectionTexture::PreTranslateMessage(MSG* pMsg)
   pWnd->GetClientRect( &rectWnd);\
   pWnd->ClientToScreen( &rectWnd);\
   if( rectWnd.PtInRect( pointScreen)) {\
+  const auto imageFilter = _EngineGUI.GetListOfImportImageFormats();\
   fnChoosedFile = _EngineGUI.FileRequester( "Select picture", \
-    FILTER_TGA FILTER_PCX FILTER_ALL FILTER_END, "Reflection map picures directory", "Textures\\");\
+    imageFilter.data(), "Reflection map picures directory", "Textures\\");\
   if( fnChoosedFile != "") {\
     AutoSetTextures(fnChoosedFile);}\
   UpdateData( TRUE);};

@@ -51,14 +51,17 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\WorldEditor\Qt.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+    <Import Project="..\WorldEditor\Qt.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+    <Import Project="..\WorldEditor\Qt.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -97,7 +100,7 @@
       <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DisableSpecificWarnings>4603;4996;4812;4333</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;$(Qt_dir)\include\;$(Qt_dir)\include\QtCore\;$(Qt_dir)\include\QtGui\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -121,11 +124,11 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>Debug/EngineD.dll</OutputFile>
       <ImportLibrary>.\Debug\EngineD.lib</ImportLibrary>
-      <AdditionalDependencies>gdi32.lib;DbgHelp.lib;assimpd.lib;irrXMLd.lib;zlibstaticd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gdi32.lib;DbgHelp.lib;assimpd.lib;irrXMLd.lib;zlibstaticd.lib;Qt5Cored.lib;Qt5Guid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <IgnoreSpecificDefaultLibraries>libci.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;$(Qt_dir)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
       <Command>copy Debug\$(TargetName).dll $(SolutionDir)..\Bin_1.10\Debug\ &gt;nul</Command>
@@ -155,7 +158,7 @@
       <ObjectFileName>.\Release\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
       <DisableSpecificWarnings>4603;4996;4812;4333</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;$(Qt_dir)\include\;$(Qt_dir)\include\QtCore\;$(Qt_dir)\include\QtGui\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -179,11 +182,11 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Release\Engine.dll</OutputFile>
       <ImportLibrary>.\Release\Engine.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;DbgHelp.lib;assimp.lib;irrXML.lib;zlibstatic.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;DbgHelp.lib;assimp.lib;irrXML.lib;zlibstatic.lib;Qt5Core.lib;Qt5Gui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <IgnoreSpecificDefaultLibraries>libci.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;$(Qt_dir)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
       <Command>copy Release\$(TargetName).dll $(SolutionDir)..\Bin_1.10\ &gt;nul</Command>
@@ -437,8 +440,6 @@
     <ClCompile Include="Sound\SoundObject.cpp" />
     <ClCompile Include="Sound\SoundProfile.cpp" />
     <ClCompile Include="Sound\Wave.cpp" />
-    <ClCompile Include="Models\EditModel.cpp" />
-    <ClCompile Include="Models\MipMaker.cpp" />
     <ClCompile Include="Models\Model.cpp" />
     <ClCompile Include="Models\ModelProfile.cpp" />
     <ClCompile Include="Models\Normals.cpp" />
@@ -794,8 +795,6 @@
     <ClInclude Include="Sound\SoundObject.h" />
     <ClInclude Include="Sound\SoundProfile.h" />
     <ClInclude Include="Sound\Wave.h" />
-    <ClInclude Include="Models\EditModel.h" />
-    <ClInclude Include="Models\MipMaker.h" />
     <ClInclude Include="Models\Model.h" />
     <ClInclude Include="Models\Model_internal.h" />
     <ClInclude Include="Models\ModelData.h" />

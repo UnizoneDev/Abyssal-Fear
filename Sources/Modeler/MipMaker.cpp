@@ -13,15 +13,16 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include "stdh.h"
+#include "stdafx.h"
 
-#include <Engine/Models/MipMaker.h>
 #include <Engine/Math/Vector.h>
 #include <Engine/Base/FileName.h>
 #include <Engine/Base/ErrorReporting.h>
 
 #include <Engine/Templates/DynamicArray.cpp>
 #include <Engine/Templates/DynamicContainer.cpp>
+
+#include "MipMaker.h"
 
 #include <unordered_map>
 
@@ -73,6 +74,7 @@ ImportedMesh CMipModel::GetMesh()
 {
   ImportedMesh mesh;
   // add vertices to sector
+  mesh.m_uvs.resize(1, {});
   mesh.m_vertices.resize(mm_amvVertices.Count(), FLOAT3D(0, 0, 0));
   INDEX iVertice = 0;
   FOREACHINDYNAMICARRAY( mm_amvVertices, CMipVertex, itVertice)
@@ -136,9 +138,7 @@ ImportedMesh CMipModel::GetMesh()
       triangle.ct_iVtx[0] = aivVertices[0];
       triangle.ct_iVtx[1] = aivVertices[i - 1];
       triangle.ct_iVtx[2] = aivVertices[i];
-      triangle.ct_iTVtx[0][0] = texCoords[0];
-      triangle.ct_iTVtx[0][1] = texCoords[i - 1];
-      triangle.ct_iTVtx[0][2] = texCoords[i];
+      triangle.ct_iTVtx.resize(1, {texCoords[0], texCoords[i - 1], texCoords[i]});
       triangle.ct_iMaterial = itPolygon->mp_iSurface;
       mesh.m_triangles.push_back(triangle);
     }
@@ -181,6 +181,7 @@ CMipModel::CMipModel(const ImportedMesh& mesh)
   // add mip polygons
   mm_ampPolygons.New(mesh.m_triangles.size());
   // copy polygons object 3d to mip polygons
+  const size_t uv0 = mesh.m_defaultUVChannel;
   INDEX iPolygon = 0;
   FOREACHINDYNAMICARRAY( mm_ampPolygons, CMipPolygon, itPolygon)
   {
@@ -203,7 +204,7 @@ CMipModel::CMipModel(const ImportedMesh& mesh)
       INDEX iVertexInSector = triangle.ct_iVtx[iPolygonVertice];
       // set references to mip polygon and mip vertex
       ppvPolygonVertex->mpv_pmpPolygon = &mpPolygon;
-      ppvPolygonVertex->m_uv = mesh.m_uvs[0][triangle.ct_iTVtx[0][iPolygonVertice]];
+      ppvPolygonVertex->m_uv = mesh.m_uvs[uv0][triangle.ct_iTVtx[uv0][iPolygonVertice]];
       mm_amvVertices.Lock();
       ppvPolygonVertex->mpv_pmvVertex = &mm_amvVertices[iVertexInSector];
       mm_amvVertices.Unlock();

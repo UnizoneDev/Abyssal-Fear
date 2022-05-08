@@ -1635,7 +1635,7 @@ void CreateTexture_t( const CTFileName &inFileName, const CTFileName &outFileNam
   }
   else
   {
-    // input is a picture file (PCX or TGA)
+    // input is a picture file
     CAnimData    anim;
     CTextureData tex;
     CImageInfo   inPic;

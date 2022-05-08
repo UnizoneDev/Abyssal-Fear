@@ -27,7 +27,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 class CDlgPgTexture : public CPropertyPage
 {
+private:
 	DECLARE_DYNCREATE(CDlgPgTexture)
+
+	bool m_dirty = true;
+	CWorld* mp_last_world = nullptr;
 
 // Construction
 public:
@@ -74,6 +78,7 @@ public:
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CDlgPgTexture)
 	public:
+	virtual BOOL OnSetActive() override final;
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support

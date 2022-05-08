@@ -32,6 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <array>
 #include <limits>
 #include <unordered_map>
+#include <unordered_set>
 #include <map>
 #include <vector>
 
@@ -239,7 +240,7 @@ ImportedMesh::ImportedMesh(const CTFileName& fnmFileName, const FLOATmatrix3D& m
   FillFromFile(fnmFileName, mTransform);
 }
 
-void ImportedMesh::ApplySkinning(const ImportedSkeleton& baseSkeleton, const ImportedSkeleton& animSkeleton, const FLOATmatrix3D& mTransform)
+void ImportedMesh::ApplySkinning(const ImportedSkeleton& animSkeleton, const FLOATmatrix3D& mTransform)
 {
   struct _TransformsCache
   {
@@ -251,16 +252,8 @@ void ImportedMesh::ApplySkinning(const ImportedSkeleton& baseSkeleton, const Imp
         return foundPos->second;
       return m_transforms.insert({ &bone, bone.GetAbsoluteTransform() }).first->second;
     }
-    const FLOATmatrix4D& GetInverseAbsoluteTransform(const ImportedSkeleton::Bone& bone) const
-    {
-      auto foundPos = m_inverseTransforms.find(&bone);
-      if (foundPos != m_inverseTransforms.end())
-        return foundPos->second;
-      return m_inverseTransforms.insert({ &bone, InverseMatrix(bone.GetAbsoluteTransform()) }).first->second;
-    }
   private:
     mutable std::unordered_map<const ImportedSkeleton::Bone*, FLOATmatrix4D> m_transforms;
-    mutable std::unordered_map<const ImportedSkeleton::Bone*, FLOATmatrix4D> m_inverseTransforms;
   };
   _TransformsCache transformCache;
 
@@ -277,13 +270,14 @@ void ImportedMesh::ApplySkinning(const ImportedSkeleton& baseSkeleton, const Imp
 
     for (const auto& weight : weights)
     {
-      const auto& boneName = m_bonesNames[weight.first];
-      auto baseIt = baseSkeleton.m_bones.find(boneName);
-      if (baseIt == baseSkeleton.m_bones.end())
-        continue;
-      const auto& baseBone = baseIt->second;
-      const auto& animBone = animSkeleton.m_bones.find(boneName)->second;
-      const FLOATmatrix4D transform = transformCache.GetAbsoluteTransform(animBone) * transformCache.GetInverseAbsoluteTransform(baseBone);
+      const auto& weightBone = m_weightBones.at(weight.first);
+      FLOATmatrix4D animBoneTransform;
+      const auto& animBoneIt = animSkeleton.m_bones.find(weightBone.m_name);
+      if (animBoneIt != animSkeleton.m_bones.end())
+        animBoneTransform = transformCache.GetAbsoluteTransform(animBoneIt->second);
+      else
+        animBoneTransform.Diagonal(1.0f);
+      const FLOATmatrix4D transform = animBoneTransform * weightBone.m_offset;
       result += (vertex * transform) * weight.second;
     }
 
@@ -298,14 +292,12 @@ void ImportedMesh::FillFromFile(const CTFileName& fnmFileName, const FLOATmatrix
 {
   Clear();
   // call file load with file's full path name
-  CTString strFile = _fnmApplicationPath + fnmFileName;
-  char acFile[MAX_PATH];
-  wsprintfA(acFile, "%s", strFile);
+  const CTString strFile = _fnmApplicationPath + fnmFileName;
 
   Assimp::Importer importerWithoutNormals;
   // do not read normals from input file
   importerWithoutNormals.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS);
-  const aiScene* aiSceneMain = importerWithoutNormals.ReadFile(acFile,
+  const aiScene* aiSceneMain = importerWithoutNormals.ReadFile(strFile.str_String,
     aiProcess_JoinIdenticalVertices |
     aiProcess_Triangulate |
     aiProcess_GenUVCoords |
@@ -319,8 +311,33 @@ void ImportedMesh::FillFromFile(const CTFileName& fnmFileName, const FLOATmatrix
   }
   else
   {
-    ThrowF_t("Unable to load 3D object: %s", (const char*)fnmFileName);
+    ThrowF_t("Unable to load file %s: %s", (const char*)fnmFileName, importerWithoutNormals.GetErrorString());
   }
+}
+
+size_t ImportedMesh::GetUVChannelCount(const CTFileName& fileName)
+{
+  const CTString strFile = _fnmApplicationPath + fileName;
+
+  Assimp::Importer importerWithoutNormals;
+  // do not read normals from input file
+  importerWithoutNormals.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, aiComponent_NORMALS);
+  const aiScene* aiSceneMain = importerWithoutNormals.ReadFile(strFile.str_String,
+    aiProcess_JoinIdenticalVertices |
+    aiProcess_Triangulate |
+    aiProcess_GenUVCoords |
+    aiProcess_RemoveComponent |
+    aiProcess_FlipUVs);
+
+  if (!aiSceneMain)
+    return 0;
+
+  std::unordered_set<size_t> usedChannels;
+  for (auto* mesh : AI_GetValidMeshes(aiSceneMain))
+    for (size_t j = 0; j < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++j)
+      if (mesh->HasTextureCoords(j))
+        usedChannels.insert(j);
+  return std::max(size_t(1), usedChannels.size());
 }
 
 void ImportedMesh::Clear()
@@ -329,9 +346,8 @@ void ImportedMesh::Clear()
   m_materials.clear();
   m_vertices.clear();
   m_verticeWeights.clear();
-  for (auto& uv : m_uvs)
-    uv.clear();
-  m_bonesNames.clear();
+  m_uvs.clear();
+  m_weightBones.clear();
 }
 
 void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const aiScene* aiSceneMain)
@@ -354,17 +370,35 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
   FLOAT bFlipped = fDet < 0;
 
   // ------------  Find UV map indices
-  std::map<aiMesh*, std::array<unsigned int, 3>> uvChannels;
+  std::map<aiMesh*, std::vector<unsigned int>> uvChannels;
+  std::map<size_t, size_t> channelRemap;
+  std::map<std::string, FLOATmatrix4D> boneOffsets;
   for (auto* mesh : validMeshes)
   {
-    auto& coordsRemap = uvChannels[mesh];
-    coordsRemap = { AI_MAX_NUMBER_OF_TEXTURECOORDS, AI_MAX_NUMBER_OF_TEXTURECOORDS , AI_MAX_NUMBER_OF_TEXTURECOORDS };
-    for (size_t j = 0, uvIndex = 0; uvIndex < 3 && j < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++j)
+    auto& channelsOfMesh = uvChannels[mesh];
+    for (size_t j = 0; j < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++j)
     {
       if (mesh->HasTextureCoords(j))
-        coordsRemap[uvIndex++] = j;
+      {
+        if (channelRemap.find(j) == channelRemap.end())
+        {
+          size_t val = channelRemap.size();
+          channelRemap[j] = val;
+        }
+        channelsOfMesh.push_back(j);
+      }
+    }
+    for (int i = 0; i < mesh->mNumBones; ++i)
+    {
+      const auto* bone = mesh->mBones[i];
+      auto& offset = boneOffsets[bone->mName.C_Str()];
+      const auto aiOffset = bone->mOffsetMatrix * aiMatrix4x4(meshTransform.at(mesh)).Inverse();
+      for (int row = 0; row < 4; ++row)
+        for (int col = 0; col < 4; ++col)
+          offset(row + 1, col + 1) = aiOffset[row][col];
     }
   }
+  const size_t numUVChannels = channelRemap.size();
 
   // ------------  Convert object vertices (coordinates)
   _VertexWeights vertexWeights;
@@ -386,25 +420,35 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
       }
     }
   }
-  m_bonesNames = vertexWeights.GetBones();
+  const auto boneNames = vertexWeights.GetBones();
+  m_weightBones.reserve(boneNames.size());
+  for (const auto& boneName : boneNames)
+  {
+    m_weightBones.emplace_back();
+    auto& weightBone = m_weightBones.back();
+    weightBone.m_name = boneName;
+    const auto offsetIt = boneOffsets.find(boneName);
+    if (offsetIt != boneOffsets.end())
+      weightBone.m_offset = offsetIt->second;
+    else
+      weightBone.m_offset.Diagonal(1.0f);
+  }
 
   // ------------ Convert object's mapping vertices (texture vertices)
-  std::unordered_map<aiVector3D, INDEX> uniqueTexCoords[3];
-  for (size_t iUVMapIndex = 0; iUVMapIndex < 3; ++iUVMapIndex)
+  m_uvs.resize(numUVChannels, {});
+  std::vector<std::unordered_map<aiVector3D, INDEX>> uniqueTexCoords(numUVChannels, std::unordered_map<aiVector3D, INDEX>());
+  for (auto* mesh : validMeshes)
   {
-    for (auto* mesh : validMeshes)
+    for (auto uv : uvChannels[mesh])
     {
-      size_t uv = uvChannels[mesh][iUVMapIndex];
-      if (!mesh->HasTextureCoords(uv))
-        continue;
-
+      const size_t uvIndex = channelRemap[uv];
       for (size_t v = 0; v < mesh->mNumVertices; ++v)
       {
-        if (uniqueTexCoords[iUVMapIndex].find(mesh->mTextureCoords[uv][v]) == uniqueTexCoords[iUVMapIndex].end())
+        if (uniqueTexCoords[uvIndex].find(mesh->mTextureCoords[uv][v]) == uniqueTexCoords[uvIndex].end())
         {
-          uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][v]] = m_uvs[iUVMapIndex].size();
+          uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][v]] = m_uvs[uvIndex].size();
           const auto& aiUV = mesh->mTextureCoords[uv][v];
-          m_uvs[iUVMapIndex].push_back(FLOAT2D(aiUV[0], aiUV[1]));
+          m_uvs[uvIndex].push_back(FLOAT2D(aiUV[0], aiUV[1]));
         }
       }
     }
@@ -449,23 +493,21 @@ void ImportedMesh::FillConversionArrays_t(const FLOATmatrix3D& mTransform, const
         }
       }
 
-
-      for (size_t iUVMapIndex = 0; iUVMapIndex < 3; ++iUVMapIndex)
+      ctTriangle.ct_iTVtx.resize(numUVChannels, { 0, 0, 0 });
+      for (auto uv : uvChannels[mesh])
       {
-        size_t uv = uvChannels[mesh][iUVMapIndex];
-        if (!mesh->HasTextureCoords(uv))
-          continue;
+        const size_t uvIndex = channelRemap[uv];
 
         // copy texture vertex indices
         if (bFlipped) {
-          ctTriangle.ct_iTVtx[iUVMapIndex][0] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[2]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex][1] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[1]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex][2] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[0]]];
+          ctTriangle.ct_iTVtx[uvIndex][0] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[2]]];
+          ctTriangle.ct_iTVtx[uvIndex][1] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[1]]];
+          ctTriangle.ct_iTVtx[uvIndex][2] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[0]]];
         }
         else {
-          ctTriangle.ct_iTVtx[iUVMapIndex][0] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[0]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex][1] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[1]]];
-          ctTriangle.ct_iTVtx[iUVMapIndex][2] = uniqueTexCoords[iUVMapIndex][mesh->mTextureCoords[uv][ai_face->mIndices[2]]];
+          ctTriangle.ct_iTVtx[uvIndex][0] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[0]]];
+          ctTriangle.ct_iTVtx[uvIndex][1] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[1]]];
+          ctTriangle.ct_iTVtx[uvIndex][2] = uniqueTexCoords[uvIndex][mesh->mTextureCoords[uv][ai_face->mIndices[2]]];
         }
       }
 

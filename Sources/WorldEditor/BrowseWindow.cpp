@@ -1464,6 +1464,7 @@ void ExportTexture( CTFileName fnTexture)
 
   try
   {
+    const auto imageFilter = _EngineGUI.GetListOfExportImageFormats();
     ptd = _pTextureStock->Obtain_t( fnTexture);
     for( INDEX iFrame=0; iFrame<ptd->td_ctFrames; iFrame++)
     {
@@ -1484,7 +1485,7 @@ void ExportTexture( CTFileName fnTexture)
         CTString strDefaultDir = fnFrame.FileDir();
         CTString strDefaultFile = fnFrame.FileName()+fnFrame.FileExt();
         // invoke "Save as" dialog
-        fnFrame = _EngineGUI.FileRequester( "Save As", FILTER_TGA FILTER_END,
+        fnFrame = _EngineGUI.FileRequester( "Save As", imageFilter.data(),
                   "Export texture directory", strDefaultDir, strDefaultFile, NULL, FALSE);
       }
       if( fnFrame != "")

@@ -23,6 +23,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "resource.h"       // main symbols
 #include <windows.h>
 
+#include "EditModel.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // CModelerApp:
 // See Modeler.cpp for the implementation of this class
@@ -86,7 +88,14 @@ public:
 class CModelerApp : public CWinApp
 {
 private:
+  void OnQtAbout();
+
+private:
+  QObject* mp_qtContext = nullptr;
+  bool m_showing_modal_dialog;
+
 public:
+  void EditScriptAndReopenDocument(CTFileName fnScriptName);
 	BOOL SubInitInstance(void);
   BOOL m_bRefreshPatchPalette;
   BOOL m_bFirstTimeStarted;
@@ -114,7 +123,6 @@ public:
 	CModelData *m_pFloorModelData;
 	CModelObject *m_pFloorModelObject;
   CDocTemplate *m_pdtModelDocTemplate;
-  CDocTemplate *m_pdtScriptTemplate;
   // List head for holding working textures
   CListHead m_WorkingTextures;
   // List head for holding working patches
@@ -139,6 +147,12 @@ public:
   // variables for display modes for different modes
 	CChangeable m_chPlacement;
 	CChangeable m_chGlobal;
+
+  struct ModalGuard
+  {
+    ModalGuard();
+    ~ModalGuard();
+  };
 
   CModelerApp();
   ~CModelerApp();
@@ -185,9 +199,7 @@ void SetColorToProfile( CTString strVarName, COLOR colValue);
 #define TOOLS_INIT_TOP 100
 
 #include "ModelerDoc.h"
-#include "ScriptDoc.h"
 #include "ModelerView.h"
-#include "ScriptView.h"
 #include "ChildFrm.h"
 
 #include "CtrlEditBoolean.h"

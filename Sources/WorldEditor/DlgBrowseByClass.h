@@ -70,6 +70,8 @@ protected:
 
 	// Generated message map functions
 	//{{AFX_MSG(CDlgBrowseByClass)
+	void OnSize(UINT nType, int w, int h);
+	void AdjustSize();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnDblclkEntityList(NMHDR* pNMHDR, LRESULT* pResult);
 	virtual void OnOK();

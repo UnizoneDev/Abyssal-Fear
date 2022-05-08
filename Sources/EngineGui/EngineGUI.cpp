@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/Stock_CTextureData.h>
 #include <Engine/Models/ImportedMesh.h>
 
+#include <algorithm>
+
 // global engine gui handling object
 CEngineGUI _EngineGUI;
 
@@ -41,17 +43,66 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 }
 */
 
+namespace
+{
+void AddFilter(std::vector<char>& result, const std::string& descr, const std::string& formatList)
+{
+  for (char c : descr)
+    result.push_back(c);
+  result.push_back('\0');
+  for (char c : formatList)
+    result.push_back(c);
+  result.push_back('\0');
+}
+} // anonymous namespace
+
+std::vector<char> CEngineGUI::GetListOfExportImageFormats()
+{
+  std::vector<char> result;
+
+  for (const auto& format : CImageInfo::GetSupportedExportFormats())
+    AddFilter(result, "Picture file (*" + format + ')', '*' + format);
+
+  result.push_back('\0');
+  return result;
+}
+
+std::vector<char> CEngineGUI::GetListOfImportImageFormats(bool include_scr)
+{
+  std::vector<char> result;
+  auto add_filter = [&result](const std::string& descr, const std::string& formatList)
+  {
+    AddFilter(result, descr, formatList);
+  };
+
+  std::string formatList;
+  for (const auto& format : CImageInfo::GetSupportedImportFormats())
+  {
+    if (!formatList.empty())
+      formatList += ';';
+    formatList += '*' + format;
+  }
+
+  if (include_scr)
+    add_filter("Picture or script files (" + formatList + ";*.scr)", formatList + ";*.scr");
+
+  add_filter("Picture files (" + formatList + ')', formatList);
+
+  if (include_scr)
+    add_filter("Script files (*.scr)", "*.scr");
+
+  add_filter("All files (*.*)", "*.*");
+
+  result.push_back('\0');
+  return result;
+}
+
 std::vector<char> CEngineGUI::GetListOf3DFormats(bool include_scr)
 {
   std::vector<char> result;
   auto add_filter = [&result](const ImportedMesh::TFormatDescr& descr)
   {
-    for (char c : descr.first)
-      result.push_back(c);
-    result.push_back('\0');
-    for (char c : descr.second)
-      result.push_back(c);
-    result.push_back('\0');
+    AddFilter(result, descr.first, descr.second);
   };
 
   const auto& formats = ImportedMesh::GetSupportedFormats();
@@ -62,6 +113,13 @@ std::vector<char> CEngineGUI::GetListOf3DFormats(bool include_scr)
     if (!all_supported_formats.second.empty())
       all_supported_formats.second += ';';
     all_supported_formats.second += format.second;
+  }
+
+  if (include_scr)
+  {
+    if (!all_supported_formats.second.empty())
+      all_supported_formats.second += ';';
+    all_supported_formats.second += "*.scr";
   }
 
   add_filter(all_supported_formats);
@@ -134,34 +192,24 @@ CTFileName CEngineGUI::CreateTexture(CTFileName fnTexFileToRecreate/*=CTString("
         // search for script with same name
         CTString strFullNameNoExt = _fnmApplicationPath +
           fnTexFileToRecreate.FileDir() + fnTexFileToRecreate.FileName();
-        // if there is tga picture with same name
-        if( GetFileAttributesA( strFullNameNoExt+".tga") != -1)
-        {
-          // call create normal texture dialog with tga picture name
-          CDlgCreateNormalTexture dlgCreateNormalTexture( fnToRecreateNoExt+".tga");
-          if( dlgCreateNormalTexture.m_bSourcePictureValid)
+
+        const auto supportedFormats = CImageInfo::GetSupportedImportFormats();
+
+        bool matchingImageFound = false;
+        for (const auto& ext : supportedFormats)
+          if (GetFileAttributesA(strFullNameNoExt + ext.c_str()) != -1)
           {
-            if( dlgCreateNormalTexture.DoModal() == IDOK)
-            {
-              fnResult = dlgCreateNormalTexture.m_fnCreatedFileName;
-            }
+            // call create normal texture dialog with proper picture name
+            CDlgCreateNormalTexture dlgCreateNormalTexture(fnToRecreateNoExt + ext.c_str());
+            if( dlgCreateNormalTexture.m_bSourcePictureValid)
+              if( dlgCreateNormalTexture.DoModal() == IDOK)
+                fnResult = dlgCreateNormalTexture.m_fnCreatedFileName;
+            matchingImageFound = true;
+            break;
           }
-        }
-        // else if there is pcx picture with same name
-        else if( GetFileAttributesA( strFullNameNoExt+".pcx") != -1)
-        {
-          // call create normal texture dialog with tga picture name
-          CDlgCreateNormalTexture dlgCreateNormalTexture( fnToRecreateNoExt+".pcx");
-          if( dlgCreateNormalTexture.m_bSourcePictureValid)
-          {
-            if( dlgCreateNormalTexture.DoModal() == IDOK)
-            {
-              fnResult = dlgCreateNormalTexture.m_fnCreatedFileName;
-            }
-          }
-        }
+
         // else if script exists
-        else if( GetFileAttributesA( strFullNameNoExt+".scr") != -1)
+        if(!matchingImageFound && GetFileAttributesA( strFullNameNoExt+".scr") != -1)
         {
           CDynamicArray<CTFileName> afnScript;
           CTFileName *pfnScript = afnScript.New();
@@ -170,7 +218,7 @@ CTFileName CEngineGUI::CreateTexture(CTFileName fnTexFileToRecreate/*=CTString("
           CDlgCreateAnimatedTexture dlgCreateAnimatedTexture( afnScript);
           dlgCreateAnimatedTexture.DoModal();
         }
-        else
+        else if (!matchingImageFound)
         {
           WarningMessage( "Cannot find source for recreating texture: \"%s\"", (CTString&)fnTexFileToRecreate);
         }
@@ -212,26 +260,11 @@ CTFileName CEngineGUI::CreateTexture(CTFileName fnTexFileToRecreate/*=CTString("
       else
       {
         // different filters for different requests
-        char *pFilters = "All files (*.*)\0*.*\0\0";
+        const auto filters = GetListOfImportImageFormats(iDlgResult == 1);
 
-        // if dialog result is 0 we want to create normal texture
-        if( iDlgResult == 0)
-        {
-          pFilters = "Pictures (*.pcx;*.tga)\0*.pcx;*.tga\0"
-                               "PCX files (*.pcx)\0*.pcx\0"
-                               "TGA files (*.tga)\0*.tga\0\0";
-        }
-        // if dialog result is 1 we want to create animated texture
-        else if( iDlgResult == 1)
-        {
-          pFilters = "Picture or script files (*.pcx;*.tga;*.scr)\0*.pcx;*.tga;*.scr\0"
-                     "PCX files (*.pcx)\0*.pcx\0"
-                     "TGA files (*.tga)\0*.tga\0"
-                     "Script files (*.scr)\0;*.scr\0\0";
-        }
         // call file requester for opening textures
         CDynamicArray<CTFileName> afnCreateTexture;
-        FileRequester( "Create texture", pFilters, KEY_NAME_CREATE_TEXTURE_DIR,
+        FileRequester( "Create texture", filters.data(), KEY_NAME_CREATE_TEXTURE_DIR,
                        "Textures\\", "", &afnCreateTexture);
         if( afnCreateTexture.Count() == 0)
         {
@@ -243,11 +276,16 @@ CTFileName CEngineGUI::CreateTexture(CTFileName fnTexFileToRecreate/*=CTString("
         // if requested texture type is 0 we want to create normal texture
         if( iDlgResult == 0)
         {
+          const auto supportedFormats = CImageInfo::GetSupportedImportFormats();
+          auto is_ext_supported = [&supportedFormats](const std::string& ext)
+          { return std::find(supportedFormats.begin(), supportedFormats.end(), ext) != supportedFormats.end(); };
           // create textures
           FOREACHINDYNAMICARRAY( afnCreateTexture, CTFileName, itPicture)
           {
             CTFileName fnSource = itPicture.Current();
-            if( (fnSource.FileExt() == ".pcx") || (fnSource.FileExt() == ".tga") )
+            std::string ext = fnSource.FileExt().str_String;
+            std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) { return std::tolower(c); });
+            if (is_ext_supported(ext))
             {
               // call create normal texture dialog
               CDlgCreateNormalTexture dlgCreateNormalTexture( fnSource);

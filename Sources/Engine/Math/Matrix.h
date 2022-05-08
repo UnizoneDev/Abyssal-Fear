@@ -466,12 +466,18 @@ Vector<Type, iRows> Matrix<Type, iRows, iColumns>::GetColumn(Type iColumn) const
 }
 
 template<class Type>
-Matrix<Type, 3, 3> InverseMatrix(const Matrix<Type, 3, 3>& m)
+Type Determinant(const Matrix<Type, 3, 3>& m)
 {
-  Type oneOverDeterminant = static_cast<Type>(1.0 / (
+  return (
     + m.matrix[0][0] * (m.matrix[1][1] * m.matrix[2][2] - m.matrix[2][1] * m.matrix[1][2])
     - m.matrix[1][0] * (m.matrix[0][1] * m.matrix[2][2] - m.matrix[2][1] * m.matrix[0][2])
-    + m.matrix[2][0] * (m.matrix[0][1] * m.matrix[1][2] - m.matrix[1][1] * m.matrix[0][2])));
+    + m.matrix[2][0] * (m.matrix[0][1] * m.matrix[1][2] - m.matrix[1][1] * m.matrix[0][2]));
+}
+
+template<class Type>
+Matrix<Type, 3, 3> InverseMatrix(const Matrix<Type, 3, 3>& m)
+{
+  Type oneOverDeterminant = static_cast<Type>(1.0 / Determinant(m));
 
   Matrix<Type, 3, 3> inverse;
   inverse.matrix[0][0] = +(m.matrix[1][1] * m.matrix[2][2] - m.matrix[2][1] * m.matrix[1][2]) * oneOverDeterminant;

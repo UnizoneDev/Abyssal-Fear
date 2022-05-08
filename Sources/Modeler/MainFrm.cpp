@@ -937,15 +937,6 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
       CModelerDoc *pdocCurrent = (CModelerDoc *)theApp.m_pdtModelDocTemplate->GetNextDoc(posMdl);
       bHasDocument = pdocCurrent!=NULL;
     }
-    if( !bHasDocument)
-    {
-      // check for scripts
-      POSITION posScr = theApp.m_pdtScriptTemplate->GetFirstDocPosition();
-      while (posScr!=NULL) {
-        CModelerDoc *pdocCurrent = (CModelerDoc *)theApp.m_pdtScriptTemplate->GetNextDoc(posScr);
-        bHasDocument = pdocCurrent!=NULL;
-      }
-    }
 
     BOOL bMainFrameHasFocus = (this == CWnd::GetForegroundWindow());
     if( !bHasDocument && bMainFrameHasFocus)
@@ -982,13 +973,10 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
   {
     int iVirtKey = (int) pMsg->wParam;
     int lKeyData = pMsg->lParam;
-    
-    if( DYNAMIC_DOWNCAST(CScriptView, GetActiveFrame()->GetActiveView())==NULL)
+
+    if( (iVirtKey == 'Q') && !bAltPressed)
     {
-      if( (iVirtKey == 'Q') && !bAltPressed)
-      {
-        ToggleInfoWindow();
-      }
+      ToggleInfoWindow();
     }
   }
 	return CMDIFrameWnd::PreTranslateMessage(pMsg);

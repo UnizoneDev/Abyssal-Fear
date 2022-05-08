@@ -83,8 +83,9 @@ void CDlgEditTerrainBrush::OnGenerateTerrainBrush()
 
 void CDlgEditTerrainBrush::OnImportTerrainBrush() 
 {
+  const auto imageFilter = _EngineGUI.GetListOfImportImageFormats();
   CTFileName fnBrush =  _EngineGUI.FileRequester(
-    "Choose picture for brush", FILTER_TGA FILTER_PCX FILTER_ALL FILTER_END,
+    "Choose picture for brush", imageFilter.data(),
     "Terrain brush directory", "Textures\\");
 
   SetFocus();

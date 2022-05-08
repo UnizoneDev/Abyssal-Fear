@@ -177,7 +177,7 @@ UINT APIENTRY FileOpenRequesterHook( HWND hdlg, UINT uiMsg, WPARAM wParam,	LPARA
 
 CTFileName CEngineGUI::FileRequester( 
         char *pchrTitle/*="Choose file"*/, 
-        char *pchrFilters/*=FILTER_ALL FILTER_END*/,
+        const char *pchrFilters/*=FILTER_ALL FILTER_END*/,
         char *pchrRegistry/*="KEY_NAME_REQUEST_FILE_DIR"*/,
         CTString strDefaultDir/*=""*/, 
         CTString strFileSelectedByDefault/*=""*/,

@@ -27,10 +27,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/StaticArray.h>
 #include <Engine/Models/RenderModel.h>
 
+#include "Script/Script.h"
+
 #include <vector>
 #include <functional>
+#include <map>
+#include <array>
 
-#define MAX_MODELERTEXTURES		32
 #define MAPPING_VERSION_WITHOUT_POLYGONS_PER_SURFACE "0001"
 #define MAPPING_VERSION_WITHOUT_SOUNDS_AND_ATTACHMENTS "0002"
 #define MAPPING_VERSION_WITHOUT_COLLISION "0003"
@@ -38,7 +41,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define MAPPING_WITHOUT_SURFACE_COLORS "0005"
 #define MAPPING_VERSION "0006"
 
-class ENGINE_API CProgressRoutines
+class CProgressRoutines
 {
 public:
   CProgressRoutines();
@@ -47,9 +50,9 @@ public:
   void (*SetProgressState)( INDEX iCurrentStep);      // sets current modeler's "new progress dialog" state
 };
 
-ENGINE_API extern CProgressRoutines ProgresRoutines;
+extern CProgressRoutines ProgresRoutines;
 
-class ENGINE_API CTextureDataInfo
+class CTextureDataInfo
 {
 public:
   CListNode tdi_ListNode;
@@ -57,24 +60,7 @@ public:
   CTFileName tdi_FileName;
 };
 
-#define UNDO_VERTEX   0
-#define UNDO_SURFACE  1
-
-class ENGINE_API CMappingUndo
-{
-public:
-  CListNode mu_ListNode;
-  INDEX mu_Action;
-  ModelTextureVertex *mu_ClosestVertex;
-  FLOAT3D mu_UndoCoordinate;
-  INDEX mu_iCurrentMip;
-  INDEX mu_iCurrentSurface;
-  FLOAT mu_Zoom;
-  FLOAT3D mu_Center;
-  FLOAT3D mu_HPB;
-};
-
-class ENGINE_API CAttachedModel {
+class CAttachedModel {
 public:
   BOOL am_bVisible;
   CModelObject am_moAttachedModel; // used as smart pointer (holds file name of attachment), never rendered
@@ -89,7 +75,7 @@ public:
   void Clear(void); // clear the object.
 };
 
-class ENGINE_API CAttachedSound {
+class CAttachedSound {
 public:
   BOOL as_bLooping;
   BOOL as_bPlaying;
@@ -102,7 +88,7 @@ public:
   void Clear(void) { as_fnAttachedSound = CTString("");};
 };
 
-class ENGINE_API CThumbnailSettings {
+class CThumbnailSettings {
 public:
   BOOL ts_bSet;
   CPlacement3D ts_plLightPlacement;
@@ -127,25 +113,32 @@ public:
 struct ImportedMesh;
 struct ImportedSkeleton;
 
-class ENGINE_API CEditModel : public CSerial
+class CEditModel : public CSerial
 {
 private:
   struct FrameGenerator
   {
-    CTString m_filename;
+    CTFileName m_filename;
     std::function<void(ImportedMesh&)> m_generator;
   };
 
   void NewModel(const ImportedMesh& mesh);									// creates new model, surface, vertice and polygon arrays
   void AddMipModel(const ImportedMesh& mesh);							// adds one mip model
+  void CreateBoneTriangles(ImportedMesh& mesh, const ImportedSkeleton& skel, const FLOATmatrix3D& transform, FLOAT stretch);
+  std::vector<FrameGenerator> LoadFrameGenerators(const ModelScript::Animations& animations, const ImportedMesh& baseMesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch);
   // loads and converts model's animation data from script file
-  std::vector<FrameGenerator> LoadFrameGenerators(CAnimData& ad, CTStream* File, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D& mStretch);
-  void LoadModelAnimationData_t( CTStream *pFile, ImportedMesh& baseMesh, ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch);	// throw char *
+  void LoadModelAnimationData_t(const ModelScript::Animations& animations, const ImportedMesh& baseMesh, const ImportedSkeleton& skeleton, const FLOATmatrix3D &mStretch);	// throw char *
   INDEX edm_iActiveCollisionBox;                  // collision box that is currently edited
+
+public:
+  using TBoneToTriangle = std::map<std::string, std::array<INDEX, 3>>;
+
 public:
 	CEditModel();																		// default contructor
 	~CEditModel();																	// default destructor
   CModelData edm_md;															// edited model data
+  TBoneToTriangle m_boneTriangleMapping; // If bone triangles were generated, this map shall contain triangle indices for each bone
+  INDEX m_boneTriangleMappingGeneration = 0;
   CDynamicArray<CAttachedModel> edm_aamAttachedModels;// array of attached models
   CStaticArray<CAttachedSound> edm_aasAttachedSounds;// array of attached sounds
   CThumbnailSettings edm_tsThumbnailSettings;     // remembered parameters for taking thumbnail

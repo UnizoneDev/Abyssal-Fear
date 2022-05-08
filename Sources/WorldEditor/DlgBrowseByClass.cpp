@@ -480,6 +480,7 @@ void CDlgBrowseByClass::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CDlgBrowseByClass, CDialog)
 	//{{AFX_MSG_MAP(CDlgBrowseByClass)
+  ON_WM_SIZE()
 	ON_NOTIFY(NM_DBLCLK, IDC_ENTITY_LIST, OnDblclkEntityList)
 	ON_NOTIFY(LVN_COLUMNCLICK, IDC_ENTITY_LIST, OnColumnclickEntityList)
 	ON_NOTIFY(NM_RCLICK, IDC_ENTITY_LIST, OnRclickEntityList)
@@ -684,54 +685,77 @@ void CDlgBrowseByClass::InitializeListColumns(void)
   }
 }
 
+void CDlgBrowseByClass::OnSize(UINT nType, int w, int h)
+{
+  CDialog::OnSize(nType, w, h);
+  AdjustSize();
+}
+
+void CDlgBrowseByClass::AdjustSize()
+{
+  auto* p_entities_in_volume = GetDlgItem(IDC_ENTITIES_IN_VOLUME_T);
+  if (!p_entities_in_volume)
+    return;
+
+  CRect client_rect;
+  GetWindowRect(&client_rect);
+  const int w = client_rect.Width();
+  const int h = client_rect.Height();
+
+  const PIX pixSX = 8;
+  const PIX pixSY = 40;
+
+  const PIX pixButtonsY = h - 64;
+  const PIX pixButtonSpacing = 16;
+  const PIX pixButtonOccupies = (w - pixSX * 2) / 9;
+  const PIX pixButtonHeight = 24;
+
+  // obtain placement of selected entities text ctrl' window
+  WINDOWPLACEMENT wpl;
+  p_entities_in_volume->GetWindowPlacement(&wpl);
+  const CRect rect = wpl.rcNormalPosition;
+
+  const PIX pixx = rect.left;
+  const PIX pixw = (w - pixx - pixSX * 2) / 4;
+  p_entities_in_volume->MoveWindow(pixx, rect.top, pixw, rect.Height());
+  GetDlgItem(IDC_DISPLAY_VOLUME)->MoveWindow(pixx + pixw * 1, rect.top, pixw, rect.Height() + 1);
+  GetDlgItem(IDC_DISPLAY_IMPORTANTS)->MoveWindow(pixx + pixw * 2, rect.top, pixw, rect.Height() + 1);
+  GetDlgItem(IDC_PLUGGINS_T)->MoveWindow(pixx + pixw * 3, rect.top, pixw / 4, rect.Height());
+  GetDlgItem(IDC_PLUGGINS)->MoveWindow(pixx + pixw * 3 + pixw / 4, rect.top - 4, pixw * 3 / 4, rect.Height() - 4);
+
+  m_listEntities.MoveWindow(pixSX, pixSY, w - pixSX * 2, (pixButtonsY - 16) - pixSY);
+
+#define MOVE_BUTTON( id, button_collumn)\
+  GetDlgItem( id)->MoveWindow( \
+  w-pixButtonOccupies*button_collumn, pixButtonsY,\
+  pixButtonOccupies-pixButtonSpacing, pixButtonHeight);
+
+  MOVE_BUTTON(ID_DELETE_BROWSE_BY_CLASS, 9);
+  MOVE_BUTTON(ID_REMOVE, 8);
+  MOVE_BUTTON(ID_LEAVE, 7);
+  MOVE_BUTTON(ID_SELECT_ALL, 6);
+  MOVE_BUTTON(ID_FEED_VOLUME, 5);
+  MOVE_BUTTON(ID_REVERT, 4);
+  MOVE_BUTTON(ID_SELECT_SECTORS, 3);
+  MOVE_BUTTON(IDOK, 2);
+  MOVE_BUTTON(IDCANCEL, 1);
+
+  Invalidate();
+}
+
 BOOL CDlgBrowseByClass::OnInitDialog() 
 {
   CDialog::OnInitDialog();
 
-  int iScreenX = ::GetSystemMetrics(SM_CXSCREEN);	// screen size
-	int iScreenY = ::GetSystemMetrics(SM_CYSCREEN) - 32;
-  
-  PIX pixSX = 8;
-  PIX pixSY = 16;
-  
-  PIX pixButtonsY = iScreenY-64;
-  PIX pixButtonSpacing = 16;
-  PIX pixButtonOccupies = (iScreenX-pixSX*2)/9;
-  PIX pixButtonHeight = 24;
+  int iScreenX = ::GetSystemMetrics(SM_CXSCREEN); // screen size
+  int iScreenY = ::GetSystemMetrics(SM_CYSCREEN);
+  int w = iScreenX * 2 / 3;
+  int h = iScreenY * 2 / 3;
 
-  MoveWindow( 0, 0, iScreenX, iScreenY);
+  MoveWindow((iScreenX - w) / 2, (iScreenY - h) / 2, w, h);
 
-  // obtain placement of selected entities text ctrl' window
-  WINDOWPLACEMENT wpl;
-  GetDlgItem( IDC_ENTITIES_IN_VOLUME_T)->GetWindowPlacement( &wpl);
-  CRect rect=wpl.rcNormalPosition;
+  AdjustSize();
 
-  PIX pixx=rect.left;
-  PIX pixw=(iScreenX-pixx-pixSX*2)/4;
-  GetDlgItem( IDC_ENTITIES_IN_VOLUME_T)->MoveWindow(pixx, rect.top, pixw, rect.bottom);
-  GetDlgItem( IDC_DISPLAY_VOLUME)->MoveWindow(pixx+pixw*1, rect.top, pixw, rect.bottom);
-  GetDlgItem( IDC_DISPLAY_IMPORTANTS)->MoveWindow(pixx+pixw*2, rect.top, pixw, rect.bottom);
-  GetDlgItem( IDC_PLUGGINS_T)->MoveWindow(pixx+pixw*3, rect.top, pixw/4, rect.bottom);
-  GetDlgItem( IDC_PLUGGINS)->MoveWindow(pixx+pixw*3+pixw/4, rect.top-4, pixw*3/4, rect.bottom-4);
-  
-  pixSY+=24;
-  
-  m_listEntities.MoveWindow(pixSX, pixSY, iScreenX-pixSX*2, (pixButtonsY-16)-pixSY);
-
-#define MOVE_BUTTON( id, button_collumn)\
-  GetDlgItem( id)->MoveWindow( \
-  iScreenX-pixButtonOccupies*button_collumn, pixButtonsY,\
-  pixButtonOccupies-pixButtonSpacing, pixButtonHeight);
-  
-  MOVE_BUTTON( ID_DELETE_BROWSE_BY_CLASS, 9);
-  MOVE_BUTTON( ID_REMOVE, 8);
-  MOVE_BUTTON( ID_LEAVE, 7);
-  MOVE_BUTTON( ID_SELECT_ALL, 6);
-  MOVE_BUTTON( ID_FEED_VOLUME, 5);
-  MOVE_BUTTON( ID_REVERT, 4);
-  MOVE_BUTTON( ID_SELECT_SECTORS, 3);
-  MOVE_BUTTON( IDOK, 2);
-  MOVE_BUTTON( IDCANCEL, 1);
   if (m_for_picking)
   {
     GetDlgItem(ID_DELETE_BROWSE_BY_CLASS)->EnableWindow(FALSE);

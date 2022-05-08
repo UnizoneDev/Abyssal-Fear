@@ -30,7 +30,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <Engine/Math/TextureMapping_Utils.h>
 
-
+#ifdef max
+#undef max
+#undef min
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Helper functions
@@ -134,7 +137,7 @@ void CObject3D::FillFromMesh(const ImportedMesh& mesh)
     FLOAT2D p1_uv = defaultMapping.GetTextureCoordinates(mappingVectors, DOUBLEtoFLOAT(*pVtx1));
     FLOAT2D p2_uv = defaultMapping.GetTextureCoordinates(mappingVectors, DOUBLEtoFLOAT(*pVtx2));
 
-    for (size_t uvIndex = 0; uvIndex < 3; ++uvIndex)
+    for (size_t uvIndex = 0; uvIndex < std::min(size_t(3), mesh.m_uvs.size()); ++uvIndex)
     {
       const auto& uvmap = mesh.m_uvs[uvIndex];
       if (uvmap.empty())

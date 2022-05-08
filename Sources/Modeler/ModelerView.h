@@ -112,6 +112,7 @@ public:
 	FLOAT m_fTargetDistance;
 	FLOAT3D m_vTarget;
 	ANGLE3D m_angViewerOrientation;
+	FLOAT m_flyModeSpeedMultiplier = 1.0f;
   CModelObject m_ModelObject;
 
   CUpdateable m_udViewPicture;
@@ -128,6 +129,11 @@ public:
 
   CDrawPort *m_pDrawPort;
   CViewPort *m_pViewPort;
+
+private:
+  CPlacement3D _GetCameraPlacement() const;
+  void _SetCameraPlacement(const CPlacement3D& plCamera);
+  void _ApplyFreeModeControls(CPlacement3D& pl, ANGLE3D& aAbs, BOOL bPrescan);
 
 // Operations
 public:
@@ -234,6 +240,7 @@ public:
 	afx_msg void OnUpdateLightColor(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateMappingOn(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateScriptOpen(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateScriptMakeModel(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateScriptUpdateAnimations(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateScriptUpdateMipmodels(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateAnimNextanim(CCmdUI* pCmdUI);
@@ -352,6 +359,7 @@ public:
 	afx_msg void OnUpdateToggleMeasureVtx(CCmdUI* pCmdUI);
 	afx_msg void OnFirstFrame();
 	afx_msg void OnLastFrame();
+	afx_msg void OnAlternativeMovingMode();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

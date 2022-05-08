@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 //
 
 #include "stdafx.h"
+
+#include "Script/ScriptIO.h"
+
 #include <Engine/Models/ImportedMesh.h>
 #include <Engine/Templates/Stock_CTextureData.h>
 
@@ -205,6 +208,7 @@ BEGIN_MESSAGE_MAP(CModelerView, CView)
 	ON_UPDATE_COMMAND_UI(ID_TOGGLE_MEASURE_VTX, OnUpdateToggleMeasureVtx)
 	ON_COMMAND(ID_FIRST_FRAME, OnFirstFrame)
 	ON_COMMAND(ID_LAST_FRAME, OnLastFrame)
+  ON_COMMAND(ID_ALTERNATIVE_MOVING_MODE, OnAlternativeMovingMode)
 	//}}AFX_MSG_MAP
 	// Standard printing commands
 	//ON_COMMAND(ID_FILE_PRINT, CView::OnFilePrint)
@@ -397,10 +401,8 @@ void CModelerView::SetProjectionData( CPerspectiveProjection3D &prProjection, CD
   prProjection.AspectRatioL() = 1.0f;
   prProjection.FrontClipDistanceL() = 0.05f;
 
-  prProjection.ViewerPlacementL().pl_PositionVector = m_vTarget;
-  prProjection.ViewerPlacementL().pl_OrientationAngle = m_angViewerOrientation;
+  prProjection.ViewerPlacementL() = _GetCameraPlacement();
   prProjection.Prepare();
-  prProjection.ViewerPlacementL().Translate_OwnSystem(FLOAT3D( 0.0f, 0.0f, m_fTargetDistance));
 }
 
 FLOAT CModelerView::GetModelToViewerDistance(void)
@@ -1856,6 +1858,209 @@ void CModelerView::OnUpdateAnimPrevframe(CCmdUI* pCmdUI)
     pCmdUI->Enable(TRUE);
 }
 
+CPlacement3D CModelerView::_GetCameraPlacement() const
+{
+  CPlacement3D plCamera(m_vTarget, m_angViewerOrientation);
+  FLOAT3D vDirection;
+  AnglesToDirectionVector(plCamera.pl_OrientationAngle, vDirection);
+  plCamera.pl_PositionVector -= vDirection * m_fTargetDistance;
+  return plCamera;
+}
+
+void CModelerView::_SetCameraPlacement(const CPlacement3D& plCamera)
+{
+  FLOAT3D vDirection;
+  AnglesToDirectionVector(plCamera.pl_OrientationAngle, vDirection);
+  m_vTarget = plCamera.pl_PositionVector + vDirection * m_fTargetDistance;
+  m_angViewerOrientation = plCamera.pl_OrientationAngle;
+}
+
+void CModelerView::_ApplyFreeModeControls(CPlacement3D& pl, ANGLE3D& aAbs, BOOL bPrescan)
+{
+#define FB_SPEED 0.5f
+#define LR_SPEED 0.5f
+#define UD_SPEED 0.5f
+#define ROT_SPEED 0.5f
+
+  FLOAT fFB = 0.0f; // forward/backward movement
+  FLOAT fLR = 0.0f; // left/right movement
+  FLOAT fUD = 0.0f; // up/down movement
+  FLOAT fRLR = 0.0f; // rotate left/right
+  FLOAT fRUD = 0.0f; // rotate up/down
+
+  _pInput->GetInput(bPrescan);
+
+  if (!bPrescan)
+  {
+    BOOL bAlt = _pInput->GetButtonState(KID_LALT) || _pInput->GetButtonState(KID_RALT);
+
+    // ---------- Simulate moving as in fly mode
+    // forward
+    if (
+      _pInput->GetButtonState(KID_W) ||
+      _pInput->GetButtonState(KID_MOUSE2) ||
+      _pInput->GetButtonState(KID_ARROWUP))
+    {
+      fFB = -FB_SPEED * m_flyModeSpeedMultiplier;
+    }
+    // backward
+    if (
+      _pInput->GetButtonState(KID_S) ||
+      _pInput->GetButtonState(KID_MOUSE1) ||
+      _pInput->GetButtonState(KID_ARROWDOWN))
+    {
+      fFB = +FB_SPEED * m_flyModeSpeedMultiplier;
+    }
+    // strife left
+    if (
+      _pInput->GetButtonState(KID_Q) ||
+      _pInput->GetButtonState(KID_A) ||
+      _pInput->GetButtonState(KID_ARROWLEFT))
+    {
+      fLR = -LR_SPEED * m_flyModeSpeedMultiplier;
+    }
+    // strife right
+    if (
+      _pInput->GetButtonState(KID_E) ||
+      _pInput->GetButtonState(KID_D) ||
+      _pInput->GetButtonState(KID_ARROWRIGHT))
+    {
+      fLR = +LR_SPEED * m_flyModeSpeedMultiplier;
+    }
+    // up
+    if ((_pInput->GetButtonState(KID_R) && !bAlt) ||
+      _pInput->GetButtonState(KID_SPACE))
+    {
+      fUD = +UD_SPEED * m_flyModeSpeedMultiplier;
+    }
+    // down
+    if (_pInput->GetButtonState(KID_F) || _pInput->GetButtonState(KID_C))
+    {
+      fUD = -UD_SPEED * m_flyModeSpeedMultiplier;
+    }
+  }
+
+  // get current rotation
+  fRLR = _pInput->GetAxisValue(1) * ROT_SPEED;
+  fRUD = -_pInput->GetAxisValue(2) * ROT_SPEED;
+
+  // apply translation
+  if (!bPrescan)
+  {
+    pl.Translate_OwnSystem(FLOAT3D(fLR, fUD, fFB));
+    pl.pl_OrientationAngle = aAbs;
+  }
+  aAbs += ANGLE3D(-fRLR, -fRUD, 0);
+}
+
+void CModelerView::OnAlternativeMovingMode()
+{
+  if (m_bMappingMode)
+    return;
+
+  INDEX iAllowMouseAcceleration = _pShell->GetINDEX("inp_bAllowMouseAcceleration");
+  INDEX iFilterMouse = _pShell->GetINDEX("inp_bFilterMouse");
+
+  _pShell->SetINDEX("inp_bAllowMouseAcceleration", 1);
+  _pShell->SetINDEX("inp_bFilterMouse", 1);
+
+  CPlacement3D _plNew = _GetCameraPlacement();
+  CPlacement3D _plOld = _plNew;
+  ANGLE3D _aAbs = _plNew.pl_OrientationAngle;
+  TIME timeLastTick = _pTimer->GetRealTimeTick();
+
+  _pInput->EnableInput(m_pViewPort);
+
+  BOOL bRunning = TRUE;
+  INDEX iLastTick = 0;
+  CTimerValue tvStart = _pTimer->GetHighPrecisionTimer();
+
+  while (bRunning)
+  {
+    MSG msg;
+    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    {
+      // use mouse wheel to increase/decrease moving speed
+      if (msg.message == WM_MOUSEWHEEL)
+      {
+        short zDelta = (short)HIWORD(msg.wParam);
+        INDEX iCount = zDelta / 120;
+        for (INDEX iKnee = 0; iKnee < Abs(iCount); iKnee++)
+        {
+          if (iCount < 0) m_flyModeSpeedMultiplier /= 2;
+          else         m_flyModeSpeedMultiplier *= 2;
+        }
+      }
+
+      // if it is not a mouse message
+      if (!(msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST))
+      {
+        // if not system key messages
+        if (!(msg.message == WM_KEYDOWN && msg.wParam == VK_F10
+          || msg.message == WM_SYSKEYDOWN))
+        {
+          // translate it
+          TranslateMessage(&msg);
+        }
+        // if paint message
+        if (msg.message == WM_PAINT)
+        {
+          // dispatch it
+          DispatchMessage(&msg);
+        }
+      }
+      // if should stop
+      if ((msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE)
+        || (msg.message == WM_ACTIVATE)
+        || (msg.message == WM_CANCELMODE)
+        || (msg.message == WM_KILLFOCUS)
+        || (msg.message == WM_ACTIVATEAPP))
+      {
+        // stop running
+        bRunning = FALSE;
+        break;
+      }
+    }
+
+    CTimerValue tvNow = _pTimer->GetHighPrecisionTimer();
+    FLOAT fPassed = (tvNow - tvStart).GetSeconds();
+    INDEX iNowTick = INDEX(fPassed / _pTimer->TickQuantum);
+    // apply controls for frame rates below tick quantum
+    while (iLastTick < iNowTick - 1)
+    {
+      _plOld = _plNew;
+      _ApplyFreeModeControls(_plNew, _aAbs, FALSE);
+      iLastTick++;
+    }
+    _ApplyFreeModeControls(_plNew, _aAbs, TRUE);
+
+    // set new viewer position
+    FLOAT fLerpFactor = (fPassed - iNowTick * _pTimer->TickQuantum) / _pTimer->TickQuantum;
+    ASSERT(fLerpFactor > 0 && fLerpFactor < 1.0f);
+
+    CPlacement3D plToSet;
+    plToSet.Lerp(_plOld, _plNew, Clamp(fLerpFactor, 0.0f, 1.0f));
+    plToSet.pl_OrientationAngle = _aAbs;
+    _SetCameraPlacement(plToSet);
+
+    // render view again
+    CDC* pDC = GetDC();
+    OnDraw(pDC);
+    ReleaseDC(pDC);
+
+    TIME timeCurrentTick = _pTimer->GetRealTimeTick();
+    if (timeCurrentTick > timeLastTick)
+    {
+      _pTimer->SetCurrentTick(timeCurrentTick);
+      timeLastTick = timeCurrentTick;
+    }
+  }
+  _pInput->DisableInput();
+
+  _pShell->SetINDEX("inp_bAllowMouseAcceleration", iAllowMouseAcceleration);
+  _pShell->SetINDEX("inp_bFilterMouse", iFilterMouse);
+}
+
 void CModelerView::OnIdle(void)
 {
   if( m_AutoRotating)
@@ -2163,11 +2368,11 @@ void CModelerView::OnFileRemoveTexture()
   Invalidate( FALSE);
 }
 
-void CModelerView::OnScriptOpen() 
+void CModelerView::OnScriptOpen()
 {
-	CModelerDoc *pDoc = (CModelerDoc *) GetDocument();
-  CTFileName fnDocName = CTString(CStringA(pDoc->GetPathName()));
-  AfxGetApp()->OpenDocumentFile( CString(fnDocName.FileDir() + fnDocName.FileName() + ".scr"));
+  CModelerDoc* pDoc = (CModelerDoc *) GetDocument();
+  const CTFileName fnDocName = CTString(CStringA(pDoc->GetPathName()));
+  theApp.EditScriptAndReopenDocument(fnDocName.FileDir() + fnDocName.FileName() + ".scr");
 }
 
 void CModelerView::OnScriptUpdateAnimations() 
@@ -2614,8 +2819,9 @@ void CModelerView::OnTakeScreenShoot()
   CImageInfo iiImageInfo;
   m_pDrawPort->GrabScreen( iiImageInfo, 1);
 
+  const auto imageFilter = _EngineGUI.GetListOfExportImageFormats();
   CTFileName fnSSFileName = _EngineGUI.FileRequester( "Select name for screen shot",
-                            FILTER_TGA FILTER_END, "Take screen shoots directory",
+                            imageFilter.data(), "Take screen shoots directory",
                             "ScreenShots\\", "", NULL, FALSE);
   if( fnSSFileName == "") return;
 
@@ -3350,14 +3556,9 @@ void CModelerView::OnUpdateRecreateTexture(CCmdUI* pCmdUI)
   }
 }
 
-#define EQUAL_SUB_STR( str) (strnicmp( achrLine, str, strlen(str)) == 0)
 void CModelerView::OnCreateMipModels() 
 {
   CMainFrame* pMainFrame = STATIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	char achrLine[ 128];
-  char achrBasePath[ PATH_MAX] = "";
-	char achrRestFrame[ PATH_MAX] = "";
-	char achrRestFrameFullPath[ PATH_MAX] = "";
 
   CModelerDoc* pDoc = GetDocument();
   CTFileName fnModelName = CTString(CStringA(pDoc->GetPathName()));
@@ -3365,62 +3566,9 @@ void CModelerView::OnCreateMipModels()
   try
   {
     fnScriptName.RemoveApplicationPath_t();
-  	// open script file
-    CTFileStream File;
-    File.Open_t( fnScriptName);
-    
-    FLOATmatrix3D mStretch;
-    mStretch.Diagonal(1.0f);
-    try
-    {
-		  FOREVER
-      {
-        do
-        {
-          File.GetLine_t(achrLine, 128);
-        }
-		    while( (strlen( achrLine)== 0) || (achrLine[0]==';'));
+    const auto script = ScriptIO::ReadFromFile(fnScriptName);
 
-		    if( EQUAL_SUB_STR( "DIRECTORY"))
-		    {
-			    _strupr( achrLine);
-          sscanf( achrLine, "DIRECTORY %s", achrBasePath);
-			    if( achrBasePath[ strlen( achrBasePath) - 1] != '\\')
-				    strcat( achrBasePath,"\\");
-		    }
-		    else if( EQUAL_SUB_STR( "MIP_MODELS"))
-        {
-          File.GetLine_t(achrLine, 128);
-  			  _strupr( achrLine);
-			    sscanf( achrLine, "%s", achrRestFrame);
-			    sprintf( achrRestFrameFullPath, "%s%s", achrBasePath, achrRestFrame);
-        }
-		    else if( EQUAL_SUB_STR( "SIZE"))
-        {
-  	      _strupr( achrLine);
-          FLOAT fStretch = 1.0f;
-		      sscanf( achrLine, "SIZE %g", &fStretch);
-          mStretch *= fStretch;
-		    }
-		    else if( EQUAL_SUB_STR( "TRANSFORM")) 
-        {
-  	      _strupr( achrLine);
-          FLOATmatrix3D mTran;
-          mTran.Diagonal(1.0f);
-		      sscanf( achrLine, "TRANSFORM %g %g %g %g %g %g %g %g %g", 
-            &mTran(1,1), &mTran(1,2), &mTran(1,3),
-            &mTran(2,1), &mTran(2,2), &mTran(2,3),
-            &mTran(3,1), &mTran(3,2), &mTran(3,3));
-          mStretch *= mTran;
-        }
-      }
-    }
-    catch( char *pstrError)
-    {
-      (void) pstrError;
-    }
-
-    // show progres dialog
+    // show progress dialog
     CRect rectMainFrameSize;
     CRect rectProgress, rectProgressNew;
     pMainFrame->GetWindowRect( &rectMainFrameSize);
@@ -3443,8 +3591,14 @@ void CModelerView::OnCreateMipModels()
       return;
     }
     // create mip models
-    pDoc->m_emEditModel.CreateMipModels_t(ImportedMesh(CTString(achrRestFrameFullPath), mStretch),
-      dlgAutoMipModeling.m_iVerticesToRemove, dlgAutoMipModeling.m_iSurfacePreservingFactor);
+    if (true)
+    {
+      const FLOATmatrix3D mStretch = script.m_transformation * script.m_scale;
+      ImportedMesh mesh(script.m_mipModels.front(), mStretch);
+      if (script.m_defaultUVChannel < mesh.m_uvs.size())
+        mesh.m_defaultUVChannel = script.m_defaultUVChannel;
+      pDoc->m_emEditModel.CreateMipModels_t(mesh, dlgAutoMipModeling.m_iVerticesToRemove, dlgAutoMipModeling.m_iSurfacePreservingFactor);
+    }
     // copy mapping from main mip model
     pDoc->m_emEditModel.SaveMapping_t( CTString("Temp\\ForAutoMipMapping.map"), 0);
     // paste mapping over all smaller mip models
@@ -3476,7 +3630,7 @@ void CModelerView::OnCreateMipModels()
         m_ModelObject.SetSurfaceColor( iMipModel, iSurface, colSurfaceColor);
       }
     }
-    // destroy progres window
+    // destroy progress window
     pMainFrame->m_NewProgress.DestroyWindow();
   }
   catch( char *pStrError)

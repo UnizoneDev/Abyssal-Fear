@@ -21,6 +21,7 @@
     </SccLocalPath>
     <Keyword>MFCProj</Keyword>
     <ProjectGuid>{9E0BA4A5-61AD-9CF5-AC0D-50DAB6639605}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" Label="Configuration">
@@ -45,14 +46,17 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\WorldEditor\Qt.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+    <Import Project="..\WorldEditor\Qt.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+    <Import Project="..\WorldEditor\Qt.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -82,7 +86,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>false</OmitFramePointers>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;DIRECT3D_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>QT_QTWINMIGRATE_IMPORT;WIN32;NDEBUG;_WINDOWS;DIRECT3D_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Release\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Release\Modeler.pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -90,6 +94,8 @@
       <ObjectFileName>.\Release\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
       <DisableSpecificWarnings>4996;4333</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(SolutionDir)qtsolutions\qtwinmigrate\src\;$(Qt_dir)\include\;$(Qt_dir)\include\QtCore\;$(Qt_dir)\include\QtGui\;$(Qt_dir)\include\QtWidgets\;$(Qt_dir)\include\QtWinExtras\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -112,12 +118,15 @@
       <SubSystem>Windows</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OutputFile>Release/SeriousModeler.exe</OutputFile>
-      <AdditionalDependencies>htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>htmlhelp.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5WinExtras.lib;QtSolutions_MFCMigrationFramework.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)Engine\$(Configuration)\;$(SolutionDir)EngineGUI\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Engine\$(Configuration)\;$(SolutionDir)EngineGUI\$(Configuration)\;$(SolutionDir)qtwinmigrateBuild\$(Configuration)\;$(Qt_dir)\lib\</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
-      <Command>copy Release\$(TargetName).exe $(SolutionDir)..\Bin_1.10\ &gt;nul</Command>
+      <Command>copy Release\$(TargetName).exe $(SolutionDir)..\Bin_1.10\ &gt;nul
+copy $(SolutionDir)qtwinmigrateBuild\install\QtSolutions_MFCMigrationFramework.dll $(SolutionDir)..\Bin_1.10\ &gt; nul
+$(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\$(TargetName).exe
+$(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\QtSolutions_MFCMigrationFramework.dll</Command>
       <Message>Copying %(Filename) binaries to $(SolutionDir)..\Bin</Message>
       <Outputs>$(SolutionDir)..\Bin_1.10\$(InputName).exe;%(Outputs)</Outputs>
     </CustomBuildStep>
@@ -131,7 +140,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level3</WarningLevel>
       <MinimalRebuild>true</MinimalRebuild>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;DIRECT3D_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>QT_QTWINMIGRATE_IMPORT;WIN32;_DEBUG;_WINDOWS;DIRECT3D_VERSION=0x0800;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Debug\Modeler.pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -139,6 +148,8 @@
       <ObjectFileName>.\Debug\</ObjectFileName>
       <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
       <DisableSpecificWarnings>4996;4333</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(SolutionDir)qtsolutions\qtwinmigrate\src\;$(Qt_dir)\include\;$(Qt_dir)\include\QtCore\;$(Qt_dir)\include\QtGui\;$(Qt_dir)\include\QtWidgets\;$(Qt_dir)\include\QtWinExtras\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -161,23 +172,32 @@
       <SubSystem>Windows</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <OutputFile>Debug/SeriousModeler.exe</OutputFile>
-      <AdditionalDependencies>htmlhelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>htmlhelp.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5WinExtrasd.lib;QtSolutions_MFCMigrationFrameworkd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
-      <AdditionalLibraryDirectories>$(SolutionDir)Engine\$(Configuration)\;$(SolutionDir)EngineGUI\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Engine\$(Configuration)\;$(SolutionDir)EngineGUI\$(Configuration)\;$(SolutionDir)qtwinmigrateBuild\$(Configuration)\;$(Qt_dir)\lib\</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
-      <Command>copy Debug\$(TargetName).exe $(SolutionDir)..\Bin_1.10\Debug\ &gt;nul</Command>
+      <Command>copy Debug\$(TargetName).exe $(SolutionDir)..\Bin_1.10\Debug\ &gt;nul
+copy $(SolutionDir)qtwinmigrateBuild\install\QtSolutions_MFCMigrationFrameworkd.dll $(SolutionDir)..\Bin_1.10\Debug\ &gt; nul
+$(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\Debug\$(TargetName).exe
+$(Qt_dir)\bin\windeployqt.exe $(SolutionDir)..\Bin_1.10\Debug\QtSolutions_MFCMigrationFrameworkd.dll
+</Command>
       <Message>Copying %(Filename) binaries to $(SolutionDir)..\Bin_1.10\Debug</Message>
       <Outputs>$(SolutionDir)..\Bin_1.10\Debug\$(InputName).exe;%(Outputs)</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)Engine\$(Configuration)\;$(SolutionDir)EngineGUI\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Engine\$(Configuration)\;$(SolutionDir)EngineGUI\$(Configuration)\;$(SolutionDir)qtwinmigrateBuild\$(Configuration)\;$(Qt_dir)\lib\</AdditionalLibraryDirectories>
     </Link>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)qtsolutions\qtwinmigrate\src\;$(Qt_dir)\include\;$(Qt_dir)\include\QtCore\;$(Qt_dir)\include\QtGui\;$(Qt_dir)\include\QtWidgets\;$(Qt_dir)\include\QtWinExtras\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AnimComboBox.cpp" />
+    <ClCompile Include="BonePicker.cpp" />
     <ClCompile Include="ChildFrm.cpp" />
     <ClCompile Include="ChoosedColorButton.cpp" />
     <ClCompile Include="ColoredButton.cpp" />
@@ -204,8 +224,10 @@
     <ClCompile Include="DlgPgInfoAttachingSound.cpp" />
     <ClCompile Include="DlgPleaseWait.cpp" />
     <ClCompile Include="DlgPreferences.cpp" />
+    <ClCompile Include="EditModel.cpp" />
     <ClCompile Include="LinkedSurfaceList.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MipMaker.cpp" />
     <ClCompile Include="Modeler.cpp" />
     <ClCompile Include="ModelerDoc.cpp" />
     <ClCompile Include="ModelerView.cpp" />
@@ -213,8 +235,10 @@
     <ClCompile Include="PaletteDialog.cpp" />
     <ClCompile Include="PatchPalette.cpp" />
     <ClCompile Include="PatchPaletteButton.cpp" />
-    <ClCompile Include="ScriptDoc.cpp" />
-    <ClCompile Include="ScriptView.cpp" />
+    <ClCompile Include="Script\AnglePicker.cpp" />
+    <ClCompile Include="Script\ModelConfigurationEditor.cpp" />
+    <ClCompile Include="Script\ScriptIcons.qrc.cpp" />
+    <ClCompile Include="Script\ScriptIO.cpp" />
     <ClCompile Include="SkyFloat.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
@@ -301,6 +325,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimComboBox.h" />
+    <CustomBuild Include="BonePicker.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <ClInclude Include="BonePicker.ui.h" />
     <ClInclude Include="ChildFrm.h" />
     <ClInclude Include="ChoosedColorButton.h" />
     <ClInclude Include="ColoredButton.h" />
@@ -327,8 +360,10 @@
     <ClInclude Include="DlgPgInfoAttachingSound.h" />
     <ClInclude Include="DlgPleaseWait.h" />
     <ClInclude Include="DlgPreferences.h" />
+    <ClInclude Include="EditModel.h" />
     <ClInclude Include="LinkedSurfaceList.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="MipMaker.h" />
     <ClInclude Include="Modeler.h" />
     <ClInclude Include="ModelerDoc.h" />
     <ClInclude Include="ModelerView.h" />
@@ -337,12 +372,93 @@
     <ClInclude Include="PatchPalette.h" />
     <ClInclude Include="PatchPaletteButton.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="ScriptDoc.h" />
-    <ClInclude Include="ScriptView.h" />
+    <CustomBuild Include="Script\ModelConfigurationEditor.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="Script\AnglePicker.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">$(Qt_dir)\bin\moc.exe %(FullPath) &gt; %(FullPath).moc</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">%(FullPath).moc;%(Outputs)</Outputs>
+    </CustomBuild>
+    <ClInclude Include="Script\AnglePicker.ui.h" />
+    <ClInclude Include="Script\ModelConfigurationEditor.ui.h" />
+    <ClInclude Include="Script\Script.h" />
+    <ClInclude Include="Script\ScriptIcons.qrc.h" />
+    <ClInclude Include="Script\ScriptIO.h" />
     <ClInclude Include="SkyFloat.h" />
     <ClInclude Include="StainsComboBox.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="TextureComboBox.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Script\ModelConfigurationEditor.ui">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Script\ScriptIcons.qrc">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Qt_dir)\bin\rcc.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Qt_dir)\bin\rcc.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">$(Qt_dir)\bin\rcc.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Script\ModelConfigurationEditor.h.moc">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Script\AnglePicker.ui">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Script\AnglePicker.h.moc">
+      <FileType>Document</FileType>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\bone.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="BonePicker.ui">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">%(FullPath).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">$(Qt_dir)\bin\uic.exe %(FullPath) &gt; %(FullPath).h</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BonePicker.h.moc">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

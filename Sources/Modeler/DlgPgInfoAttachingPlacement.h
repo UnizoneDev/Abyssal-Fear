@@ -62,6 +62,7 @@ public:
 
 
 // Overrides
+	BOOL OnInitDialog() override;
 	// ClassWizard generate virtual function overrides
 	//{{AFX_VIRTUAL(CDlgPgInfoAttachingPlacement)
 	protected:
@@ -86,6 +87,8 @@ protected:
 	afx_msg void OnRemoveAttachingPlacement();
 	afx_msg void OnIsVisible();
 	afx_msg void OnSelchangeAttachmentModelAnimationCombo();
+	afx_msg void PickAttachmentBone();
+	afx_msg BOOL OnGetTooltip(UINT, NMHDR* pNMHDR, LRESULT* pResult);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

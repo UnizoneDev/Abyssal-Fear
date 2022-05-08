@@ -29,7 +29,7 @@ struct aiNode;
 struct ENGINE_API ImportedSkeleton
 {
 public:
-  struct Bone
+  struct ENGINE_API Bone
   {
     std::string m_name;
     FLOATmatrix4D m_transformToParent;
@@ -44,8 +44,9 @@ public:
 
   ImportedSkeleton& operator=(const ImportedSkeleton& other);
 
-  bool Empty() const;
   void FillFromFile(const CTFileName& fileName);
+
+  static bool ContainsSkeleton(const CTFileName& fileName);
 
 public:
   std::map<std::string, Bone> m_bones;

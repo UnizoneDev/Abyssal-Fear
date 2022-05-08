@@ -695,14 +695,25 @@ void CDlgPgPrimitive::OnDropdownPrimitiveHistory()
 {
   CRect rectCombo;
   m_comboPrimitiveHistory.GetWindowRect( &rectCombo);
-  PIX pixScreenWidth = ::GetSystemMetrics(SM_CXSCREEN);
-  m_comboPrimitiveHistory.SetDroppedWidth( pixScreenWidth-rectCombo.left);
+  HMONITOR comboMonitor = ::MonitorFromWindow(m_comboPrimitiveHistory.GetSafeHwnd(), MONITOR_DEFAULTTONEAREST);
+  MONITORINFO monitorInfo;
+  monitorInfo.cbSize = sizeof(MONITORINFO);
+  ::GetMonitorInfo(comboMonitor, &monitorInfo);
+
+  UINT comboWidth = 1000;
+  if (rectCombo.left > monitorInfo.rcMonitor.left)
+  {
+    const int screenWidth = abs(monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left);
+    comboWidth = screenWidth - (rectCombo.left - monitorInfo.rcMonitor.left);
+  }
+  m_comboPrimitiveHistory.SetDroppedWidth(comboWidth);
 }
 
 void CDlgPgPrimitive::OnDisplaceBrowse()
 {
+  const auto imageFilter = _EngineGUI.GetListOfImportImageFormats();
   CTFileName fnDisplace =  _EngineGUI.FileRequester(
-    "Choose picture for displacement", FILTER_TGA FILTER_PCX FILTER_ALL FILTER_END,
+    "Choose picture for displacement", imageFilter.data(),
     "Displacement pictures directory", "Textures\\",
     theApp.m_vfpCurrent.vfp_fnDisplacement.FileName()+
     theApp.m_vfpCurrent.vfp_fnDisplacement.FileExt());

@@ -1,20 +1,5 @@
-/* Copyright (c) 2002-2012 Croteam Ltd. 
-This program is free software; you can redistribute it and/or modify
-it under the terms of version 2 of the GNU General Public License as published by
-the Free Software Foundation
-
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
-
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by Modeler.rc
 //
 #define ID_EXPORT                       3
@@ -78,6 +63,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define IDD_NEW_TEXTURE_SIZE            182
 #define IDD_CREATE_SPECULAR_TEXTURE     183
 #define IDD_EXPORT_FOR_SKINNIG          189
+#define IDI_BONE                        190
 #define IDR_COLOR_BUTTON                204
 #define IDD_NUMERIC_ALPHA               205
 #define IDD_INFO_MIP                    206
@@ -471,6 +457,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define IDC_SURFACE_LIST_T              1311
 #define IDC_EXPORT_PAPER_COLOR          1312
 #define IDC_EXPORT_FILE_NAME_T          1313
+#define IDC_PICK_ATTACHMENT_BONE        1314
 #define ID_RENDER_BBOX                  32700
 #define ID_RENDER_WIRE_NAKED            32701
 #define ID_RENDER_WIRE_SOLID            32702
@@ -535,7 +522,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define ID_FILE_CREATE_TEXTURE          32952
 #define ID_VIEW_TEXTURECONTROL          32955
 #define ID_SCRIPT_OPEN                  32956
-#define ID_SCRIPT_MAKE_MODEL            32957
 #define ID_UPDATE_FRAMES                32958
 #define ID_UPDATE_ANIMATIONS            32959
 #define ID_UPDATE_MIPMODELS             32960
@@ -677,6 +663,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define ID_LAST_FRAME                   -32378
 #define ID_TESSELLATE_MORE              33159
 #define ID_TESSELLATE_LESS              33160
+#define ID_APP_ABOUT_QT                 33161
+#define ID_ALTERNATIVE_MOVING_MODE      33162
 #define IDW_TOOLBAR_MAIN                0xE800
 #define IDW_STATUS_BAR                  0xE801
 #define IDW_TOOLBAR_ANIMATION           0xE802
@@ -698,9 +686,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        190
-#define _APS_NEXT_COMMAND_VALUE         33161
-#define _APS_NEXT_CONTROL_VALUE         1314
+#define _APS_NEXT_RESOURCE_VALUE        191
+#define _APS_NEXT_COMMAND_VALUE         33163
+#define _APS_NEXT_CONTROL_VALUE         1315
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

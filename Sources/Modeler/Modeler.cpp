@@ -17,8 +17,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 //
 
 #include "stdafx.h"
+#include <afxpriv.h>
+#include "Script/ModelConfigurationEditor.h"
+#include "Script/ScriptIO.h"
+
 #include <Engine/Templates/Stock_CModelData.h>
 #include <Engine/Templates/Stock_CTextureData.h>
+
+#include <QtWin>
+#include <QIcon>
+#include <QMessageBox>
+#include <QTimer>
+#include <QWinWidget>
 
 #ifdef _DEBUG
 #undef new
@@ -110,6 +120,7 @@ void SetColorToProfile( CTString strVarName, COLOR colValue)
 
 BEGIN_MESSAGE_MAP(CModelerApp, CWinApp)
 	//{{AFX_MSG_MAP(CModelerApp)
+  ON_COMMAND(ID_APP_ABOUT_QT, OnQtAbout)
 	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
 	ON_COMMAND(ID_FILE_NEW, OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
@@ -233,6 +244,16 @@ CModelerApp::~CModelerApp()
 
 CModelerApp theApp;
 
+CModelerApp::ModalGuard::ModalGuard()
+{
+  theApp.m_showing_modal_dialog = true;
+}
+
+CModelerApp::ModalGuard::~ModalGuard()
+{
+  theApp.m_showing_modal_dialog = false;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CModelerApp initialization
 
@@ -247,6 +268,12 @@ BOOL CModelerApp::InitInstance()
 
 BOOL CModelerApp::SubInitInstance()
 {
+  HICON app_icon = (HICON)LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDR_MAINFRAME), IMAGE_ICON, 0, 0, LR_DEFAULTCOLOR);
+  QMfcApp::instance(this)->setWindowIcon(QIcon(QtWin::fromHICON(app_icon)));
+  ::DestroyIcon(app_icon);
+
+  m_showing_modal_dialog = false;
+
   wchar_t strIni[ 128];
 	// Standard initialization
 	// If you are not using these features and wish to reduce the size
@@ -274,13 +301,6 @@ BOOL CModelerApp::SubInitInstance()
 		RUNTIME_CLASS(CModelerDoc),
 		RUNTIME_CLASS(CChildFrame), // custom MDI child frame
 		RUNTIME_CLASS(CModelerView));
-	AddDocTemplate(pDocTemplate);
-  
-  m_pdtScriptTemplate = pDocTemplate = new CMultiDocTemplate(
-		IDR_SCRIPTDOCTYPE,
-		RUNTIME_CLASS(CScriptDoc),
-		RUNTIME_CLASS(CChildFrame), // custom MDI child frame
-		RUNTIME_CLASS(CScriptView));
 	AddDocTemplate(pDocTemplate);
 
   // initialize engine, without network
@@ -437,8 +457,96 @@ BOOL CModelerApp::SubInitInstance()
     // call preferences
     OnFilePreferences();
   }
-  
+  mp_qtContext = new QObject;
   return TRUE;
+}
+
+void CModelerApp::OnQtAbout()
+{
+  CModelerApp::ModalGuard guard;
+  QWinWidget modal_widget(m_pMainWnd->GetSafeHwnd(), nullptr, Qt::WindowFlags {});
+  QMessageBox::aboutQt(&modal_widget, "About Qt");
+}
+
+void CModelerApp::EditScriptAndReopenDocument(CTFileName fnScriptName)
+{
+  try
+  {
+    fnScriptName.RemoveApplicationPath_t();
+    auto script = ScriptIO::ReadFromFile(fnScriptName);
+
+    CModelerApp::ModalGuard guard;
+    QWinWidget modal_widget(AfxGetApp()->m_pMainWnd->GetSafeHwnd(), nullptr, Qt::WindowFlags {});
+    ModelConfigurationEditor dialog(script, &modal_widget);
+    if (dialog.exec() == QDialog::Rejected)
+      return;
+
+    ScriptIO::SaveToFile(script, fnScriptName);
+  }
+  catch (const char* error)
+  {
+    AfxMessageBox(CString(error));
+    return;
+  }
+
+  CTFileName fnModelName = _fnmApplicationPath + fnScriptName.FileDir() + fnScriptName.FileName() + ".mdl";
+  fnModelName.SetAbsolutePath();
+  POSITION pos = theApp.m_pdtModelDocTemplate->GetFirstDocPosition();
+  while (pos != NULL)
+  {
+    CModelerDoc* pmdCurrent = (CModelerDoc*)theApp.m_pdtModelDocTemplate->GetNextDoc(pos);
+    if (CTFileName(CTString(CStringA(pmdCurrent->GetPathName()))) == fnModelName)
+      pmdCurrent->OnCloseDocument();
+  }
+  CDocument* pDocument = theApp.m_pdtModelDocTemplate->CreateNewDocument();
+  if (pDocument == NULL)
+  {
+    TRACE0("CDocTemplate::CreateNewDocument returned NULL.\n");
+    AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
+    return;
+  }
+  ASSERT_VALID(pDocument);
+
+  BOOL bAutoDelete = pDocument->m_bAutoDelete;
+  pDocument->m_bAutoDelete = FALSE;   // don't destroy if something goes wrong
+  CFrameWnd* pFrame = theApp.m_pdtModelDocTemplate->CreateNewFrame(pDocument, NULL);
+  pDocument->m_bAutoDelete = bAutoDelete;
+  if (pFrame == NULL)
+  {
+    AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
+    delete pDocument;       // explicit delete on error
+    return;
+  }
+  ASSERT_VALID(pFrame);
+
+  pDocument->SetPathName(CString(fnModelName), FALSE);
+  pDocument->SetTitle(CString(fnModelName.FileName() + fnModelName.FileExt()));
+
+  char strError[256];
+  if (!((CModelerDoc*)pDocument)->CreateModelFromScriptFile(fnScriptName, strError))
+  {
+    pDocument->OnCloseDocument();
+    AfxMessageBox(CString(strError));
+    return;
+  }
+  theApp.m_pdtModelDocTemplate->InitialUpdateFrame(pFrame, pDocument, TRUE);
+  ((CModelerDoc*)pDocument)->m_emEditModel.edm_md.md_bPreparedForRendering = FALSE;
+  pDocument->SetModifiedFlag();
+  CMainFrame* pMainFrame = STATIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+  pMainFrame->m_AnimComboBox.m_pvLastUpdatedView = NULL;
+  theApp.m_chGlobal.MarkChanged();
+
+  // add textures from .ini file
+  CTFileName fnIniFileName = fnScriptName.NoExt() + ".ini";
+  try
+  {
+    ((CModelerDoc*)pDocument)->m_emEditModel.CSerial::Load_t(fnIniFileName);
+  }
+  catch (char* strError)
+  {
+    // ignore errors
+    (void)strError;
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -500,6 +608,9 @@ void CModelerApp::OnAppAbout()
 static TIME timeLastTick=TIME(0);
 BOOL CModelerApp::OnIdle(LONG lCount) 
 {
+  if (m_showing_modal_dialog)
+    return CWinApp::OnIdle(lCount);
+
   if( _pTimer != NULL)
   {
     TIME timeCurrentTick = _pTimer->GetRealTimeTick();
@@ -521,6 +632,13 @@ BOOL CModelerApp::OnIdle(LONG lCount)
   // if application is active
   extern BOOL _bApplicationActive;
   if (_bApplicationActive) {
+    // QtMfcMigration library seems to have messed rapid idle handling
+    // this hotfix should compensate for that
+    if (mp_qtContext)
+      QTimer::singleShot(16, Qt::PreciseTimer, mp_qtContext, [this]
+        {
+          PostThreadMessage(WM_KICKIDLE, 0, 0);
+        });
     // never release idle
     return CWinApp::OnIdle(lCount) || TRUE;
   // if application is inactive
@@ -564,14 +682,10 @@ void CModelerApp::CreateNewDocument( CTFileName fnRequestedFile)
       return;
     }
   }
-  else if( GetFileAttributesA( _fnmApplicationPath + fnMdlFile) != -1)
+  else
   {
-    if( MessageBoxA( m_pMainWnd->m_hWnd, "Model file allready exists, do you want to "
-                    "overwrite it and loose all possible data describing mapping, "
-                    "colored polygons, patch positions, ... ?",
-                    "Warning !", MB_YESNO | MB_ICONWARNING | 
-                    MB_DEFBUTTON1| MB_SYSTEMMODAL | MB_TOPMOST) != IDYES)
-      return;
+    EditScriptAndReopenDocument(fnRequestedFile);
+    return;
   }
 
   // Now we create document instance of type CModelerDoc
@@ -626,7 +740,7 @@ void CModelerApp::OnFileNew()
   }
 }
 /////////////////////////////////////////////////////////////////////////////
-void CModelerApp::OnFileOpen() 
+void CModelerApp::OnFileOpen()
 {
   // call file requester for opening documents
   CDynamicArray<CTFileName> afnOpenModel;
@@ -642,14 +756,15 @@ void CModelerApp::OnFileOpen()
   {
     // we will use full file name to call OnOpenDocument()
     CTFileName fnFullRequestedFile = _fnmApplicationPath + itModel.Current();
-    // choose right document template using file's extension
-    CDocTemplate *pDocTemplate = m_pdtModelDocTemplate;
+
     BOOL bScriptDocument = FALSE;
-    if( fnFullRequestedFile.FileExt() == ".scr")
+    if (fnFullRequestedFile.FileExt() == ".scr")
     {
-      pDocTemplate = m_pdtScriptTemplate;
-      bScriptDocument = TRUE;
+      EditScriptAndReopenDocument(fnFullRequestedFile);
+      continue;
     }
+
+    CDocTemplate *pDocTemplate = m_pdtModelDocTemplate;
 
     // Now we create document instance 
     CDocument* pDocument = pDocTemplate->CreateNewDocument();
@@ -662,14 +777,11 @@ void CModelerApp::OnFileOpen()
 	  ASSERT_VALID(pDocument);
 	  
     // Model documents must be opened before view creation
-    if( !bScriptDocument)
+    if( !pDocument->OnOpenDocument( CString(fnFullRequestedFile)))
     {
-      if( !pDocument->OnOpenDocument( CString(fnFullRequestedFile)))
-      {
-		    AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
-		    //delete pDocument;       // explicit delete on error
-		    return;
-      }
+		  AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
+		  //delete pDocument;       // explicit delete on error
+		  return;
     }
   
     // View creation
@@ -684,17 +796,6 @@ void CModelerApp::OnFileOpen()
 		  return;
 	  }
 	  ASSERT_VALID(pFrame);
-
-    // Script documents must be opened after view creation
-    if( bScriptDocument)
-    {
-      if( !pDocument->OnOpenDocument( CString(fnFullRequestedFile)))
-      {
-		    AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
-		    delete pDocument;       // explicit delete on error
-		    return;
-      }
-    }
 
     pDocument->SetModifiedFlag( FALSE);
     pDocument->SetPathName( CString(fnFullRequestedFile), TRUE);
@@ -725,6 +826,8 @@ void CModelerApp::OnFilePreferences()
 
 int CModelerApp::ExitInstance() 
 {
+  delete mp_qtContext;
+  mp_qtContext = nullptr;
   CoUninitialize();
   m_Preferences.WriteToIniFile();
   WriteProfileInt(L"Display modes", L"SED Gfx API", m_iApi);
@@ -965,9 +1068,10 @@ int CModelerApp::Run()
 {
   int iResult;
   CTSTREAM_BEGIN {
-    iResult=CWinApp::Run();
+    iResult=QMfcApp::run(this);
   } CTSTREAM_END;
-	return CWinApp::Run();
+  delete qApp;
+  return iResult;
 }
 
 CModelerView* CModelerApp::GetActiveView(void)

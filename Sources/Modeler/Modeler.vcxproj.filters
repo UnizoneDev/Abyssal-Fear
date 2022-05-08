@@ -19,6 +19,12 @@
     <Filter Include="Wizard Files">
       <UniqueIdentifier>{b933183f-60c0-4afe-a38e-e176b4dcb145}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Script">
+      <UniqueIdentifier>{c989f1c2-618a-4112-8ab1-e7439247effe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Script">
+      <UniqueIdentifier>{a96e6e74-31ba-43c1-9c18-5ea1e937a379}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimComboBox.cpp">
@@ -129,12 +135,6 @@
     <ClCompile Include="PatchPaletteButton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ScriptDoc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ScriptView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SkyFloat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -145,6 +145,27 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextureComboBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EditModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MipMaker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\ScriptIO.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\ScriptIcons.qrc.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\ModelConfigurationEditor.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\AnglePicker.cpp">
+      <Filter>Source Files\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="BonePicker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -265,12 +286,6 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ScriptDoc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScriptView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SkyFloat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -281,6 +296,39 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureComboBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EditModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MipMaker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Script.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\ScriptIO.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\ModelConfigurationEditor.ui.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\ScriptIcons.qrc.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\ModelConfigurationEditor.h.moc">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\AnglePicker.ui.h">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\AnglePicker.h.moc">
+      <Filter>Header Files\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="BonePicker.h.moc">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BonePicker.ui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -435,5 +483,31 @@
     <CustomBuild Include="Modeler.clw">
       <Filter>Wizard Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="Script\ModelConfigurationEditor.ui">
+      <Filter>Source Files\Script</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Script\ScriptIcons.qrc">
+      <Filter>Source Files\Script</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Script\ModelConfigurationEditor.h">
+      <Filter>Header Files\Script</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Script\AnglePicker.ui">
+      <Filter>Source Files\Script</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Script\AnglePicker.h">
+      <Filter>Header Files\Script</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BonePicker.ui">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BonePicker.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\bone.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

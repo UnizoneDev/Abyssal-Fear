@@ -1082,8 +1082,9 @@ void ApplyLayerMaskCommand(INDEX iSelectedItem)
     }
     case 2: // "Import mask"
     {
+      const auto imageFilter = _EngineGUI.GetListOfImportImageFormats();
       CTFileName fnMaskMap=_EngineGUI.FileRequester(
-        "Import layer mask", FILTER_TGA FILTER_PCX FILTER_ALL FILTER_END,
+        "Import layer mask", imageFilter.data(),
         "Layer mask directory", "Textures\\");
       if( fnMaskMap=="") return;
       try
@@ -1101,8 +1102,9 @@ void ApplyLayerMaskCommand(INDEX iSelectedItem)
     }
     case 3: // "Export mask"
     {
+      const auto imageFilter = _EngineGUI.GetListOfExportImageFormats();
       CTFileName fnMaskMap=_EngineGUI.FileRequester(
-        "Export layer mask", FILTER_TGA FILTER_PCX FILTER_ALL FILTER_END,
+        "Export layer mask", imageFilter.data(),
         "Layer mask directory", "Textures\\");
       if( fnMaskMap=="") return;
       try
@@ -1872,15 +1874,17 @@ void ApplyImportExport(INDEX iOperation)
   CTFileName fnHeightmap;
   if(iOperation<2)
   {
+    const auto imageFilter = _EngineGUI.GetListOfImportImageFormats();
     fnHeightmap=_EngineGUI.FileRequester(
-      "Import heightmap", FILTER_TGA FILTER_PCX FILTER_ALL FILTER_END,
+      "Import heightmap", imageFilter.data(),
       "Terrain heightmap directory", "Textures\\");
     if( fnHeightmap=="") return;
   }
   else
   {
+    const auto imageFilter = _EngineGUI.GetListOfExportImageFormats();
     fnHeightmap=_EngineGUI.FileRequester(
-      "Export heightmap", FILTER_TGA FILTER_PCX FILTER_ALL FILTER_END,
+      "Export heightmap", imageFilter.data(),
       "Terrain heightmap directory", "Textures\\");
     if( fnHeightmap=="") return;
   }

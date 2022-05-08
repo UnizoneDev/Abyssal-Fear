@@ -5842,9 +5842,10 @@ void CWorldEditorView::OnTakeSs()
   pdpValidDrawPort->GrabScreen( iiImageInfo, 1);
 
   // ask for save screen shot name
+  const auto imageFilter = _EngineGUI.GetListOfExportImageFormats();
   CTFileName fnDocName = CTString( CStringA(GetDocument()->GetPathName()));
   CTFileName fnScreenShoot =  _EngineGUI.FileRequester(
-    "Choose file name for screen shoot", FILTER_TGA FILTER_ALL FILTER_END, KEY_NAME_SCREEN_SHOT_DIR,
+    "Choose file name for screen shoot", imageFilter.data(), KEY_NAME_SCREEN_SHOT_DIR,
     "ScreenShots\\", fnDocName.FileName()+"xx"+".tga", NULL, FALSE);
   if( fnScreenShoot == "") return;
 
@@ -9904,8 +9905,9 @@ void CWorldEditorView::OnSavePicturesForEnvironment()
   CWorldEditorDoc* pDoc = GetDocument();
   CEntity *pen = pDoc->m_selEntitySelection.GetFirstInSelection();
 
+  const auto imageFilter = _EngineGUI.GetListOfExportImageFormats();
   CTFileName fnName = _EngineGUI.FileRequester( "Save pictures as ...",
-    FILTER_TGA FILTER_ALL FILTER_END,"Environment pictures directory", "Textures\\");
+    imageFilter.data(),"Environment pictures directory", "Textures\\");
   if( fnName == "") return;
   CTFileName fnBase = fnName.NoExt();
 
@@ -13100,8 +13102,9 @@ BOOL CWorldEditorView::SaveAutoTexture(FLOATaabbox3D boxBrush, CTFileName &fnTex
   if( dlg.DoModal()!=IDOK) return FALSE;
 
   // call file requester for pretender texture name
+  const auto imageFilter = _EngineGUI.GetListOfExportImageFormats();
   CTFileName fnPretenderTexture = _EngineGUI.FileRequester( "Pretender texture name",
-    FILTER_TGA FILTER_END, "Auto save texture", "", "", NULL, TRUE);
+    imageFilter.data(), "Auto save texture", "", "", NULL, TRUE);
   if( fnPretenderTexture == "") return FALSE;
 
   switch( dlg.m_iPretenderStyle)

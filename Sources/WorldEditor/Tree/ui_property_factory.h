@@ -23,16 +23,19 @@ class UIPropertyFactory
 {
 public:
   using TFactory = std::function<BaseEntityPropertyTreeItem* (BasePropertyTreeItem*)>;
+  using TFactoryAndPropertyName = std::pair<TFactory, std::string>;
+  using TFactoryByName = std::map<std::string, TFactory>;
 
   static UIPropertyFactory& Instance();
 
-  void            Register(CEntityProperty::PropertyType prop_type, TFactory&& factory);
-  const TFactory& GetFactoryFor(CEntityProperty::PropertyType prop_type) const;
+  void            Register(CEntityProperty::PropertyType prop_type, TFactoryAndPropertyName&& factory_and_name);
+  const TFactory& GetFactoryFor(CEntityProperty::PropertyType prop_type, const std::string& prop_name) const;
   bool            HasFactoryFor(CEntityProperty::PropertyType prop_type) const;
 
   struct Registrar
   {
     Registrar(CEntityProperty::PropertyType prop_type, TFactory&& factory);
+    Registrar(CEntityProperty::PropertyType prop_type, TFactoryAndPropertyName&& factory_and_name);
   };
 
   UIPropertyFactory(const UIPropertyFactory&) = delete;
@@ -42,7 +45,7 @@ private:
   UIPropertyFactory();
 
 private:
-  std::map<CEntityProperty::PropertyType, TFactory> m_factories;
+  std::map<CEntityProperty::PropertyType, TFactoryByName> m_factories;
 };
 
 #endif

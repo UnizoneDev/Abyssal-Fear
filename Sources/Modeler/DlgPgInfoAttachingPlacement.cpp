@@ -18,6 +18,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "stdafx.h"
 
+#include "BonePicker.h"
+
+#include <QWinWidget>
+
 #ifdef _DEBUG
 #undef new
 #define new DEBUG_NEW
@@ -128,6 +132,56 @@ void CDlgPgInfoAttachingPlacement::SetPlacementReferenceVertex(INDEX iCenter, IN
   pDoc->UpdateAllViews( NULL);
 }
 
+BOOL CDlgPgInfoAttachingPlacement::OnInitDialog()
+{
+  BOOL res = CPropertyPage::OnInitDialog();
+  EnableToolTips(TRUE);
+  HICON boneIcon = static_cast<HICON>(::LoadImage(theApp.m_hInstance, MAKEINTRESOURCE(IDI_BONE), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
+  if (boneIcon)
+  {
+    auto* p_pickBoneButton = static_cast<CButton*>(GetDlgItem(IDC_PICK_ATTACHMENT_BONE));
+    p_pickBoneButton->SetIcon(boneIcon);
+  }
+  return res;
+}
+
+void CDlgPgInfoAttachingPlacement::PickAttachmentBone()
+{
+  CModelerView* pModelerView = CModelerView::GetActiveView();
+  CModelerDoc* pDoc = pModelerView->GetDocument();
+
+  CModelerApp::ModalGuard guard;
+  QWinWidget modal_widget(AfxGetApp()->m_pMainWnd->GetSafeHwnd(), nullptr, Qt::WindowFlags {});
+  BonePicker dialog(pDoc->m_emEditModel.m_boneTriangleMapping, &modal_widget);
+  if (dialog.exec() == QDialog::Rejected)
+    return;
+
+  const auto triangle = dialog.GetBoneTriangle();
+  SetPlacementReferenceVertex(triangle[0], triangle[2], triangle[1]);
+}
+
+BOOL CDlgPgInfoAttachingPlacement::OnGetTooltip(UINT, NMHDR* pNMHDR, LRESULT* pResult)
+{
+  *pResult = 0;
+  NMTTDISPINFO* pTTT = (NMTTDISPINFO*)pNMHDR;
+
+  if (pTTT->uFlags & TTF_IDISHWND)
+  {
+    if (::GetDlgCtrlID(reinterpret_cast<HWND>(pNMHDR->idFrom)) == IDC_PICK_ATTACHMENT_BONE)
+    {
+      const auto* button = GetDlgItem(IDC_PICK_ATTACHMENT_BONE);
+      _stprintf_s(pTTT->szText, sizeof(pTTT->szText) / sizeof(TCHAR),
+         button->IsWindowEnabled() ?
+        _T("Attach to bone") :
+        _T("Model must have bone triangles and have ONLY skeletal animations!"));
+      pTTT->hinst = AfxGetResourceHandle();
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
 void CDlgPgInfoAttachingPlacement::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
@@ -137,6 +191,7 @@ void CDlgPgInfoAttachingPlacement::DoDataExchange(CDataExchange* pDX)
   CModelerDoc* pDoc = pModelerView->GetDocument();
   CModelData *pMD = &pDoc->m_emEditModel.edm_md;
 
+  const bool hasBoneTriangleMapping = !pDoc->m_emEditModel.m_boneTriangleMapping.empty();
   INDEX ctPositions = pDoc->m_emEditModel.edm_aamAttachedModels.Count();
   if( (m_iActivePlacement == -1) && ( ctPositions != 0) ) m_iActivePlacement = 0;
   if( m_iActivePlacement >= ctPositions)
@@ -150,6 +205,7 @@ void CDlgPgInfoAttachingPlacement::DoDataExchange(CDataExchange* pDX)
   {
     
     BOOL bAttachmentExists = ( m_iActivePlacement != -1);
+    GetDlgItem( IDC_PICK_ATTACHMENT_BONE            )->EnableWindow( (bAttachmentExists && hasBoneTriangleMapping) ? SW_SHOW : SW_HIDE);
     GetDlgItem( IDC_ATTACHING_PLACEMENT_INDEX_T     )->EnableWindow( bAttachmentExists);
     GetDlgItem( IDC_PREVIOUS_ATTACHING_PLACEMENT    )->EnableWindow( bAttachmentExists);
     GetDlgItem( IDC_ATTACHING_PLACEMENT_NAME	      )->EnableWindow( bAttachmentExists);
@@ -278,6 +334,8 @@ BEGIN_MESSAGE_MAP(CDlgPgInfoAttachingPlacement, CPropertyPage)
 	ON_BN_CLICKED(IDC_REMOVE_ATTACHING_PLACEMENT, OnRemoveAttachingPlacement)
 	ON_BN_CLICKED(IDC_IS_VISIBLE, OnIsVisible)
 	ON_CBN_SELCHANGE(IDC_ATTACHMENT_MODEL_ANIMATION_COMBO, OnSelchangeAttachmentModelAnimationCombo)
+  ON_BN_CLICKED(IDC_PICK_ATTACHMENT_BONE, PickAttachmentBone)
+  ON_NOTIFY_EX(TTN_NEEDTEXT, 0, OnGetTooltip)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -382,6 +440,7 @@ void CDlgPgInfoAttachingPlacement::OnAddAttachingPlacement()
     pDoc->m_emEditModel.edm_aamAttachedModels.Delete( pAttachedModel);
     return;
   }
+  pAttachedModel->am_strName = pAttachedModel->am_moAttachedModel.GetName().FileName();
   m_iActivePlacement = pMD->md_aampAttachedPosition.Count()-1;
 }
 

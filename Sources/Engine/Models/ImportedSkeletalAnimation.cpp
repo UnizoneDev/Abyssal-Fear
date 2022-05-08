@@ -25,9 +25,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <algorithm>
 
-#undef W
-#undef NONE
-
 #ifdef max
 #undef max
 #endif
@@ -142,15 +139,13 @@ ImportedSkeletalAnimation::ImportedSkeletalAnimation(
   size_t optNumFrames,
   double optDuration)
 {
-  CTString strFile = _fnmApplicationPath + fileName;
-  char acFile[MAX_PATH];
-  wsprintfA(acFile, "%s", strFile);
+  const CTString strFile = _fnmApplicationPath + fileName;
 
   Assimp::Importer importer;
-  const aiScene* aiSceneMain = importer.ReadFile(acFile, 0);
+  const aiScene* aiSceneMain = importer.ReadFile(strFile.str_String, 0);
 
   if (!aiSceneMain)
-    ThrowF_t("Unable to load animation file '%s'", (const char*)fileName);
+    ThrowF_t("Unable to load file %s: %s", (const char*)fileName, importer.GetErrorString());
 
   if (aiSceneMain->mNumAnimations == 0)
     ThrowF_t("'%s' contains no animations!", (const char*)fileName);
@@ -196,6 +191,26 @@ void ImportedSkeletalAnimation::ReapplyByReference(const ImportedSkeleton& refSk
       bone.m_transformToParent = origBone.m_transformToParent * transform;
     }
   }
+}
+
+std::vector<std::string> ImportedSkeletalAnimation::GetAnimationsInFile(const CTFileName& fileName)
+{
+  const CTString strFile = _fnmApplicationPath + fileName;
+
+  Assimp::Importer importer;
+  const aiScene* aiSceneMain = importer.ReadFile(strFile.str_String, 0);
+
+  if (!aiSceneMain)
+    return {};
+
+  std::vector<std::string> anims;
+  anims.reserve(aiSceneMain->mNumAnimations);
+  for (size_t animIndex = 0; animIndex < aiSceneMain->mNumAnimations; ++animIndex)
+  {
+    auto& anim = *aiSceneMain->mAnimations[animIndex];
+    anims.emplace_back(anim.mName.C_Str());
+  }
+  return anims;
 }
 
 void ImportedSkeletalAnimation::BakeFrames(const aiAnimation& anim)

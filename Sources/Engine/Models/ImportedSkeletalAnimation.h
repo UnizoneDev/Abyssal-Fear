@@ -25,7 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 struct aiAnimation;
 
-struct ImportedSkeletalAnimation
+struct ENGINE_API ImportedSkeletalAnimation
 {
 public:
   ImportedSkeletalAnimation(
@@ -36,6 +36,8 @@ public:
     double optDuration);
 
   void ReapplyByReference(const ImportedSkeleton& refSkeleton);
+
+  static std::vector<std::string> GetAnimationsInFile(const CTFileName& fileName);
 
 public:
   double m_duration;

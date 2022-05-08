@@ -86,6 +86,8 @@ QStandardItem* CheckListWidget::AddItem(const QString& label, const Qt::CheckSta
 
   _UpdateText();
 
+  setMinimumWidth(30);
+
   return item;
 }
 
