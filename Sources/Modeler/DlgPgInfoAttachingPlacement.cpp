@@ -440,6 +440,7 @@ void CDlgPgInfoAttachingPlacement::OnAddAttachingPlacement()
     pDoc->m_emEditModel.edm_aamAttachedModels.Delete( pAttachedModel);
     return;
   }
+  pAttachedModel->am_strName = pAttachedModel->am_moAttachedModel.GetName().FileName();
   m_iActivePlacement = pMD->md_aampAttachedPosition.Count()-1;
 }
 
