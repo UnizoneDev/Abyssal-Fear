@@ -30,7 +30,6 @@ build:
 after_build:
   - cd c:\projects\SeriousEngine\
   - mkdir deploy
-  - xcopy /I LICENSE Licenses\
   - xcopy /E /I Bin_1.10 deploy\Bin_1.10
   - xcopy /E /I Controls deploy\Controls
   - xcopy /E /I Data deploy\Data
