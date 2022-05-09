@@ -2,41 +2,47 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?retina=true)](https://ci.appveyor.com/project/SeriousAlexej/Serious-Engine)
 
+### Video Demonstration (YouTube, clickable)
+[![Feature Showcase](https://img.youtube.com/vi/0rrdHwJSGF8/maxresdefault.jpg)](https://youtu.be/0rrdHwJSGF8)
+
 Enhanced and somewhat fixed version of engine tools (Modeler, World Editor)
 * Compatible with 1.07!
+* Engine now supports **A LOT** more image formats for texture creation (such as PNG for example)
 * Serious Modeler can now import skeletal animations! (baked into vertex frame animation during the import for compatibility)
 * Added Property Tree for Serious Editor for more convenient workflow!
 * Updated version of `assimp`, more import formats are available!
 * Modeler upgrade to correctly read imported UV map without tears at seams (previously required creation of additional surfaces at seams to avoid that problem)
-* Modeler bugfix to correctly handle UTF8
+* Modeler has convenient UI for configuring model instead of manual script writing
 * Replaced missing `exploration3D` library with `assimp` (for importing 3D models into Modeler / World Editor)
 * Added ability to import UV maps (with up to 3 channels) when converting 3D model into brush (World Editor)
 * World Editor bugfix to correctly display color selection window
 * New advanced UV mapping tools for World Editor
 
-<p align="center">
-Skeletal animation import support in Serious Modeler
-</p>
-<p align="center">
-  <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/skel_anims.gif">
-</p>
-<p align="center">
-  <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/run_flesh.gif">
-</p>
-<p align="center">
-Same model with automatically generated triangles per each bone
-  <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/run_bones.gif">
-</p>
+<details>
+  <summary>Skeletal animation demos</summary>
+  
+  <p align="center">
+  Skeletal animation import support in Serious Modeler
+  </p>
+  <p align="center">
+    <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/run_flesh.gif">
+  </p>
+  <p align="center">
+  Same model with automatically generated triangles per each bone
+    <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/run_bones.gif">
+  </p>
+</details>
 
-<p align="center">
-New Property Tree in Serious Editor
-</p>
-<p align="center">
-  <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/editor_property_tree.gif">
-</p>
-<p align="center">
-  <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/editor_property_tree_2.gif">
-</p>
+<details>
+  <summary>New Property Tree in Serious Editor</summary>
+
+  <p align="center">
+    <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/editor_property_tree.gif">
+  </p>
+  <p align="center">
+    <img src="https://raw.githubusercontent.com/SeriousAlexej/Serious-Engine/master/Help/editor_property_tree_2.gif">
+  </p>
+</details>
 
 <details>
   <summary>New 3D formats importing demos</summary>
