@@ -66,11 +66,6 @@ extern void LCDRenderClouds2(void)
   _pGame->LCDRenderClouds2();
 }
 
-extern void LCDRenderGrid(void)
-{
-  _pGame->LCDRenderGrid();
-}
-
 extern COLOR LCDGetColor(COLOR colDefault, const char *strName)
 {
   return _pGame->LCDGetColor(colDefault, strName);

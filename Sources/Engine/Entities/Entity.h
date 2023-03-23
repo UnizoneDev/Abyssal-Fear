@@ -656,6 +656,42 @@ public:
   /* Fill in entity statistics - for AI purposes only */
   virtual BOOL FillEntityStatistics(struct EntityStats *pes);
 
+  // [SSE] Extended Engine API
+  inline BOOL IsAlive(void) const
+  {
+      return en_ulFlags & ENF_ALIVE;
+  }
+
+  // [SSE] Extended Engine API
+  inline BOOL IsDead(void) const
+  {
+      return !(en_ulFlags & ENF_ALIVE);
+  }
+
+  // [SSE] Extended Engine API
+  virtual BOOL IsLiveEntity()
+  {
+      return FALSE;
+  }
+
+  // [SSE] Extended Engine API
+  virtual BOOL IsRationalEntity()
+  {
+      return FALSE;
+  }
+
+  // [SSE] Extended Engine API
+  virtual BOOL IsPlayerEntity()
+  {
+      return FALSE;
+  }
+
+  // [SSE] Extended Engine API
+  virtual BOOL IsMovableEntity()
+  {
+      return FALSE;
+  }
+
   /* Model change notify */
   void ModelChangeNotify(void);
   /* Terrain change notify */ 

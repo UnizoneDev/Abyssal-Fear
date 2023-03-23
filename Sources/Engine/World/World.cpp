@@ -584,7 +584,7 @@ void CWorld::DiscardAllShadows(void)
 /*
  * Hide entities contained in given selection.
  */
-void CWorld::HideSelectedEntities(CDynamicContainer<CEntity>& selenEntitiesToHide)
+void CWorld::HideSelectedEntities(CEntitySelection &selenEntitiesToHide)
 {
   // for all entities in the selection
   FOREACHINDYNAMICCONTAINER(selenEntitiesToHide, CEntity, iten) {

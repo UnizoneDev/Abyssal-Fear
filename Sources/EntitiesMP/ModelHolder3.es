@@ -429,8 +429,11 @@ functions:
           colAmbient=MulColors(colAmbient, colShade);
         }*/
 
-        AnglesToDirectionVector(m_aShadingDirection, vLightDirection);
-        vLightDirection = -vLightDirection;
+        ANGLE3D aLight;
+        DirectionVectorToAngles(vLightDirection, aLight);
+
+        ANGLE3D aDelta = aLight - GetLerpedPlacement().pl_OrientationAngle;
+        AnglesToDirectionVector(aDelta, vLightDirection);
         break;
       }
     case SCST_CONSTANT_SHADING:

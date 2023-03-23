@@ -42,6 +42,11 @@ functions:
     return m_strDescription;
   }
 
+  FLOAT GetDistance() const
+  {
+    return m_fDistance;
+  }
+
 procedures:
   Main()
   {

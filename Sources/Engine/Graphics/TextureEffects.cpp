@@ -402,6 +402,144 @@ void AnimateHortLine(CTextureEffectSource *ptes)
 }
 
 
+///////////////// smear
+struct Smear {
+    UBYTE pixU;
+    UBYTE pixV;
+    FLOAT fAngle;
+};
+
+void InitializeSmear(CTextureEffectSource* ptes,
+    PIX pixU0, PIX pixV0, PIX pixU1, PIX pixV1)
+{
+    Smear& sm =
+        ((Smear&)ptes->tes_tespEffectSourceProperties.tesp_achDummy);
+    sm.pixU = pixU0;
+    sm.pixV = pixV0;
+    sm.fAngle = 3.14f;
+}
+
+void AnimateSmear(CTextureEffectSource* ptes)
+{
+    Smear& sm =
+        ((Smear&)ptes->tes_tespEffectSourceProperties.tesp_achDummy);
+    PutPixel9SLONG_WATER(sm.pixU, sm.pixV, sin(sm.fAngle) * 125);
+    sm.fAngle += (3.14f / 7);
+
+    if ((RNDW & 15) == 0) {
+        sm.fAngle -= 3.14f / 7.0f;
+    }
+    if ((RNDW & 15) == 0) {
+        sm.fAngle += 3.14f / 5.0f;
+    }
+}
+
+
+///////////////// warp
+struct Warp {
+    FLOAT fU;
+    FLOAT fV;
+    FLOAT fAngle;
+};
+
+void InitializeWarp(CTextureEffectSource* ptes,
+    PIX pixU0, PIX pixV0, PIX pixU1, PIX pixV1)
+{
+    Warp& wp =
+        ((Warp&)ptes->tes_tespEffectSourceProperties.tesp_achDummy);
+    wp.fU = pixU0;
+    wp.fV = pixV0;
+    wp.fAngle = RNDW & 9;
+}
+
+void AnimateWarp(CTextureEffectSource* ptes)
+{
+    Warp& wp =
+        ((Warp&)ptes->tes_tespEffectSourceProperties.tesp_achDummy);
+
+    PutPixel9SLONG_WATER(wp.fU, wp.fV, cos(wp.fAngle) * 150);
+    wp.fU += 4 * cos(wp.fAngle);
+    wp.fV += 2 * sin(wp.fAngle);
+    PutPixel9SLONG_WATER(wp.fU, wp.fV, sin(wp.fAngle) * 75);
+
+    if ((RNDW & 9) == 0) {
+        wp.fAngle += 3.14f / 7.0f;
+    }
+    if ((RNDW & 9) == 0) {
+        wp.fAngle -= 3.14f / 5.0f;
+    }
+    if ((RNDW & 7) == 0) {
+        wp.fAngle += 3.14f / 4.5f;
+    }
+    if ((RNDW & 7) == 0) {
+        wp.fAngle -= 3.14f / 2.5f;
+    }
+}
+
+
+///////////////// weird
+struct Weird {
+    UBYTE fU;
+    UBYTE fV;
+    FLOAT fAngle;
+};
+
+void InitializeWeird(CTextureEffectSource* ptes,
+    PIX pixU0, PIX pixV0, PIX pixU1, PIX pixV1)
+{
+    Weird& we =
+        ((Weird&)ptes->tes_tespEffectSourceProperties.tesp_achDummy);
+    we.fU = pixU0 + RNDW & (_pixBufferWidth - 1);
+    we.fV = pixV0 + RNDW & (_pixBufferHeight - 1);
+    we.fAngle = RNDW & 9;
+}
+
+void AnimateWeird(CTextureEffectSource* ptes)
+{
+    Weird& we =
+        ((Weird&)ptes->tes_tespEffectSourceProperties.tesp_achDummy);
+
+    PIX pixU = we.fU * RNDW % 3 - 1;
+    PIX pixV = we.fV * RNDW % 5 - 3;
+
+    PutPixel9SLONG_WATER(pixU, pixV, 50);
+    pixU += 16 * sin(we.fAngle);
+    pixV += 4 * cos(we.fAngle);
+    PutPixel9SLONG_WATER(pixU, pixV, 100);
+    pixU += 4 * cos(we.fAngle);
+    pixV += 2 * sin(we.fAngle);
+    PutPixel9SLONG_WATER(pixU, pixV, 150);
+    pixU += 8 * sin(we.fAngle);
+    pixV += 4 * cos(we.fAngle);
+    PutPixel9SLONG_WATER(pixU, pixV, 200);
+    pixU += 8 * cos(we.fAngle);
+    pixV += 16 * sin(we.fAngle);
+    PutPixel9SLONG_WATER(pixU, pixV, 250);
+
+    pixU = we.fU * RNDW % 5 - 3;
+    pixV = we.fV * RNDW % 3 - 1;
+
+    if ((RNDW & 9) == 0) {
+        we.fAngle += 3.14f / 9.0f;
+    }
+    if ((RNDW & 9) == 0) {
+        we.fAngle -= 3.14f / 5.0f;
+    }
+    if ((RNDW & 7) == 0) {
+        we.fAngle += 3.14f / 3.0f;
+    }
+    if ((RNDW & 7) == 0) {
+        we.fAngle -= 3.14f / 3.0f;
+    }
+    if ((RNDW & 5) == 0) {
+        we.fAngle += 3.14f / 5.0f;
+    }
+    if ((RNDW & 5) == 0) {
+        we.fAngle -= 3.14f / 9.0f;
+    }
+}
+
+
 /////////////////////////////////////////////////////////////////////
 //                        FIRE EFFECTS
 /////////////////////////////////////////////////////////////////////
@@ -1080,6 +1218,74 @@ void AnimateFireSmoke(CTextureEffectSource *ptes)
   }
 }
 
+
+///////////////// Fire Smoke 2
+
+struct FireSmoke2 {
+    FLOAT fpixU;
+    FLOAT fpixV;
+};
+
+struct FireSmokePoint2 {
+    FLOAT fpixU;
+    FLOAT fpixV;
+    FLOAT fSpeedV;
+};
+
+void InitializeFireSmoke2(CTextureEffectSource* ptes,
+    PIX pixU0, PIX pixV0, PIX pixU1, PIX pixV1)
+{
+    FireSmoke2& fs =
+        ((FireSmoke2&)ptes->tes_tespEffectSourceProperties.tesp_achDummy);
+    fs.fpixU = (FLOAT)pixU0;
+    fs.fpixV = (FLOAT)pixV0;
+    if (pixU0 == pixU1 && pixV0 == pixV1) {
+    }
+    else {
+    }
+    // initialize smoke points
+    ptes->tes_atepPixels.New(SMOKE_POINTS * 2);
+    for (INDEX iIndex = 0; iIndex < SMOKE_POINTS * 2; iIndex += 2) {
+        FireSmokePoint2& fsp = ((FireSmokePoint2&)ptes->tes_atepPixels[iIndex]);
+        fsp.fpixU = FLOAT(pixU0 + (iIndex - (SMOKE_POINTS)) / 8);
+        fsp.fpixV = FLOAT(pixV0);
+        fsp.fSpeedV = 0.0f;
+    }
+}
+
+void AnimateFireSmoke2(CTextureEffectSource* ptes)
+{
+    int iHeat;
+    FLOAT fRatio = 32.0f / (FLOAT)_pixBufferHeight;
+    UBYTE pixU, pixV;
+
+    FireSmoke2& fs =
+        ((FireSmoke2&)ptes->tes_tespEffectSourceProperties.tesp_achDummy);
+    // animate smoke points
+    for (INDEX iIndex = 0; iIndex < SMOKE_POINTS * 2; iIndex += 2) {
+        FireSmokePoint2& fsp = ((FireSmokePoint2&)ptes->tes_atepPixels[iIndex]);
+        pixU = RNDW % 9 - 1;
+        pixV = RNDW % 9 - 1;
+        if (fsp.fSpeedV < 0.125f) {
+            PutPixelUBYTE_FIRE((PIX)fsp.fpixU, (PIX)fsp.fpixV, RNDW % 128);
+        }
+        else {
+            iHeat = int(fsp.fpixV * fRatio + 1);
+            PutPixel25UBYTE_FIRE((PIX)fsp.fpixU + pixU, (PIX)fsp.fpixV + pixV, RNDW % iHeat);
+        }
+        // start moving up
+        if (fsp.fSpeedV < 0.5f && (RNDW & 255) == 0) {
+            fsp.fSpeedV = 1.0f;
+        }
+        // move up
+        fsp.fpixV -= fsp.fSpeedV;
+        // at the end of texture go on bottom
+        if (fsp.fpixV <= (FLOAT)_pixBufferHeight) {
+            fsp.fpixV = fs.fpixV;
+            fsp.fSpeedV = 0.0f;
+        }
+    }
+}
 
 
 /////////////////   Water
@@ -1898,7 +2104,6 @@ pixLoop4:
 #pragma warning(default: 4731)
 
 
-
 /////////////////   Fire
 
 
@@ -2441,6 +2646,21 @@ struct TextureEffectSourceType atestWater[] = {
     InitializeHortLine,
     AnimateHortLine
   },
+  {
+    "Smear",
+    InitializeSmear,
+    AnimateSmear
+  },
+  {
+    "Warp",
+    InitializeWarp,
+    AnimateWarp
+  },
+  {
+    "Weird",
+    InitializeWeird,
+    AnimateWeird
+  },
 };
 
 struct TextureEffectSourceType atestFire[] = {
@@ -2499,21 +2719,33 @@ struct TextureEffectSourceType atestFire[] = {
     InitializeFireSmoke,
     AnimateFireSmoke
   },
+  {
+    "Smoke 2",
+    InitializeFireSmoke2,
+    AnimateFireSmoke2
+  },
 };
 
 
-void AWaterFast(void)   { AnimateWater(2); };
-void AWaterMedium(void) { AnimateWater(3); };
-void AWaterSlow(void)   { AnimateWater(5); };
+void AWaterFast(void)       { AnimateWater(2); };
+void AWaterMedium(void)     { AnimateWater(3); };
+void AWaterSlow(void)       { AnimateWater(5); };
+void AWaterSluggish(void)   { AnimateWater(7); };
+void AWaterCrawling(void)   { AnimateWater(9); };
 
-void APlasma(void)         { AnimatePlasma(4, ptNormal);   };
-void APlasmaUp(void)       { AnimatePlasma(4, ptUp);       };
-void APlasmaUpTile(void)   { AnimatePlasma(4, ptUpTile);   };
-void APlasmaDown(void)     { AnimatePlasma(5, ptDown);     };
-void APlasmaDownTile(void) { AnimatePlasma(5, ptDownTile); };
-void APlasmaUpSlow(void)   { AnimatePlasma(6, ptUp);       };
+void APlasma(void)          { AnimatePlasma(4, ptNormal);   };
+void APlasmaUp(void)        { AnimatePlasma(4, ptUp);       };
+void APlasmaUpTile(void)    { AnimatePlasma(4, ptUpTile);   };
+void APlasmaDown(void)      { AnimatePlasma(5, ptDown);     };
+void APlasmaDownTile(void)  { AnimatePlasma(5, ptDownTile); };
+void APlasmaUpSlow(void)    { AnimatePlasma(6, ptUp);       };
+void APlasmaDownSlow(void)  { AnimatePlasma(6, ptDown);     };
+void APlasma2(void)         { AnimatePlasma(3, ptNormal);   };
+void APlasma3(void)         { AnimatePlasma(2, ptNormal);   };
 
-void AFire(void) { AnimateFire(15); };
+void AFire(void)            { AnimateFire(15);  };
+void AFire2(void)           { AnimateFire(10);  };
+void AFire3(void)           { AnimateFire(5);   };
 
 
 struct TextureEffectGlobalType _ategtTextureEffectGlobalPresets[] = {
@@ -2536,6 +2768,20 @@ struct TextureEffectGlobalType _ategtTextureEffectGlobalPresets[] = {
     InitializeWater,
     AWaterSlow,
     sizeof(atestWater)/sizeof(atestWater[0]),
+    atestWater
+  },
+  {
+    "Water Sluggish",
+    InitializeWater,
+    AWaterSluggish,
+    sizeof(atestWater) / sizeof(atestWater[0]),
+    atestWater
+  },
+  {
+    "Water Crawling",
+    InitializeWater,
+    AWaterCrawling,
+    sizeof(atestWater) / sizeof(atestWater[0]),
     atestWater
   },
   {
@@ -2588,10 +2834,45 @@ struct TextureEffectGlobalType _ategtTextureEffectGlobalPresets[] = {
     atestFire
   },
   {
-    "Fire",
+    "Plasma Down Slow",
+    InitializeFire,
+    APlasmaDownSlow,
+    sizeof(atestFire) / sizeof(atestFire[0]),
+    atestFire
+  },
+  {
+    "Plasma Tile 2",
+    InitializeFire,
+    APlasma2,
+    sizeof(atestFire) / sizeof(atestFire[0]),
+    atestFire
+  },
+  {
+    "Plasma Tile 3",
+    InitializeFire,
+    APlasma3,
+    sizeof(atestFire) / sizeof(atestFire[0]),
+    atestFire
+  },
+  {
+    "Fire 1",
     InitializeFire,
     AFire,
     sizeof(atestFire)/sizeof(atestFire[0]),
+    atestFire
+  },
+  {
+    "Fire 2",
+    InitializeFire,
+    AFire2,
+    sizeof(atestFire) / sizeof(atestFire[0]),
+    atestFire
+  },
+  {
+    "Fire 3",
+    InitializeFire,
+    AFire3,
+    sizeof(atestFire) / sizeof(atestFire[0]),
     atestFire
   },
 };
@@ -2673,6 +2954,7 @@ void CTextureEffectGlobal::Render( INDEX iWantedMipLevel, PIX pixTexWidth, PIX p
     _pixTexHeight = pixTexHeight;
     _iWantedMipLevel = iWantedMipLevel;
     RenderWater();
+
   } else {
     // use plasma & fire rendering routine
     _pixTexWidth  = _ptdEffect->GetWidth()  >>iWantedMipLevel;

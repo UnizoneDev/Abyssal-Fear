@@ -1,4 +1,4 @@
-/* Copyright (c) 2002-2012 Croteam Ltd. 
+/* Copyright (c) 2002-2012 Croteam Ltd.
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -16,7 +16,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifndef SE_INCL_COLOR_H
 #define SE_INCL_COLOR_H
 #ifdef PRAGMA_ONCE
-  #pragma once
+#pragma once
 #endif
 
 #include <Engine/Math/Functions.h>
@@ -127,187 +127,153 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // global factors for saturation and stuff
 extern SLONG _slTexSaturation;
 extern SLONG _slTexHueShift;
-extern SLONG _slShdSaturation; 
+extern SLONG _slShdSaturation;
 extern SLONG _slShdHueShift;
 
 
 // COLOR FORMAT CONVERSION ROUTINES
 
 // convert separate R,G and B color components to CroTeam COLOR format (ULONG type)
-__forceinline COLOR RGBToColor( UBYTE const ubR, UBYTE const ubG, UBYTE const ubB) {
-  return ((ULONG)ubR<<CT_RSHIFT) | ((ULONG)ubG<<CT_GSHIFT) | ((ULONG)ubB<<CT_BSHIFT);
+__forceinline COLOR RGBToColor(UBYTE const ubR, UBYTE const ubG, UBYTE const ubB) {
+    return ((ULONG)ubR << CT_RSHIFT) | ((ULONG)ubG << CT_GSHIFT) | ((ULONG)ubB << CT_BSHIFT);
 }
 // convert CroTeam COLOR format to separate R,G and B color components
-__forceinline void ColorToRGB( COLOR const col, UBYTE &ubR, UBYTE &ubG, UBYTE &ubB) {
-  ubR = (col&CT_RMASK)>>CT_RSHIFT;
-  ubG = (col&CT_GMASK)>>CT_GSHIFT;
-  ubB = (col&CT_BMASK)>>CT_BSHIFT;
+__forceinline void ColorToRGB(COLOR const col, UBYTE& ubR, UBYTE& ubG, UBYTE& ubB) {
+    ubR = (col & CT_RMASK) >> CT_RSHIFT;
+    ubG = (col & CT_GMASK) >> CT_GSHIFT;
+    ubB = (col & CT_BMASK) >> CT_BSHIFT;
 }
 // combine CroTeam COLOR format from separate R,G and B color components
-__forceinline COLOR RGBAToColor( UBYTE const ubR, UBYTE const ubG, UBYTE const ubB, UBYTE const ubA) {
-  return ((ULONG)ubR<<CT_RSHIFT) | ((ULONG)ubG<<CT_GSHIFT)
-       | ((ULONG)ubB<<CT_BSHIFT) | ((ULONG)ubA<<CT_ASHIFT);
+__forceinline COLOR RGBAToColor(UBYTE const ubR, UBYTE const ubG, UBYTE const ubB, UBYTE const ubA) {
+    return ((ULONG)ubR << CT_RSHIFT) | ((ULONG)ubG << CT_GSHIFT)
+        | ((ULONG)ubB << CT_BSHIFT) | ((ULONG)ubA << CT_ASHIFT);
 }
 // separate CroTeam COLOR format to R,G and B color components
-__forceinline void ColorToRGBA( COLOR const col, UBYTE &ubR, UBYTE &ubG, UBYTE &ubB, UBYTE &ubA) {
-  ubR = (col&CT_RMASK)>>CT_RSHIFT;
-  ubG = (col&CT_GMASK)>>CT_GSHIFT;
-  ubB = (col&CT_BMASK)>>CT_BSHIFT;
-  ubA = (col&CT_AMASK)>>CT_ASHIFT;
+__forceinline void ColorToRGBA(COLOR const col, UBYTE& ubR, UBYTE& ubG, UBYTE& ubB, UBYTE& ubA) {
+    ubR = (col & CT_RMASK) >> CT_RSHIFT;
+    ubG = (col & CT_GMASK) >> CT_GSHIFT;
+    ubB = (col & CT_BMASK) >> CT_BSHIFT;
+    ubA = (col & CT_AMASK) >> CT_ASHIFT;
 }
 
 // convert HSV components to CroTeam COLOR format
-ENGINE_API extern COLOR HSVToColor( UBYTE const ubH, UBYTE const ubS, UBYTE const ubV);
+ENGINE_API extern COLOR HSVToColor(UBYTE const ubH, UBYTE const ubS, UBYTE const ubV);
 // convert CroTeam COLOR format to HSV components
-ENGINE_API extern void  ColorToHSV( COLOR const colSrc, UBYTE &ubH, UBYTE &ubS, UBYTE &ubV);
+ENGINE_API extern void  ColorToHSV(COLOR const colSrc, UBYTE& ubH, UBYTE& ubS, UBYTE& ubV);
 
 // convert HSVA components to CroTeam COLOR format
-__forceinline COLOR HSVAToColor( UBYTE const ubH, UBYTE const ubS, UBYTE const ubV, UBYTE const ubA) {
-  return HSVToColor( ubH,ubS,ubV) | ((ULONG)ubA<<CT_ASHIFT);
+__forceinline COLOR HSVAToColor(UBYTE const ubH, UBYTE const ubS, UBYTE const ubV, UBYTE const ubA) {
+    return HSVToColor(ubH, ubS, ubV) | ((ULONG)ubA << CT_ASHIFT);
 }
 // convert CroTeam COLOR format to HSVA components
-__forceinline void ColorToHSVA( COLOR const colSrc, UBYTE &ubH, UBYTE &ubS, UBYTE &ubV, UBYTE &ubA) {
-  ColorToHSV( colSrc, ubH,ubS,ubV);
-  ubA = (colSrc&CT_AMASK)>>CT_ASHIFT;
+__forceinline void ColorToHSVA(COLOR const colSrc, UBYTE& ubH, UBYTE& ubS, UBYTE& ubV, UBYTE& ubA) {
+    ColorToHSV(colSrc, ubH, ubS, ubV);
+    ubA = (colSrc & CT_AMASK) >> CT_ASHIFT;
 }
 
 // is color gray, black or white?
-ENGINE_API extern BOOL IsGray(  COLOR const col);
-ENGINE_API extern BOOL IsBlack( COLOR const col);
-ENGINE_API extern BOOL IsWhite( COLOR const col);
+ENGINE_API extern BOOL IsGray(COLOR const col);
+ENGINE_API extern BOOL IsBlack(COLOR const col);
+ENGINE_API extern BOOL IsWhite(COLOR const col);
 
 // find corresponding desaturated color (it's not same as gray!)
-ENGINE_API extern COLOR DesaturateColor( COLOR const col);
+ENGINE_API extern COLOR DesaturateColor(COLOR const col);
 
 // is color1 bigger than color2 (gray comparison)
-ENGINE_API extern BOOL IsBigger( COLOR const col1, COLOR const col2);
+ENGINE_API extern BOOL IsBigger(COLOR const col1, COLOR const col2);
 // has color same hue and saturation (with little tolerance) ?
-ENGINE_API extern BOOL CompareChroma( COLOR col1, COLOR col2);
+ENGINE_API extern BOOL CompareChroma(COLOR col1, COLOR col2);
 
 // adjust color saturation and/or hue (hue shift in 0-255 range!)
-ENGINE_API extern COLOR AdjustColor( COLOR const col, SLONG const slHueShift, SLONG const slSaturation);
-ENGINE_API extern COLOR AdjustGamma( COLOR const col, FLOAT const fGamma);
+ENGINE_API extern COLOR AdjustColor(COLOR const col, SLONG const slHueShift, SLONG const slSaturation);
+ENGINE_API extern COLOR AdjustGamma(COLOR const col, FLOAT const fGamma);
 // color lerping functions
-ENGINE_API extern COLOR LerpColor( COLOR col0, COLOR col1, FLOAT fRatio);
-ENGINE_API extern void  LerpColor( COLOR col0, COLOR col1, FLOAT fRatio, UBYTE &ubR, UBYTE &ubG, UBYTE &ubB);
+ENGINE_API extern COLOR LerpColor(COLOR col0, COLOR col1, FLOAT fRatio);
+ENGINE_API extern void  LerpColor(COLOR col0, COLOR col1, FLOAT fRatio, UBYTE& ubR, UBYTE& ubG, UBYTE& ubB);
 
 // some fast color manipulation functions
-ENGINE_API extern COLOR MulColors( COLOR col1, COLOR col2); // fast color multiply function - RES = 1ST * 2ND /255
-ENGINE_API extern COLOR AddColors( COLOR col1, COLOR col2); // fast color additon function - RES = clamp (1ST + 2ND)
+ENGINE_API extern COLOR MulColors(COLOR col1, COLOR col2); // fast color multiply function - RES = 1ST * 2ND /255
+ENGINE_API extern COLOR AddColors(COLOR col1, COLOR col2); // fast color additon function - RES = clamp (1ST + 2ND)
 
 
 
 // converts colors between Croteam, OpenGL and DirectX
 
-__forceinline ULONG ByteSwap( ULONG ul)
+__forceinline ULONG rgba2argb(COLOR col)
 {
-/* rcg10052001 Platform-wrappers. */
 #if (defined USE_PORTABLE_C)
-	return( ((ul << 24)            ) |
-            ((ul << 8) & 0x00FF0000) |
-            ((ul >> 8) & 0x0000FF00) |
-            ((ul >> 24)            ) );
+    return((col << 24) | (col >> 8));
 
 #elif (defined _MSC_VER)
-  ULONG ulRet;
-  __asm {
-    mov   eax,dword ptr [ul]
-    bswap eax
-    mov   dword ptr [ulRet],eax
-  }
-  return ulRet;
-#elif (defined __GNUC__)
-  __asm__ __volatile__ (
-    "bswapl   %%eax    \n\t"
-        : "=a" (ul)
-        : "a" (ul)
-  );
-  return(ul);
+    ULONG ulRet;
+    __asm {
+        mov   eax, dword ptr[col]
+        ror   eax, 8
+        mov   dword ptr[ulRet], eax
+    }
+    return ulRet;
 
 #else
-  #error please define for your platform.
+#error please define for your platform.
 #endif
 }
 
-__forceinline ULONG rgba2argb( COLOR col)
+__forceinline ULONG abgr2argb(ULONG ul)
 {
 #if (defined USE_PORTABLE_C)
-	return( (col << 24) | (col >> 8) );
+    ul = ByteSwap32(ul);
+    return ((ul << 24) | (ul >> 8));
 
 #elif (defined _MSC_VER)
-  ULONG ulRet;
-  __asm {
-    mov   eax,dword ptr [col]
-    ror   eax,8
-    mov   dword ptr [ulRet],eax
-  }
-  return ulRet;
+    ULONG ulRet;
+    __asm {
+        mov   eax, dword ptr[ul]
+        bswap eax
+        ror   eax, 8
+        mov   dword ptr[ulRet], eax
+    }
+    return ulRet;
 
 #else
-  #error please define for your platform.
-#endif
-}
-
-__forceinline ULONG abgr2argb( ULONG ul)
-{
-#if (defined USE_PORTABLE_C)
-	// this could be simplified, this is just a safe conversion from asm code
-	ul = ( ((ul << 24)            ) |
-         ((ul << 8) & 0x00FF0000) |
-         ((ul >> 8) & 0x0000FF00) |
-         ((ul >> 24)            ) );
-	return( (ul << 24) | (ul >> 8) );
-
-#elif (defined _MSC_VER)
-  ULONG ulRet;
-  __asm {
-    mov   eax,dword ptr [ul]
-    bswap eax
-    ror   eax,8
-    mov   dword ptr [ulRet],eax
-  }
-  return ulRet;
-
-#else
-  #error please define for your platform.
+#error please define for your platform.
 #endif
 }
 
 
 // multiple conversion from OpenGL color to DirectX color
-extern void abgr2argb( ULONG *pulSrc, ULONG *pulDst, INDEX ct);
+extern void abgr2argb(ULONG* pulSrc, ULONG* pulDst, INDEX ct);
 
 
 // fast memory copy of ULONGs
-inline void CopyLongs( ULONG *pulSrc, ULONG *pulDst, INDEX ctLongs)
+inline void CopyLongs(ULONG* pulSrc, ULONG* pulDst, INDEX ctLongs)
 {
 #if (defined _MSC_VER)
-  __asm {
-    cld
-    mov   esi,dword ptr [pulSrc]
-    mov   edi,dword ptr [pulDst]
-    mov   ecx,dword ptr [ctLongs]
-    rep   movsd
-  }
+    __asm {
+        cld
+        mov   esi, dword ptr[pulSrc]
+        mov   edi, dword ptr[pulDst]
+        mov   ecx, dword ptr[ctLongs]
+        rep   movsd
+    }
 #else
-  memcpy( pulDst, pulSrc, ctLongs*4);
+    memcpy(pulDst, pulSrc, ctLongs * 4);
 #endif
 }
 
 
 // fast memory set of ULONGs
-inline void StoreLongs( ULONG ulVal, ULONG *pulDst, INDEX ctLongs)
+inline void StoreLongs(ULONG ulVal, ULONG* pulDst, INDEX ctLongs)
 {
 #if (defined _MSC_VER)
-  __asm {
-    cld
-    mov   eax,dword ptr [ulVal]
-    mov   edi,dword ptr [pulDst]
-    mov   ecx,dword ptr [ctLongs]
-    rep   stosd
-  }
+    __asm {
+        cld
+        mov   eax, dword ptr[ulVal]
+        mov   edi, dword ptr[pulDst]
+        mov   ecx, dword ptr[ctLongs]
+        rep   stosd
+    }
 #else
-  for( INDEX i=0; i<ctLongs; i++) pulDst[i] = ulVal;
+    for (INDEX i = 0; i < ctLongs; i++) pulDst[i] = ulVal;
 #endif
 }
 

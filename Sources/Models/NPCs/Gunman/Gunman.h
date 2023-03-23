@@ -1,0 +1,29 @@
+// Animation names
+#define GUNMAN_ANIM_DEFAULT 0
+#define GUNMAN_ANIM_STAND 1
+#define GUNMAN_ANIM_WALK 2
+#define GUNMAN_ANIM_WOUND 3
+#define GUNMAN_ANIM_DEATH 4
+#define GUNMAN_ANIM_RUN 5
+#define GUNMAN_ANIM_STRAFERIGHT 6
+#define GUNMAN_ANIM_STRAFELEFT 7
+#define GUNMAN_ANIM_RUNPISTOL 8
+#define GUNMAN_ANIM_SHOOTPISTOL 9
+#define GUNMAN_ANIM_KICK 10
+#define GUNMAN_ANIM_WALKSHOTGUN 11
+#define GUNMAN_ANIM_RUNSHOTGUN 12
+#define GUNMAN_ANIM_SHOOTSHOTGUN 13
+
+// Color names
+
+// Patch names
+
+// Names of collision boxes
+#define GUNMAN_COLLISION_BOX_DEFAULT 0
+#define GUNMAN_COLLISION_BOX_DEATH_BOX 1
+
+// Attaching position names
+#define GUNMAN_ATTACHMENT_PISTOL 0
+#define GUNMAN_ATTACHMENT_SHOTGUN 1
+
+// Sound names

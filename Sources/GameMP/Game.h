@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <GameMP/PlayerSettings.h>
 #include <GameMP/SessionProperties.h>
+#include <GameMP/Achievement.h>
 
 #define GAME_SHELL_VER "V012"
 
@@ -161,7 +162,6 @@ public:
 class CGame {
 public:
   enum ConsoleState gm_csConsoleState;
-  enum ConsoleState gm_csComputerState;
 
   CTFileName gm_fnSaveFileName;
 
@@ -250,12 +250,6 @@ public:
   virtual void ConsoleRender(CDrawPort *pdpDrawport);
   virtual void ConsolePrintLastLines(CDrawPort *pdpDrawport);
 
-  // computer functions
-  virtual void ComputerMouseMove(PIX pixX, PIX pixY);
-  virtual void ComputerKeyDown(MSG msg);
-  virtual void ComputerRender(CDrawPort *pdpDrawport);
-  virtual void ComputerForceOff();
-
   // loading hook functions
   virtual void EnableLoadingHook(CDrawPort *pdpDrawport);
   virtual void DisableLoadingHook(void);
@@ -298,8 +292,6 @@ public:
   virtual void LCDRenderClouds1(void);
   virtual void LCDRenderClouds2(void);
           void LCDRenderCloudsForComp(void);
-          void LCDRenderCompGrid(void);
-  virtual void LCDRenderGrid(void);
   virtual void LCDDrawPointer(PIX pixI, PIX pixJ);
   virtual COLOR LCDGetColor(COLOR colDefault, const char *strName);
   virtual COLOR LCDFadedColor(COLOR col);
@@ -308,6 +300,9 @@ public:
   // menu interface functions
   virtual void MenuPreRenderMenu(const char *strMenuName);
   virtual void MenuPostRenderMenu(const char *strMenuName);
+
+  // achievement functions
+  virtual CAchievement* GetAchievement(INDEX iAchievement);
 };
 
 #endif

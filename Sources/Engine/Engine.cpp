@@ -43,6 +43,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/Stock_CShader.h>
 #include <Engine/Templates/StaticArray.cpp>
 #include <Engine/Base/IFeel.h>
+#include <intrin.h>
 
 // this version string can be referenced from outside the engine
 ENGINE_API CTString _strEngineBuild  = "";
@@ -82,6 +83,7 @@ static BOOL  sys_bCPUHasCMOV = 0;
 static INDEX sys_iCPUMHz = 0;
        INDEX sys_iCPUMisc = 0;
 
+
 // RAM info
 static INDEX sys_iRAMPhys = 0;
 static INDEX sys_iRAMSwap = 0;
@@ -116,54 +118,63 @@ BOOL APIENTRY DllMain( HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 
 static void DetectCPU(void)
 {
-  char strVendor[12+1];
-  strVendor[12] = 0;
-  ULONG ulTFMS;
-  ULONG ulFeatures;
+    char strVendor[12 + 1];
+    strVendor[12] = 0;
+    ULONG ulTFMS;
+    ULONG ulFeatures;
 
-  // test MMX presence and update flag
-  __asm {
-    mov     eax,0           ;// request for basic id
-    cpuid
-    mov     dword ptr [strVendor+0], ebx
-    mov     dword ptr [strVendor+4], edx
-    mov     dword ptr [strVendor+8], ecx
-    mov     eax,1           ;// request for TFMS feature flags
-    cpuid
-    mov     dword ptr [ulTFMS], eax ;// remember type, family, model and stepping
-    mov     dword ptr [ulFeatures], edx
-  }
+    // test MMX presence and update flag
+    union {
+        int regs[4];
 
-  INDEX iType     = (ulTFMS>>12)&0x3;
-  INDEX iFamily   = (ulTFMS>> 8)&0xF;
-  INDEX iModel    = (ulTFMS>> 4)&0xF;
-  INDEX iStepping = (ulTFMS>> 0)&0xF;
+        struct {
+            int EAX, EBX, ECX, EDX;
+        };
+    } procID;
+
+    // Get highest function parameter and CPU's manufacturer ID string
+    __cpuid(procID.regs, 0);
+
+    memcpy(&strVendor[0], &procID.EBX, 4);
+    memcpy(&strVendor[4], &procID.EDX, 4);
+    memcpy(&strVendor[8], &procID.ECX, 4);
+
+    // Get processor info and feature bits
+    __cpuid(procID.regs, 1);
+
+    memcpy(&ulTFMS, &procID.EAX, 4);
+    memcpy(&ulFeatures, &procID.EDX, 4);
+
+    INDEX iType = (ulTFMS >> 12) & 0x3;
+    INDEX iFamily = (ulTFMS >> 8) & 0xF;
+    INDEX iModel = (ulTFMS >> 4) & 0xF;
+    INDEX iStepping = (ulTFMS >> 0) & 0xF;
 
 
-  CPrintF(TRANS("  Vendor: %s\n"), strVendor);
-  CPrintF(TRANS("  Type: %d, Family: %d, Model: %d, Stepping: %d\n"),
-    iType, iFamily, iModel, iStepping);
+    CPrintF(TRANS("  Vendor: %s\n"), strVendor);
+    CPrintF(TRANS("  Type: %d, Family: %d, Model: %d, Stepping: %d\n"),
+        iType, iFamily, iModel, iStepping);
 
-  BOOL bMMX  = ulFeatures & (1<<23);
-  BOOL bCMOV = ulFeatures & (1<<15);
+    BOOL bMMX = ulFeatures & (1 << 23);
+    BOOL bCMOV = ulFeatures & (1 << 15);
 
-  CTString strYes = TRANS("Yes");
-  CTString strNo = TRANS("No");
+    CTString strYes = TRANS("Yes");
+    CTString strNo = TRANS("No");
 
-  CPrintF(TRANS("  MMX : %s\n"), bMMX ?strYes:strNo);
-  CPrintF(TRANS("  CMOV: %s\n"), bCMOV?strYes:strNo);
-  CPrintF(TRANS("  Clock: %.0fMHz\n"), _pTimer->tm_llCPUSpeedHZ/1E6);
+    CPrintF(TRANS("  MMX : %s\n"), bMMX ? strYes : strNo);
+    CPrintF(TRANS("  CMOV: %s\n"), bCMOV ? strYes : strNo);
+    CPrintF(TRANS("  Clock: %.0fMHz\n"), _pTimer->tm_llCPUSpeedHZ / 1E6);
 
-  sys_strCPUVendor = strVendor;
-  sys_iCPUType = iType;
-  sys_iCPUFamily =  iFamily;
-  sys_iCPUModel = iModel;
-  sys_iCPUStepping = iStepping;
-  sys_bCPUHasMMX = bMMX!=0;
-  sys_bCPUHasCMOV = bCMOV!=0;
-  sys_iCPUMHz = INDEX(_pTimer->tm_llCPUSpeedHZ/1E6);
+    sys_strCPUVendor = strVendor;
+    sys_iCPUType = iType;
+    sys_iCPUFamily = iFamily;
+    sys_iCPUModel = iModel;
+    sys_iCPUStepping = iStepping;
+    sys_bCPUHasMMX = bMMX != 0;
+    sys_bCPUHasCMOV = bCMOV != 0;
+    sys_iCPUMHz = INDEX(_pTimer->tm_llCPUSpeedHZ / 1E6);
 
-  if( !bMMX) FatalError( TRANS("MMX support required but not present!"));
+    if (!bMMX) FatalError(TRANS("MMX support required but not present!"));
 }
 
 static void DetectCPUWrapper(void)
@@ -356,12 +367,14 @@ ENGINE_API void SE_InitEngine(CTString strGameID)
   _pShell->DeclareSymbol("user INDEX wld_bFastObjectOptimization;", &wld_bFastObjectOptimization);
   _pShell->DeclareSymbol("user FLOAT mth_fCSGEpsilon;", &mth_fCSGEpsilon);
   _pShell->DeclareSymbol("persistent user INDEX fil_bPreferZips;", &fil_bPreferZips);
+
   // OS info
   _pShell->DeclareSymbol("user const CTString sys_strOS    ;", &sys_strOS);
   _pShell->DeclareSymbol("user const INDEX sys_iOSMajor    ;", &sys_iOSMajor);
   _pShell->DeclareSymbol("user const INDEX sys_iOSMinor    ;", &sys_iOSMinor);
   _pShell->DeclareSymbol("user const INDEX sys_iOSBuild    ;", &sys_iOSBuild);
   _pShell->DeclareSymbol("user const CTString sys_strOSMisc;", &sys_strOSMisc);
+
   // CPU info
   _pShell->DeclareSymbol("user const CTString sys_strCPUVendor;", &sys_strCPUVendor);
   _pShell->DeclareSymbol("user const INDEX sys_iCPUType       ;", &sys_iCPUType    );
@@ -371,13 +384,14 @@ ENGINE_API void SE_InitEngine(CTString strGameID)
   _pShell->DeclareSymbol("user const INDEX sys_bCPUHasMMX     ;", &sys_bCPUHasMMX  );
   _pShell->DeclareSymbol("user const INDEX sys_bCPUHasCMOV    ;", &sys_bCPUHasCMOV );
   _pShell->DeclareSymbol("user const INDEX sys_iCPUMHz        ;", &sys_iCPUMHz     );
-  _pShell->DeclareSymbol("     const INDEX sys_iCPUMisc       ;", &sys_iCPUMisc    );
+
   // RAM info
   _pShell->DeclareSymbol("user const INDEX sys_iRAMPhys;", &sys_iRAMPhys);
   _pShell->DeclareSymbol("user const INDEX sys_iRAMSwap;", &sys_iRAMSwap);
   _pShell->DeclareSymbol("user const INDEX sys_iHDDSize;", &sys_iHDDSize);
   _pShell->DeclareSymbol("user const INDEX sys_iHDDFree;", &sys_iHDDFree);
   _pShell->DeclareSymbol("     const INDEX sys_iHDDMisc;", &sys_iHDDMisc);
+
   // MOD info
   _pShell->DeclareSymbol("user const CTString sys_strModName;", &sys_strModName);
   _pShell->DeclareSymbol("user const CTString sys_strModExt;",  &sys_strModExt);
@@ -395,6 +409,33 @@ ENGINE_API void SE_InitEngine(CTString strGameID)
   // keep mod name in sys cvar
   sys_strModName = _strModName;
   sys_strModExt  = _strModExt;
+
+// checking of crc
+#if 0
+  ULONG ulCRCActual = -2;
+  SLONG ulCRCExpected = -1;
+  try {
+    // get the checksum of engine
+    #ifndef NDEBUG
+      #define SELFFILE "Bin\\Debug\\EngineD.dll"
+      #define SELFCRCFILE "Bin\\Debug\\EngineD.crc"
+    #else
+      #define SELFFILE "Bin\\Engine.dll"
+      #define SELFCRCFILE "Bin\\Engine.crc"
+    #endif
+    ulCRCActual = GetFileCRC32_t(CTString(SELFFILE));
+    // load expected checksum from the file on disk
+    ulCRCExpected = 0;
+    LoadIntVar(CTString(SELFCRCFILE), ulCRCExpected);
+  } catch (char *strError) {
+    CPrintF("%s\n", strError);
+  }
+  // if not same
+  if (ulCRCActual!=ulCRCExpected) {
+    // don't run
+    //FatalError(TRANS("Engine CRC is invalid.\nExpected %08x, but found %08x.\n"), ulCRCExpected, ulCRCActual);
+  }
+#endif
 
   _pInput->Initialize();
 
@@ -419,6 +460,7 @@ ENGINE_API void SE_InitEngine(CTString strGameID)
   // mark that default fonts aren't loaded (yet)
   _pfdDisplayFont = NULL;
   _pfdConsoleFont = NULL;
+  _pfdRunicFont = NULL;
 
   // readout system gamma table
   HDC  hdc = GetDC(NULL);
@@ -508,9 +550,77 @@ ENGINE_API void SE_EndEngine(void)
   // remove default fonts if needed
   if( _pfdDisplayFont != NULL) { delete _pfdDisplayFont;  _pfdDisplayFont=NULL; }
   if( _pfdConsoleFont != NULL) { delete _pfdConsoleFont;  _pfdConsoleFont=NULL; } 
+  if (_pfdRunicFont != NULL) { delete _pfdRunicFont;  _pfdRunicFont = NULL; }
 
   // deinit IFeel
   IFeel_DeleteDevice();
+}
+
+
+// shutdown entire computer
+ENGINE_API void SE_ShutdownComputer(DWORD dwTimeUntilShutdown)
+{
+    HANDLE hToken;
+    TOKEN_PRIVILEGES tkp;
+
+    // Get a token for this process. 
+
+    OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken);
+
+    // Get the LUID for the shutdown privilege. 
+
+    LookupPrivilegeValueA(NULL, "SeShutdownPrivilege",
+        &tkp.Privileges[0].Luid);
+
+    tkp.PrivilegeCount = 1;  // one privilege to set    
+    tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+    // Get the shutdown privilege for this process. 
+
+    AdjustTokenPrivileges(hToken, FALSE, &tkp, 0,
+        (PTOKEN_PRIVILEGES)NULL, 0);
+
+    InitiateSystemShutdownExA(NULL, "It's too late now...", dwTimeUntilShutdown, TRUE, TRUE, SHTDN_REASON_MAJOR_SYSTEM|SHTDN_REASON_MINOR_BLUESCREEN);
+}
+
+
+// show a message box
+ENGINE_API void SE_DisplayMessageBox(CTString strTitle, CTString strBody)
+{
+    MessageBoxA(NULL, strBody, strTitle, MB_OK | MB_SETFOREGROUND | MB_TASKMODAL);
+}
+
+
+// open a program
+ENGINE_API void SE_ShellExecute(CTString pathFile)
+{
+    ShellExecuteA(NULL, "open", _fnmApplicationPath+pathFile, NULL, NULL, 0);
+}
+
+
+// create a text file and write some letters into it
+ENGINE_API void SE_CreateTextFile(CTString pathFile, CTString dataText)
+{
+    HANDLE hTextFile;
+    DWORD dBufferText;
+
+    hTextFile = CreateFileA(_fnmApplicationPath+pathFile, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+    WriteFile(hTextFile, dataText, strlen(dataText), &dBufferText, NULL);
+    CloseHandle(hTextFile);
+}
+
+
+// make a file hidden with system and hidden attributes
+ENGINE_API void SE_HideFile(CTString pathFile)
+{
+    SetFileAttributesA(_fnmApplicationPath+pathFile, FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM);
+}
+
+
+// remove a file's right to exist
+ENGINE_API void SE_DeleteFile(CTString pathFile)
+{
+    DeleteFileA(_fnmApplicationPath+pathFile);
 }
 
 
@@ -519,11 +629,13 @@ ENGINE_API void SE_LoadDefaultFonts(void)
 {
   _pfdDisplayFont = new CFontData;
   _pfdConsoleFont = new CFontData;
+  _pfdRunicFont = new CFontData;
 
   // try to load default fonts
   try {
-    _pfdDisplayFont->Load_t( CTFILENAME( "Fonts\\Display3-narrow.fnt"));
-    _pfdConsoleFont->Load_t( CTFILENAME( "Fonts\\Console1.fnt"));
+    _pfdDisplayFont->Load_t( CTFILENAME( "Fonts\\UZBigFont.fnt"));
+    _pfdConsoleFont->Load_t( CTFILENAME( "Fonts\\UZConsoleFont.fnt"));
+    _pfdRunicFont->Load_t(CTFILENAME("Fonts\\UZRuneFont.fnt"));
   }
   catch (char *strError) {
     FatalError( TRANS("Error loading font: %s."), strError);
@@ -534,6 +646,8 @@ ENGINE_API void SE_LoadDefaultFonts(void)
   _pfdConsoleFont->SetCharSpacing(-1);
   _pfdConsoleFont->SetLineSpacing(+1);
   _pfdConsoleFont->SetFixedWidth();
+  _pfdRunicFont->SetCharSpacing(0);
+  _pfdRunicFont->SetLineSpacing(+1);
 }
 
 
@@ -546,117 +660,14 @@ ENGINE_API void SE_UpdateWindowHandle( HWND hwndMain)
 }
 
 
-static BOOL TouchBlock(UBYTE *pubMemoryBlock, INDEX ctBlockSize)
-{
-  // cannot pretouch block that are smaller than 64KB :(
-  ctBlockSize -= 16*0x1000;
-  if( ctBlockSize<4) return FALSE; 
-
-  __try {
-    // 4 times should be just enough
-    for( INDEX i=0; i<4; i++) {
-      // must do it in asm - don't know what VC will try to optimize
-      __asm {
-        // The 16-page skip is to keep Win 95 from thinking we're trying to page ourselves in
-        // (we are doing that, of course, but there's no reason we shouldn't) - THANX JOHN! :)
-        mov   esi,dword ptr [pubMemoryBlock]
-        mov   ecx,dword ptr [ctBlockSize]
-        shr   ecx,2
-touchLoop:
-        mov   eax,dword ptr [esi]
-        mov   ebx,dword ptr [esi+16*0x1000]
-        add   eax,ebx     // BLA, BLA, TROOCH, TRUCH
-        add   esi,4
-        dec   ecx
-        jnz   touchLoop
-      }
-    }
-  }
-  __except(EXCEPTION_EXECUTE_HANDLER) { 
-    return FALSE;
-  }
-  return TRUE;
-}
-
-
-// pretouch all memory commited by process
 extern BOOL _bNeedPretouch = FALSE;
+
 ENGINE_API extern void SE_PretouchIfNeeded(void)
 {
-  // only if pretouching is needed?
-  extern INDEX gam_bPretouch;
-  if( !_bNeedPretouch || !gam_bPretouch) return;
-  _bNeedPretouch = FALSE;
-
-  // set progress bar
-  SetProgressDescription( TRANS("pretouching"));
-  CallProgressHook_t(0.0f);
-
-  // need to do this two times - 1st for numerations, and 2nd for real (progress bar and that shit)
-  BOOL bPretouched = TRUE;
-  INDEX ctFails, ctBytes, ctBlocks;
-  INDEX ctPassBytes, ctTotalBlocks;
-  for( INDEX iPass=1; iPass<=2; iPass++)
-  { 
-    // flush variables
-    ctFails=0; ctBytes=0; ctBlocks=0; ctTotalBlocks=0;
-    void *pvNextBlock = NULL;
-    MEMORY_BASIC_INFORMATION mbi;
-    // lets walk thru memory blocks
-    while( VirtualQuery( pvNextBlock, &mbi, sizeof(mbi)))
-    { 
-      // don't mess with kernel's memory and zero-sized blocks    
-      if( ((ULONG)pvNextBlock)>0x7FFF0000UL || mbi.RegionSize<1) break;
-
-      // if this region of memory belongs to our process
-      BOOL bCanAccess = (mbi.Protect==PAGE_READWRITE); // || (mbi.Protect==PAGE_EXECUTE_READWRITE);
-      if( mbi.State==MEM_COMMIT && bCanAccess && mbi.Type==MEM_PRIVATE) // && !IsBadReadPtr( mbi.BaseAddress, 1)
-      { 
-        // increase counters
-        ctBlocks++;
-        ctBytes += mbi.RegionSize;
-        // in first pass we only count
-        if( iPass==1) goto nextRegion;
-        // update progress bar
-        CallProgressHook_t( (FLOAT)ctBytes/ctPassBytes);
-        // pretouch
-        ASSERT( mbi.RegionSize>0);
-        BOOL bOK = TouchBlock((UBYTE *)mbi.BaseAddress, mbi.RegionSize);
-        if( !bOK) { 
-          // whoops!
-          ctFails++;
-        }
-        // for easier debugging (didn't help much, though)
-        //Sleep(5);  
-      }
-nextRegion:
-      // advance to next region
-      pvNextBlock = ((UBYTE*)mbi.BaseAddress) + mbi.RegionSize;
-      ctTotalBlocks++;
-    }
-    // done with one pass
-    ctPassBytes = ctBytes;
-    if( (ctPassBytes/1024/1024)>sys_iRAMPhys) {
-      // not enough RAM, sorry :(
-      bPretouched = FALSE;
-      break;
-    }
-  }
-
-  // report
-  if( bPretouched) {
-    // success
-    CPrintF( TRANS("Pretouched %d KB of memory in %d blocks.\n"), ctBytes/1024, ctBlocks); //, ctTotalBlocks);
-  } else {
-    // fail
-    CPrintF( TRANS("Cannot pretouch due to lack of physical memory (%d KB of overflow).\n"), ctPassBytes/1024-sys_iRAMPhys*1024);
-  }
-  // some blocks failed?
-  if( ctFails>1) CPrintF( TRANS("(%d blocks were skipped)\n"), ctFails);
-  //_pShell->Execute("StockDump();");
+    extern INDEX gam_bPretouch;
+    gam_bPretouch = FALSE;
+    _bNeedPretouch = FALSE;
 }
-
-
 
 
 #if 0

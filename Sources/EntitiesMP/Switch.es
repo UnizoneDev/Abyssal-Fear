@@ -25,6 +25,11 @@ enum SwitchType {
   1 SWT_ONOFF   "On/Off",
 };
 
+enum SwitchPosition {
+  0 SWP_UP     "Up",
+  1 SWP_DOWN   "Down",
+};
+
 class CSwitch: CModelHolder2 {
 name      "Switch";
 thumbnail "Thumbnails\\Switch.tbn";
@@ -52,20 +57,39 @@ properties:
  22 BOOL m_bUseable = FALSE,      // set while the switch can be triggered
  23 BOOL m_bInvisible "Invisible" = FALSE,    // make it editor model
 
+ // for lever and switch puzzles
+ 30 enum SwitchPosition m_swpPosition "Handle Position" = SWP_UP,
+ 110 ANIMATION m_iModelReverseAnimation     "Model Reverse animation" = 0,
+ 111 ANIMATION m_iTextureReverseAnimation   "Texture Reverse animation" = 0,
+ 112 FLOAT m_fDistance "Distance" 'D' = 2.0f,
+
+ // sound target
+120 CEntityPointer m_penSoundON    "Sound ON entity",     // sound on entity
+121 CEntityPointer m_penSoundOFF   "Sound OFF entity",    // sound off entity
+122 CSoundObject m_soON,
+123 CSoundObject m_soOFF,
+
 
 components:
 
 
 functions:                                        
 
+  FLOAT GetDistance() const
+  {
+    return m_fDistance;
+  }
+
   /* Get anim data for given animation property - return NULL for none. */
   CAnimData *GetAnimData(SLONG slPropertyOffset) 
   {
     if (slPropertyOffset==offsetof(CSwitch, m_iModelONAnimation) ||
-        slPropertyOffset==offsetof(CSwitch, m_iModelOFFAnimation)) {
+        slPropertyOffset==offsetof(CSwitch, m_iModelOFFAnimation) ||
+        slPropertyOffset==offsetof(CSwitch, m_iModelReverseAnimation)) {
       return GetModelObject()->GetData();
     } else if (slPropertyOffset==offsetof(CSwitch, m_iTextureONAnimation) ||
-               slPropertyOffset==offsetof(CSwitch, m_iTextureOFFAnimation)) {
+               slPropertyOffset==offsetof(CSwitch, m_iTextureOFFAnimation)  ||
+               slPropertyOffset==offsetof(CSwitch, m_iTextureReverseAnimation)) {
       return GetModelObject()->mo_toTexture.GetData();
     } else {
       return CModelHolder2::GetAnimData(slPropertyOffset);
@@ -98,6 +122,26 @@ functions:
   }
 
 
+  // play start sound
+  void PlayONSound(void) {
+    // if sound entity exists
+    if (m_penSoundON!=NULL) {
+      CSoundHolder &sh = (CSoundHolder&)*m_penSoundON;
+      m_soON.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      PlaySound(m_soON, sh.m_fnSound, sh.m_iPlayType);
+    }
+  };
+
+  // play stop sound
+  void PlayOFFSound(void) {
+    // if sound entity exists
+    if (m_penSoundOFF!=NULL) {
+      CSoundHolder &sh = (CSoundHolder&)*m_penSoundOFF;
+      m_soOFF.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      PlaySound(m_soOFF, sh.m_fnSound, sh.m_iPlayType);
+    }
+  };
+
 
 procedures:
 
@@ -109,9 +153,23 @@ procedures:
       // do nothing
       return;
     }
+    
+    PlayONSound();
+
+    if(m_swpPosition == SWP_UP)
+    {
+      GetModelObject()->PlayAnim(m_iModelONAnimation, 0);
+      GetModelObject()->mo_toTexture.PlayAnim(m_iTextureONAnimation, 0);
+      m_swpPosition = SWP_DOWN;
+    }
+    else
+    {
+      GetModelObject()->PlayAnim(m_iModelOFFAnimation, 0);
+      GetModelObject()->mo_toTexture.PlayAnim(m_iTextureOFFAnimation, 0);
+      m_swpPosition = SWP_UP;
+    }
     // switch ON
-    GetModelObject()->PlayAnim(m_iModelONAnimation, 0);
-    GetModelObject()->mo_toTexture.PlayAnim(m_iTextureONAnimation, 0);
+    
     m_bSwitchON = TRUE;
     // send event to target
     SendToTarget(m_penTarget, m_eetEvent, m_penCaused);
@@ -130,9 +188,21 @@ procedures:
       // do nothing
       return;
     }
-    // switch off
-    GetModelObject()->PlayAnim(m_iModelOFFAnimation, 0);
-    GetModelObject()->mo_toTexture.PlayAnim(m_iTextureOFFAnimation, 0);
+
+    PlayOFFSound();
+    
+    if(m_swpPosition == SWP_DOWN)
+    {
+      GetModelObject()->PlayAnim(m_iModelOFFAnimation, 0);
+      GetModelObject()->mo_toTexture.PlayAnim(m_iTextureOFFAnimation, 0);
+      m_swpPosition = SWP_UP;
+    }
+    else
+    {
+      GetModelObject()->PlayAnim(m_iModelONAnimation, 0);
+      GetModelObject()->mo_toTexture.PlayAnim(m_iTextureONAnimation, 0);
+      m_swpPosition = SWP_DOWN;
+    }
     m_bSwitchON = FALSE;
     // if exists off target
     if(m_penOffTarget!=NULL)
@@ -154,6 +224,17 @@ procedures:
 
   MainLoop_Once() {
     m_bUseable = TRUE;
+
+    if(m_swpPosition == SWP_DOWN)
+    {
+      GetModelObject()->PlayAnim(m_iModelReverseAnimation, 0);
+      GetModelObject()->mo_toTexture.PlayAnim(m_iTextureReverseAnimation, 0);
+    }
+    else
+    {
+      GetModelObject()->PlayAnim(m_iModelAnimation, 0);
+      GetModelObject()->mo_toTexture.PlayAnim(m_iTextureAnimation, 0);
+    }
 
     //main loop
     wait() {
@@ -185,6 +266,17 @@ procedures:
   MainLoop_OnOff() {
     m_bUseable = TRUE;
 
+    if(m_swpPosition == SWP_DOWN)
+    {
+      GetModelObject()->PlayAnim(m_iModelReverseAnimation, 0);
+      GetModelObject()->mo_toTexture.PlayAnim(m_iTextureReverseAnimation, 0);
+    }
+    else
+    {
+      GetModelObject()->PlayAnim(m_iModelAnimation, 0);
+      GetModelObject()->mo_toTexture.PlayAnim(m_iTextureAnimation, 0);
+    }
+
     //main loop
     wait() {
       // trigger event -> change switch
@@ -192,6 +284,7 @@ procedures:
         if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
           m_bUseable = FALSE;
           m_penCaused = eTrigger.penCaused;
+
           // if switch is ON make it OFF
           if (m_bSwitchON) {
             call SwitchOFF();

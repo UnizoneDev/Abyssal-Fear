@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #endif
 
 
+void StartAchievementsMenu(void);
 void StartVideoOptionsMenu(void);
 void StartAudioOptionsMenu(void);
 void StartNetworkMenu(void);

@@ -35,6 +35,10 @@ properties:
  15 enum BoolEType m_betFly     "Fly" 'F' = BET_IGNORE,             // fly if you can
  16 enum BoolEType m_betBlind   "Blind" 'B' = BET_IGNORE,
  17 enum BoolEType m_betDeaf    "Deaf"  'D' = BET_IGNORE,
+ 20 enum BoolEType m_betJump    "Jump"  'J' = BET_IGNORE,
+ 21 enum BoolEType m_betDormant "Dormant" = BET_IGNORE,
+ 22 enum BoolEType m_betHideBehindCover "Hide Behind Cover" = BET_IGNORE,
+ 23 enum BoolEType m_betCrouch "Crouch" = BET_IGNORE,
 
  18 BOOL m_bStartTactics          "Start Tactics" = FALSE, 
 

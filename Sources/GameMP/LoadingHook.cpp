@@ -27,30 +27,9 @@ extern CGame *_pGame;
 #endif
 static CDrawPort *_pdpLoadingHook = NULL;  // drawport for loading hook
 extern BOOL _bUserBreakEnabled;
-extern BOOL map_bIsFirstEncounter;
 
 
 #define REFRESHTIME (0.2f)
-
-void RemapLevelNames(INDEX &iLevel)
-{
-  switch( iLevel) {
-  case 10:  iLevel =  1;  break;
-  case 11:  iLevel =  2;  break;
-  case 12:  iLevel =  3;  break;
-  case 13:  iLevel =  4;  break;
-  case 14:  iLevel =  5;  break;
-  case 15:  iLevel =  6;  break;
-  case 21:  iLevel =  7;  break;
-  case 22:  iLevel =  8;  break;
-  case 23:  iLevel =  9;  break;
-  case 24:  iLevel = 10;  break;
-  case 31:  iLevel = 11;  break;
-  case 32:  iLevel = 12;  break;
-  case 33:  iLevel = 13;  break;
-  default:  iLevel = -1;	break;
-  }
-}
 
 
 static void LoadingHook_t(CProgressHookInfo *pphi)
@@ -99,57 +78,40 @@ static void LoadingHook_t(CProgressHookInfo *pphi)
   dpHook.Fill(C_BLACK|255);
 
   // get session properties currently loading
-  CSessionProperties *psp = (CSessionProperties *)_pNetwork->GetSessionProperties();
+  CSessionProperties* psp = (CSessionProperties*)_pNetwork->GetSessionProperties();
   ULONG ulLevelMask = psp->sp_ulLevelsMask;
   if (psp->sp_bCooperative) {
-    INDEX iLevel = -1;
-    INDEX iLevelNext = -1;
-    CTString strLevelName = _pNetwork->ga_fnmWorld.FileName();
-    CTString strNextLevelName = _pNetwork->ga_fnmNextLevel.FileName();
-    
-    // second encounter
-    INDEX u, v;
-    u = v = -1;
-    strLevelName.ScanF("%01d_%01d_", &u, &v);
-    iLevel = u*10+v;
-    RemapLevelNames(iLevel);
-    u = v = -1;
-    strNextLevelName.ScanF("%01d_%01d_", &u, &v);
-    iLevelNext = u*10+v;
-    RemapLevelNames(iLevelNext);
+      INDEX iLevel = -1;
+      INDEX iLevelNext = -1;
+      CTString strLevelName = _pNetwork->ga_fnmWorld.FileName();
+      CTString strNextLevelName = _pNetwork->ga_fnmNextLevel.FileName();
 
-    // first encounter
-    if(iLevel == -1) {
-      strLevelName.ScanF("%02d_", &iLevel);
-      strNextLevelName.ScanF("%02d_", &iLevelNext);
-
-      if(iLevel != -1) {
-        map_bIsFirstEncounter = TRUE;
+      // first encounter
+      if (iLevel == -1) {
+          strLevelName.ScanF("%02d_", &iLevel);
+          strNextLevelName.ScanF("%02d_", &iLevelNext);
       }
-    } else {
-      map_bIsFirstEncounter = FALSE;
-    }
-   
-    if (iLevel>0) {
-      ulLevelMask|=1<<(iLevel-1);
-    }
-    if (iLevelNext>0) {
-      ulLevelMask|=1<<(iLevelNext-1);
-    }
+
+      if (iLevel > 0) {
+          ulLevelMask |= 1 << (iLevel - 1);
+      }
+      if (iLevelNext > 0) {
+          ulLevelMask |= 1 << (iLevelNext - 1);
+      }
   }
 
-  if (ulLevelMask!=0 && !_pNetwork->IsPlayingDemo()) {
-    // map hook
-    extern void RenderMap( CDrawPort *pdp, ULONG ulLevelMask, CProgressHookInfo *pphi);
-    RenderMap(&dpHook, ulLevelMask, pphi);
+  if (ulLevelMask != 0 && !_pNetwork->IsPlayingDemo()) {
+      // map hook
+      extern void RenderMap(CDrawPort * pdp, ULONG ulLevelMask, CProgressHookInfo * pphi);
+      RenderMap(&dpHook, ulLevelMask, pphi);
 
-    // finish rendering
-    dpHook.Unlock();
-    dpHook.dp_Raster->ra_pvpViewPort->SwapBuffers();
+      // finish rendering
+      dpHook.Unlock();
+      dpHook.dp_Raster->ra_pvpViewPort->SwapBuffers();
 
-    // keep current time
-    tvLast = _pTimer->GetHighPrecisionTimer();
-    return;
+      // keep current time
+      tvLast = _pTimer->GetHighPrecisionTimer();
+      return;
   }
 
   // get sizes
@@ -161,10 +123,10 @@ static void LoadingHook_t(CProgressHookInfo *pphi)
 
   PIX pixBarSizeJ = 17;//*pixSizeJ/480;
 
-  COLOR colBcg = LerpColor(C_BLACK, SE_COL_BLUE_LIGHT, 0.30f)|0xff;
-  COLOR colBar = LerpColor(C_BLACK, SE_COL_BLUE_LIGHT, 0.45f)|0xff;
+  COLOR colBcg = LerpColor(C_BLACK, SE_COL_LIGHTGREY, 0.30f)|0xff;
+  COLOR colBar = LerpColor(C_BLACK, SE_COL_LIGHTGREY, 0.45f)|0xff;
   COLOR colLines = colBar; //C_vdGREEN|0xff;
-  COLOR colText = LerpColor(C_BLACK, SE_COL_BLUE_LIGHT, 0.95f)|0xff;
+  COLOR colText = LerpColor(C_BLACK, SE_COL_LIGHTGREY, 0.95f)|0xff;
   COLOR colEsc = C_WHITE|0xFF;
 
   dpHook.Fill(0, pixSizeJ-pixBarSizeJ, pixSizeI, pixBarSizeJ, colBcg);
@@ -186,80 +148,6 @@ static void LoadingHook_t(CProgressHookInfo *pphi)
   if (_bUserBreakEnabled && !_pGame->gm_bFirstLoading) {
     dpHook.PutTextC( TRANS( "PRESS ESC TO ABORT"), pixSizeI/2, pixSizeJ-pixBarSizeJ-2-pixCharSizeJ, colEsc);
   }
-
-/*  
-  //LCDPrepare(1.0f);
-  //LCDSetDrawport(&dpHook);
-  
-  // fill the box with background dirt and grid
-  //LCDRenderClouds1();
-  //LCDRenderGrid();
-
-  // draw progress bar
-  PIX pixBarCentI = pixBoxSizeI*1/2;
-  PIX pixBarCentJ = pixBoxSizeJ*3/4;
-  PIX pixBarSizeI = pixBoxSizeI*7/8;
-  PIX pixBarSizeJ = pixBoxSizeJ*3/8;
-  PIX pixBarMinI = pixBarCentI-pixBarSizeI/2;
-  PIX pixBarMaxI = pixBarCentI+pixBarSizeI/2;
-  PIX pixBarMinJ = pixBarCentJ-pixBarSizeJ/2;
-  PIX pixBarMaxJ = pixBarCentJ+pixBarSizeJ/2;
-
-  dpBox.Fill(pixBarMinI, pixBarMinJ, 
-    pixBarMaxI-pixBarMinI, pixBarMaxJ-pixBarMinJ, C_BLACK|255);
-  dpBox.Fill(pixBarMinI, pixBarMinJ, 
-    (pixBarMaxI-pixBarMinI)*pphi->phi_fCompleted, pixBarMaxJ-pixBarMinJ, C_GREEN|255);
-
-  // put more dirt
-  LCDRenderClouds2Light();
-
-  // draw borders
-  COLOR colBorders = LerpColor(C_GREEN, C_BLACK, 200);
-  LCDDrawBox(0,-1, PIXaabbox2D(
-    PIX2D(pixBarMinI, pixBarMinJ), 
-    PIX2D(pixBarMaxI, pixBarMaxJ)), 
-    colBorders|255);
-  LCDDrawBox(0,-1, PIXaabbox2D(
-    PIX2D(0,0), PIX2D(dpBox.GetWidth(), dpBox.GetHeight())), 
-    colBorders|255);
-
-  // print status text
-  dpBox.SetFont( _pfdDisplayFont);
-  dpBox.SetTextScaling( 1.0f);
-  dpBox.SetTextAspect( 1.0f);
-  // print status text
-  CTString strRes;
-  strRes.PrintF( "%s", pphi->phi_strDescription);
-  //strupr((char*)(const char*)strRes);
-  dpBox.PutTextC( strRes, 160, 17, C_GREEN|255);
-  strRes.PrintF( "%3.0f%%", pphi->phi_fCompleted*100);
-  dpBox.PutTextCXY( strRes, pixBarCentI, pixBarCentJ, C_GREEN|255);
-  dpBox.Unlock();
-
-  if( Flesh.gm_bFirstLoading) {
-#if USECUSTOMTEXT
-    FLOAT fScaling = (FLOAT)slSizeI/640.0f;
-    dpHook.Lock();
-    dpHook.SetFont( _pfdDisplayFont);
-    dpHook.SetTextScaling( fScaling);
-    dpHook.SetTextAspect( 1.0f);
-    //dpHook.Fill( 0, 0, slSizeI, pixCenterJ, C_vdGREEN|255, C_vdGREEN|255, C_vdGREEN|0, C_vdGREEN|0);
-    dpHook.PutTextC( TRANS( "SERIOUS SAM - TEST VERSION"), pixCenterI, 5*fScaling, C_WHITE|255);
-    dpHook.PutTextC( TRANS( "THIS IS NOT A DEMO VERSION, THIS IS A COMPATIBILITY TEST!"), pixCenterI, 25*fScaling, C_WHITE|255);
-    dpHook.PutTextC( TRANS( "Serious Sam (c) 2000 Croteam LLC, All Rights Reserved.\n"), pixCenterI, 45*fScaling, C_WHITE|255);
-    dpHook.PutText( _strCustomText, 1*fScaling, 85*fScaling, C_GREEN|255);
-    dpHook.Unlock();
-#endif
-  } else if (_bUserBreakEnabled) {
-    FLOAT fScaling = (FLOAT)slSizeI/640.0f;
-    dpHook.Lock();
-    dpHook.SetFont( _pfdDisplayFont);
-    dpHook.SetTextScaling( fScaling);
-    dpHook.SetTextAspect( 1.0f);
-    //dpHook.Fill( 0, 0, slSizeI, pixCenterJ, C_vdGREEN|255, C_vdGREEN|255, C_vdGREEN|0, C_vdGREEN|0);
-    dpHook.PutTextC( TRANS( "PRESS ESC TO ABORT"), pixCenterI, pixCenterJ+pixBoxSizeJ+5*fScaling, C_WHITE|255);
-  }
-  */
 
   dpHook.Unlock();
   // finish rendering

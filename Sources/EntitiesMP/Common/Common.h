@@ -15,7 +15,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 // common headers for flesh entity classes
 
-
 #define SURFACE_SAND 9
 #define SURFACE_WATER 12
 #define SURFACE_RED_SAND 13
@@ -24,42 +23,49 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define SURFACE_GRASS_NOIMPACT 20
 #define SURFACE_WOOD 18
 #define SURFACE_SNOW 21
+#define SURFACE_METAL 22
+#define SURFACE_METAL_NOIMPACT 23
+#define SURFACE_CARPET 24
+#define SURFACE_CARPET_NOIMPACT 25
+#define SURFACE_BLOOD 26
+#define SURFACE_GLASS 27
+#define SURFACE_GLASS_NOIMPACT 28
+#define SURFACE_WOOD_NOIMPACT 29
+#define SURFACE_SNOW_NOIMPACT 30
+#define SURFACE_SAND_NOIMPACT 31
+#define SURFACE_RED_SAND_NOIMPACT 32
+#define SURFACE_DIRT 33
+#define SURFACE_DIRT_NOIMPACT 34
+#define SURFACE_TILE 35
+#define SURFACE_TILE_NOIMPACT 36
+#define SURFACE_CHAINLINK 37
+#define SURFACE_CHAINLINK_NOIMPACT 38
 
 // Max ammo
-#define MAX_BULLETS INDEX(500)
-#define MAX_SHELLS INDEX(100)
-#define MAX_ROCKETS INDEX(50)
-#define MAX_GRENADES INDEX(50)
-#define MAX_NAPALM INDEX(500)
-#define MAX_ELECTRICITY INDEX(400)
-#define MAX_IRONBALLS INDEX(30)
-//#define MAX_NUKEBALLS INDEX(3)
-#define MAX_SNIPERBULLETS INDEX(50)
+#define MAX_BULLETS INDEX(100)
+#define MAX_SHELLS INDEX(50)
+#define MAX_MEDIUM_BULLETS INDEX(200)
+#define MAX_PISTOL_BULLETS INDEX(17)
+#define MAX_SHOTGUN_SHELLS INDEX(8)
+#define MAX_SMG_BULLETS INDEX(30)
 
 // Bit shifters for ammo
-#define AMMO_BULLETS       0
-#define AMMO_SHELLS        1
-#define AMMO_ROCKETS       2
-#define AMMO_GRENADES      3
-#define AMMO_NAPALM        4
-#define AMMO_ELECTRICITY   5
-//#define AMMO_NUKEBALLS   6
-#define AMMO_IRONBALLS     7
-#define AMMO_SNIPERBULLETS 8
+#define AMMO_BULLETS 0
+#define AMMO_SHELLS 1
+#define AMMO_MEDIUM_BULLETS 2
+
+// Bit shifters for inserted ammo
+#define AMMO_PISTOL_BULLETS 0
+#define AMMO_SHOTGUN_SHELLS 1
+#define AMMO_SMG_BULLETS 2
 
 #define BLOOD_SPILL_RED RGBAToColor(250,20,20,255)
 #define BLOOD_SPILL_GREEN RGBAToColor(0,250,0,255)
 
 // Ammo mana Value
-#define AV_SHELLS         INDEX(70)
 #define AV_BULLETS        INDEX(10)
-#define AV_ROCKETS        INDEX(150)
-#define AV_GRENADES       INDEX(150)
-#define AV_ELECTRICITY    INDEX(250)
-#define AV_IRONBALLS      INDEX(700)
-//#define AV_NUKEBALLS      INDEX(1800)
-#define AV_NAPALM         INDEX(200)
-#define AV_SNIPERBULLETS  INDEX(200)
+#define AV_SHELLS         INDEX(8)
+#define AV_MEDIUM_BULLETS INDEX(30)
 
 // used for invisibility powerup
 #define INVISIBILITY_ALPHA_LOCAL  0x55
@@ -186,22 +192,9 @@ DECL_DLL void KickEntity(CEntity *penTarget, FLOAT3D vSpeed);
 
 
 // lens flare variables
-extern CLensFlareType _lftStandard;
-extern CLensFlareType _lftStandardReflections;
-extern CLensFlareType _lftYellowStarRedRing;
-extern CLensFlareType _lftYellowStarRedRingFar;
-extern CLensFlareType _lftWhiteGlowStarRedRing;
-extern CLensFlareType _lftWhiteGlowStar;
-extern CLensFlareType _lftWhiteGlowStarNG;
-extern CLensFlareType _lftWhiteStarRedRingStreaks;
-extern CLensFlareType _lftWhiteStarRedReflections;
-extern CLensFlareType _lftBlueStarBlueReflections;
-extern CLensFlareType _lftProjectileStarGlow;
-extern CLensFlareType _lftProjectileWhiteBubbleGlow;
-extern CLensFlareType _lftProjectileYellowBubbleGlow;
-extern CLensFlareType _lftPVSpaceShipWindowFlare;
-extern CLensFlareType _lftCatmanFireGlow;
-extern CLensFlareType _lftWhiteGlowFar;
+extern CLensFlareType _lftOrange;
+extern CLensFlareType _lftBlue;
+extern CLensFlareType _lftWhite;
 // init lens flare effects
 void InitLensFlares(void);
 // close lens flares effects
@@ -273,10 +266,13 @@ DECL_DLL FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDam
 
 // Print center screen message
 DECL_DLL void PrintCenterMessage(CEntity *penThis, CEntity *penTarget, 
-  const CTString &strMessage, TIME tmLength, enum MessageSound mssSound);
+  const CTString &strMessage, TIME tmLength, enum MessageSound mssSound, enum MessageFont mfFont, FLOAT fMsgPosX, FLOAT fMsgPosY);
 
 // get name of a key item
 DECL_DLL const char *GetKeyName(enum KeyItemType kit);
+
+// get name of a puzzle item
+DECL_DLL const char *GetPuzzleItemName(enum PuzzleItemType pit);
 
 // get session properties
 DECL_DLL inline const CSessionProperties *GetSP(void)

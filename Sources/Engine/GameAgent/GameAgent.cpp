@@ -101,7 +101,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
                             WSACleanup();
 
 #define SERIOUSSAMKEY       "AKbna4\0"
-#define SERIOUSSAMSTR       "serioussamse"
+#define SERIOUSSAMSTR       "abyssalfear"
 
 #pragma comment(lib, "wsock32.lib")
 
@@ -274,7 +274,7 @@ void _sendHeartbeat(INDEX iChallenge)
         _SE_VER_STRING,
         _pShell->GetString("sam_strGameName"));
   } else {
-    strPacket.PrintF("\\heartbeat\\%hu\\gamename\\serioussamse", (_pShell->GetINDEX("net_iPort") + 1));
+    strPacket.PrintF("\\heartbeat\\%hu\\gamename\\abyssalfear", (_pShell->GetINDEX("net_iPort") + 1));
   }
   _sendPacket(strPacket);
   _tmLastHeartbeat = _pTimer->GetRealTimeTick();
@@ -309,7 +309,7 @@ extern void GameAgent_ServerInit(void)
     _sendPacket("q");
   } else {
     CTString strPacket;
-    strPacket.PrintF("\\heartbeat\\%hu\\gamename\\serioussamse", (_pShell->GetINDEX("net_iPort") + 1));
+    strPacket.PrintF("\\heartbeat\\%hu\\gamename\\abyssalfear", (_pShell->GetINDEX("net_iPort") + 1));
     _sendPacket(strPacket);
   }
 }
@@ -323,7 +323,7 @@ extern void GameAgent_ServerEnd(void)
 
   if (ga_bMSLegacy) {
     CTString strPacket;
-    strPacket.PrintF("\\heartbeat\\%hu\\gamename\\serioussamse\\statechanged", (_pShell->GetINDEX("net_iPort") + 1));
+    strPacket.PrintF("\\heartbeat\\%hu\\gamename\\abyssalfear\\statechanged", (_pShell->GetINDEX("net_iPort") + 1));
     _sendPacket(strPacket);
   }
 
@@ -535,7 +535,7 @@ extern void GameAgent_ServerStateChanged(void)
     _sendPacket("u");
   } else {
     CTString strPacket;
-    strPacket.PrintF("\\heartbeat\\%hu\\gamename\\serioussamse\\statechanged", (_pShell->GetINDEX("net_iPort") + 1));
+    strPacket.PrintF("\\heartbeat\\%hu\\gamename\\abyssalfear\\statechanged", (_pShell->GetINDEX("net_iPort") + 1));
     _sendPacket(strPacket);
   }
 }
@@ -1075,7 +1075,7 @@ DWORD WINAPI _MS_Thread(LPVOID lpParam) {
             // null terminate the buffer
             _szBuffer[iRet] = 0;
             char *sPch = NULL;
-            sPch = strstr(_szBuffer, "\\gamename\\serioussamse\\");
+            sPch = strstr(_szBuffer, "\\gamename\\abyssalfear\\");
             if(!sPch) {
                 CPrintF("Unknown query server response!\n");
                 return -1;
@@ -1278,7 +1278,7 @@ DWORD WINAPI _LocalNet_Thread(LPVOID lpParam) {
             // null terminate the buffer
             _szBuffer[iRet] = 0;
             char *sPch = NULL;
-            sPch = strstr(_szBuffer, "\\gamename\\serioussamse\\");
+            sPch = strstr(_szBuffer, "\\gamename\\abyssalfear\\");
             if(!sPch) {
                 CPrintF("Unknown query server response!\n");
 				if(_szIPPortBufferLocal != NULL) {

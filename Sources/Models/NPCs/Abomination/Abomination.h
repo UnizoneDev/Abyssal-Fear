@@ -1,0 +1,23 @@
+// Animation names
+#define ABOMINATION_ANIM_DEFAULT 0
+#define ABOMINATION_ANIM_STAND 1
+#define ABOMINATION_ANIM_WALK 2
+#define ABOMINATION_ANIM_RUN 3
+#define ABOMINATION_ANIM_PUNCH 4
+#define ABOMINATION_ANIM_WOUND 5
+#define ABOMINATION_ANIM_DEATH 6
+#define ABOMINATION_ANIM_LEAP 7
+#define ABOMINATION_ANIM_DEATHBACK 8
+#define ABOMINATION_ANIM_SPIT 9
+
+// Color names
+
+// Patch names
+
+// Names of collision boxes
+#define ABOMINATION_COLLISION_BOX_DEFAULT 0
+#define ABOMINATION_COLLISION_BOX_DEATH_BOX 1
+
+// Attaching position names
+
+// Sound names

@@ -163,7 +163,7 @@ void CGame::SetSinglePlayerSession(CSessionProperties &sp)
   sp.sp_fExtraEnemyStrength          = 0;
   sp.sp_fExtraEnemyStrengthPerPlayer = 0;
 
-  sp.sp_iBlood = Clamp( gam_iBlood, 0L, 3L);
+  sp.sp_iBlood = Clamp( gam_iBlood, 0L, 2L);
   sp.sp_bGibs  = gam_bGibs;
 }
 
@@ -218,7 +218,7 @@ void CGame::SetMultiPlayerSession(CSessionProperties &sp)
   sp.sp_fExtraEnemyStrengthPerPlayer = gam_fExtraEnemyStrengthPerPlayer;
   sp.sp_iInitialMana        = gam_iInitialMana;
 
-  sp.sp_iBlood = Clamp( gam_iBlood, 0L, 3L);
+  sp.sp_iBlood = Clamp( gam_iBlood, 0L, 2L);
   sp.sp_bGibs  = gam_bGibs;
   sp.sp_tmSpawnInvulnerability = gam_tmSpawnInvulnerability;
 

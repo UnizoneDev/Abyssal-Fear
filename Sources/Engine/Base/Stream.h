@@ -163,9 +163,11 @@ public:
   /* Read an object from stream. */
   inline CTStream &operator>>(float  &f) { Read_t( &f, sizeof( f)); return *this; } // throw char *
   inline CTStream &operator>>(double &d) { Read_t( &d, sizeof( d)); return *this; } // throw char *
+  inline CTStream &operator>>(ULONGLONG &ull) { Read_t(&ull, sizeof(ull)); return *this; } // throw char *
   inline CTStream &operator>>(ULONG &ul) { Read_t(&ul, sizeof(ul)); return *this; } // throw char *
   inline CTStream &operator>>(UWORD &uw) { Read_t(&uw, sizeof(uw)); return *this; } // throw char *
   inline CTStream &operator>>(UBYTE &ub) { Read_t(&ub, sizeof(ub)); return *this; } // throw char *
+  inline CTStream &operator>>(SLONGLONG &sll) { Read_t(&sll, sizeof(sll)); return *this; } // throw char *
   inline CTStream &operator>>(SLONG &sl) { Read_t(&sl, sizeof(sl)); return *this; } // throw char *
   inline CTStream &operator>>(SWORD &sw) { Read_t(&sw, sizeof(sw)); return *this; } // throw char *
   inline CTStream &operator>>(SBYTE &sb) { Read_t(&sb, sizeof(sb)); return *this; } // throw char *
@@ -173,9 +175,11 @@ public:
   /* Write an object into stream. */
   inline CTStream &operator<<(const float  &f) { Write_t( &f, sizeof( f)); return *this; } // throw char *
   inline CTStream &operator<<(const double &d) { Write_t( &d, sizeof( d)); return *this; } // throw char *
+  inline CTStream &operator<<(const ULONGLONG &ull) { Write_t(&ull, sizeof(ull)); return *this; } // throw char *
   inline CTStream &operator<<(const ULONG &ul) { Write_t(&ul, sizeof(ul)); return *this; } // throw char *
   inline CTStream &operator<<(const UWORD &uw) { Write_t(&uw, sizeof(uw)); return *this; } // throw char *
   inline CTStream &operator<<(const UBYTE &ub) { Write_t(&ub, sizeof(ub)); return *this; } // throw char *
+  inline CTStream &operator<<(const SLONGLONG &sll) { Write_t(&sll, sizeof(sll)); return *this; } // throw char *
   inline CTStream &operator<<(const SLONG &sl) { Write_t(&sl, sizeof(sl)); return *this; } // throw char *
   inline CTStream &operator<<(const SWORD &sw) { Write_t(&sw, sizeof(sw)); return *this; } // throw char *
   inline CTStream &operator<<(const SBYTE &sb) { Write_t(&sb, sizeof(sb)); return *this; } // throw char *

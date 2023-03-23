@@ -92,7 +92,7 @@ extern BOOL _bMultiPlayer;
 // variables for selection on rendering
 extern CBrushVertexSelection *_pselbvxtSelectOnRender = NULL;
 extern CStaticStackArray<PIX2D> *_pavpixSelectLasso = NULL;
-extern EntitySelectionCallbacks _selenSelectOnRender{ nullptr, nullptr };
+extern CEntitySelection *_pselenSelectOnRender = NULL;
 extern PIX2D _vpixSelectNearPoint = PIX2D(0,0);
 extern BOOL _bSelectAlternative   = FALSE;
 extern PIX _pixDeltaAroundVertex  = 10;

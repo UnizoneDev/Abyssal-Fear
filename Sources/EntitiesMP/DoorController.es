@@ -47,7 +47,7 @@ properties:
   8 enum DoorType m_dtType      "Type" 'Y' = DT_AUTO,
   9 CTStringTrans m_strLockedMessage "Locked message" 'L' = "",
   13 CEntityPointer m_penLockedTarget  "Locked target" COLOR(C_dMAGENTA|0xFF),   // target to trigger when locked
-  12 enum KeyItemType m_kitKey  "Key" 'K' = KIT_BOOKOFWISDOM,  // key type (for locked door)
+  12 enum KeyItemType m_kitKey  "Key" 'K' = KIT_CROSSWOODEN,  // key type (for locked door)
   14 BOOL m_bTriggerOnAnything "Trigger on anything" = FALSE,
   15 BOOL m_bActive "Active" 'A' = TRUE,    // automatic door function can be activated/deactivated
 
@@ -237,7 +237,7 @@ procedures:
         on (EPass ePass) : {
           if (CanReactOnEntity(ePass.penOther)) {
             if (m_strLockedMessage!="") {
-              PrintCenterMessage(this, ePass.penOther, TranslateConst(m_strLockedMessage), 3.0f, MSS_INFO);
+              PrintCenterMessage(this, ePass.penOther, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
             }
             if (m_penLockedTarget!=NULL) {
               SendToTarget(m_penLockedTarget, EET_TRIGGER, ePass.penOther);
@@ -281,7 +281,7 @@ procedures:
               // tell the key bearer that the key was used
               CTString strMsg;
               strMsg.PrintF(TRANS("%s used"), GetKeyName(m_kitKey));
-              PrintCenterMessage(this, ePass.penOther, strMsg, 3.0f, MSS_INFO);
+              PrintCenterMessage(this, ePass.penOther, strMsg, 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
               */
               // become automatic door
               jump DoorAuto();
@@ -317,7 +317,7 @@ procedures:
         on (EPass ePass) : {
           if (CanReactOnEntity(ePass.penOther)) {
             if (m_strLockedMessage!="") {
-              PrintCenterMessage(this, ePass.penOther, TranslateConst(m_strLockedMessage), 3.0f, MSS_INFO);
+              PrintCenterMessage(this, ePass.penOther, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
             }
             if (m_penLockedTarget!=NULL) {
               SendToTarget(m_penLockedTarget, EET_TRIGGER, ePass.penOther);

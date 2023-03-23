@@ -21,24 +21,25 @@
     </SccLocalPath>
     <Keyword>MFCProj</Keyword>
     <ProjectGuid>{4410EEB1-AFAD-A936-2168-716C245D36D5}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -60,14 +61,14 @@
     <IntDir>.\Release\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir);$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\Bin_1.10;$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\Bin;$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>Debug\</OutDir>
     <IntDir>Debug\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir);$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\Bin_1.10\Debug;$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\Bin\Debug;$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)D</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -90,6 +91,7 @@
       <ObjectFileName>Release\</ObjectFileName>
       <ProgramDataBaseFileName>Release\</ProgramDataBaseFileName>
       <DisableSpecificWarnings>4996;4333</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(SolutionDir)openal\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -117,9 +119,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Engine\$(Configuration)\;$(SolutionDir)EntitiesMP\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
-      <Command>copy Release\$(TargetName).dll $(SolutionDir)..\Bin_1.10\ &gt;nul</Command>
+      <Command>copy Release\$(TargetName).dll $(SolutionDir)..\Bin\ &gt;nul</Command>
       <Message>Copying %(Filename) binaries to $(SolutionDir)..\Bin</Message>
-      <Outputs>$(SolutionDir)..\Bin_1.10\$(InputName).dll;%(Outputs)</Outputs>
+      <Outputs>$(SolutionDir)..\Bin\$(InputName).dll;%(Outputs)</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -139,6 +141,7 @@
       <ObjectFileName>Debug\</ObjectFileName>
       <ProgramDataBaseFileName>Debug\</ProgramDataBaseFileName>
       <DisableSpecificWarnings>4996;4333</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(SolutionDir)openal\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -167,9 +170,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Engine\$(Configuration)\;$(SolutionDir)EntitiesMP\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
-      <Command>copy Debug\$(TargetName).dll $(SolutionDir)..\Bin_1.10\Debug\ &gt;nul</Command>
-      <Message>Copying %(Filename) binaries to $(SolutionDir)..\Bin_1.10\Debug</Message>
-      <Outputs>$(SolutionDir)..\Bin_1.10\Debug\$(InputName).dll;%(Outputs)</Outputs>
+      <Command>copy Debug\$(TargetName).dll $(SolutionDir)..\Bin\Debug\ &gt;nul</Command>
+      <Message>Copying %(Filename) binaries to $(SolutionDir)..\Bin\Debug</Message>
+      <Outputs>$(SolutionDir)..\Bin\Debug\$(InputName).dll;%(Outputs)</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
@@ -178,6 +181,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Achievement.cpp" />
+    <ClCompile Include="AchievementManager.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CompMessage.cpp" />
     <ClCompile Include="CompModels.cpp" />
@@ -198,6 +203,8 @@
     <ClCompile Include="WEDInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Achievement.h" />
+    <ClInclude Include="AchievementManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CompMessage.h" />
     <ClInclude Include="Computer.h" />

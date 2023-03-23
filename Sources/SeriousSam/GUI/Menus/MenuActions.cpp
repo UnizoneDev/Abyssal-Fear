@@ -116,7 +116,7 @@ static void ExitConfirm(void)
 
   gmCurrent._pConfimedYes = &ExitGame;
   gmCurrent._pConfimedNo = NULL;
-  gmCurrent.gm_mgConfirmLabel.mg_strText = TRANS("ARE YOU SERIOUS?");
+  gmCurrent.gm_mgConfirmLabel.mg_strText = TRANS("ARE YOU SURE?");
   gmCurrent.gm_pgmParentMenu = pgmCurrentMenu;
   gmCurrent.BeLarge();
   ChangeToMenu(&gmCurrent);
@@ -136,7 +136,7 @@ static void StopConfirm(void)
 
   gmCurrent._pConfimedYes = &StopCurrentGame;
   gmCurrent._pConfimedNo = NULL;
-  gmCurrent.gm_mgConfirmLabel.mg_strText = TRANS("ARE YOU SERIOUS?");
+  gmCurrent.gm_mgConfirmLabel.mg_strText = TRANS("ARE YOU SURE?");
   gmCurrent.gm_pgmParentMenu = pgmCurrentMenu;
   gmCurrent.BeLarge();
   ChangeToMenu(&gmCurrent);
@@ -158,7 +158,7 @@ extern void ModConnectConfirm(void)
   CConfirmMenu &gmCurrent = _pGUIM->gmConfirmMenu;
 
   if (_fnmModSelected == " ") {
-    _fnmModSelected = CTString("SeriousSam");
+    _fnmModSelected = CTString("AbyssalFear");
   }
 
   CTFileName fnmModPath = "Mods\\" + _fnmModSelected + "\\";
@@ -285,6 +285,7 @@ void InitActionsForMainMenu() {
   gmCurrent.gm_mgDemo.mg_pActivatedFunction = &StartDemoLoadMenu;
   gmCurrent.gm_mgMods.mg_pActivatedFunction = &StartModsLoadMenu;
   gmCurrent.gm_mgHighScore.mg_pActivatedFunction = &StartHighScoreMenu;
+  gmCurrent.gm_mgAchievements.mg_pActivatedFunction = &StartAchievementsMenu;
   gmCurrent.gm_mgOptions.mg_pActivatedFunction = &StartOptionsMenu;
   gmCurrent.gm_mgQuit.mg_pActivatedFunction = &ExitConfirm;
 }
@@ -502,17 +503,6 @@ static void ChangeAutoSave(INDEX iNew)
   }
 }
 
-static void ChangeCompDoubleClick(INDEX iNew)
-{
-  INDEX iPlayer = *_pGUIM->gmPlayerProfile.gm_piCurrentPlayer;
-  CPlayerSettings *pps = (CPlayerSettings *)_pGame->gm_apcPlayers[iPlayer].pc_aubAppearance;
-  if (iNew) {
-    pps->ps_ulFlags &= ~PSF_COMPSINGLECLICK;
-  } else {
-    pps->ps_ulFlags |= PSF_COMPSINGLECLICK;
-  }
-}
-
 static void ChangeViewBobbing(INDEX iNew)
 {
   INDEX iPlayer = *_pGUIM->gmPlayerProfile.gm_piCurrentPlayer;
@@ -553,7 +543,6 @@ void InitActionsForPlayerProfileMenu()
   gmCurrent.gm_mg3rdPerson.mg_pOnTriggerChange = Change3rdPerson;
   gmCurrent.gm_mgQuotes.mg_pOnTriggerChange = ChangeQuotes;
   gmCurrent.gm_mgAutoSave.mg_pOnTriggerChange = ChangeAutoSave;
-  gmCurrent.gm_mgCompDoubleClick.mg_pOnTriggerChange = ChangeCompDoubleClick;
   gmCurrent.gm_mgSharpTurning.mg_pOnTriggerChange = ChangeSharpTurning;
   gmCurrent.gm_mgViewBobbing.mg_pOnTriggerChange = ChangeViewBobbing;
   gmCurrent.gm_mgCustomizeControls.mg_pActivatedFunction = &StartControlsMenuFromPlayer;
@@ -634,7 +623,7 @@ static void FillResolutionsList(void)
     extern PIX _pixDesktopWidth;
     INDEX iRes = 0;
     for (; iRes<_ctResolutions; iRes++) {
-      if (apixWidths[iRes][0]>_pixDesktopWidth) break;
+      if (apixWidths[iRes][0] > _vpixScreenRes(1)) break;
       SetResolutionInList(iRes, apixWidths[iRes][0], apixWidths[iRes][1]);
     }
     _ctResolutions = iRes;
@@ -862,7 +851,7 @@ extern void RefreshSoundFormat(void)
   }
 
   gmCurrent.gm_mgAudioAutoTrigger.mg_iSelected = Clamp(sam_bAutoAdjustAudio, 0, 1);
-  gmCurrent.gm_mgAudioAPITrigger.mg_iSelected = Clamp(_pShell->GetINDEX("snd_iInterface"), 0L, 2L);
+  gmCurrent.gm_mgAudioAPITrigger.mg_iSelected = Clamp(_pShell->GetINDEX("snd_iInterface"), 0L, 3L);
 
   gmCurrent.gm_mgWaveVolume.mg_iMinPos = 0;
   gmCurrent.gm_mgWaveVolume.mg_iMaxPos = VOLUME_STEPS;
@@ -873,6 +862,11 @@ extern void RefreshSoundFormat(void)
   gmCurrent.gm_mgMPEGVolume.mg_iMaxPos = VOLUME_STEPS;
   gmCurrent.gm_mgMPEGVolume.mg_iCurPos = (INDEX)(_pShell->GetFLOAT("snd_fMusicVolume")*VOLUME_STEPS + 0.5f);
   gmCurrent.gm_mgMPEGVolume.ApplyCurrentPosition();
+
+  gmCurrent.gm_mgMasterVolume.mg_iMinPos = 0;
+  gmCurrent.gm_mgMasterVolume.mg_iMaxPos = VOLUME_STEPS;
+  gmCurrent.gm_mgMasterVolume.mg_iCurPos = (INDEX)(_pShell->GetFLOAT("snd_fMasterVolume") * VOLUME_STEPS + 0.5f);
+  gmCurrent.gm_mgMasterVolume.ApplyCurrentPosition();
 
   gmCurrent.gm_mgAudioAutoTrigger.ApplyCurrentSelection();
   gmCurrent.gm_mgAudioAPITrigger.ApplyCurrentSelection();
@@ -938,6 +932,19 @@ static void OnMPEGVolumeChange(INDEX iCurPos)
   _pShell->SetFLOAT("snd_fMusicVolume", iCurPos / FLOAT(VOLUME_STEPS));
 }
 
+static void OnMasterVolumeChange(INDEX iCurPos)
+{
+    _pShell->SetFLOAT("snd_fMasterVolume", iCurPos / FLOAT(VOLUME_STEPS));
+}
+
+static void MasterSliderChange(void)
+{
+    CAudioOptionsMenu& gmCurrent = _pGUIM->gmAudioOptionsMenu;
+
+    gmCurrent.gm_mgMasterVolume.mg_iCurPos -= 5;
+    gmCurrent.gm_mgMasterVolume.ApplyCurrentPosition();
+}
+
 void InitActionsForAudioOptionsMenu()
 {
   CAudioOptionsMenu &gmCurrent = _pGUIM->gmAudioOptionsMenu;
@@ -947,6 +954,8 @@ void InitActionsForAudioOptionsMenu()
   gmCurrent.gm_mgWaveVolume.mg_pActivatedFunction = WaveSliderChange;
   gmCurrent.gm_mgMPEGVolume.mg_pOnSliderChange = &OnMPEGVolumeChange;
   gmCurrent.gm_mgMPEGVolume.mg_pActivatedFunction = MPEGSliderChange;
+  gmCurrent.gm_mgMasterVolume.mg_pOnSliderChange = &OnMasterVolumeChange;
+  gmCurrent.gm_mgMasterVolume.mg_pActivatedFunction = MasterSliderChange;
   gmCurrent.gm_mgApply.mg_pActivatedFunction = &ApplyAudioOptions;
 }
 
@@ -1269,4 +1278,30 @@ extern void UpdateSplitLevel(INDEX iDummy)
   ValidateLevelForFlags(_pGame->gam_strCustomLevel,
     GetSpawnFlagsForGameType(gmCurrent.gm_mgGameType.mg_iSelected));
   gmCurrent.gm_mgLevel.mg_strText = FindLevelByFileName(_pGame->gam_strCustomLevel).li_strName;
+}
+
+// ------------------------ CAchievementsMenu implementation
+
+static void ApplyClearAchievements(void)
+{
+    CAchievementsMenu& gmCurrent = _pGUIM->gmAchievementsMenu;
+}
+
+static void ClearAchievementsConfirm(void)
+{
+    CConfirmMenu& gmCurrent = _pGUIM->gmConfirmMenu;
+
+    gmCurrent._pConfimedYes = &ApplyClearAchievements;
+    gmCurrent._pConfimedNo = NULL;
+    gmCurrent.gm_mgConfirmLabel.mg_strText = TRANS("ARE YOU SURE?");
+    gmCurrent.gm_pgmParentMenu = pgmCurrentMenu;
+    gmCurrent.BeLarge();
+    ChangeToMenu(&gmCurrent);
+}
+
+void InitActionsForAchievementsMenu()
+{
+    CAchievementsMenu& gmCurrent = _pGUIM->gmAchievementsMenu;
+
+    gmCurrent.gm_mgClearAchievements.mg_pActivatedFunction = &ClearAchievementsConfirm;
 }

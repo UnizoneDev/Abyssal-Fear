@@ -57,8 +57,8 @@ components:
  3 texture TEXTURE_ROLLINGSTONE    "Models\\Ages\\Egypt\\Traps\\RollingStone\\Stone.tex",
  5 texture TEXTURE_DETAIL          "Models\\Ages\\Egypt\\Traps\\RollingStone\\Detail.tex",
 // ************** STONE PARTS **************
- 14 model     MODEL_STONE        "Models\\Effects\\Debris\\Stone\\Stone.mdl",
- 15 texture   TEXTURE_STONE      "Models\\Effects\\Debris\\Stone\\Stone.tex",
+ 14 model     MODEL_STONE        "Models\\Effects\\Debris\\StoneDebris.mdl",
+ 15 texture   TEXTURE_STONE      "Models\\Effects\\Debris\\StoneDebris.tex",
  16 class     CLASS_DEBRIS       "Classes\\Debris.ecl",
   4 class     CLASS_BASIC_EFFECT "Classes\\BasicEffect.ecl",
  20 sound   SOUND_BOUNCE         "Sounds\\Misc\\RollingStone.wav",

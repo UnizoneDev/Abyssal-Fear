@@ -15,6 +15,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "stdh.h"
 
+#include <Engine/Base/ByteSwap.h>
 #include <Engine/Graphics/DrawPort.h>
 
 #include <Engine/Math/Projection.h>
@@ -524,10 +525,10 @@ void Particle_Flush(void)
     gfxSetTextureWrapping( GFX_CLAMP, GFX_CLAMP);
     if( _Particle_bHasHaze) {
       gfxSetTexture( _haze_ulTexture, _haze_tpLocal);
-      glcolFH.abgr = ByteSwap( AdjustColor( _haze_hp.hp_colColor, _slTexHueShift, _slTexSaturation));
+      glcolFH.abgr = ByteSwap32( AdjustColor( _haze_hp.hp_colColor, _slTexHueShift, _slTexSaturation));
     } else {
       gfxSetTexture( _fog_ulTexture, _fog_tpLocal);
-      glcolFH.abgr = ByteSwap( AdjustColor( _fog_fp.fp_colColor, _slTexHueShift, _slTexSaturation));
+      glcolFH.abgr = ByteSwap32( AdjustColor( _fog_fp.fp_colColor, _slTexHueShift, _slTexSaturation));
     }
     // prepare haze rendering parameters
     gfxDisableAlphaTest();

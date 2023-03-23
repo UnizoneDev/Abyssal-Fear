@@ -110,6 +110,13 @@ EXP_FLT (({DIGIT}+("."({DIGIT}*)?)?)("E"|"e")("+"|"-")?{DIGIT}+)
 "ANGLE3D"           {RETURN(k_ANGLE3D);};
 "FLOATplane3D"      {RETURN(k_FLOATplane3D);};
 "flags"             {RETURN(k_FLAGS);};
+"DOUBLE"            {RETURN(k_DOUBLE);}
+"INDEX64"           {RETURN(k_INDEX64);}
+"DOUBLE3D"          {RETURN(k_DOUBLE3D);};
+"DOUBLEplane3D"     {RETURN(k_DOUBLEplane3D);};
+"DOUBLEaabbox3D"    {RETURN(k_DOUBLEaabbox3D);}
+"DOUBLEmatrix3D"    {RETURN(k_DOUBLEmatrix3D);}
+"DOUBLEquat3D"      {RETURN(k_DOUBLEquat3D);}
 
  /* single character operators and punctuations */
 ";"|"("|")"|"{"|"}"|"="|"+"|"-"|"<"|">"|"!"|"|"|"&"|"*"|"/"|"%"|"^"|"["|"]"|":"|","|"."|"?"|"~" {

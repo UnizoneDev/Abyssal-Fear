@@ -171,7 +171,7 @@ void CRenderer::AddModelEntity(CEntity *penModel)
   }
 
   // if entity selecting by laso requested, test for selecting
-  if(_selenSelectOnRender.m_select_callback && _selenSelectOnRender.m_deselect_callback) SelectEntityOnRender( *pprProjection, *penModel);
+  if( _pselenSelectOnRender != NULL) SelectEntityOnRender( *pprProjection, *penModel);
   
   // allow its rendering
   dm.dm_ulFlags |= DMF_VISIBLE;
@@ -308,7 +308,7 @@ void CRenderer::AddSkaModelEntity(CEntity *penModel)
   }
 
   // if entity selecting by laso requested, test for selecting
-  if(_selenSelectOnRender.m_select_callback && _selenSelectOnRender.m_deselect_callback) SelectEntityOnRender( *pprProjection, *penModel);
+  if( _pselenSelectOnRender != NULL) SelectEntityOnRender( *pprProjection, *penModel);
   
   // allow its rendering
   dm.dm_ulFlags |= DMF_VISIBLE;
@@ -452,7 +452,7 @@ addBrush:
   // if brush mip exists for that mip factor
   if (pbm!=NULL) {
     // if entity selecting by laso requested
-    if(_selenSelectOnRender.m_select_callback && _selenSelectOnRender.m_deselect_callback)
+    if( _pselenSelectOnRender != NULL)
     {
       // test for selecting
       SelectEntityOnRender( *re_prProjection, *penBrush);

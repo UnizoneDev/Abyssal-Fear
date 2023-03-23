@@ -17,36 +17,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %{
 #include "StdH.h"
 
-#include "ModelsMP/Player/SeriousSam/Player.h"
-#include "ModelsMP/Player/SeriousSam/Body.h"
-#include "ModelsMP/Player/SeriousSam/Head.h"
+#include "Models/Player/Uni/Player.h"
+#include "Models/Player/Uni/Body.h"
+#include "Models/Player/Uni/Head.h"
 
-#include "Models/Weapons/Knife/KnifeItem.h"
-#include "Models/Weapons/Colt/ColtItem.h"
-#include "Models/Weapons/Colt/ColtMain.h"
-#include "Models/Weapons/SingleShotgun/SingleShotgunItem.h"
-#include "Models/Weapons/SingleShotgun/Barrels.h"
-#include "Models/Weapons/DoubleShotgun/DoubleShotgunItem.h"
-#include "Models/Weapons/DoubleShotgun/Dshotgunbarrels.h"
-#include "Models/Weapons/TommyGun/TommyGunItem.h"
-#include "Models/Weapons/TommyGun/Body.h"
-#include "Models/Weapons/MiniGun/MiniGunItem.h"
-#include "Models/Weapons/MiniGun/Body.h"
-#include "Models/Weapons/GrenadeLauncher/GrenadeLauncherItem.h"
-#include "Models/Weapons/RocketLauncher/RocketLauncherItem.h"
-#include "ModelsMP/Weapons/Sniper/SniperItem.h"
-#include "ModelsMP/Weapons/Sniper/Sniper.h"
-//#include "Models/Weapons/Pipebomb/StickItem.h"
-#include "ModelsMP/Weapons/Flamer/FlamerItem.h"
-#include "ModelsMP/Weapons/Flamer/Body.h"
-//#include "ModelsMP/Weapons/Chainsaw/ChainsawItem.h"
-#include "ModelsMP/Weapons/Chainsaw/ChainsawForPlayer.h"
-#include "ModelsMP/Weapons/Chainsaw/BladeForPlayer.h"
-#include "ModelsMP/Weapons/Chainsaw/Body.h"
-#include "Models/Weapons/Laser/LaserItem.h"
-//#include "Models/Weapons/GhostBuster/GhostBusterItem.h"
-//#include "Models/Weapons/GhostBuster/Effect01.h"
-#include "Models/Weapons/Cannon/Cannon.h"
+#include "Models/Weapons/Knife/KnifeWeapon.h"
+#include "Models/Weapons/Axe/AxeWeapon.h"
+#include "Models/Weapons/Pistol/PistolItem.h"
+#include "Models/Weapons/Shotgun/ShotgunItem.h"
+#include "Models/Weapons/SMG/SMGItem.h"
 %}
 
 uses "EntitiesMP/Player";
@@ -102,8 +81,8 @@ void CPlayerAnimator_Precache(ULONG ulAvailable)
   pdec->PrecacheTexture(TEX_SPEC_STRONG          );
   pdec->PrecacheModel(MODEL_FLARE02);
   pdec->PrecacheTexture(TEXTURE_FLARE02);
-  pdec->PrecacheModel(MODEL_GOLDAMON);
-  pdec->PrecacheTexture(TEXTURE_GOLDAMON);
+  pdec->PrecacheModel(MODEL_GOLDSWASTIKA);
+  pdec->PrecacheTexture(TEXTURE_GOLDSWASTIKA);
   pdec->PrecacheTexture(TEX_REFL_GOLD01);
   pdec->PrecacheClass(CLASS_REMINDER);
 
@@ -117,133 +96,21 @@ void CPlayerAnimator_Precache(ULONG ulAvailable)
     pdec->PrecacheTexture(TEXTURE_KNIFE);
   }
 
-  if ( ulAvailable&(1<<(WEAPON_COLT-1)) ) {
-    pdec->PrecacheModel(MODEL_COLT                  );
-    pdec->PrecacheModel(MODEL_COLTCOCK              );
-    pdec->PrecacheModel(MODEL_COLTMAIN              );
-    pdec->PrecacheModel(MODEL_COLTBULLETS           );
-    pdec->PrecacheTexture(TEXTURE_COLTMAIN          );  
-    pdec->PrecacheTexture(TEXTURE_COLTBULLETS       );  
-    pdec->PrecacheTexture(TEXTURE_COLTBULLETS       );  
+  if ( ulAvailable&(1<<(WEAPON_AXE-1)) ) {
+    pdec->PrecacheModel(MODEL_AXE                 );
   }
 
-  if ( ulAvailable&(1<<(WEAPON_SINGLESHOTGUN-1)) ) {
-    pdec->PrecacheModel(MODEL_SINGLESHOTGUN     );    
-    pdec->PrecacheModel(MODEL_SS_SLIDER         );    
-    pdec->PrecacheModel(MODEL_SS_HANDLE         );    
-    pdec->PrecacheModel(MODEL_SS_BARRELS        );    
-    pdec->PrecacheTexture(TEXTURE_SS_HANDLE);      
-    pdec->PrecacheTexture(TEXTURE_SS_BARRELS);      
+  if ( ulAvailable&(1<<(WEAPON_PISTOL-1)) ) {
+    pdec->PrecacheModel(MODEL_PISTOLITEM                );
+    pdec->PrecacheTexture(TEXTURE_PISTOLITEM            );
   }
-
-  if ( ulAvailable&(1<<(WEAPON_DOUBLESHOTGUN-1)) ) {
-    pdec->PrecacheModel(MODEL_DOUBLESHOTGUN        ); 
-    pdec->PrecacheModel(MODEL_DS_HANDLE            ); 
-    pdec->PrecacheModel(MODEL_DS_BARRELS           ); 
-    pdec->PrecacheModel(MODEL_DS_SWITCH            ); 
-    pdec->PrecacheTexture(TEXTURE_DS_HANDLE        );   
-    pdec->PrecacheTexture(TEXTURE_DS_BARRELS       );   
-    pdec->PrecacheTexture(TEXTURE_DS_SWITCH        );   
+  if ( ulAvailable&(1<<(WEAPON_SHOTGUN-1)) ) {
+    pdec->PrecacheModel(MODEL_SHOTGUNITEM                );
+    pdec->PrecacheTexture(TEXTURE_SHOTGUNITEM            );
   }
-
-  if ( ulAvailable&(1<<(WEAPON_TOMMYGUN-1)) ) {
-    pdec->PrecacheModel(MODEL_TOMMYGUN              );
-    pdec->PrecacheModel(MODEL_TG_BODY               );
-    pdec->PrecacheModel(MODEL_TG_SLIDER             );
-    pdec->PrecacheTexture(TEXTURE_TG_BODY           );  
-  }
-
-  if ( ulAvailable&(1<<(WEAPON_SNIPER-1)) ) {
-    pdec->PrecacheModel(MODEL_SNIPER          ); 
-    pdec->PrecacheModel(MODEL_SNIPER_BODY     ); 
-    pdec->PrecacheTexture(TEXTURE_SNIPER_BODY );   
-  }
-
-  if ( ulAvailable&(1<<(WEAPON_MINIGUN-1)) ) {
-    pdec->PrecacheModel(MODEL_MINIGUN          );     
-    pdec->PrecacheModel(MODEL_MG_BARRELS       );     
-    pdec->PrecacheModel(MODEL_MG_BODY          );     
-    pdec->PrecacheModel(MODEL_MG_ENGINE        );     
-    pdec->PrecacheTexture(TEXTURE_MG_BODY      );       
-    pdec->PrecacheTexture(TEXTURE_MG_BARRELS   );       
-  }
-                                         
-  if ( ulAvailable&(1<<(WEAPON_ROCKETLAUNCHER-1)) ) {
-    pdec->PrecacheModel(MODEL_ROCKETLAUNCHER   );
-    pdec->PrecacheModel(MODEL_RL_BODY          );
-    pdec->PrecacheModel(MODEL_RL_ROTATINGPART  );
-    pdec->PrecacheModel(MODEL_RL_ROCKET        );
-    pdec->PrecacheTexture(TEXTURE_RL_BODY  );
-    pdec->PrecacheTexture(TEXTURE_RL_ROCKET);
-    pdec->PrecacheTexture(TEXTURE_RL_ROTATINGPART);
-  }                                        
-
-  if ( ulAvailable&(1<<(WEAPON_GRENADELAUNCHER-1)) ) {
-    pdec->PrecacheModel(MODEL_GRENADELAUNCHER       ); 
-    pdec->PrecacheModel(MODEL_GL_BODY               ); 
-    pdec->PrecacheModel(MODEL_GL_MOVINGPART         ); 
-    pdec->PrecacheModel(MODEL_GL_GRENADE            ); 
-    pdec->PrecacheTexture(TEXTURE_GL_BODY           );   
-    pdec->PrecacheTexture(TEXTURE_GL_MOVINGPART     );   
-  }
-
-/*
-  if ( ulAvailable&(1<<(WEAPON_PIPEBOMB-1)) ) {
-    pdec->PrecacheModel(MODEL_PIPEBOMB_STICK        );
-    pdec->PrecacheModel(MODEL_PB_BUTTON             );
-    pdec->PrecacheModel(MODEL_PB_SHIELD             );
-    pdec->PrecacheModel(MODEL_PB_STICK              );
-    pdec->PrecacheModel(MODEL_PB_BOMB               );
-    pdec->PrecacheTexture(TEXTURE_PB_STICK          );  
-    pdec->PrecacheTexture(TEXTURE_PB_BOMB           );  
-  }
-*/
-  if ( ulAvailable&(1<<(WEAPON_FLAMER-1)) ) {
-    pdec->PrecacheModel(MODEL_FLAMER      );
-    pdec->PrecacheModel(MODEL_FL_BODY     );
-    pdec->PrecacheModel(MODEL_FL_RESERVOIR);
-    pdec->PrecacheModel(MODEL_FL_FLAME    );
-    pdec->PrecacheTexture(TEXTURE_FL_BODY );  
-    pdec->PrecacheTexture(TEXTURE_FL_FLAME);  
-  }
-  
-  if ( ulAvailable&(1<<(WEAPON_CHAINSAW-1)) ) {
-    pdec->PrecacheModel(MODEL_CHAINSAW      );
-    pdec->PrecacheModel(MODEL_CS_BODY       );
-    pdec->PrecacheModel(MODEL_CS_BLADE      );
-    pdec->PrecacheModel(MODEL_CS_TEETH      );
-    pdec->PrecacheTexture(TEXTURE_CS_BODY   );  
-    pdec->PrecacheTexture(TEXTURE_CS_BLADE  );  
-    pdec->PrecacheTexture(TEXTURE_CS_TEETH  );  
-  }
-
-  if ( ulAvailable&(1<<(WEAPON_LASER-1)) ) {
-    pdec->PrecacheModel(MODEL_LASER     );
-    pdec->PrecacheModel(MODEL_LS_BODY   );
-    pdec->PrecacheModel(MODEL_LS_BARREL );
-    pdec->PrecacheTexture(TEXTURE_LS_BODY  );  
-    pdec->PrecacheTexture(TEXTURE_LS_BARREL);  
-  }
-/*
-  if ( ulAvailable&(1<<(WEAPON_GHOSTBUSTER-1)) ) {
-    pdec->PrecacheModel(MODEL_GHOSTBUSTER     );
-    pdec->PrecacheModel(MODEL_GB_BODY         );
-    pdec->PrecacheModel(MODEL_GB_ROTATOR      );
-    pdec->PrecacheModel(MODEL_GB_EFFECT1      );
-    pdec->PrecacheModel(MODEL_GB_EFFECT1FLARE );
-    pdec->PrecacheTexture(TEXTURE_GB_ROTATOR  );  
-    pdec->PrecacheTexture(TEXTURE_GB_BODY     );  
-    pdec->PrecacheTexture(TEXTURE_GB_LIGHTNING);  
-    pdec->PrecacheTexture(TEXTURE_GB_FLARE    );  
-  }
-*/
-  if ( ulAvailable&(1<<(WEAPON_IRONCANNON-1)) /*||
-       ulAvailable&(1<<(WEAPON_NUKECANNON-1)) */) {
-    pdec->PrecacheModel(MODEL_CANNON    );
-    pdec->PrecacheModel(MODEL_CN_BODY   );
-//    pdec->PrecacheModel(MODEL_CN_NUKEBOX);
-//    pdec->PrecacheModel(MODEL_CN_LIGHT);
-    pdec->PrecacheTexture(TEXTURE_CANNON);
+  if ( ulAvailable&(1<<(WEAPON_SMG-1)) ) {
+    pdec->PrecacheModel(MODEL_SMGITEM                );
+    pdec->PrecacheTexture(TEXTURE_SMGITEM            );
   }
 }
 %}
@@ -303,130 +170,26 @@ properties:
 
 components:
   1 class   CLASS_REMINDER              "Classes\\Reminder.ecl",
-// ************** KNIFE **************
- 20 model   MODEL_KNIFE                 "Models\\Weapons\\Knife\\KnifeItem.mdl",
- 22 texture TEXTURE_KNIFE               "Models\\Weapons\\Knife\\KnifeItem.tex",
+// ************** KNIFE AND AXE **************
+ 20 model   MODEL_KNIFE                 "Models\\Weapons\\Knife\\KnifeWeapon.mdl",
+ 21 texture TEXTURE_KNIFE               "Models\\Weapons\\Knife\\KnifeWeapon.tex",
+ 22 model   MODEL_AXE                   "Models\\Weapons\\Axe\\AxeWeapon.mdl",
  
 // ************** COLT **************
- 30 model   MODEL_COLT                  "Models\\Weapons\\Colt\\ColtItem.mdl",
- 31 model   MODEL_COLTCOCK              "Models\\Weapons\\Colt\\ColtCock.mdl",
- 32 model   MODEL_COLTMAIN              "Models\\Weapons\\Colt\\ColtMain.mdl",
- 33 model   MODEL_COLTBULLETS           "Models\\Weapons\\Colt\\ColtBullets.mdl",
- 34 texture TEXTURE_COLTBULLETS         "Models\\Weapons\\Colt\\ColtBullets.tex",
- 35 texture TEXTURE_COLTMAIN            "Models\\Weapons\\Colt\\ColtMain.tex",
- 36 texture TEXTURE_COLTCOCK            "Models\\Weapons\\Colt\\ColtCock.tex",
+ 30 model   MODEL_PISTOLITEM            "Models\\Weapons\\Pistol\\PistolItem.mdl",
+ 31 texture TEXTURE_PISTOLITEM          "Models\\Weapons\\Pistol\\Pistol.tex",
 
-// ************** SINGLE SHOTGUN ************
- 40 model   MODEL_SINGLESHOTGUN         "Models\\Weapons\\SingleShotgun\\SingleShotgunItem.mdl",
- 41 model   MODEL_SS_SLIDER             "Models\\Weapons\\SingleShotgun\\Slider.mdl",
- 42 model   MODEL_SS_HANDLE             "Models\\Weapons\\SingleShotgun\\Handle.mdl",
- 43 model   MODEL_SS_BARRELS            "Models\\Weapons\\SingleShotgun\\Barrels.mdl",
- 44 texture TEXTURE_SS_HANDLE           "Models\\Weapons\\SingleShotgun\\Handle.tex",
- 45 texture TEXTURE_SS_BARRELS          "Models\\Weapons\\SingleShotgun\\Barrels.tex",
+// ************** SHOTGUN **************
+ 40 model   MODEL_SHOTGUNITEM            "Models\\Weapons\\Shotgun\\ShotgunItem.mdl",
+ 41 texture TEXTURE_SHOTGUNITEM          "Models\\Weapons\\Shotgun\\Shotgun.tex",
 
-// ************** DOUBLE SHOTGUN **************
- 50 model   MODEL_DOUBLESHOTGUN         "Models\\Weapons\\DoubleShotgun\\DoubleShotgunItem.mdl",
- 51 model   MODEL_DS_HANDLE             "Models\\Weapons\\DoubleShotgun\\Dshotgunhandle.mdl",
- 52 model   MODEL_DS_BARRELS            "Models\\Weapons\\DoubleShotgun\\Dshotgunbarrels.mdl",
- 54 model   MODEL_DS_SWITCH             "Models\\Weapons\\DoubleShotgun\\Switch.mdl",
- 56 texture TEXTURE_DS_HANDLE           "Models\\Weapons\\DoubleShotgun\\Handle.tex",
- 57 texture TEXTURE_DS_BARRELS          "Models\\Weapons\\DoubleShotgun\\Barrels.tex",
- 58 texture TEXTURE_DS_SWITCH           "Models\\Weapons\\DoubleShotgun\\Switch.tex",
+// ************** SMG **************
+ 50 model   MODEL_SMGITEM            "Models\\Weapons\\SMG\\SMGItem.mdl",
+ 51 texture TEXTURE_SMGITEM          "Models\\Weapons\\SMG\\SMG.tex",
 
-// ************** TOMMYGUN **************
- 70 model   MODEL_TOMMYGUN              "Models\\Weapons\\TommyGun\\TommyGunItem.mdl",
- 71 model   MODEL_TG_BODY               "Models\\Weapons\\TommyGun\\Body.mdl",
- 72 model   MODEL_TG_SLIDER             "Models\\Weapons\\TommyGun\\Slider.mdl",
- 73 texture TEXTURE_TG_BODY             "Models\\Weapons\\TommyGun\\Body.tex",
-
-// ************** MINIGUN **************
- 80 model   MODEL_MINIGUN               "Models\\Weapons\\MiniGun\\MiniGunItem.mdl",
- 81 model   MODEL_MG_BARRELS            "Models\\Weapons\\MiniGun\\Barrels.mdl",
- 82 model   MODEL_MG_BODY               "Models\\Weapons\\MiniGun\\Body.mdl",
- 83 model   MODEL_MG_ENGINE             "Models\\Weapons\\MiniGun\\Engine.mdl",
- 84 texture TEXTURE_MG_BODY             "Models\\Weapons\\MiniGun\\Body.tex",
- 99 texture TEXTURE_MG_BARRELS          "Models\\Weapons\\MiniGun\\Barrels.tex",
-
-// ************** ROCKET LAUNCHER **************
- 90 model   MODEL_ROCKETLAUNCHER        "Models\\Weapons\\RocketLauncher\\RocketLauncherItem.mdl",
- 91 model   MODEL_RL_BODY               "Models\\Weapons\\RocketLauncher\\Body.mdl",
- 92 texture TEXTURE_RL_BODY             "Models\\Weapons\\RocketLauncher\\Body.tex",
- 93 model   MODEL_RL_ROTATINGPART       "Models\\Weapons\\RocketLauncher\\RotatingPart.mdl",
- 94 texture TEXTURE_RL_ROTATINGPART     "Models\\Weapons\\RocketLauncher\\RotatingPart.tex",
- 95 model   MODEL_RL_ROCKET             "Models\\Weapons\\RocketLauncher\\Projectile\\Rocket.mdl",
- 96 texture TEXTURE_RL_ROCKET           "Models\\Weapons\\RocketLauncher\\Projectile\\Rocket.tex",
-
-// ************** GRENADE LAUNCHER **************
-100 model   MODEL_GRENADELAUNCHER       "Models\\Weapons\\GrenadeLauncher\\GrenadeLauncherItem.mdl",
-101 model   MODEL_GL_BODY               "Models\\Weapons\\GrenadeLauncher\\Body.mdl",
-102 model   MODEL_GL_MOVINGPART         "Models\\Weapons\\GrenadeLauncher\\MovingPipe.mdl",
-103 model   MODEL_GL_GRENADE            "Models\\Weapons\\GrenadeLauncher\\GrenadeBack.mdl",
-104 texture TEXTURE_GL_BODY             "Models\\Weapons\\GrenadeLauncher\\Body.tex",
-105 texture TEXTURE_GL_MOVINGPART       "Models\\Weapons\\GrenadeLauncher\\MovingPipe.tex",
-
-// ************** SNIPER **************
-110 model   MODEL_SNIPER                "ModelsMP\\Weapons\\Sniper\\Sniper.mdl",
-111 model   MODEL_SNIPER_BODY           "ModelsMP\\Weapons\\Sniper\\Body.mdl",
-112 texture TEXTURE_SNIPER_BODY         "ModelsMP\\Weapons\\Sniper\\Body.tex",
-
-/*
-// ************** PIPEBOMB **************
-110 model   MODEL_PIPEBOMB_STICK        "Models\\Weapons\\Pipebomb\\StickItem.mdl",
-112 model   MODEL_PB_BUTTON             "Models\\Weapons\\Pipebomb\\Button.mdl",
-113 model   MODEL_PB_SHIELD             "Models\\Weapons\\Pipebomb\\Shield.mdl",
-114 model   MODEL_PB_STICK              "Models\\Weapons\\Pipebomb\\Stick.mdl",
-115 model   MODEL_PB_BOMB               "Models\\Weapons\\Pipebomb\\Bomb.mdl",
-116 texture TEXTURE_PB_STICK            "Models\\Weapons\\Pipebomb\\Stick.tex",
-117 texture TEXTURE_PB_BOMB             "Models\\Weapons\\Pipebomb\\Bomb.tex",
-*/
-
-// ************** FLAMER **************
-130 model   MODEL_FLAMER                "ModelsMP\\Weapons\\Flamer\\FlamerItem.mdl",
-131 model   MODEL_FL_BODY               "ModelsMP\\Weapons\\Flamer\\Body.mdl",
-132 model   MODEL_FL_RESERVOIR          "ModelsMP\\Weapons\\Flamer\\FuelReservoir.mdl",
-133 model   MODEL_FL_FLAME              "ModelsMP\\Weapons\\Flamer\\Flame.mdl",
-134 texture TEXTURE_FL_BODY             "ModelsMP\\Weapons\\Flamer\\Body.tex",
-135 texture TEXTURE_FL_FLAME            "ModelsMP\\Effects\\Flame\\Flame.tex",
-136 texture TEXTURE_FL_FUELRESERVOIR    "ModelsMP\\Weapons\\Flamer\\FuelReservoir.tex",
-
-// ************** LASER **************
-140 model   MODEL_LASER                 "Models\\Weapons\\Laser\\LaserItem.mdl",
-141 model   MODEL_LS_BODY               "Models\\Weapons\\Laser\\Body.mdl",
-142 model   MODEL_LS_BARREL             "Models\\Weapons\\Laser\\Barrel.mdl",
-143 texture TEXTURE_LS_BODY             "Models\\Weapons\\Laser\\Body.tex",
-144 texture TEXTURE_LS_BARREL           "Models\\Weapons\\Laser\\Barrel.tex",
-
-// ************** CHAINSAW **************
-150 model   MODEL_CHAINSAW              "ModelsMP\\Weapons\\Chainsaw\\ChainsawForPlayer.mdl",
-151 model   MODEL_CS_BODY               "ModelsMP\\Weapons\\Chainsaw\\BodyForPlayer.mdl",
-152 model   MODEL_CS_BLADE              "ModelsMP\\Weapons\\Chainsaw\\Blade.mdl",
-153 model   MODEL_CS_TEETH              "ModelsMP\\Weapons\\Chainsaw\\Teeth.mdl",
-154 texture TEXTURE_CS_BODY             "ModelsMP\\Weapons\\Chainsaw\\Body.tex",
-155 texture TEXTURE_CS_BLADE            "ModelsMP\\Weapons\\Chainsaw\\Blade.tex",
-156 texture TEXTURE_CS_TEETH            "ModelsMP\\Weapons\\Chainsaw\\Teeth.tex",
-
-// ************** GHOSTBUSTER **************
-/*
-150 model   MODEL_GHOSTBUSTER           "Models\\Weapons\\GhostBuster\\GhostBusterItem.mdl",
-151 model   MODEL_GB_BODY               "Models\\Weapons\\GhostBuster\\Body.mdl",
-152 model   MODEL_GB_ROTATOR            "Models\\Weapons\\GhostBuster\\Rotator.mdl",
-153 model   MODEL_GB_EFFECT1            "Models\\Weapons\\GhostBuster\\Effect01.mdl",
-154 model   MODEL_GB_EFFECT1FLARE       "Models\\Weapons\\GhostBuster\\EffectFlare01.mdl",
-155 texture TEXTURE_GB_ROTATOR          "Models\\Weapons\\GhostBuster\\Rotator.tex",
-156 texture TEXTURE_GB_BODY             "Models\\Weapons\\GhostBuster\\Body.tex",
-157 texture TEXTURE_GB_LIGHTNING        "Models\\Weapons\\GhostBuster\\Lightning.tex",
-158 texture TEXTURE_GB_FLARE            "Models\\Weapons\\GhostBuster\\EffectFlare.tex",
-*/
-// ************** CANNON **************
-170 model   MODEL_CANNON                "Models\\Weapons\\Cannon\\Cannon.mdl",
-171 model   MODEL_CN_BODY               "Models\\Weapons\\Cannon\\Body.mdl",
-173 texture TEXTURE_CANNON              "Models\\Weapons\\Cannon\\Body.tex",
-//174 model   MODEL_CN_NUKEBOX            "Models\\Weapons\\Cannon\\NukeBox.mdl",
-//175 model   MODEL_CN_LIGHT              "Models\\Weapons\\Cannon\\Light.mdl",
-
-// ************** AMON STATUE **************
-180 model   MODEL_GOLDAMON                "Models\\Ages\\Egypt\\Gods\\Amon\\AmonGold.mdl",
-181 texture TEXTURE_GOLDAMON              "Models\\Ages\\Egypt\\Gods\\Amon\\AmonGold.tex",
+// ************** GOLDEN SWASTIKA **************
+180 model   MODEL_GOLDSWASTIKA                "Models\\Items\\Keys\\GoldenSwastika\\Swastika.mdl",
+181 texture TEXTURE_GOLDSWASTIKA              "Models\\Items\\Keys\\GoldenSwastika\\gold1.tex",
 
 // ************** REFLECTIONS **************
 200 texture TEX_REFL_BWRIPLES01         "Models\\ReflectionTextures\\BWRiples01.tex",
@@ -535,7 +298,7 @@ functions:
     CModelObject *pmoBodyRen = GetBodyRen();
     CModelObject *pmoBodyDef = GetBody();
     // for each weapon attachment
-    for (INDEX iWeapon = BODY_ATTACHMENT_COLT_RIGHT; iWeapon<=BODY_ATTACHMENT_ITEM; iWeapon++) {
+    for (INDEX iWeapon = BODY_ATTACHMENT_PISTOL; iWeapon<=BODY_ATTACHMENT_ITEM; iWeapon++) {
       CAttachmentModelObject *pamoWeapDef = pmoBodyDef->GetAttachmentModel(iWeapon);
       CAttachmentModelObject *pamoWeapRen = pmoBodyRen->GetAttachmentModel(iWeapon);
       // if it doesn't exist in either
@@ -572,197 +335,33 @@ functions:
     pmoModel = &(pl.GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject);
     switch (iWeapon) {
     // *********** KNIFE ***********
+      case WEAPON_HOLSTERED:
+        break;
+
       case WEAPON_KNIFE:
-        AddWeaponAttachment(BODY_ATTACHMENT_KNIFE, MODEL_KNIFE,
-                            TEXTURE_KNIFE, TEX_REFL_BWRIPLES02, TEX_SPEC_WEAK, 0);
+        AddWeaponAttachment(BODY_ATTACHMENT_KNIFE, MODEL_KNIFE, TEXTURE_KNIFE, 0, 0, 0);
         break;
-
-    // *********** DOUBLE COLT ***********
-      case WEAPON_DOUBLECOLT:
-        AddWeaponAttachment(BODY_ATTACHMENT_COLT_LEFT, MODEL_COLT, TEXTURE_COLTMAIN, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_COLT_LEFT);
-        AddWeaponAttachment(COLTITEM_ATTACHMENT_BULLETS, MODEL_COLTBULLETS,
-                            TEXTURE_COLTBULLETS, TEX_REFL_LIGHTBLUEMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(COLTITEM_ATTACHMENT_COCK, MODEL_COLTCOCK,
-                            TEXTURE_COLTCOCK, TEX_REFL_LIGHTBLUEMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(COLTITEM_ATTACHMENT_BODY, MODEL_COLTMAIN,
-                            TEXTURE_COLTMAIN, TEX_REFL_LIGHTBLUEMETAL01, TEX_SPEC_MEDIUM, 0);
-        SetAttachment(COLTITEM_ATTACHMENT_BODY);
-        AddWeaponAttachment(COLTMAIN_ATTACHMENT_FLARE, MODEL_FLARE02, TEXTURE_FLARE02, 0, 0, 0);
-        // reset to player body
-        pmoModel = &(pl.GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject);
-
+ 
     // *********** COLT ***********
-      case WEAPON_COLT:
-        AddWeaponAttachment(BODY_ATTACHMENT_COLT_RIGHT, MODEL_COLT, TEXTURE_COLTMAIN, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_COLT_RIGHT);
-        AddWeaponAttachment(COLTITEM_ATTACHMENT_BULLETS, MODEL_COLTBULLETS,
-                            TEXTURE_COLTBULLETS, TEX_REFL_LIGHTBLUEMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(COLTITEM_ATTACHMENT_COCK, MODEL_COLTCOCK,
-                            TEXTURE_COLTCOCK, TEX_REFL_LIGHTBLUEMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(COLTITEM_ATTACHMENT_BODY, MODEL_COLTMAIN,
-                            TEXTURE_COLTMAIN, TEX_REFL_LIGHTBLUEMETAL01, TEX_SPEC_MEDIUM, 0);
-        SetAttachment(COLTITEM_ATTACHMENT_BODY);
-        AddWeaponAttachment(COLTMAIN_ATTACHMENT_FLARE, MODEL_FLARE02, TEXTURE_FLARE02, 0, 0, 0);
+      case WEAPON_PISTOL:
+        AddWeaponAttachment(BODY_ATTACHMENT_PISTOL, MODEL_PISTOLITEM, TEXTURE_PISTOLITEM, 0, 0, 0);
         break;
 
-    // *********** SINGLE SHOTGUN ***********
-      case WEAPON_SINGLESHOTGUN:
-        AddWeaponAttachment(BODY_ATTACHMENT_SINGLE_SHOTGUN, MODEL_SINGLESHOTGUN, TEXTURE_SS_HANDLE, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_SINGLE_SHOTGUN);
-        AddWeaponAttachment(SINGLESHOTGUNITEM_ATTACHMENT_BARRELS, MODEL_SS_BARRELS,
-                            TEXTURE_SS_BARRELS, TEX_REFL_DARKMETAL, TEX_SPEC_WEAK, 0);
-        AddWeaponAttachment(SINGLESHOTGUNITEM_ATTACHMENT_HANDLE, MODEL_SS_HANDLE,
-                            TEXTURE_SS_HANDLE, TEX_REFL_DARKMETAL, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(SINGLESHOTGUNITEM_ATTACHMENT_SLIDER, MODEL_SS_SLIDER,
-                            TEXTURE_SS_BARRELS, TEX_REFL_DARKMETAL, TEX_SPEC_MEDIUM, 0);
-        SetAttachment(SINGLESHOTGUNITEM_ATTACHMENT_BARRELS);
-        AddWeaponAttachment(BARRELS_ATTACHMENT_FLARE, MODEL_FLARE02, TEXTURE_FLARE02, 0, 0, 0);
+    // *********** AXE ***********
+      case WEAPON_AXE:
+        AddWeaponAttachment(BODY_ATTACHMENT_AXE, MODEL_AXE, TEXTURE_KNIFE, 0, 0, 0);
         break;
 
-    // *********** DOUBLE SHOTGUN ***********
-      case WEAPON_DOUBLESHOTGUN:
-        AddWeaponAttachment(BODY_ATTACHMENT_DOUBLE_SHOTGUN, MODEL_DOUBLESHOTGUN, TEXTURE_DS_HANDLE, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_DOUBLE_SHOTGUN);
-        AddWeaponAttachment(DOUBLESHOTGUNITEM_ATTACHMENT_BARRELS, MODEL_DS_BARRELS,
-                            TEXTURE_DS_BARRELS, TEX_REFL_BWRIPLES01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(DOUBLESHOTGUNITEM_ATTACHMENT_HANDLE, MODEL_DS_HANDLE,
-                            TEXTURE_DS_HANDLE, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(DOUBLESHOTGUNITEM_ATTACHMENT_SWITCH, MODEL_DS_SWITCH,
-                            TEXTURE_DS_SWITCH, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        SetAttachment(DOUBLESHOTGUNITEM_ATTACHMENT_BARRELS);
-        AddWeaponAttachment(DSHOTGUNBARRELS_ATTACHMENT_FLARE, MODEL_FLARE02, TEXTURE_FLARE02, 0, 0, 0);
+    // *********** SHOTGUN ***********
+      case WEAPON_SHOTGUN:
+        AddWeaponAttachment(BODY_ATTACHMENT_SHOTGUN, MODEL_SHOTGUNITEM, TEXTURE_SHOTGUNITEM, 0, 0, 0);
         break;
 
-
-    // *********** TOMMYGUN ***********
-      case WEAPON_TOMMYGUN:
-        AddWeaponAttachment(BODY_ATTACHMENT_TOMMYGUN, MODEL_TOMMYGUN, TEXTURE_TG_BODY, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_TOMMYGUN);
-        AddWeaponAttachment(TOMMYGUNITEM_ATTACHMENT_BODY, MODEL_TG_BODY, TEXTURE_TG_BODY, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(TOMMYGUNITEM_ATTACHMENT_SLIDER, MODEL_TG_SLIDER, TEXTURE_TG_BODY, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        SetAttachment(TOMMYGUNITEM_ATTACHMENT_BODY);
-        AddWeaponAttachment(BODY_ATTACHMENT_FLARE, MODEL_FLARE02, TEXTURE_FLARE02, 0, 0, 0);
+    // *********** SMG ***********
+      case WEAPON_SMG:
+        AddWeaponAttachment(BODY_ATTACHMENT_SMG, MODEL_SMGITEM, TEXTURE_SMGITEM, 0, 0, 0);
         break;
-
-    // *********** SNIPER ***********
-      case WEAPON_SNIPER:
-        AddWeaponAttachment(BODY_ATTACHMENT_FLAMER, MODEL_SNIPER, TEXTURE_SNIPER_BODY, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_FLAMER);
-        AddWeaponAttachment(SNIPERITEM_ATTACHMENT_BODY, MODEL_SNIPER_BODY, TEXTURE_SNIPER_BODY, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        SetAttachment(SNIPERITEM_ATTACHMENT_BODY);
-        AddWeaponAttachment(BODY_ATTACHMENT_FLARE, MODEL_FLARE02, TEXTURE_FLARE02, 0, 0, 0);
-        break;
-
-    // *********** MINIGUN ***********
-      case WEAPON_MINIGUN:
-        AddWeaponAttachment(BODY_ATTACHMENT_MINIGUN, MODEL_MINIGUN, TEXTURE_MG_BODY, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_MINIGUN);
-        AddWeaponAttachment(MINIGUNITEM_ATTACHMENT_BARRELS, MODEL_MG_BARRELS, TEXTURE_MG_BARRELS, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0); 
-        AddWeaponAttachment(MINIGUNITEM_ATTACHMENT_BODY, MODEL_MG_BODY, TEXTURE_MG_BODY, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);          
-        AddWeaponAttachment(MINIGUNITEM_ATTACHMENT_ENGINE, MODEL_MG_ENGINE, TEXTURE_MG_BARRELS, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);      
-        SetAttachment(MINIGUNITEM_ATTACHMENT_BODY);
-        AddWeaponAttachment(BODY_ATTACHMENT_FLARE, MODEL_FLARE02, TEXTURE_FLARE02, 0, 0, 0);
-        break;
-
-    // *********** ROCKET LAUNCHER ***********
-      case WEAPON_ROCKETLAUNCHER:
-        AddWeaponAttachment(BODY_ATTACHMENT_ROCKET_LAUNCHER, MODEL_ROCKETLAUNCHER, TEXTURE_RL_BODY, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_ROCKET_LAUNCHER);
-        AddWeaponAttachment(ROCKETLAUNCHERITEM_ATTACHMENT_BODY, MODEL_RL_BODY, TEXTURE_RL_BODY, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(ROCKETLAUNCHERITEM_ATTACHMENT_ROTATINGPART, MODEL_RL_ROTATINGPART, TEXTURE_RL_ROTATINGPART, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(ROCKETLAUNCHERITEM_ATTACHMENT_ROCKET1, MODEL_RL_ROCKET, TEXTURE_RL_ROCKET, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(ROCKETLAUNCHERITEM_ATTACHMENT_ROCKET2, MODEL_RL_ROCKET, TEXTURE_RL_ROCKET, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(ROCKETLAUNCHERITEM_ATTACHMENT_ROCKET3, MODEL_RL_ROCKET, TEXTURE_RL_ROCKET, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(ROCKETLAUNCHERITEM_ATTACHMENT_ROCKET4, MODEL_RL_ROCKET, TEXTURE_RL_ROCKET, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        break;
-
-    // *********** GRENADE LAUNCHER ***********
-      case WEAPON_GRENADELAUNCHER:
-        AddWeaponAttachment(BODY_ATTACHMENT_GRENADE_LAUNCHER, MODEL_GRENADELAUNCHER, TEXTURE_GL_BODY, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_GRENADE_LAUNCHER);
-        AddWeaponAttachment(GRENADELAUNCHERITEM_ATTACHMENT_BODY, MODEL_GL_BODY, TEXTURE_GL_BODY, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(GRENADELAUNCHERITEM_ATTACHMENT_MOVING_PART, MODEL_GL_MOVINGPART, TEXTURE_GL_MOVINGPART, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(GRENADELAUNCHERITEM_ATTACHMENT_GRENADE, MODEL_GL_GRENADE, TEXTURE_GL_MOVINGPART, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        break;
-
-/*    // *********** PIPEBOMB ***********
-      case WEAPON_PIPEBOMB:
-        AddWeaponAttachment(BODY_ATTACHMENT_COLT_RIGHT, MODEL_PIPEBOMB_STICK, TEXTURE_PB_STICK, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_COLT_RIGHT);
-        AddWeaponAttachment(STICKITEM_ATTACHMENT_STICK, MODEL_PB_STICK, TEXTURE_PB_STICK, TEX_REFL_LIGHTBLUEMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(STICKITEM_ATTACHMENT_SHIELD, MODEL_PB_SHIELD, TEXTURE_PB_STICK, TEX_REFL_LIGHTBLUEMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(STICKITEM_ATTACHMENT_BUTTON, MODEL_PB_BUTTON, TEXTURE_PB_STICK, TEX_REFL_LIGHTBLUEMETAL01, TEX_SPEC_MEDIUM, 0);
-        // reset to player body
-        pmoModel = &(pl.GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject);
-        AddWeaponAttachment(BODY_ATTACHMENT_COLT_LEFT, MODEL_PB_BOMB, TEXTURE_PB_BOMB, TEX_REFL_LIGHTBLUEMETAL01, TEX_SPEC_MEDIUM, 0);
-        break;
-*/
-    // *********** FLAMER ***********
-      case WEAPON_FLAMER:
-        AddWeaponAttachment(BODY_ATTACHMENT_FLAMER, MODEL_FLAMER, TEXTURE_FL_BODY, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_FLAMER);
-        AddWeaponAttachment(FLAMERITEM_ATTACHMENT_BODY, MODEL_FL_BODY, TEXTURE_FL_BODY, TEX_REFL_BWRIPLES02, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(FLAMERITEM_ATTACHMENT_FUEL, MODEL_FL_RESERVOIR, TEXTURE_FL_FUELRESERVOIR, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(FLAMERITEM_ATTACHMENT_FLAME, MODEL_FL_FLAME, TEXTURE_FL_FLAME, 0, 0, 0);
-        break;
-
-    // *********** CHAINSAW ***********
-      case WEAPON_CHAINSAW: {
-        AddWeaponAttachment(BODY_ATTACHMENT_MINIGUN, MODEL_CHAINSAW, TEXTURE_CS_BODY, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_MINIGUN);
-        AddWeaponAttachment(CHAINSAWFORPLAYER_ATTACHMENT_CHAINSAW, MODEL_CS_BODY, TEXTURE_CS_BODY, TEX_REFL_BWRIPLES02, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(CHAINSAWFORPLAYER_ATTACHMENT_BLADE, MODEL_CS_BLADE, TEXTURE_CS_BLADE, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        CModelObject *pmo = pmoModel;
-        SetAttachment(CHAINSAWFORPLAYER_ATTACHMENT_BLADE);
-        AddWeaponAttachment(BLADEFORPLAYER_ATTACHMENT_TEETH, MODEL_CS_TEETH, TEXTURE_CS_TEETH, 0, 0, 0);
-        break; }
-
-    // *********** LASER ***********
-      case WEAPON_LASER:
-        AddWeaponAttachment(BODY_ATTACHMENT_LASER, MODEL_LASER, TEXTURE_LS_BODY, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_LASER);
-        AddWeaponAttachment(LASERITEM_ATTACHMENT_BODY, MODEL_LS_BODY, TEXTURE_LS_BODY, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(LASERITEM_ATTACHMENT_LEFTUP,    MODEL_LS_BARREL, TEXTURE_LS_BARREL, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(LASERITEM_ATTACHMENT_LEFTDOWN,  MODEL_LS_BARREL, TEXTURE_LS_BARREL, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(LASERITEM_ATTACHMENT_RIGHTUP,   MODEL_LS_BARREL, TEXTURE_LS_BARREL, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(LASERITEM_ATTACHMENT_RIGHTDOWN, MODEL_LS_BARREL, TEXTURE_LS_BARREL, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        break;
-
-/*
-    // *********** GHOSTBUSTER ***********
-      case WEAPON_GHOSTBUSTER: {
-        AddWeaponAttachment(BODY_ATTACHMENT_LASER, MODEL_GHOSTBUSTER, TEXTURE_GB_BODY, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_LASER);
-        AddWeaponAttachment(GHOSTBUSTERITEM_ATTACHMENT_BODY, MODEL_GB_BODY, TEXTURE_GB_BODY, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(GHOSTBUSTERITEM_ATTACHMENT_ROTATOR, MODEL_GB_ROTATOR, TEXTURE_GB_ROTATOR, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        AddWeaponAttachment(GHOSTBUSTERITEM_ATTACHMENT_EFFECT01, MODEL_GB_EFFECT1, TEXTURE_GB_LIGHTNING, 0, 0, 0);
-        AddWeaponAttachment(GHOSTBUSTERITEM_ATTACHMENT_EFFECT02, MODEL_GB_EFFECT1, TEXTURE_GB_LIGHTNING, 0, 0, 0);
-        AddWeaponAttachment(GHOSTBUSTERITEM_ATTACHMENT_EFFECT03, MODEL_GB_EFFECT1, TEXTURE_GB_LIGHTNING, 0, 0, 0);
-        AddWeaponAttachment(GHOSTBUSTERITEM_ATTACHMENT_EFFECT04, MODEL_GB_EFFECT1, TEXTURE_GB_LIGHTNING, 0, 0, 0);
-        CModelObject *pmo = pmoModel;
-        SetAttachment(GHOSTBUSTERITEM_ATTACHMENT_EFFECT01);
-        AddWeaponAttachment(EFFECT01_ATTACHMENT_FLARE, MODEL_GB_EFFECT1FLARE, TEXTURE_GB_FLARE, 0, 0, 0);
-        pmoModel = pmo;
-        SetAttachment(GHOSTBUSTERITEM_ATTACHMENT_EFFECT02);
-        AddWeaponAttachment(EFFECT01_ATTACHMENT_FLARE, MODEL_GB_EFFECT1FLARE, TEXTURE_GB_FLARE, 0, 0, 0);
-        pmoModel = pmo;
-        SetAttachment(GHOSTBUSTERITEM_ATTACHMENT_EFFECT03);
-        AddWeaponAttachment(EFFECT01_ATTACHMENT_FLARE, MODEL_GB_EFFECT1FLARE, TEXTURE_GB_FLARE, 0, 0, 0);
-        pmoModel = pmo;
-        SetAttachment(GHOSTBUSTERITEM_ATTACHMENT_EFFECT04);
-        AddWeaponAttachment(EFFECT01_ATTACHMENT_FLARE, MODEL_GB_EFFECT1FLARE, TEXTURE_GB_FLARE, 0, 0, 0);
-        break; }
-*/
-    // *********** CANNON ***********
-      case WEAPON_IRONCANNON:
-//      case WEAPON_NUKECANNON:
-        AddWeaponAttachment(BODY_ATTACHMENT_CANNON, MODEL_CANNON, TEXTURE_CANNON, 0, 0, 0);
-        SetAttachment(BODY_ATTACHMENT_CANNON);
-        AddWeaponAttachment(CANNON_ATTACHMENT_BODY, MODEL_CN_BODY, TEXTURE_CANNON, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-//        AddWeaponAttachment(CANNON_ATTACHMENT_NUKEBOX, MODEL_CN_NUKEBOX, TEXTURE_CANNON, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-//        AddWeaponAttachment(CANNON_ATTACHMENT_LIGHT, MODEL_CN_LIGHT, TEXTURE_CANNON, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        break;
+      
       default:
         ASSERTALWAYS("Unknown weapon.");
     }
@@ -773,8 +372,8 @@ functions:
   // set item
   void SetItem(CModelObject *pmo) {
     pmoModel = &(GetPlayer()->GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject);
-    AddWeaponAttachment(BODY_ATTACHMENT_ITEM, MODEL_GOLDAMON,
-                        TEXTURE_GOLDAMON, TEX_REFL_GOLD01, TEX_SPEC_MEDIUM, 0);
+    AddWeaponAttachment(BODY_ATTACHMENT_ITEM, MODEL_GOLDSWASTIKA,
+                        TEXTURE_GOLDSWASTIKA, TEX_REFL_GOLD01, TEX_SPEC_MEDIUM, 0);
     if (pmo!=NULL) {
       CPlayer &pl = (CPlayer&)*m_penPlayer;
       CAttachmentModelObject *pamo = pl.GetModelObject()->GetAttachmentModelList(PLAYER_ATTACHMENT_TORSO, BODY_ATTACHMENT_ITEM, -1);
@@ -1095,7 +694,7 @@ functions:
               } else {
                 pl.StartModelAnim(PLAYER_ANIM_BACKPEDALRUN, AOF_LOOPING|AOF_NORESTART);
               }
-              BodyStillAnimation();
+              BodyRunAnimation();
               m_fLastActionTime = _pTimer->CurrentTick();
             // walking anim
             } else if (vDesiredTranslation.Length()>2.0f && vCurrentTranslation.Length()>2.0f) {
@@ -1104,7 +703,7 @@ functions:
               } else {
                 pl.StartModelAnim(PLAYER_ANIM_BACKPEDAL, AOF_LOOPING|AOF_NORESTART);
               }
-              BodyStillAnimation();
+              BodyWalkAnimation();
               m_fLastActionTime = _pTimer->CurrentTick();
             // left rotation anim
             } else if (aDesiredRotation(1)>0.5f) {
@@ -1130,7 +729,7 @@ functions:
               } else {
                 pl.StartModelAnim(PLAYER_ANIM_CROUCH_WALKBACK, AOF_LOOPING|AOF_NORESTART);
               }
-              BodyStillAnimation();
+              BodyWalkAnimation();
               m_fLastActionTime = _pTimer->CurrentTick();
             // left rotation anim
             } else if (aDesiredRotation(1)>0.5f) {
@@ -1260,18 +859,13 @@ functions:
     if (m_bSwim) {
       INDEX iWeapon = ((CPlayerWeapons&)*(((CPlayer&)*m_penPlayer).m_penWeapons)).m_iCurrentWeapon;
       switch (iWeapon) {
-        case WEAPON_NONE:
+        case WEAPON_NONE: case WEAPON_HOLSTERED:
           break;
-        case WEAPON_KNIFE: case WEAPON_COLT: case WEAPON_DOUBLECOLT: //case WEAPON_PIPEBOMB:
+        case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL:
           iAnim += BODY_ANIM_COLT_SWIM_STAND-BODY_ANIM_COLT_STAND;
           break;
-        case WEAPON_SINGLESHOTGUN: case WEAPON_DOUBLESHOTGUN: case WEAPON_TOMMYGUN:
-        case WEAPON_SNIPER: case WEAPON_LASER: case WEAPON_FLAMER: //case WEAPON_GHOSTBUSTER:
+        case WEAPON_SHOTGUN: case WEAPON_SMG:
           iAnim += BODY_ANIM_SHOTGUN_SWIM_STAND-BODY_ANIM_SHOTGUN_STAND;
-          break;
-        case WEAPON_MINIGUN: case WEAPON_ROCKETLAUNCHER: case WEAPON_GRENADELAUNCHER:
-        case WEAPON_IRONCANNON: case WEAPON_CHAINSAW: // case WEAPON_NUKECANNON:
-          iAnim += BODY_ANIM_MINIGUN_SWIM_STAND-BODY_ANIM_MINIGUN_STAND;
           break;
       }
     }
@@ -1284,6 +878,7 @@ functions:
     }
     m_bAttacking = TRUE;
   };
+
   void FireAnimationOff(void) {
     m_bAttacking = FALSE;
   };
@@ -1297,25 +892,26 @@ functions:
   void BodyAnimationTemplate(INDEX iNone, INDEX iColt, INDEX iShotgun, INDEX iMinigun, ULONG ulFlags) {
     INDEX iWeapon = ((CPlayerWeapons&)*(((CPlayer&)*m_penPlayer).m_penWeapons)).m_iCurrentWeapon;
     switch (iWeapon) {
-      case WEAPON_NONE:
+      case WEAPON_NONE: case WEAPON_HOLSTERED:
         SetBodyAnimation(iNone, ulFlags);
         break;
-      case WEAPON_KNIFE: case WEAPON_COLT: case WEAPON_DOUBLECOLT: // case WEAPON_PIPEBOMB:
+      case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL:
         if (m_bSwim) { iColt += BODY_ANIM_COLT_SWIM_STAND-BODY_ANIM_COLT_STAND; }
         SetBodyAnimation(iColt, ulFlags);
         break;
-      case WEAPON_SINGLESHOTGUN: case WEAPON_DOUBLESHOTGUN: case WEAPON_TOMMYGUN:
-      case WEAPON_SNIPER: case WEAPON_LASER: case WEAPON_FLAMER: //case WEAPON_GHOSTBUSTER:
+      case WEAPON_SHOTGUN: case WEAPON_SMG:
         if (m_bSwim) { iShotgun += BODY_ANIM_SHOTGUN_SWIM_STAND-BODY_ANIM_SHOTGUN_STAND; }
         SetBodyAnimation(iShotgun, ulFlags);
         break;
-      case WEAPON_MINIGUN: case WEAPON_ROCKETLAUNCHER: case WEAPON_GRENADELAUNCHER:
-      case WEAPON_IRONCANNON: case WEAPON_CHAINSAW: // case WEAPON_NUKECANNON:
-        if (m_bSwim) { iMinigun+=BODY_ANIM_MINIGUN_SWIM_STAND-BODY_ANIM_MINIGUN_STAND; }
-        SetBodyAnimation(iMinigun, ulFlags);
-        break;
       default: ASSERTALWAYS("Player Animator - Unknown weapon");
     }
+  };
+
+  // run
+  void BodyRunAnimation() {
+    BodyAnimationTemplate(BODY_ANIM_NORMALRUN, 
+      BODY_ANIM_COLT_STAND, BODY_ANIM_SHOTGUN_STAND, BODY_ANIM_MINIGUN_STAND, 
+      AOF_LOOPING|AOF_NORESTART);
   };
 
   // walk
@@ -1348,58 +944,21 @@ functions:
     pmoModel = &(pl.GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject);
     switch (m_iWeaponLast) {
       case WEAPON_NONE:
+      case WEAPON_HOLSTERED:
       case WEAPON_KNIFE:
         pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_KNIFE);
         break;
-      case WEAPON_DOUBLECOLT:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_COLT_LEFT);
-        // reset to player body
-        pmoModel = &(pl.GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject);
-      case WEAPON_COLT:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_COLT_RIGHT);
+      case WEAPON_AXE:
+        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_AXE);
         break;
-      case WEAPON_SINGLESHOTGUN:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_SINGLE_SHOTGUN);
+      case WEAPON_PISTOL:
+        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_PISTOL);
         break;
-      case WEAPON_DOUBLESHOTGUN:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_DOUBLE_SHOTGUN);
+      case WEAPON_SHOTGUN:
+        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_SHOTGUN);
         break;
-      case WEAPON_TOMMYGUN:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_TOMMYGUN);
-        break;
-      case WEAPON_SNIPER:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_FLAMER);
-        break;
-      case WEAPON_MINIGUN:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_MINIGUN);
-        break;
-      case WEAPON_ROCKETLAUNCHER:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_ROCKET_LAUNCHER);
-        break;
-      case WEAPON_GRENADELAUNCHER:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_GRENADE_LAUNCHER);
-        break;
-/*    case WEAPON_PIPEBOMB:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_COLT_RIGHT);
-        // reset to player body
-        pmoModel = &(pl.GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject);
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_COLT_LEFT);
-        break;      */
-      case WEAPON_FLAMER:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_FLAMER);
-        break;
-      case WEAPON_CHAINSAW:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_MINIGUN);
-        break;
-      case WEAPON_LASER:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_LASER);
-        break;
-/*    case WEAPON_GHOSTBUSTER:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_LASER);
-        break;      */
-      case WEAPON_IRONCANNON:
-//      case WEAPON_NUKECANNON:
-        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_CANNON);
+      case WEAPON_SMG:
+        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_SMG);
         break;
       default:
         ASSERT(FALSE);
@@ -1472,19 +1031,6 @@ functions:
  ************************************************************/
   void OnPreRender(void) {
     ControlFlareAttachment();
-
-    // Minigun Specific
-    CPlayerWeapons &plw = (CPlayerWeapons&)*(((CPlayer&)*m_penPlayer).m_penWeapons);
-    if (plw.m_iCurrentWeapon==WEAPON_MINIGUN) {
-      ANGLE aAngle = Lerp(plw.m_aMiniGunLast, plw.m_aMiniGun, _pTimer->GetLerpFactor());
-      // rotate minigun barrels
-      CPlayer &pl = (CPlayer&)*m_penPlayer;
-      CAttachmentModelObject *pamo = pl.GetModelObject()->GetAttachmentModelList(
-        PLAYER_ATTACHMENT_TORSO, BODY_ATTACHMENT_MINIGUN, MINIGUNITEM_ATTACHMENT_BARRELS, -1);
-      if (pamo!=NULL) {
-        pamo->amo_plRelative.pl_OrientationAngle(3) = aAngle;
-      }
-    }
   };
 
   // show flare
@@ -1522,65 +1068,14 @@ functions:
     CPlayerAnimator *pen = (CPlayerAnimator *)GetPredictionTail();
 
     INDEX iWeapon = ((CPlayerWeapons&)*(((CPlayer&)*pen->m_penPlayer).m_penWeapons)).m_iCurrentWeapon;
-    // second colt only
-    if (iWeapon==WEAPON_DOUBLECOLT) {
-      // add flare
-      if (pen->m_iSecondFlare==FLARE_ADD) {
-        pen->m_iSecondFlare = FLARE_REMOVE;
-        ShowFlare(BODY_ATTACHMENT_COLT_LEFT, COLTITEM_ATTACHMENT_BODY, COLTMAIN_ATTACHMENT_FLARE);
-      // remove flare
-      } else if (m_iSecondFlare==FLARE_REMOVE) {
-        HideFlare(BODY_ATTACHMENT_COLT_LEFT, COLTITEM_ATTACHMENT_BODY, COLTMAIN_ATTACHMENT_FLARE);
-      }
-    }
 
     // add flare
     if (pen->m_iFlare==FLARE_ADD) {
       pen->m_iFlare = FLARE_REMOVE;
       pen->m_tmFlareAdded = _pTimer->CurrentTick();
-      switch(iWeapon) {
-        case WEAPON_DOUBLECOLT: case WEAPON_COLT:
-          ShowFlare(BODY_ATTACHMENT_COLT_RIGHT, COLTITEM_ATTACHMENT_BODY, COLTMAIN_ATTACHMENT_FLARE);
-          break;
-        case WEAPON_SINGLESHOTGUN:
-          ShowFlare(BODY_ATTACHMENT_SINGLE_SHOTGUN, SINGLESHOTGUNITEM_ATTACHMENT_BARRELS, BARRELS_ATTACHMENT_FLARE);
-          break;
-        case WEAPON_DOUBLESHOTGUN:
-          ShowFlare(BODY_ATTACHMENT_DOUBLE_SHOTGUN, DOUBLESHOTGUNITEM_ATTACHMENT_BARRELS, DSHOTGUNBARRELS_ATTACHMENT_FLARE);
-          break;
-        case WEAPON_TOMMYGUN:
-          ShowFlare(BODY_ATTACHMENT_TOMMYGUN, TOMMYGUNITEM_ATTACHMENT_BODY, BODY_ATTACHMENT_FLARE);
-          break;
-        case WEAPON_SNIPER:
-          ShowFlare(BODY_ATTACHMENT_FLAMER, SNIPERITEM_ATTACHMENT_BODY, BODY_ATTACHMENT_FLARE);
-          break;
-        case WEAPON_MINIGUN:
-          ShowFlare(BODY_ATTACHMENT_MINIGUN, MINIGUNITEM_ATTACHMENT_BODY, BODY_ATTACHMENT_FLARE);
-          break;
-      }
     // remove
     } else if (m_iFlare==FLARE_REMOVE &&
       _pTimer->CurrentTick()>pen->m_tmFlareAdded+_pTimer->TickQuantum) {
-      switch(iWeapon) {
-        case WEAPON_DOUBLECOLT: case WEAPON_COLT:
-          HideFlare(BODY_ATTACHMENT_COLT_RIGHT, COLTITEM_ATTACHMENT_BODY, COLTMAIN_ATTACHMENT_FLARE);
-          break;
-        case WEAPON_SINGLESHOTGUN:
-          HideFlare(BODY_ATTACHMENT_SINGLE_SHOTGUN, SINGLESHOTGUNITEM_ATTACHMENT_BARRELS, BARRELS_ATTACHMENT_FLARE);
-          break;
-        case WEAPON_DOUBLESHOTGUN:
-          HideFlare(BODY_ATTACHMENT_DOUBLE_SHOTGUN, DOUBLESHOTGUNITEM_ATTACHMENT_BARRELS, DSHOTGUNBARRELS_ATTACHMENT_FLARE);
-          break;
-        case WEAPON_TOMMYGUN:
-          HideFlare(BODY_ATTACHMENT_TOMMYGUN, TOMMYGUNITEM_ATTACHMENT_BODY, BODY_ATTACHMENT_FLARE);
-          break;
-        case WEAPON_SNIPER:
-          HideFlare(BODY_ATTACHMENT_FLAMER, SNIPERITEM_ATTACHMENT_BODY, BODY_ATTACHMENT_FLARE);
-          break;
-        case WEAPON_MINIGUN:
-          HideFlare(BODY_ATTACHMENT_MINIGUN, MINIGUNITEM_ATTACHMENT_BODY, BODY_ATTACHMENT_FLARE);
-          break;
-      }
     }
   };
 

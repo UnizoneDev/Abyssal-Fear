@@ -42,12 +42,13 @@ extern BOOL bMenuRendering = FALSE;
 
 extern BOOL _bDefiningKey;
 static BOOL _bReconsiderInput = FALSE;
-extern PIX  _pixDesktopWidth = 0;    // desktop width when started (for some tests)
+
+// Computer screen resolution
+extern PIX2D _vpixScreenRes = PIX2D(0, 0);
 
 static INDEX sam_iMaxFPSActive   = 500;
 static INDEX sam_iMaxFPSInactive = 10;
 static INDEX sam_bPauseOnMinimize = TRUE; // auto-pause when window has been minimized
-extern INDEX sam_bWideScreen = FALSE;
 extern FLOAT sam_fPlayerOffset = 0.0f;
 
 // display mode settings
@@ -61,6 +62,8 @@ extern INDEX sam_bFirstStarted = FALSE;
 extern FLOAT sam_tmDisplayModeReport = 5.0f;
 extern INDEX sam_bShowAllLevels = FALSE;
 extern INDEX sam_bMentalActivated = FALSE;
+extern INDEX sam_bDisallowExit = FALSE;
+extern INDEX sam_bDisallowConsole = FALSE;
 
 // network settings
 extern CTString sam_strNetworkSettings = "";
@@ -102,23 +105,15 @@ extern CTString _strURLToVisit = CTString("");
 extern INDEX _iAddonExecState = 0;
 extern CTFileName _fnmAddonToExec = CTString("");
 
-// logo textures
-static CTextureObject  _toLogoCT;
-static CTextureObject  _toLogoODI;
-static CTextureObject  _toLogoEAX;
-extern CTextureObject *_ptoLogoCT  = NULL;
-extern CTextureObject *_ptoLogoODI = NULL;
-extern CTextureObject *_ptoLogoEAX = NULL;
-
 extern CTString sam_strVersion = "1.10";
-extern CTString sam_strModName = TRANS("-   O P E N   S O U R C E   -");
+extern CTString sam_strModName = TRANS("Abyssal Fear");
 
-extern CTString sam_strFirstLevel = "Levels\\LevelsMP\\1_0_InTheLastEpisode.wld";
-extern CTString sam_strIntroLevel = "Levels\\LevelsMP\\Intro.wld";
-extern CTString sam_strGameName = "serioussamse";
+extern CTString sam_strFirstLevel = "Levels\\LevelsMP\\LimboStart.wld";
+extern CTString sam_strIntroLevel = "Levels\\LevelsMP\\HellIntro.wld";
+extern CTString sam_strGameName = "AbyssalFear";
 
 extern CTString sam_strTechTestLevel = "Levels\\LevelsMP\\TechTest.wld";
-extern CTString sam_strTrainingLevel = "Levels\\KarnakDemo.wld";
+extern CTString sam_strTrainingLevel = "Levels\\LevelsMP\\Training.wld";
 
 ENGINE_API extern INDEX snd_iFormat;
 
@@ -126,7 +121,6 @@ ENGINE_API extern INDEX snd_iFormat;
 // main window canvas
 CDrawPort *pdp;
 CDrawPort *pdpNormal;
-CDrawPort *pdpWideScreen;
 CViewPort *pvpViewPort;
 HINSTANCE _hInstance;
 
@@ -169,7 +163,7 @@ static CTFileName _fnmLock;
 static void DirectoryLockOn(void)
 {
   // create lock filename
-  _fnmLock = _fnmApplicationPath+"SeriousSam.loc";
+  _fnmLock = _fnmApplicationPath+"AbyssalFear.loc";
   // try to open lock file
   _hLock = CreateFileA(
     _fnmLock, 
@@ -182,7 +176,7 @@ static void DirectoryLockOn(void)
   // if failed
   if (_hLock==NULL || GetLastError()!=0) {
     // report warning
-    CPrintF(TRANS("WARNING: SeriousSam didn't shut down properly last time!\n"));
+    CPrintF(TRANS("WARNING: AbyssalFear didn't shut down properly last time!\n"));
   }
 }
 static void DirectoryLockOff(void)
@@ -206,8 +200,7 @@ void UpdateInputEnabledState(void)
 
   // input should be enabled if application is active
   // and no menu is active and no console is active
-  BOOL bShouldBeEnabled = (!IsIconic(_hwndMain) && !bMenuActive && _pGame->gm_csConsoleState==CS_OFF
-                       && (_pGame->gm_csComputerState==CS_OFF || _pGame->gm_csComputerState==CS_ONINBACKGROUND))
+  BOOL bShouldBeEnabled = (!IsIconic(_hwndMain) && !bMenuActive && _pGame->gm_csConsoleState==CS_OFF)
                        || _bDefiningKey;
 
   // if should be turned off
@@ -230,8 +223,7 @@ void UpdateInputEnabledState(void)
 void UpdatePauseState(void)
 {
   BOOL bShouldPause = (_gmRunningGameMode==GM_SINGLE_PLAYER) && (bMenuActive || 
-                       _pGame->gm_csConsoleState ==CS_ON || _pGame->gm_csConsoleState ==CS_TURNINGON || _pGame->gm_csConsoleState ==CS_TURNINGOFF ||
-                       _pGame->gm_csComputerState==CS_ON || _pGame->gm_csComputerState==CS_TURNINGON || _pGame->gm_csComputerState==CS_TURNINGOFF);
+                       _pGame->gm_csConsoleState ==CS_ON || _pGame->gm_csConsoleState ==CS_TURNINGON || _pGame->gm_csConsoleState ==CS_TURNINGOFF);
   _pNetwork->SetLocalPause(bShouldPause);
 }
 
@@ -394,7 +386,7 @@ void InitializeGame(void)
     FatalError("%s", strError);
   }
   // init game - this will load persistent symbols
-  _pGame->Initialize(CTString("Data\\SeriousSam.gms"));
+  _pGame->Initialize(CTString("Data\\AbyssalFear.gms"));
 }
 
 BOOL Init( HINSTANCE hInstance, int nCmdShow, CTString strCmdLine)
@@ -402,8 +394,15 @@ BOOL Init( HINSTANCE hInstance, int nCmdShow, CTString strCmdLine)
   _hInstance = hInstance;
   ShowSplashScreen(hInstance);
 
-  // remember desktop width
-  _pixDesktopWidth = ::GetSystemMetrics(SM_CXSCREEN);
+  if (GetFileAttributesA("HiddenEvil\\IPierceYourHeart.uzd") == INVALID_FILE_ATTRIBUTES)
+  {
+      MessageBoxA(NULL, "IPierceYourHeart.uzd not found.", "FATAL ERROR", MB_ICONERROR);
+      End();
+  }
+
+  // Get screen resolution
+  _vpixScreenRes = PIX2D(::GetSystemMetrics(SM_CXSCREEN),
+      ::GetSystemMetrics(SM_CYSCREEN));
 
   // prepare main window
   MainWindow_Init();
@@ -444,7 +443,6 @@ BOOL Init( HINSTANCE hInstance, int nCmdShow, CTString strCmdLine)
   _pShell->DeclareSymbol("persistent INDEX sam_iGfxAPI;",         &sam_iGfxAPI);
   _pShell->DeclareSymbol("persistent INDEX sam_bFirstStarted;", &sam_bFirstStarted);
   _pShell->DeclareSymbol("persistent INDEX sam_bAutoAdjustAudio;", &sam_bAutoAdjustAudio);
-  _pShell->DeclareSymbol("persistent user INDEX sam_bWideScreen;", &sam_bWideScreen);
   _pShell->DeclareSymbol("persistent user FLOAT sam_fPlayerOffset;",  &sam_fPlayerOffset);
   _pShell->DeclareSymbol("persistent user INDEX sam_bAutoPlayDemos;", &sam_bAutoPlayDemos);
   _pShell->DeclareSymbol("persistent user INDEX sam_iMaxFPSActive;",    &sam_iMaxFPSActive);
@@ -484,7 +482,7 @@ BOOL Init( HINSTANCE hInstance, int nCmdShow, CTString strCmdLine)
 
   if( sam_bFirstStarted) {
     InfoMessage("%s", TRANS(
-      "SeriousSam is starting for the first time.\n"
+      "AbyssalFear is starting for the first time.\n"
       "If you experience any problems, please consult\n"
       "ReadMe file for troubleshooting information."));
   }
@@ -504,16 +502,11 @@ BOOL Init( HINSTANCE hInstance, int nCmdShow, CTString strCmdLine)
     strCmd.PrintF("include \"%s\"", cmd_strScript);
     _pShell->Execute(strCmd);
   }
-  
-  // load logo textures
-  LoadAndForceTexture(_toLogoCT,   _ptoLogoCT,   CTFILENAME("Textures\\Logo\\LogoCT.tex"));
-  LoadAndForceTexture(_toLogoODI,  _ptoLogoODI,  CTFILENAME("Textures\\Logo\\GodGamesLogo.tex"));
-  LoadAndForceTexture(_toLogoEAX,  _ptoLogoEAX,  CTFILENAME("Textures\\Logo\\LogoEAX.tex"));
 
   // !! NOTE !! Re-enable these to allow mod support.
   LoadStringVar(CTString("Data\\Var\\Sam_Version.var"), sam_strVersion);
   LoadStringVar(CTString("Data\\Var\\ModName.var"), sam_strModName);
-  CPrintF(TRANS("Serious Sam version: %s\n"), sam_strVersion);
+  CPrintF(TRANS("Abyssal Fear version: %s\n"), sam_strVersion);
   CPrintF(TRANS("Active mod: %s\n"), sam_strModName);
   InitializeMenus();      
   
@@ -632,7 +625,7 @@ void PrintDisplayModeInfo(void)
   dm.dm_pixSizeI = slDPWidth;
   dm.dm_pixSizeJ = slDPHeight;
   // determine proper text scale for statistics display
-  FLOAT fTextScale = (FLOAT)slDPWidth/640.0f;
+  FLOAT fTextScale = (FLOAT)slDPHeight / 480.0f;
 
   // get resolution
   CTString strRes;
@@ -659,7 +652,7 @@ void PrintDisplayModeInfo(void)
   pdp->SetFont( _pfdDisplayFont);
   pdp->SetTextScaling( fTextScale);
   pdp->SetTextAspect( 1.0f);
-  pdp->PutText( strRes, slDPWidth*0.05f, slDPHeight*0.85f, LCDGetColor(C_GREEN|255, "display mode"));
+  pdp->PutText( strRes, slDPWidth*0.05f, slDPHeight*0.85f, LCDGetColor(C_BLUE|255, "display mode"));
 }
 
 // do the main game loop and render screen
@@ -711,7 +704,6 @@ void DoGame(void)
       pdp->Unlock();
       _pGame->GameRedrawView( pdp, (_pGame->gm_csConsoleState!=CS_OFF || bMenuActive)?0:GRV_SHOWEXTRAS);
       pdp->Lock();
-      _pGame->ComputerRender(pdp);
       pdp->Unlock();
       CDrawPort dpScroller(pdp, TRUE);
       dpScroller.Lock();
@@ -721,7 +713,7 @@ void DoGame(void)
       dpScroller.Unlock();
       pdp->Lock();
     } else {
-      pdp->Fill( LCDGetColor(C_dGREEN|CT_OPAQUE, "bcg fill"));
+      pdp->Fill( LCDGetColor(C_dBLUE|CT_OPAQUE, "bcg fill"));
     }
 
     // do menu
@@ -741,15 +733,6 @@ void DoGame(void)
     // done with all
     pdp->Unlock();
 
-    // clear upper and lower parts of screen if in wide screen mode
-    if( pdp==pdpWideScreen && pdpNormal->Lock()) {
-      const PIX pixWidth  = pdpWideScreen->GetWidth();
-      const PIX pixHeight = (pdpNormal->GetHeight() - pdpWideScreen->GetHeight()) /2;
-      const PIX pixJOfs   = pixHeight + pdpWideScreen->GetHeight()-1;
-      pdpNormal->Fill( 0, 0,       pixWidth, pixHeight, C_BLACK|CT_OPAQUE);
-      pdpNormal->Fill( 0, pixJOfs, pixWidth, pixHeight, C_BLACK|CT_OPAQUE);
-      pdpNormal->Unlock();
-    }
     // show
     pvpViewPort->SwapBuffers();
   }
@@ -774,8 +757,9 @@ void RenderStarfield(CDrawPort *pdp, FLOAT fStrength)
 
   PIX pixSizeI = pdp->GetWidth();
   PIX pixSizeJ = pdp->GetHeight();
-  FLOAT fStretch = pixSizeI/640.0f;
-  fStretch*=FLOAT(ptd->GetPixWidth())/ptd->GetWidth();
+  
+  FLOAT fStretch = FLOAT(pixSizeJ) / 480.0f;
+  fStretch *= FLOAT(ptd->GetPixWidth()) / ptd->GetWidth();
 
   PIXaabbox2D boxScreen(PIX2D(0,0), PIX2D(pixSizeI, pixSizeJ));
   MEXaabbox2D boxTexture(MEX2D(0, 0), MEX2D(pixSizeI/fStretch, pixSizeJ/fStretch));
@@ -786,20 +770,18 @@ void RenderStarfield(CDrawPort *pdp, FLOAT fStrength)
 FLOAT RenderQuitScreen(CDrawPort *pdp, CViewPort *pvp)
 {
   CDrawPort dpQuit(pdp, TRUE);
-  CDrawPort dpWide;
-  dpQuit.MakeWideScreen(&dpWide);
   // redraw the view
-  if (!dpWide.Lock()) {
+  if (!dpQuit.Lock()) {
     return 0;
   }
 
-  dpWide.Fill(C_BLACK|CT_OPAQUE);
-  RenderStarfield(&dpWide, _fLastVolume);
+  dpQuit.Fill(C_BLACK|CT_OPAQUE);
+  RenderStarfield(&dpQuit, _fLastVolume);
   
-  FLOAT fVolume = Credits_Render(&dpWide);
+  FLOAT fVolume = Credits_Render(&dpQuit);
   _fLastVolume = fVolume;
 
-  dpWide.Unlock();
+  dpQuit.Unlock();
   pvp->SwapBuffers();
 
   return fVolume;
@@ -810,8 +792,8 @@ void QuitScreenLoop(void)
   Credits_On(3);
   CSoundObject soMusic;
   try {
-    _toStarField.SetData_t(CTFILENAME("Textures\\Background\\Night01\\Stars01.tex"));
-    soMusic.Play_t(CTFILENAME("Music\\Credits.mp3"), SOF_NONGAME|SOF_MUSIC|SOF_LOOP);
+    _toStarField.SetData_t(CTFILENAME("TexturesMP\\General\\MenuBack.tex"));
+    soMusic.Play_t(CTFILENAME("Music\\Credits.ogg"), SOF_NONGAME|SOF_MUSIC|SOF_LOOP);
   } catch (char *strError) {
     CPrintF("%s\n", strError);
   }
@@ -849,7 +831,6 @@ int SubMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
   _bRunning    = TRUE;
   _bQuitScreen = TRUE;
   _pGame->gm_csConsoleState  = CS_OFF;
-  _pGame->gm_csComputerState = CS_OFF;
 //  bMenuActive    = FALSE;
 //  bMenuRendering = FALSE;
   // while it is still running
@@ -969,63 +950,70 @@ int SubMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
         msg.message=WM_NULL;
       }
 
-      BOOL bMenuForced = (_gmRunningGameMode==GM_NONE && 
-        (_pGame->gm_csConsoleState==CS_OFF || _pGame->gm_csConsoleState==CS_TURNINGOFF));
-      BOOL bMenuToggle = (msg.message==WM_KEYDOWN && msg.wParam==VK_ESCAPE 
-        && (_pGame->gm_csComputerState==CS_OFF || _pGame->gm_csComputerState==CS_ONINBACKGROUND));
-      if( !bMenuActive) {
-        if( bMenuForced || bMenuToggle) {
-          // if console is active
-          if( _pGame->gm_csConsoleState==CS_ON || _pGame->gm_csConsoleState==CS_TURNINGON) {
-            // deactivate it
-            _pGame->gm_csConsoleState = CS_TURNINGOFF;
-            _iAddonExecState = 0;
+          BOOL bMenuForced = (_gmRunningGameMode == GM_NONE &&
+              (_pGame->gm_csConsoleState == CS_OFF || _pGame->gm_csConsoleState == CS_TURNINGOFF));
+          BOOL bMenuToggle = (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE);
+          BOOL bDisallowExit = _pShell->GetINDEX("sam_bDisallowExit");
+          BOOL bDisallowConsole = _pShell->GetINDEX("sam_bDisallowConsole");
+
+          if (bDisallowExit == TRUE)
+          {
+              MessageBeep(MB_ICONERROR);
           }
-          // delete key down message so menu would not exit because of it
-          msg.message=WM_NULL;
-          // start menu
-          StartMenus();
-        }
-      } else {
-        if (bMenuForced && bMenuToggle && pgmCurrentMenu->gm_pgmParentMenu == NULL) {
-          // delete key down message so menu would not exit because of it
-          msg.message=WM_NULL;
-        }
-      }
+          else
+          {
+              if (!bMenuActive) {
+                  if (bMenuForced || bMenuToggle) {
+                      // if console is active
+                      if (_pGame->gm_csConsoleState == CS_ON || _pGame->gm_csConsoleState == CS_TURNINGON) {
+                          // deactivate it
+                          _pGame->gm_csConsoleState = CS_TURNINGOFF;
+                          _iAddonExecState = 0;
+                      }
+                      // delete key down message so menu would not exit because of it
+                      msg.message = WM_NULL;
+                      // start menu
+                      StartMenus();
+                  }
+              }
+              else {
+                  if (bMenuForced && bMenuToggle && pgmCurrentMenu->gm_pgmParentMenu == NULL) {
+                      // delete key down message so menu would not exit because of it
+                      msg.message = WM_NULL;
+                  }
+              }
 
-      // if neither menu nor console is running
-      if (!bMenuActive && (_pGame->gm_csConsoleState==CS_OFF || _pGame->gm_csConsoleState==CS_TURNINGOFF)) {
-        // if current menu is not root
-        if (!IsMenusInRoot()) {
-          // start current menu
-          StartMenus();
-        }
-      }
+              // if neither menu nor console is running
+              if (!bMenuActive && (_pGame->gm_csConsoleState == CS_OFF || _pGame->gm_csConsoleState == CS_TURNINGOFF)) {
+                  // if current menu is not root
+                  if (!IsMenusInRoot()) {
+                      // start current menu
+                      StartMenus();
+                  }
+              }
 
-      if (sam_bMenuSave) {
-        sam_bMenuSave = FALSE;
-        StartMenus("save");
-      }
-      if (sam_bMenuLoad) {
-        sam_bMenuLoad = FALSE;
-        StartMenus("load");
-      }
-      if (sam_bMenuControls) {
-        sam_bMenuControls = FALSE;
-        StartMenus("controls");
-      }
-      if (sam_bMenuHiScore) {
-        sam_bMenuHiScore = FALSE;
-        StartMenus("hiscore");
-      }
+              if (sam_bMenuSave) {
+                  sam_bMenuSave = FALSE;
+                  StartMenus("save");
+              }
+              if (sam_bMenuLoad) {
+                  sam_bMenuLoad = FALSE;
+                  StartMenus("load");
+              }
+              if (sam_bMenuControls) {
+                  sam_bMenuControls = FALSE;
+                  StartMenus("controls");
+              }
+              if (sam_bMenuHiScore) {
+                  sam_bMenuHiScore = FALSE;
+                  StartMenus("hiscore");
+              }
+          }
 
       // interpret console key presses
       if (_iAddonExecState==0) {
         if (msg.message==WM_KEYDOWN) {
           _pGame->ConsoleKeyDown(msg);
-          if (_pGame->gm_csConsoleState!=CS_ON) {
-            _pGame->ComputerKeyDown(msg);
-          }
         } else if (msg.message==WM_KEYUP) {
           // special handler for talk (not to invoke return key bind)
           if( msg.wParam==VK_RETURN && _pGame->gm_csConsoleState==CS_TALK) _pGame->gm_csConsoleState = CS_OFF;
@@ -1038,9 +1026,6 @@ int SubMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
           ||msg.message==WM_RBUTTONDBLCLK
           ||msg.message==WM_LBUTTONUP
           ||msg.message==WM_RBUTTONUP) {
-          if (_pGame->gm_csConsoleState!=CS_ON) {
-            _pGame->ComputerKeyDown(msg);
-          }
         }
       }
       // if menu is active and no input on
@@ -1069,34 +1054,44 @@ int SubMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
         }
       }
 
-      // if toggling console
-      BOOL bConsoleKey = sam_bToggleConsole || msg.message==WM_KEYDOWN && 
-        (MapVirtualKey(msg.wParam, 0)==41 // scan code for '~'
-        || msg.wParam==VK_F1 || (msg.wParam==VK_ESCAPE && _iAddonExecState==3));
-      if(bConsoleKey && !_bDefiningKey)
-      {
-        sam_bToggleConsole = FALSE;
-        if( _iAddonExecState==3) _iAddonExecState = 0;
-        // if it is up, or pulling up
-        if( _pGame->gm_csConsoleState==CS_OFF || _pGame->gm_csConsoleState==CS_TURNINGOFF) {
-          // start it moving down and disable menu
-          _pGame->gm_csConsoleState = CS_TURNINGON;
-          // stop all IFeel effects
-          IFeel_StopEffect(NULL);
-          if( bMenuActive) {
-            StopMenus(FALSE);
-          }
-        // if it is down, or dropping down
-        } else if( _pGame->gm_csConsoleState==CS_ON || _pGame->gm_csConsoleState==CS_TURNINGON) {
-          // start it moving up
-          _pGame->gm_csConsoleState = CS_TURNINGOFF;
-        }
-      }
+          // if toggling console
+          BOOL bConsoleKey = sam_bToggleConsole || msg.message == WM_KEYDOWN &&
+              (MapVirtualKey(msg.wParam, 0) == 41 // scan code for '~'
+                  || msg.wParam == VK_F1 || (msg.wParam == VK_ESCAPE && _iAddonExecState == 3));
 
-      if (_pShell->GetINDEX("con_bTalk") && _pGame->gm_csConsoleState==CS_OFF) {
-        _pShell->SetINDEX("con_bTalk", FALSE);
-        _pGame->gm_csConsoleState = CS_TALK;
-      }
+          if (bDisallowConsole == TRUE)
+          {
+              MessageBeep(MB_ICONERROR);
+          }
+          else
+          {
+              if (bConsoleKey && !_bDefiningKey)
+              {
+                  sam_bToggleConsole = FALSE;
+                  if (_iAddonExecState == 3) _iAddonExecState = 0;
+                  // if it is up, or pulling up
+                  if (_pGame->gm_csConsoleState == CS_OFF || _pGame->gm_csConsoleState == CS_TURNINGOFF) {
+                      // start it moving down and disable menu
+                      _pGame->gm_csConsoleState = CS_TURNINGON;
+                      // stop all IFeel effects
+                      IFeel_StopEffect(NULL);
+                      if (bMenuActive) {
+                          StopMenus(FALSE);
+                      }
+                      // if it is down, or dropping down
+                  }
+                  else if (_pGame->gm_csConsoleState == CS_ON || _pGame->gm_csConsoleState == CS_TURNINGON) {
+                      // start it moving up
+                      _pGame->gm_csConsoleState = CS_TURNINGOFF;
+                  }
+              }
+
+              if (_pShell->GetINDEX("con_bTalk") && _pGame->gm_csConsoleState == CS_OFF) {
+                  _pShell->SetINDEX("con_bTalk", FALSE);
+                  _pGame->gm_csConsoleState = CS_TALK;
+              }
+          }
+      
 
       // if pause pressed
       if (msg.message==WM_KEYDOWN && msg.wParam==VK_PAUSE) {
@@ -1152,14 +1147,6 @@ int SubMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
     // when all messages are removed, window has surely changed
     _bWindowChanging = FALSE;
 
-    // get real cursor position
-    if( _pGame->gm_csComputerState!=CS_OFF && _pGame->gm_csComputerState!=CS_ONINBACKGROUND) {
-      POINT pt;
-      ::GetCursorPos(&pt);
-      ::ScreenToClient(_hwndMain, &pt);
-      _pGame->ComputerMouseMove(pt.x, pt.y);
-    }
-
     // if addon is to be executed
     if (_iAddonExecState==1) {
       // print header and start console
@@ -1202,7 +1189,7 @@ int SubMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 	ZeroMemory(&cif,sizeof(STARTUPINFOA));
 	PROCESS_INFORMATION pi;
 	
-	strcpy_s(strCmd,"SeriousSam.exe");
+	strcpy_s(strCmd,"AbyssalFear.exe");
 	strcpy_s(strParam," +game ");
 	strcat_s(strParam,_fnmModToLoad.FileName());
 	if (_strModServerJoin!="") {
@@ -1213,7 +1200,7 @@ int SubMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
 
 	if (CreateProcessA(strCmd,strParam,NULL,NULL,FALSE,CREATE_DEFAULT_ERROR_MODE,NULL,NULL,&cif,&pi) == FALSE)
 	{
-	  MessageBox(0, L"error launching the Mod!\n", L"Serious Sam", MB_OK|MB_ICONERROR);		
+	  MessageBox(0, L"error launching the Mod!\n", L"Abyssal Fear", MB_OK|MB_ICONERROR);		
 	}
   }
   // invoke quit screen if needed
@@ -1344,18 +1331,13 @@ BOOL TryToSetDisplayMode( enum GfxAPIType eGfxAPI, INDEX iAdapter, PIX pixSizeI,
       pvpViewPort->SwapBuffers();
     }
 
-    // lets try some wide screen screaming :)
-    const PIX pixYBegAdj = pdp->GetHeight() * 21/24;
-    const PIX pixYEndAdj = pdp->GetHeight() * 3/24;
-    const PIX pixXEnd    = pdp->GetWidth();
-    pdpWideScreen = new CDrawPort( pdp, PIXaabbox2D( PIX2D(0,pixYBegAdj), PIX2D(pixXEnd, pixYEndAdj)));
-    pdpWideScreen->dp_fWideAdjustment = 9.0f / 12.0f;
-    if( sam_bWideScreen) pdp = pdpWideScreen;
+    // [SSE] Set wide adjustment based on current aspect ratio
+    pdp->dp_fWideAdjustment = ((FLOAT)pdp->GetHeight() / (FLOAT)pdp->GetWidth()) * (4.0f / 3.0f);
 
     // initial screen fill and swap, just to get context running
     BOOL bSuccess = FALSE;
     if( pdp!=NULL && pdp->Lock()) {
-      pdp->Fill( LCDGetColor( C_dGREEN|CT_OPAQUE, "bcg fill"));
+      pdp->Fill( LCDGetColor( C_dBLUE|CT_OPAQUE, "bcg fill"));
       pdp->Unlock();
       pvpViewPort->SwapBuffers();
       bSuccess = TRUE;
@@ -1444,7 +1426,7 @@ void StartNewMode( enum GfxAPIType eGfxAPI, INDEX iAdapter, PIX pixSizeI, PIX pi
     if( !bSuccess) {
       FatalError(TRANS(
         "Cannot set display mode!\n"
-        "Serious Sam was unable to find display mode with hardware acceleration.\n"
+        "Abyssal Fear was unable to find display mode with hardware acceleration.\n"
         "Make sure you install proper drivers for your video card as recommended\n"
         "in documentation and set your desktop to 16 bit (65536 colors).\n"
         "Please see ReadMe file for troubleshooting information.\n"));

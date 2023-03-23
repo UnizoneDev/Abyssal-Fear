@@ -135,8 +135,8 @@ FLOAT Credits_Render(CDrawPort *pdp)
   if (!_bCreditsOn) {
     return 0;
   }
-  CDrawPort dpWide;
-  pdp->MakeWideScreen(&dpWide);
+
+  CDrawPort dpWide(pdp, TRUE);
 
   pdp->Unlock();
   dpWide.Lock();
@@ -145,8 +145,8 @@ FLOAT Credits_Render(CDrawPort *pdp)
   
   pixW = dpWide.GetWidth();
   pixH = dpWide.GetHeight();
-  fResolutionScaling = (FLOAT)pixW / 640.0f;
-  dpWide.SetFont( _pfdDisplayFont);
+  fResolutionScaling = (FLOAT)pixH / 480.0f;
+  dpWide.SetFont( _pfdConsoleFont);
   pixLineHeight = floor(20*fResolutionScaling);
 
   const FLOAT fLinesPerSecond = _fSpeed;

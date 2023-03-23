@@ -238,12 +238,7 @@ FLOATaabbox2D BoxLeftColumn(FLOAT fRow)
 
 FLOATaabbox2D BoxPlayerModel(void)
 {
-  extern INDEX sam_bWideScreen;
-  if (!sam_bWideScreen) {
-    return FLOATaabbox2D(FLOAT2D(0.68f, 0.235f), FLOAT2D(0.965f, 0.78f));
-  } else {
-    return FLOATaabbox2D(FLOAT2D(0.68f, 0.235f), FLOAT2D(0.68f+(0.965f-0.68f)*9.0f/12.0f, 0.78f));
-  }
+  return FLOATaabbox2D(FLOAT2D(0.68f, 0.235f), FLOAT2D(0.965f, 0.78f));
 }
 
 FLOATaabbox2D BoxPlayerModelName(void)
@@ -273,7 +268,7 @@ extern CFontData _fdTitle;
 void SetFontTitle(CDrawPort *pdp)
 {
   pdp->SetFont( &_fdTitle);
-  pdp->SetTextScaling( 1.25f * pdp->GetWidth() /640 *pdp->dp_fWideAdjustment);
+  pdp->SetTextScaling(1.25f * (FLOAT(pdp->GetHeight()) / 480.0f));
   pdp->SetTextAspect(1.0f);
 }
 
@@ -281,7 +276,7 @@ extern CFontData _fdBig;
 void SetFontBig(CDrawPort *pdp)
 {
   pdp->SetFont( &_fdBig);
-  pdp->SetTextScaling( 1.0f * pdp->GetWidth() /640 *pdp->dp_fWideAdjustment);
+  pdp->SetTextScaling(1.0f * (FLOAT(pdp->GetHeight()) / 480.0f));
   pdp->SetTextAspect(1.0f);
 }
 
@@ -289,7 +284,7 @@ extern CFontData _fdMedium;
 void SetFontMedium(CDrawPort *pdp)
 {
   pdp->SetFont( &_fdMedium);
-  pdp->SetTextScaling( 1.0f * pdp->GetWidth() /640 *pdp->dp_fWideAdjustment);
+  pdp->SetTextScaling(1.0f * (FLOAT(pdp->GetHeight()) / 480.0f));
   pdp->SetTextAspect(0.75f);
 }
 

@@ -28,7 +28,7 @@ void CLoadSaveMenu::Initialize_t(void)
   gm_lhGadgets.AddTail(gm_mgTitle.mg_lnNode);
 
   gm_mgNotes.mg_boxOnScreen = BoxMediumRow(10.0);
-  gm_mgNotes.mg_bfsFontSize = BFS_MEDIUM;
+  gm_mgNotes.mg_bfsFontSize = BFS_SMALL;
   gm_mgNotes.mg_iCenterI = -1;
   gm_mgNotes.mg_bEnabled = FALSE;
   gm_mgNotes.mg_bLabel = TRUE;

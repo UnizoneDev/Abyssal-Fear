@@ -350,14 +350,14 @@ functions:
         lsNew.ls_colColor = C_WHITE|CT_OPAQUE;
         lsNew.ls_rHotSpot = 100.0f;
         lsNew.ls_rFallOff = 300.0f;
-        lsNew.ls_plftLensFlare = &_lftWhiteGlowStarNG;
+        lsNew.ls_plftLensFlare = &_lftWhite;
         break;
 
       case ET_SIZING_BIG_BLUE_FLARE:
         lsNew.ls_colColor = C_WHITE|CT_OPAQUE;
         lsNew.ls_rHotSpot = 500.0f*m_fSize;
         lsNew.ls_rFallOff = 1000.0f*m_fSize;
-        lsNew.ls_plftLensFlare = &_lftBlueStarBlueReflections;
+        lsNew.ls_plftLensFlare = &_lftBlue;
         break;
 
       default:

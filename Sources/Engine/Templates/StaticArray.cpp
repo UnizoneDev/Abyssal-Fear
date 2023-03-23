@@ -151,10 +151,20 @@ INDEX CStaticArray<Type>::Count(void) const {
  */
 template<class Type>
 INDEX CStaticArray<Type>::Index(Type *ptMember) {
-  ASSERT(this!=NULL);
-  INDEX i = ptMember-sa_Array;
-  ASSERT(i>=0 && i<sa_Count);
-  return i;
+    ASSERT(this != NULL);
+    ASSERT(sa_Count > 0);
+    ASSERT(uintptr_t(ptMember) >= uintptr_t(sa_Array)); // Error if behind the array pointer
+
+    // Find the element
+    for (ULONG i = 0; i < sa_Count; i++)
+    {
+        if (ptMember == &sa_Array[i]) {
+            return i;
+        }
+    }
+
+    ASSERTALWAYS("CStaticArray<>::Index(): Not a member of this array!");
+    return 0;
 }
 
 /*

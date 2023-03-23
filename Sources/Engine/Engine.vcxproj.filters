@@ -373,6 +373,12 @@
     <ClCompile Include="Sound\Wave.cpp">
       <Filter>Source Files\Sound</Filter>
     </ClCompile>
+    <ClCompile Include="Models\EditModel.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Models\MipMaker.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
     <ClCompile Include="Models\Model.cpp">
       <Filter>Source Files\Models</Filter>
     </ClCompile>
@@ -748,15 +754,6 @@
     <ClCompile Include="Math\TextureMapping_Utils.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
-    <ClCompile Include="Models\ImportedMesh.cpp">
-      <Filter>Source Files\Models</Filter>
-    </ClCompile>
-    <ClCompile Include="Models\ImportedSkeleton.cpp">
-      <Filter>Source Files\Models</Filter>
-    </ClCompile>
-    <ClCompile Include="Models\ImportedSkeletalAnimation.cpp">
-      <Filter>Source Files\Models</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\Anim.h">
@@ -1031,6 +1028,12 @@
     </ClInclude>
     <ClInclude Include="Sound\Wave.h">
       <Filter>Header Files\Sound Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\EditModel.h">
+      <Filter>Header Files\Models Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Models\MipMaker.h">
+      <Filter>Header Files\Models Headers</Filter>
     </ClInclude>
     <ClInclude Include="Models\Model.h">
       <Filter>Header Files\Models Headers</Filter>
@@ -1371,14 +1374,8 @@
     <ClInclude Include="Math\TextureMapping_Utils.h">
       <Filter>Header Files\Math Headers</Filter>
     </ClInclude>
-    <ClInclude Include="Models\ImportedMesh.h">
-      <Filter>Header Files\Models Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Models\ImportedSkeleton.h">
-      <Filter>Header Files\Models Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Models\ImportedSkeletalAnimation.h">
-      <Filter>Header Files\Models Headers</Filter>
+    <ClInclude Include="Base\ByteSwap.h">
+      <Filter>Header Files\Base Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

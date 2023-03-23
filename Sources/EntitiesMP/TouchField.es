@@ -56,7 +56,7 @@ properties:
 
 components:
 
- 1 texture TEXTURE_FIELD  "Models\\Editor\\CollisionBox.tex",
+ 1 texture TEXTURE_FIELD  "Models\\Editor\\TouchField.tex",
 
 
 functions:

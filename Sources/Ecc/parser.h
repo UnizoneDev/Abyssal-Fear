@@ -72,6 +72,13 @@
 #define	k_ANIMATION	326
 #define	k_ILLUMINATIONTYPE	327
 #define	k_FLAGS	328
+#define	k_DOUBLE	329
+#define	k_INDEX64	330
+#define	k_DOUBLE3D	331
+#define	k_DOUBLEplane3D	332
+#define	k_DOUBLEaabbox3D	333
+#define	k_DOUBLEmatrix3D	334
+#define	k_DOUBLEquat3D	335
 
 
 extern YYSTYPE yylval;

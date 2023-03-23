@@ -43,6 +43,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define STXF_BLEND_ALPHA    (0x10)    // alpha blend with screen
 #define STXF_BLEND_ADD      (0x20)    // add to screen
 #define STXF_BLEND_SHADE    (0x30)    // darken or brighten (same as used by shadow maps)
+#define STXF_BLEND_MULTIPLY (0x40)    // multiply to screen
+#define STXF_BLEND_INVERT   (0x50)    // invert to screen
 
 #define STXF_BLEND_MASK     (0x70)
 

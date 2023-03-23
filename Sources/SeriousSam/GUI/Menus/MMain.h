@@ -33,6 +33,7 @@ public:
   CMGButton gm_mgDemo;
   CMGButton gm_mgMods;
   CMGButton gm_mgHighScore;
+  CMGButton gm_mgAchievements;
   CMGButton gm_mgOptions;
   CMGButton gm_mgQuit;
 

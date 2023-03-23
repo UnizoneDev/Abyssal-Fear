@@ -35,7 +35,7 @@ extern FLOAT ded_tmTimeout = -1;
 extern CGame *_pGame = NULL;
 extern CTString sam_strFirstLevel = "Levels\\KarnakDemo.wld";
 extern CTString sam_strIntroLevel = "Levels\\Intro.wld";
-extern CTString sam_strGameName = "serioussam";
+extern CTString sam_strGameName = "abyssalfear";
 
 CTimerValue _tvLastLevelEnd(-1i64);
 
@@ -217,7 +217,7 @@ BOOL Init(int argc, char* argv[])
     AddTranslationTable_t(fnmTransTable);
     fnmTransTable = CTFILENAME("Data\\Translations\\Entities.txt");
     AddTranslationTable_t(fnmTransTable);
-    fnmTransTable = CTFILENAME("Data\\Translations\\SeriousSam.txt");
+    fnmTransTable = CTFILENAME("Data\\Translations\\AbyssalFear.txt");
     AddTranslationTable_t(fnmTransTable);
     fnmTransTable = CTFILENAME("Data\\Translations\\Levels.txt");
     AddTranslationTable_t(fnmTransTable);
@@ -247,7 +247,7 @@ BOOL Init(int argc, char* argv[])
   _pNetwork->md_strGameID = sam_strGameName;
 
   LoadStringVar(CTString("Data\\Var\\Sam_Version.var"), _strSamVersion);
-  CPrintF(TRANS("Serious Sam version: %s\n"), _strSamVersion);
+  CPrintF(TRANS("Abyssal Fear version: %s\n"), _strSamVersion);
 
   SetConsoleCtrlHandler(HandlerRoutine, TRUE);
 

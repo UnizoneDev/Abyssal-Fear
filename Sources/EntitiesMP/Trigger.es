@@ -19,6 +19,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 extern INDEX ent_bReportBrokenChains;
 %}
 
+enum ETType {
+  0 TT_NORMAL       "Normal",
+  1 TT_DELAY        "Delayed",
+  2 TT_RANDOM       "Random",
+  3 TT_DELAYRANDOM  "Delayed Random"
+};
+
 class CTrigger: CRationalEntity {
 name      "Trigger";
 thumbnail "Thumbnails\\Trigger.tbn";
@@ -52,6 +59,10 @@ properties:
  14 FLOAT m_fMessageTime            "Message time" = 3.0f,  // how long is message on screen
  15 enum MessageSound m_mssMessageSound "Message sound" = MSS_NONE, // message sound
  16 FLOAT m_fScore                  "Score" 'S' = 0.0f,
+ 17 BOOL m_bPrintToConsole        "Print to console" = FALSE,          // print message to console
+ 18 enum MessageFont m_mfType "Font Type" = FNT_NORMAL,
+ 100 FLOAT m_fMessagePosX "Message Position X" = 0.5f,
+ 101 FLOAT m_fMessagePosY "Message Position Y" = 0.85f,
 
  30 FLOAT m_fWaitTime             "Wait" 'W' = 0.0f,          // wait before send events
  31 BOOL m_bAutoStart             "Auto start" 'A' = FALSE,   // trigger auto starts
@@ -66,6 +77,13 @@ properties:
  40 INDEX m_iCountTmp = 0,          // use count value to determine when to send events
  41 CEntityPointer m_penCaused,     // who touched it last time
  42 INDEX m_ctMaxTrigs            "Max trigs" 'X' = -1, // how many times could trig
+
+ 45 COLOR m_colColor              "Trigger color" = C_WHITE,
+ 90 enum ETType m_eTType          "Trigger type" = TT_NORMAL,
+ 91 INDEX m_iPos                     = 0,
+ 92 FLOAT m_tmLastTriggered          = 0.0f,
+ 93 FLOAT m_fRandDelayFactor      "Random delay factor"    = 0.5f,
+ 94 FLOAT m_fWaitInternal = 1.0f,
 
 
 components:
@@ -96,12 +114,104 @@ functions:
   }
 
 
+  BOOL AdjustShadingParameters(FLOAT3D &vLightDirection, COLOR &colLight, COLOR &colAmbient)
+  {
+    colAmbient = m_colColor;
+    return true;
+  }
+
+
+  void Stuff(void)
+  {
+    // if there is event to send in range
+    if (m_eetRange != EET_IGNORE) {
+      SendInRange(this, m_eetRange, FLOATaabbox3D(GetPlacement().pl_PositionVector, m_fSendRange));
+    }
+
+    // if trigger gives/steals score
+    if (m_fScore != 0) {
+      CEntity *penCaused = FixupCausedToPlayer(this, m_penCaused);
+
+      // if we have causer
+      if (penCaused!=NULL) {
+        // send the score
+        EReceiveScore eScore;
+        eScore.iPoints = m_fScore;
+        penCaused->SendEvent(eScore);
+        penCaused->SendEvent(ESecretFound());
+      }
+
+      // kill score to never be reported again
+      m_fScore = 0;
+    }
+
+    if (m_strMessage != "") {
+      CEntity *penCaused = FixupCausedToPlayer(this, m_penCaused);
+
+      if(m_bPrintToConsole == TRUE)
+      {
+              CPrintF(m_strMessage+"\n");
+      }
+      else
+      {
+        if (m_strMessage!="")
+        {
+            if(m_mfType == FNT_RUNIC)
+            {
+              PrintCenterMessage(this, m_penCaused, 
+              TranslateConst(m_strMessage), 
+              m_fMessageTime, m_mssMessageSound, FNT_RUNIC, m_fMessagePosX, m_fMessagePosY);
+            } else
+            {
+              PrintCenterMessage(this, m_penCaused, 
+              TranslateConst(m_strMessage), 
+              m_fMessageTime, m_mssMessageSound, FNT_NORMAL, m_fMessagePosX, m_fMessagePosY);
+            }
+        }
+      }
+    }
+
+    // if max trig count is used for counting
+    if (m_ctMaxTrigs > 0) {
+      // decrease count
+      m_ctMaxTrigs -= 1;
+      // if we trigged max times
+      if ( m_ctMaxTrigs <= 0) {
+        // cease to exist
+        Destroy();
+      }
+    }
+
+    return;
+  }
+
+
+  void SendToSpecifiedTarget(void)
+  {
+    switch (m_iPos)
+    {
+      case 1: SendToTarget(m_penTarget1, m_eetEvent1, m_penCaused); break;
+      case 2: SendToTarget(m_penTarget2, m_eetEvent2, m_penCaused); break;
+      case 3: SendToTarget(m_penTarget3, m_eetEvent3, m_penCaused); break;
+      case 4: SendToTarget(m_penTarget4, m_eetEvent4, m_penCaused); break;
+      case 5: SendToTarget(m_penTarget5, m_eetEvent5, m_penCaused); break;
+      case 6: SendToTarget(m_penTarget6, m_eetEvent6, m_penCaused); break;
+      case 7: SendToTarget(m_penTarget7, m_eetEvent7, m_penCaused); break;
+      case 8: SendToTarget(m_penTarget8, m_eetEvent8, m_penCaused); break;
+      case 9: SendToTarget(m_penTarget9, m_eetEvent9, m_penCaused); break;
+      case 10: SendToTarget(m_penTarget10, m_eetEvent10, m_penCaused); break;
+    }
+
+    return;
+  }
 
 procedures:
-
-  SendEventToTargets() {
+  SendEventToTargets()
+  {
     // if needed wait some time before event is send
-    if (m_fWaitTime > 0.0f) {
+    if (m_fWaitTime > 0.0f)
+    {
+      
       wait (m_fWaitTime) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
@@ -122,46 +232,7 @@ procedures:
     SendToTarget(m_penTarget9, m_eetEvent9, m_penCaused);
     SendToTarget(m_penTarget10, m_eetEvent10, m_penCaused);
 
-    // if there is event to send in range
-    if (m_eetRange!=EET_IGNORE) {
-      // send in range also
-      SendInRange(this, m_eetRange, FLOATaabbox3D(GetPlacement().pl_PositionVector, m_fSendRange));
-    }
-
-    // if trigger gives score
-    if (m_fScore>0) {
-      CEntity *penCaused = FixupCausedToPlayer(this, m_penCaused);
-
-      // if we have causer
-      if (penCaused!=NULL) {
-        // send the score
-        EReceiveScore eScore;
-        eScore.iPoints = m_fScore;
-        penCaused->SendEvent(eScore);
-        penCaused->SendEvent(ESecretFound());
-      }
-
-      // kill score to never be reported again
-      m_fScore = 0;
-    }
-    if (m_strMessage!="") {
-      PrintCenterMessage(this, m_penCaused, 
-        TranslateConst(m_strMessage), 
-        m_fMessageTime, m_mssMessageSound);
-    }
-
-    // if max trig count is used for counting
-    if(m_ctMaxTrigs > 0)
-    {
-      // decrease count
-      m_ctMaxTrigs-=1;
-      // if we trigged max times
-      if( m_ctMaxTrigs <= 0)
-      {
-        // cease to exist
-        Destroy();
-      }
-    }
+    Stuff();
     return;
   };
 
@@ -176,6 +247,16 @@ procedures:
         // if auto start send event on init
         if (m_bAutoStart) {
           call SendEventToTargets();
+
+          if (m_eTType == TT_NORMAL) {
+            call SendEventToTargets();
+          } else if (m_eTType == TT_DELAY) {
+            call Delayed();
+          } else if (m_eTType == TT_RANDOM) {
+            call Random();
+          } else if (m_eTType == TT_DELAYRANDOM) {
+            call DelayedRandomly();
+          }
         }
         resume;
       }
@@ -200,16 +281,32 @@ procedures:
               } else {
                 m_iCountTmp = 0;
               }
-              call SendEventToTargets();
+                if (m_eTType == TT_NORMAL) {
+                call SendEventToTargets();
+                } else if (m_eTType == TT_DELAY) {
+                call Delayed();
+                } else if (m_eTType == TT_RANDOM) {
+                call Random();
+                } else if (m_eTType == TT_DELAYRANDOM) {
+                call DelayedRandomly();
+                }
             } else if (m_bTellCount) {
               CTString strRemaining;
               strRemaining.PrintF(TRANS("%d more to go..."), m_iCountTmp);
-              PrintCenterMessage(this, m_penCaused, strRemaining, 3.0f, MSS_INFO);
+              PrintCenterMessage(this, m_penCaused, strRemaining, 3.0f, MSS_INFO, FNT_NORMAL, m_fMessagePosX, m_fMessagePosY);
             }
           }
         // else send event
         } else {
+          if (m_eTType == TT_NORMAL) {
           call SendEventToTargets();
+          } else if (m_eTType == TT_DELAY) {
+          call Delayed();
+          } else if (m_eTType == TT_RANDOM) {
+          call Random();
+          } else if (m_eTType == TT_DELAYRANDOM) {
+          call DelayedRandomly();
+          }
         }
         resume;
       }
@@ -268,4 +365,268 @@ procedures:
 
     return;
   };
+
+  Delayed()
+  {
+
+    Stuff();
+
+    // if needed wait some time before event is send
+    if (m_fWaitTime > 0.0f) {
+      wait (m_fWaitTime) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget1, m_eetEvent1, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      wait (m_fWaitTime) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget2, m_eetEvent2, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      wait (m_fWaitTime) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget3, m_eetEvent3, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      wait (m_fWaitTime) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget4, m_eetEvent4, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      wait (m_fWaitTime) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget5, m_eetEvent5, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      wait (m_fWaitTime) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget6, m_eetEvent6, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      wait (m_fWaitTime) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget7, m_eetEvent7, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      wait (m_fWaitTime) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget8, m_eetEvent8, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      wait (m_fWaitTime) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget9, m_eetEvent9, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      wait (m_fWaitTime) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget10, m_eetEvent10, m_penCaused);
+
+    return;
+  };
+
+  DelayedRandomly()
+  {
+    Stuff();
+
+    // if needed wait some time before event is send
+    if (m_fWaitTime > 0.0f) {
+      m_fWaitInternal=m_fWaitTime+((FRnd()*m_fWaitTime*m_fRandDelayFactor)*((FRnd()>0.5f)?1.0f:-1.0f));
+      if (m_fWaitInternal<=0.0f) { m_fWaitInternal=0.05f; }
+
+      wait (m_fWaitInternal) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget1, m_eetEvent1, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      m_fWaitInternal=m_fWaitTime+((FRnd()*m_fWaitTime*m_fRandDelayFactor)*((FRnd()>0.5f)?1.0f:-1.0f));
+      if (m_fWaitInternal<=0.0f) { m_fWaitInternal=0.05f; }
+
+        wait (m_fWaitInternal) {
+          on (EBegin) : { resume; }
+          on (ETimer) : { stop; }
+          on (EDeactivate) : { pass; }
+          otherwise(): { resume; }
+        }
+    }
+    SendToTarget(m_penTarget2, m_eetEvent2, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      m_fWaitInternal=m_fWaitTime+((FRnd()*m_fWaitTime*m_fRandDelayFactor)*((FRnd()>0.5f)?1.0f:-1.0f));
+      if (m_fWaitInternal<=0.0f) { m_fWaitInternal=0.05f; }
+
+      wait (m_fWaitInternal) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget3, m_eetEvent3, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      m_fWaitInternal=m_fWaitTime+((FRnd()*m_fWaitTime*m_fRandDelayFactor)*((FRnd()>0.5f)?1.0f:-1.0f));
+      if (m_fWaitInternal<=0.0f) { m_fWaitInternal=0.05f; }
+
+      wait (m_fWaitInternal) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget4, m_eetEvent4, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      m_fWaitInternal=m_fWaitTime+((FRnd()*m_fWaitTime*m_fRandDelayFactor)*((FRnd()>0.5f)?1.0f:-1.0f));
+      if (m_fWaitInternal<=0.0f) { m_fWaitInternal=0.05f; }
+
+      wait (m_fWaitInternal) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget5, m_eetEvent5, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      m_fWaitInternal=m_fWaitTime+((FRnd()*m_fWaitTime*m_fRandDelayFactor)*((FRnd()>0.5f)?1.0f:-1.0f));
+      if (m_fWaitInternal<=0.0f) { m_fWaitInternal=0.05f; }
+
+      wait (m_fWaitInternal) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget6, m_eetEvent6, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      m_fWaitInternal=m_fWaitTime+((FRnd()*m_fWaitTime*m_fRandDelayFactor)*((FRnd()>0.5f)?1.0f:-1.0f));
+      if (m_fWaitInternal<=0.0f) { m_fWaitInternal=0.05f; }
+
+      wait (m_fWaitInternal) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget7, m_eetEvent7, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      m_fWaitInternal=m_fWaitTime+((FRnd()*m_fWaitTime*m_fRandDelayFactor)*((FRnd()>0.5f)?1.0f:-1.0f));
+      if (m_fWaitInternal<=0.0f) { m_fWaitInternal=0.05f; }
+
+      wait (m_fWaitInternal) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget8, m_eetEvent8, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+    m_fWaitInternal=m_fWaitTime+((FRnd()*m_fWaitTime*m_fRandDelayFactor)*((FRnd()>0.5f)?1.0f:-1.0f));
+      if (m_fWaitInternal<=0.0f) { m_fWaitInternal=0.05f; }
+
+      wait (m_fWaitInternal) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget9, m_eetEvent9, m_penCaused);
+
+    if (m_fWaitTime > 0.0f) {
+      m_fWaitInternal=m_fWaitTime+((FRnd()*m_fWaitTime*m_fRandDelayFactor)*((FRnd()>0.5f)?1.0f:-1.0f));
+      if (m_fWaitInternal<=0.0f) { m_fWaitInternal=0.05f; }
+      wait (m_fWaitInternal) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+    SendToTarget(m_penTarget10, m_eetEvent10, m_penCaused);
+
+    return;
+  };
+
+  Random()
+  {
+    if (m_fWaitTime > 0.0f) {
+      wait (m_fWaitTime) {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        on (EDeactivate) : { pass; }
+        otherwise(): { resume; }
+      }
+    }
+
+    m_iPos = IRnd() % 10 + 1;
+
+    SendToSpecifiedTarget();
+    Stuff();
+    return;
+  }
 };

@@ -64,6 +64,8 @@ static CResolution _areResolutions[] =
   // NTSC HDTV widescreen
   {  848,  480 },
   {  856,  480 },
+  {  1280, 720 },
+  {  1920, 1080 },
 };
 // THIS NUMBER MUST NOT BE OVER 25! (otherwise change it in adapter.h)
 static const INDEX MAX_RESOLUTIONS = sizeof(_areResolutions)/sizeof(_areResolutions[0]);

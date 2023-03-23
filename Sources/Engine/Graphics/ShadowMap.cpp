@@ -15,6 +15,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "stdh.h"
 
+#include <Engine/Base/ByteSwap.h>
 #include <Engine/Graphics/ShadowMap.h>
 
 #include <Engine/Base/Console.h>
@@ -169,7 +170,7 @@ void CShadowMap::Cache( INDEX iWantedMipLevel)
     if( fR>0.5f) colSize = LerpColor( C_dYELLOW, C_dRED,  (fR-0.5f)*2);
     else         colSize = LerpColor( C_dGREEN, C_dYELLOW, fR*2);
     // fill!
-    for( INDEX iPix=0; iPix<sm_slMemoryUsed/4; iPix++) sm_pulCachedShadowMap[iPix] = ByteSwap(colSize);
+    for( INDEX iPix=0; iPix<sm_slMemoryUsed/4; iPix++) sm_pulCachedShadowMap[iPix] = ByteSwap32(colSize);
   }
   // no colorization - just mix the layers in
   else MixLayers( iWantedMipLevel, iLastMipLevelToCache);
@@ -431,7 +432,7 @@ void CShadowMap::MixLayers( INDEX iFirstMip, INDEX iLastMip, BOOL bDynamic/*=FAL
   (void)iFirstMip;
   (void)iLastMip;
   // just fill with white
-  ULONG ulValue = ByteSwap(C_WHITE);
+  ULONG ulValue = ByteSwap32(C_WHITE);
   ASSERT( sm_pulCachedShadowMap!=NULL);
   if( sm_pulCachedShadowMap==NULL || sm_pulCachedShadowMap==&sm_colFlat) return;
   for( INDEX i=0; i<(sm_mexWidth>>sm_iFirstMipLevel)*(sm_mexHeight>>sm_iFirstMipLevel); i++) {

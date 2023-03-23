@@ -31,18 +31,9 @@ enum LightType {
 
 enum LensFlareType {                
   0  LFT_NONE                         "None",
-  1  LFT_STANDARD                     "Standard",
-  2  LFT_STANDARD_REFLECTIONS         "Standard reflections",
-  3  LFT_YELLOW_STAR_RED_RING         "Yellow star with red ring",
-  4  LFT_WHITE_GLOW_STAR_RED_RING     "White glow star with red ring",
-  5  LFT_WHITE_GLOW_STAR              "White glow star",
-  6  LFT_WHITE_STAR_RED_RING_STREAKS  "White star with red ring and streaks",
-  7  LFT_WHITE_STAR_RED_REFLECTIONS   "White star with red reflections",
-  8  LFT_BLUE_STAR_BLUE_REFLECTIONS   "Blue star with blue reflections",
-  9  LFT_PV_SPACE_SHIP_WINDOW_FLARE   "Pyramid valley space ship window flare",
-  10 LFT_WHITE_GLOW_STAR_RED_RING_FAR "Yellow star with red ring far",
-  11 LFT_WHITE_GLOW_FAR               "White glow far",
-  12 LFT_WHITE_GLOW_STAR_NG           "White glow star no glare",
+  1  LFT_ORANGE_1                     "Orange 1",
+  2  LFT_BLUE_1                       "Blue 1",
+  3  LFT_WHITE_1                      "White 1",
 };
 
 %{
@@ -265,41 +256,14 @@ functions:
       case LFT_NONE:
         lsNew.ls_plftLensFlare = NULL;
         break;    
-      case LFT_STANDARD:
-        lsNew.ls_plftLensFlare = &_lftStandard;                   
+      case LFT_ORANGE_1:
+        lsNew.ls_plftLensFlare = &_lftOrange;                   
         break;
-      case LFT_STANDARD_REFLECTIONS:
-        lsNew.ls_plftLensFlare = &_lftStandardReflections;        
+      case LFT_BLUE_1:
+        lsNew.ls_plftLensFlare = &_lftBlue;        
         break;
-      case LFT_YELLOW_STAR_RED_RING:
-        lsNew.ls_plftLensFlare = &_lftYellowStarRedRing;          
-        break;
-      case LFT_WHITE_GLOW_STAR_RED_RING:
-        lsNew.ls_plftLensFlare = &_lftWhiteGlowStarRedRing;       
-        break;
-      case LFT_WHITE_GLOW_STAR:
-        lsNew.ls_plftLensFlare = &_lftWhiteGlowStar;              
-        break;
-      case LFT_WHITE_STAR_RED_RING_STREAKS:
-        lsNew.ls_plftLensFlare = &_lftWhiteStarRedRingStreaks;    
-        break;
-      case LFT_WHITE_STAR_RED_REFLECTIONS:
-        lsNew.ls_plftLensFlare = &_lftWhiteStarRedReflections;       
-        break;
-      case LFT_BLUE_STAR_BLUE_REFLECTIONS:
-        lsNew.ls_plftLensFlare = &_lftBlueStarBlueReflections;       
-        break;
-      case LFT_PV_SPACE_SHIP_WINDOW_FLARE:
-        lsNew.ls_plftLensFlare = &_lftPVSpaceShipWindowFlare;
-        break;
-      case LFT_WHITE_GLOW_STAR_RED_RING_FAR:
-        lsNew.ls_plftLensFlare = &_lftYellowStarRedRingFar;
-        break;
-      case LFT_WHITE_GLOW_FAR:
-        lsNew.ls_plftLensFlare = &_lftWhiteGlowFar;
-        break;
-      case LFT_WHITE_GLOW_STAR_NG:
-        lsNew.ls_plftLensFlare = &_lftWhiteGlowStarNG;              
+      case LFT_WHITE_1:
+        lsNew.ls_plftLensFlare = &_lftWhite;          
         break;
     }
 

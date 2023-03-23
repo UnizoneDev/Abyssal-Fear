@@ -19,6 +19,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 204
 %{
 #include "StdH.h"
+
+#define SL_PITCH_MIN (0.01F)
+#define SL_PITCH_MAX (100.0F)
 %}
 
 uses "EntitiesMP/ModelDestruction";
@@ -44,6 +47,8 @@ properties:
  12 INDEX m_iPlayType = 0,
  13 CSoundObject m_soSound,         // sound channel
  14 BOOL m_bDestroyable     "Destroyable" 'Q' = FALSE,
+ 15 FLOAT m_fPitch         "Pitch" = 1.0F,
+ 16 BOOL m_b3D             "3D" = TRUE,
 
   {
     CAutoPrecacheSound m_aps;
@@ -98,9 +103,13 @@ procedures:
     // validate volume
     if (m_fVolume<FLOAT(SL_VOLUME_MIN)) { m_fVolume = FLOAT(SL_VOLUME_MIN); }
     if (m_fVolume>FLOAT(SL_VOLUME_MAX)) { m_fVolume = FLOAT(SL_VOLUME_MAX); }
+    // validate pitch
+    if (m_fPitch < FLOAT(SL_PITCH_MIN)) { m_fPitch = FLOAT(SL_PITCH_MIN); }
+    if (m_fPitch > FLOAT(SL_PITCH_MAX)) { m_fPitch = FLOAT(SL_PITCH_MAX); }
 
     // determine play type
-    m_iPlayType = SOF_3D;
+    m_iPlayType = 0;
+    if (m_b3D) { m_iPlayType |= SOF_3D; }
     if (m_bLoop) { m_iPlayType |= SOF_LOOP; }
     if (m_bSurround) { m_iPlayType |= SOF_SURROUND; }
     if (m_bVolumetric) { m_iPlayType |= SOF_VOLUMETRIC; }
@@ -134,15 +143,15 @@ procedures:
       // auto play sound
       on (EBegin) : {
         if (m_bAutoStart) {
-          m_soSound.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, 1.0f);
-          PlaySound(m_soSound, m_fnSound, m_iPlayType);
+            m_soSound.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+            PlaySound(m_soSound, m_fnSound, m_iPlayType);
         }
         resume;
       }
       // play sound
       on (EStart) : {
-        m_soSound.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, 1.0f);
-        PlaySound(m_soSound, m_fnSound, m_iPlayType);
+          m_soSound.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+          PlaySound(m_soSound, m_fnSound, m_iPlayType);
         resume;
       }
       // stop playing sound

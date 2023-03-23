@@ -158,7 +158,7 @@ void CMGVarButton::Render(CDrawPort *pdp)
         PIX pixISize = box.Size()(1)*0.13f;
         PIX pixJSize = box.Size()(2);
         LCDDrawBox(0, -1, PIXaabbox2D(PIX2D(pixIR, pixJ + 1), PIX2D(pixIR + pixISize - 4, pixJ + pixJSize - 6)),
-          LCDGetColor(C_GREEN | 255, "slider box"));
+          LCDGetColor(C_BLUE | 255, "slider box"));
 
         // draw filled part of slider
         if (mg_pvsVar->vs_iSlider == 1) {

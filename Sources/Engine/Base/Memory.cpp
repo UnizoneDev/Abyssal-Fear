@@ -70,7 +70,7 @@ CMemHandlerInit::CMemHandlerInit(void)
 
 #undef AllocMemory
 
-void *AllocMemory( SLONG memsize )
+void *AllocMemory(SLONG memsize )
 {
   void *pmem;
   ASSERTMSG(memsize>0, "AllocMemory: Block size is less or equal zero.");
@@ -87,7 +87,7 @@ void *AllocMemory( SLONG memsize )
 }
 
 #ifndef NDEBUG
-void *_debug_AllocMemory( SLONG memsize, int iType, const char *strFile, int iLine)
+void *_debug_AllocMemory(SLONG memsize, int iType, const char *strFile, int iLine)
 {
   void *pmem;
   ASSERTMSG(memsize>0, "AllocMemory: Block size is less or equal zero.");
@@ -105,22 +105,22 @@ void *_debug_AllocMemory( SLONG memsize, int iType, const char *strFile, int iLi
 }
 #endif
 
-void *AllocMemoryAligned( SLONG memsize, SLONG slAlignPow2)
+void *AllocMemoryAligned(SLONG memsize, SLONG slAlignPow2)
 {
-  ULONG ulMem = (ULONG)AllocMemory(memsize+slAlignPow2*2);
-  ULONG ulMemAligned = ((ulMem+slAlignPow2-1) & ~(slAlignPow2-1)) + slAlignPow2;
-  ((ULONG *)ulMemAligned)[-1] = ulMem;
-  return (void*)ulMemAligned;
+    ULONG ulMem = (ULONG)AllocMemory(memsize + slAlignPow2 * 2);
+    ULONG ulMemAligned = ((ulMem + slAlignPow2 - 1) & ~(slAlignPow2 - 1)) + slAlignPow2;
+    ((ULONG*)ulMemAligned)[-1] = ulMem;
+    return (void*)ulMemAligned;
 }
 void FreeMemoryAligned( void *memory)
 {
-  FreeMemory((void*) ( ( (ULONG*)memory )[-1] ) );
+    FreeMemory((void*)(((uintptr_t*)memory)[-1]));
 }
 
 void FreeMemory( void *memory )
 {
   ASSERTMSG(memory!=NULL, "FreeMemory: NULL pointer input.");
-  free( (char *)memory);
+  free((char*)memory);
 }
 
 void ResizeMemory( void **ppv, SLONG slSize )

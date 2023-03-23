@@ -34,6 +34,7 @@ public:
   CMGTrigger gm_mgFrequencyTrigger;
   CMGSlider gm_mgWaveVolume;
   CMGSlider gm_mgMPEGVolume;
+  CMGSlider gm_mgMasterVolume;
   CMGButton gm_mgApply;
 
   void StartMenu(void);

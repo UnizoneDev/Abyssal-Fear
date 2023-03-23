@@ -198,7 +198,7 @@ functions:
           // if we hit stone under water
           else
           {
-            bhtType=BHT_BRUSH_UNDER_WATER;
+            bhtType=(BulletHitType) GetBulletHitTypeForSurface(iSurfaceType);
           }
         }
         // spawn hit effect

@@ -84,6 +84,9 @@ public:
     PTI_ADDENTITYTOGRID,
     PTI_REMENTITYFROMGRID,
     PTI_MOVEENTITYINGRID,
+
+    PTI_TRYTOCLIMBLADDER,
+
     PTI_COUNT
   };
   enum ProfileCounterIndex {

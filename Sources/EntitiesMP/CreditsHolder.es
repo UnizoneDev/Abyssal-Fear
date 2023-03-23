@@ -161,7 +161,7 @@ functions:
   {
     try 
     {
-      _fdMedium.Load_t( CTFILENAME( "Fonts\\Display3-normal.fnt"));
+      _fdMedium.Load_t( CTFILENAME( "Fonts\\UZTitleFont.fnt"));
     }
     catch (char *strError)
     {

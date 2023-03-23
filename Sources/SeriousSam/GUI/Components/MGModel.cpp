@@ -19,8 +19,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <GameMP/LCDDrawing.h>
 #include "MGModel.h"
 
-extern INDEX sam_bWideScreen;
-
 
 CMGModel::CMGModel(void)
 {
@@ -52,7 +50,7 @@ void CMGModel::Render(CDrawPort *pdp)
   // prepare projection
   CRenderModel rmRenderModel;
   CPerspectiveProjection3D pr;
-  pr.FOVL() = sam_bWideScreen ? AngleDeg(45.0f) : AngleDeg(30.0f);
+  pr.FOVL() = 55.0f;
   pr.ScreenBBoxL() = FLOATaabbox2D(
     FLOAT2D(0.0f, 0.0f),
     FLOAT2D((float)dpModel.GetWidth(), (float)dpModel.GetHeight())
@@ -106,7 +104,7 @@ void CMGModel::Render(CDrawPort *pdp)
   mg_moModel.RenderModel(rmRenderModel);
   EndModelRenderingView();
 
-  LCDScreenBox(LCDGetColor(C_GREEN, "model box") | GetCurrentColor());
+  LCDScreenBox(LCDGetColor(C_BLUE, "model box") | GetCurrentColor());
 
   dpModel.Unlock();
 

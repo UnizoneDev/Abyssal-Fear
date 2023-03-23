@@ -962,7 +962,7 @@ static void d3d_SetViewMatrix( const FLOAT *pfMatrix/*=NULL*/)
 
   if( pfMatrix!=NULL) {
     // need to keep it for clip plane
-    CopyLongs( (ULONG*)pfMatrix, (ULONG*)D3D_afViewMatrix, 16);
+    CopyLongs((ULONG*)pfMatrix, (ULONG*)D3D_afViewMatrix, 16);
     hr = _pGfx->gl_pd3dDevice->SetTransform( D3DTS_VIEW, (_D3DMATRIX*)D3D_afViewMatrix);
   } else {
     // load identity matrix

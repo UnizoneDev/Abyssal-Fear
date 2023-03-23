@@ -57,11 +57,11 @@ properties:
 
 components:
 // ************** SHOTGUN SHELL ************
-  1 model   MODEL_SG_SHELL              "Models\\Weapons\\SingleShotgun\\Shell\\Shell.mdl",
-  2 texture TEXTURE_SG_SHELL            "Models\\Weapons\\SingleShotgun\\Shell\\Shell.tex",
+  1 model   MODEL_SG_SHELL              "Models\\Weapons\\Casings\\ShotgunShell.mdl",
+  2 texture TEXTURE_SG_SHELL            "Models\\Items\\Ammo\\ShotgunShells\\ShotgunShell.tex",
 // ************** MACHINEGUN SHELL ************
-  3 model   MODEL_MG_SHELL              "Models\\Weapons\\Minigun\\Shell\\Shell.mdl",
-  4 texture TEXTURE_MG_SHELL            "Models\\Weapons\\Minigun\\Shell\\Shell.tex",
+  3 model   MODEL_MG_SHELL              "Models\\Weapons\\Casings\\PistolShell.mdl",
+  4 texture TEXTURE_MG_SHELL            "Models\\Weapons\\Casings\\PistolShell.tex",
 
 functions:
 procedures:

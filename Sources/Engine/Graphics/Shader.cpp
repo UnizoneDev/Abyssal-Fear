@@ -14,6 +14,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 #include "stdh.h"
+#include <Engine/Base/ByteSwap.h>
 #include <Engine/Base/Stream.h>
 #include <Engine/Math/Projection.h>
 #include <Engine/Ska/Render.h>
@@ -65,6 +66,9 @@ GFXColor *_pcolVtxColors = NULL;    // pointer to vertex color array (points to 
 // vertex array that is returned if shader request vertices for modify
 static CStaticStackArray<GFXVertex4>  _vModifyVertices;
 static CStaticStackArray<GFXTexCoord> _uvUVMapForModify;
+
+// Texture wrapping set by the shader
+static GfxWrap _aShaderTexWrap[2] = { GFX_REPEAT, GFX_REPEAT };
 
 
 // Begin shader using
@@ -150,7 +154,7 @@ void shaDoFogPass(void)
   if(_paHazeUVMap!=NULL) {
     gfxSetTextureWrapping( GFX_CLAMP, GFX_CLAMP);
     gfxSetTexture( _haze_ulTexture, _haze_tpLocal);
-    gfxSetTexCoordArray(_paHazeUVMap, TRUE);
+    gfxSetTexCoordArray(_paHazeUVMap, FALSE);
     gfxBlendFunc( GFX_SRC_ALPHA, GFX_INV_SRC_ALPHA);
     gfxEnableBlend();
     // set vertex color array for haze
@@ -161,6 +165,9 @@ void shaDoFogPass(void)
     // render fog pass
     gfxDrawElements( _ctIndices, _paIndices);
   }
+
+  // Restore texture wrapping set by the shader
+  gfxSetTextureWrapping(_aShaderTexWrap[0], _aShaderTexWrap[1]);
 }
 
 // Modify color for fog
@@ -191,7 +198,7 @@ void shaCalculateLight(void)
       colAmbient = 0xFFFFFFFF;
     }
     colConstant.MultiplyRGBA(colLight,colAmbient);
-    shaSetConstantColor(ByteSwap(colConstant.abgr));
+    shaSetConstantColor(ByteSwap32(colConstant.abgr));
     // no vertex colors
     return;
   }
@@ -727,7 +734,11 @@ void shaDepthFunc(GfxComp eComp)
 // Set texture wrapping 
 void shaSetTextureWrapping( enum GfxWrap eWrapU, enum GfxWrap eWrapV)
 {
-  gfxSetTextureWrapping(eWrapU,eWrapV);
+  // Remember shader's texture wrapping
+  _aShaderTexWrap[0] = eWrapU;
+  _aShaderTexWrap[1] = eWrapV;
+
+  gfxSetTextureWrapping(eWrapU, eWrapV);
 }
 
 

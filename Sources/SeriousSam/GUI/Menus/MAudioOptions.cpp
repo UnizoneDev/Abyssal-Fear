@@ -56,17 +56,26 @@ void CAudioOptionsMenu::Initialize_t(void)
   gm_mgMPEGVolume.mg_strText = TRANS("MUSIC VOLUME");
   gm_mgMPEGVolume.mg_strTip = TRANS("adjust volume of in-game music");
   gm_mgMPEGVolume.mg_pmgUp = &gm_mgWaveVolume;
-  gm_mgMPEGVolume.mg_pmgDown = &gm_mgApply;
+  gm_mgMPEGVolume.mg_pmgDown = &gm_mgMasterVolume;
   gm_mgMPEGVolume.mg_pOnSliderChange = NULL;
   gm_mgMPEGVolume.mg_pActivatedFunction = NULL;
   gm_lhGadgets.AddTail(gm_mgMPEGVolume.mg_lnNode);
 
-  gm_mgApply.mg_bfsFontSize = BFS_LARGE;
-  gm_mgApply.mg_boxOnScreen = BoxBigRow(4);
+  gm_mgMasterVolume.mg_boxOnScreen = BoxMediumRow(5);
+  gm_mgMasterVolume.mg_strText = TRANS("MASTER VOLUME");
+  gm_mgMasterVolume.mg_strTip = TRANS("adjust master volume");
+  gm_mgMasterVolume.mg_pmgUp = &gm_mgWaveVolume;
+  gm_mgMasterVolume.mg_pmgDown = &gm_mgApply;
+  gm_mgMasterVolume.mg_pOnSliderChange = NULL;
+  gm_mgMasterVolume.mg_pActivatedFunction = NULL;
+  gm_lhGadgets.AddTail(gm_mgMasterVolume.mg_lnNode);
+
+  gm_mgApply.mg_bfsFontSize = BFS_SMALL;
+  gm_mgApply.mg_boxOnScreen = BoxBigRow(5);
   gm_mgApply.mg_strText = TRANS("APPLY");
   gm_mgApply.mg_strTip = TRANS("activate selected options");
   gm_lhGadgets.AddTail(gm_mgApply.mg_lnNode);
-  gm_mgApply.mg_pmgUp = &gm_mgMPEGVolume;
+  gm_mgApply.mg_pmgUp = &gm_mgMasterVolume;
   gm_mgApply.mg_pmgDown = &gm_mgAudioAutoTrigger;
   gm_mgApply.mg_pActivatedFunction = NULL;
 }

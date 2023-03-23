@@ -693,7 +693,7 @@ void CSessionState::HandleMovers(void)
 // do thinking for a game tick
 void CSessionState::HandleTimers(TIME tmCurrentTick)
 {
-#define TIME_EPSILON 0.0001f
+#define TIME_EPSILON 0.03125f
   IFDEBUG(TIME tmLast = 0.0f);
 
   _pfPhysicsProfile.StartTimer(CPhysicsProfile::PTI_HANDLETIMERS);

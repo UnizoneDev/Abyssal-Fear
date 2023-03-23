@@ -325,7 +325,7 @@ public:
 
   // hide/show functions
   /* Hide entities contained in given selection. */
-  void HideSelectedEntities(CDynamicContainer<CEntity> &selenEntitiesToHide);
+  void HideSelectedEntities(CEntitySelection &selenEntitiesToHide);
   /* Hide all unselected entities. */
   void HideUnselectedEntities(void);
   /* Show all entities. */

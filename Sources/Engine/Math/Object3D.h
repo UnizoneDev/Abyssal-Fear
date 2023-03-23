@@ -26,8 +26,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Math/TextureMapping.h>
 #include <Engine/Math/Projection.h>
 #include <Engine/Templates/BSP.h>
-
-struct ImportedMesh;
+#include <string>
+#include <utility>
+#include <vector>
 
 // a vertex in 3d object
 class CObjectVertex : public DOUBLE3D {
@@ -340,6 +341,8 @@ public:
  */
 class ENGINE_API CObject3D {
 public:
+  using TFormatDescr = std::pair<std::string, std::string>;
+  static const std::vector<TFormatDescr>& GetSupportedFormats();
 
   /* Remove sectors with no polygons. */
   void RemoveEmptySectors(void);
@@ -357,7 +360,12 @@ public:
   /* Clear all arrays. */
   void Clear(void);
 
-  void FillFromMesh(const ImportedMesh& mesh);
+  /* Recognize and load any of supported 3D file formats. */
+	void LoadAny3DFormat_t( const CTFileName &FileName, const FLOATmatrix3D &mTransform); // throw (char *)
+  // start/end batch loading of 3d objects
+  static void BatchLoading_t(BOOL bOn);
+  /* Convert from intermediate structures into O3D */
+  void ConvertArraysToO3D( void);
 
   /* Save in LightWave format. */
 	void SaveLWO_t( const CTFileName &FileName); // throw (char *)

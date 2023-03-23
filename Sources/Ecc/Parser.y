@@ -234,6 +234,13 @@ void DeclareFeatureProperties(void)
 %token k_ANIMATION
 %token k_ILLUMINATIONTYPE
 %token k_FLAGS
+%token k_DOUBLE
+%token k_INDEX64
+%token k_DOUBLE3D
+%token k_DOUBLEplane3D
+%token k_DOUBLEaabbox3D
+%token k_DOUBLEmatrix3D
+%token k_DOUBLEquat3D
 
 %start program
 
@@ -741,6 +748,41 @@ property_type
     _strCurrentPropertyEnumType = "NULL"; 
     _strCurrentPropertyDataType = "ANIMATION";
   }
+  | k_DOUBLE {
+    _strCurrentPropertyPropertyType = "CEntityProperty::EPT_DOUBLE"; 
+    _strCurrentPropertyEnumType = "NULL"; 
+    _strCurrentPropertyDataType = "DOUBLE";
+  }
+  | k_INDEX64 {
+    _strCurrentPropertyPropertyType = "CEntityProperty::EPT_INDEX64"; 
+    _strCurrentPropertyEnumType = "NULL"; 
+    _strCurrentPropertyDataType = "INDEX64";
+  }
+  | k_DOUBLE3D {
+    _strCurrentPropertyPropertyType = "CEntityProperty::EPT_DOUBLE3D"; 
+    _strCurrentPropertyEnumType = "NULL"; 
+    _strCurrentPropertyDataType = "DOUBLE3D";
+  }
+  | k_DOUBLEplane3D {
+    _strCurrentPropertyPropertyType = "CEntityProperty::EPT_DOUBLEplane3D"; 
+    _strCurrentPropertyEnumType = "NULL"; 
+    _strCurrentPropertyDataType = "DOUBLEplane3D";
+  }
+  | k_DOUBLEaabbox3D {
+    _strCurrentPropertyPropertyType = "CEntityProperty::EPT_DOUBLEAABBOX3D"; 
+    _strCurrentPropertyEnumType = "NULL"; 
+    _strCurrentPropertyDataType = "DOUBLEaabbox3D";
+  }
+  | k_DOUBLEmatrix3D {
+    _strCurrentPropertyPropertyType = "CEntityProperty::EPT_DOUBLEMATRIX3D"; 
+    _strCurrentPropertyEnumType = "NULL"; 
+    _strCurrentPropertyDataType = "DOUBLEmatrix3D";
+  }
+  | k_DOUBLEquat3D {
+    _strCurrentPropertyPropertyType = "CEntityProperty::EPT_DOUBLEQUAT3D"; 
+    _strCurrentPropertyEnumType = "NULL"; 
+    _strCurrentPropertyDataType = "DOUBLEquat3D";
+  }
   ;
 
 property_wed_name_opt
@@ -1053,10 +1095,10 @@ expression
   ;
 type_keyword
   : k_CTString|k_CTStringTrans|k_CTFileName|k_CTFileNameNoDep
-  | k_BOOL|k_COLOR|k_FLOAT|k_INDEX|k_RANGE
+  | k_BOOL|k_COLOR|k_FLOAT|k_INDEX|k_RANGE|k_DOUBLE|k_INDEX64
   | k_CEntityPointer|k_CModelObject|k_CModelInstance|k_CAnimObject|k_CSoundObject
   | k_CPlacement3D | k_FLOATaabbox3D|k_FLOATmatrix3D| k_FLOATquat3D|k_ANGLE|k_ANIMATION|k_ILLUMINATIONTYPE
-  | k_ANGLE3D|k_FLOAT3D|k_FLOATplane3D
+  | k_ANGLE3D|k_FLOAT3D|k_FLOATplane3D|k_DOUBLE3D|k_DOUBLEplane3D|k_DOUBLEaabbox3D|k_DOUBLEmatrix3D|k_DOUBLEquat3D
   | k_const 
   | k_static
   ;

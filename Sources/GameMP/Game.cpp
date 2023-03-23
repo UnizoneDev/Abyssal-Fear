@@ -28,6 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/CurrentVersion.h>
 #include "Camera.h"
 #include "LCDDrawing.h"
+#include "AchievementManager.h"
 
 extern FLOAT con_fHeightFactor = 0.5f;
 extern FLOAT con_tmLastLines   = 5.0f;
@@ -42,6 +43,9 @@ CTFileName fnmCommonControls    = CTString("Controls\\System\\Common.ctl");
 
 // force dependency for player class
 DECLARE_CTFILENAME( fnmPlayerClass, "Classes\\Player.ecl");
+
+static CSoundObject _soMenuMusic;
+const CTFileName sfMenu = CTFILENAME("Music\\MenuLoop1.ogg");
 
 #define MAX_HIGHSCORENAME 16
 #define MAX_HIGHSCORETABLESIZE ((MAX_HIGHSCORENAME+1+sizeof(INDEX)*4)*HIGHSCORE_COUNT)*2
@@ -141,7 +145,6 @@ static INDEX ctl_iCurrentPlayer = -1;
 static FLOAT gam_fChatSoundVolume = 0.25f;
 
 extern BOOL _bUserBreakEnabled = FALSE;
-extern BOOL map_bIsFirstEncounter = FALSE;
 
 // make sure that console doesn't show last lines if not playing in network
 void MaybeDiscardLastLines(void)
@@ -894,7 +897,6 @@ void CGame::InitInternal( void)
   gm_astrAxisNames[AXIS_LOOK_BK] = "view banking"; // 
 
   gm_csConsoleState = CS_OFF;
-  gm_csComputerState = CS_OFF;
 
   gm_bGameOn = FALSE;
   gm_bMenuOn = FALSE;
@@ -1060,11 +1062,15 @@ void CGame::InitInternal( void)
 
   // provide URL to the engine
   _strModURL = "http://www.croteam.com/mods/TheSecondEncounter";
+
+  _pAchManager = new CAchievementManager;
 }
 
 // internal cleanup
 void CGame::EndInternal(void)
 {
+  delete _pAchManager;
+
   // stop game if eventually started
   StopGame();
   // remove game timer handler
@@ -1367,8 +1373,7 @@ BOOL CGame::SaveGame(const CTFileName &fnGame)
 
 void CGame::StopGame(void)
 {
-  // disable computer quickly
-  ComputerForceOff();
+  _soMenuMusic.Stop();
 
   // if no game is currently running
   if (!gm_bGameOn)
@@ -1376,6 +1381,7 @@ void CGame::StopGame(void)
     // do nothing
     return;
   }
+
   // stop eventual camera
   CAM_Stop();
   // disable direct input
@@ -1825,7 +1831,7 @@ static void PrintStats( CDrawPort *pdpDrawPort)
     const FLOAT fMaxWidth = slDPWidth  *0.1f;
     const PIX pixJ = slDPHeight *0.9f;
     // draw canvas
-    pdpDrawPort->Fill(       slDPWidth-1-fMaxWidth, pixJ-ctLines+1, fMaxWidth,   ctLines,   SE_COL_BLUE_DARK_HV|64);
+    pdpDrawPort->Fill(       slDPWidth-1-fMaxWidth, pixJ-ctLines+1, fMaxWidth,   ctLines,   SE_COL_DARKGREY|64);
     pdpDrawPort->DrawBorder( slDPWidth-2-fMaxWidth, pixJ-ctLines,   fMaxWidth+2, ctLines+2, C_WHITE  |192);
     // draw graph
     for( INDEX i=0; i<ctLines; i++) {
@@ -2130,8 +2136,7 @@ void CGame::GameRedrawView( CDrawPort *pdpDrawPort, ULONG ulFlags)
 
   // if game is started and computer isn't on
   BOOL bClientJoined = FALSE;
-  if( gm_bGameOn && (_pGame->gm_csComputerState==CS_OFF || pdpDrawPort->IsDualHead()) 
-    && gm_CurrentSplitScreenCfg!=SSC_DEDICATED )
+  if( gm_bGameOn && gm_CurrentSplitScreenCfg!=SSC_DEDICATED )
   {
 
     INDEX ctObservers = Clamp(gam_iObserverConfig, 0L, 4L);
@@ -2248,14 +2253,14 @@ void CGame::GameRedrawView( CDrawPort *pdpDrawPort, ULONG ulFlags)
             CAM_Render(apenViewers[i], pdp);
           }
         } else {
-          pdp->Fill( C_BLACK|CT_OPAQUE);
+          pdp->Fill(SE_COL_BLACK|CT_OPAQUE);
         }
         pdp->Unlock();
       }
     }}
     if (!bHadViewers) {
       pdpDrawPort->Lock();
-      pdpDrawPort->Fill( C_BLACK|CT_OPAQUE);
+      pdpDrawPort->Fill(SE_COL_BLACK|CT_OPAQUE);
       pdpDrawPort->Unlock();
     }
 
@@ -2299,7 +2304,7 @@ void CGame::GameRedrawView( CDrawPort *pdpDrawPort, ULONG ulFlags)
         dpMsg.SetTextAspect( 1.0f);
         dpMsg.PutTextCXY( strIndicator, 
         dpMsg.GetWidth()*0.5f, 
-        dpMsg.GetHeight()*0.4f, SE_COL_BLUEGREEN_LT|192);
+        dpMsg.GetHeight()*0.4f, SE_COL_MIDDLEGREY|192);
       }
       // print recording indicator
       if (_pNetwork->IsRecordingDemo()) {
@@ -2362,7 +2367,7 @@ void CGame::GameRedrawView( CDrawPort *pdpDrawPort, ULONG ulFlags)
   {
     // clear background
     if( pdpDrawPort->Lock()) {
- 	    pdpDrawPort->Fill( SE_COL_BLUE_DARK|CT_OPAQUE);
+ 	    pdpDrawPort->Fill( SE_COL_BLACK|CT_OPAQUE);
       pdpDrawPort->FillZBuffer( ZBUF_BACK);
       pdpDrawPort->Unlock();
     }
@@ -2740,13 +2745,7 @@ void CGame::GameMainLoop(void)
  *************************************************************/
 
 static CTextureObject _toPointer;
-static CTextureObject _toBcgClouds;
-static CTextureObject _toBcgGrid;
 static CTextureObject _toBackdrop;
-static CTextureObject _toSamU;
-static CTextureObject _toSamD;
-static CTextureObject _toLeftU;
-static CTextureObject _toLeftD;
 
 static PIXaabbox2D _boxScreen_SE;
 static PIX _pixSizeI_SE;
@@ -2769,23 +2768,12 @@ void TiledTextureSE( PIXaabbox2D &_boxScreen, FLOAT fStretch, MEX2D &vScreen, ME
 void CGame::LCDInit(void)
 {
   try {
-    _toBcgClouds.SetData_t(CTFILENAME("Textures\\General\\Background6.tex"));
     _toPointer.SetData_t(CTFILENAME("TexturesMP\\General\\Pointer.tex"));
-    _toBcgGrid.SetData_t(CTFILENAME("TexturesMP\\General\\grid.tex"));
     _toBackdrop.SetData_t(CTFILENAME("TexturesMP\\General\\MenuBack.tex"));
-    _toSamU.SetData_t(CTFILENAME("TexturesMP\\General\\SamU.tex"));
-    _toSamD.SetData_t(CTFILENAME("TexturesMP\\General\\SamD.tex"));
-    _toLeftU.SetData_t(CTFILENAME("TexturesMP\\General\\LeftU.tex"));
-    _toLeftD.SetData_t(CTFILENAME("TexturesMP\\General\\LeftD.tex"));
+    _soMenuMusic.Set3DParameters(100.0f, 50.0f, 1.0f, 1.0f);
     // force constant textures
-    ((CTextureData*)_toBcgClouds.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toPointer  .GetData())->Force(TEX_CONSTANT);
-    ((CTextureData*)_toBcgGrid  .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toBackdrop .GetData())->Force(TEX_CONSTANT);
-    ((CTextureData*)_toSamU     .GetData())->Force(TEX_CONSTANT);
-    ((CTextureData*)_toSamD     .GetData())->Force(TEX_CONSTANT);
-    ((CTextureData*)_toLeftU    .GetData())->Force(TEX_CONSTANT);
-    ((CTextureData*)_toLeftD    .GetData())->Force(TEX_CONSTANT);
 
   } catch (char *strError) {
     FatalError("%s\n", strError);
@@ -2798,6 +2786,21 @@ void CGame::LCDEnd(void)
 }
 void CGame::LCDPrepare(FLOAT fFade)
 {
+  if (!_soMenuMusic.IsPlaying())
+  {
+    _soMenuMusic.Play_t(sfMenu, SOF_LOOP);
+  }
+
+  if (gm_bGameOn)
+  {
+    _soMenuMusic.Pause();
+  }
+  else
+  {
+    _soMenuMusic.Resume();
+  }
+  
+
   // get current time and alpha value
   _tmNow_SE = (FLOAT)_pTimer->GetHighPrecisionTimer().GetSeconds();
   _ulA_SE   = NormFloatToByte(fFade);
@@ -2821,25 +2824,25 @@ void CGame::LCDSetDrawport(CDrawPort *pdp)
 }
 void CGame::LCDDrawBox(PIX pixUL, PIX pixDR, PIXaabbox2D &box, COLOR col)
 {
-  col = SE_COL_BLUE_NEUTRAL|255;
+  col = SE_COL_WHITE|255;
 
   ::LCDDrawBox(pixUL, pixDR, box, col);
 }
 void CGame::LCDScreenBox(COLOR col)
 {
-  col = SE_COL_BLUE_NEUTRAL|255;
+  col = SE_COL_WHITE|255;
 
   ::LCDScreenBox(col);
 }
 void CGame::LCDScreenBoxOpenLeft(COLOR col)
 {
-  col = SE_COL_BLUE_NEUTRAL|255;
+  col = SE_COL_WHITE|255;
 
   ::LCDScreenBoxOpenLeft(col);
 }
 void CGame::LCDScreenBoxOpenRight(COLOR col)
 {
-  col = SE_COL_BLUE_NEUTRAL|255;
+  col = SE_COL_WHITE|255;
 
   ::LCDScreenBoxOpenRight(col);
 }
@@ -2848,82 +2851,17 @@ void CGame::LCDRenderClouds1(void)
   _pdp_SE->PutTexture(&_toBackdrop, _boxScreen_SE, C_WHITE|255);
 
   if (!_bPopup) {
-
-    PIXaabbox2D box;
-        
-    // right character - Sam
-    INDEX iSize = 170;
-    INDEX iYU = 120;
-    INDEX iYM = iYU + iSize;
-    INDEX iYB = iYM + iSize;
-    INDEX iXL = 420;
-    INDEX iXR = iXL + iSize*_pdp_SE->dp_fWideAdjustment;
-    
-    box = PIXaabbox2D( PIX2D( iXL*_pdp_SE->GetWidth()/640, iYU*_pdp_SE->GetHeight()/480) ,
-                       PIX2D( iXR*_pdp_SE->GetWidth()/640, iYM*_pdp_SE->GetHeight()/480));
-    _pdp_SE->PutTexture(&_toSamU, box, SE_COL_BLUE_NEUTRAL|255);
-    box = PIXaabbox2D( PIX2D( iXL*_pdp_SE->GetWidth()/640, iYM*_pdp_SE->GetHeight()/480) ,
-                       PIX2D( iXR*_pdp_SE->GetWidth()/640, iYB*_pdp_SE->GetHeight()/480));
-    _pdp_SE->PutTexture(&_toSamD, box, SE_COL_BLUE_NEUTRAL|255);
-
-    iSize = 120;
-    iYU = 0;
-    iYM = iYU + iSize;
-    iYB = iYM + iSize;
-    iXL = -20;
-    iXR = iXL + iSize;
-    box = PIXaabbox2D( PIX2D( iXL*_pdp_SE->GetWidth()/640, iYU*_pdp_SE->GetWidth()/640) ,
-                       PIX2D( iXR*_pdp_SE->GetWidth()/640, iYM*_pdp_SE->GetWidth()/640));
-    _pdp_SE->PutTexture(&_toLeftU, box, SE_COL_BLUE_NEUTRAL|200);
-    box = PIXaabbox2D( PIX2D( iXL*_pdp_SE->GetWidth()/640, iYM*_pdp_SE->GetWidth()/640) ,
-                       PIX2D( iXR*_pdp_SE->GetWidth()/640, iYB*_pdp_SE->GetWidth()/640));
-    _pdp_SE->PutTexture(&_toLeftD, box, SE_COL_BLUE_NEUTRAL|200);
-    iYU = iYB;
-    iYM = iYU + iSize;
-    iYB = iYM + iSize;
-    iXL = -20;
-    iXR = iXL + iSize;
-    box = PIXaabbox2D( PIX2D( iXL*_pdp_SE->GetWidth()/640, iYU*_pdp_SE->GetWidth()/640) ,
-                       PIX2D( iXR*_pdp_SE->GetWidth()/640, iYM*_pdp_SE->GetWidth()/640));
-    _pdp_SE->PutTexture(&_toLeftU, box, SE_COL_BLUE_NEUTRAL|200);
-    box = PIXaabbox2D( PIX2D( iXL*_pdp_SE->GetWidth()/640, iYM*_pdp_SE->GetWidth()/640) ,
-                       PIX2D( iXR*_pdp_SE->GetWidth()/640, iYB*_pdp_SE->GetWidth()/640));
-    _pdp_SE->PutTexture(&_toLeftD, box, SE_COL_BLUE_NEUTRAL|200);
-  
   }
-
-  MEXaabbox2D boxBcgClouds1;
-  TiledTextureSE(_boxScreen_SE, 1.2f*_pdp_SE->GetWidth()/640.0f, 
-    MEX2D(sin(_tmNow_SE*0.5f)*35,sin(_tmNow_SE*0.7f+1)*21),   boxBcgClouds1);
-  _pdp_SE->PutTexture(&_toBcgClouds, _boxScreen_SE, boxBcgClouds1, C_BLACK|_ulA_SE>>2);
-  TiledTextureSE(_boxScreen_SE, 0.7f*_pdp_SE->GetWidth()/640.0f, 
-    MEX2D(sin(_tmNow_SE*0.6f+1)*32,sin(_tmNow_SE*0.8f)*25),   boxBcgClouds1);
-  _pdp_SE->PutTexture(&_toBcgClouds, _boxScreen_SE, boxBcgClouds1, C_BLACK|_ulA_SE>>2);
 }
 void CGame::LCDRenderCloudsForComp(void)
 {
-  MEXaabbox2D boxBcgClouds1;
-  TiledTextureSE(_boxScreen_SE, 1.856f*_pdp_SE->GetWidth()/640.0f, 
-    MEX2D(sin(_tmNow_SE*0.5f)*35,sin(_tmNow_SE*0.7f)*21),   boxBcgClouds1);
-  _pdp_SE->PutTexture(&_toBcgClouds, _boxScreen_SE, boxBcgClouds1, SE_COL_BLUE_NEUTRAL|_ulA_SE>>2);
-  TiledTextureSE(_boxScreen_SE, 1.323f*_pdp_SE->GetWidth()/640.0f, 
-    MEX2D(sin(_tmNow_SE*0.6f)*31,sin(_tmNow_SE*0.8f)*25),   boxBcgClouds1);
-  _pdp_SE->PutTexture(&_toBcgClouds, _boxScreen_SE, boxBcgClouds1, SE_COL_BLUE_NEUTRAL|_ulA_SE>>2);
+  NOTHING;
 }
 void CGame::LCDRenderClouds2(void)
 {
   NOTHING;
 }
-void CGame::LCDRenderGrid(void)
-{
-  NOTHING;
-}
-void CGame::LCDRenderCompGrid(void)
-{
-   MEXaabbox2D boxBcgGrid;
-   TiledTextureSE(_boxScreen_SE, 0.5f*_pdp_SE->GetWidth()/(_pdp_SE->dp_SizeIOverRasterSizeI*640.0f), MEX2D(0,0), boxBcgGrid);
-   _pdp_SE->PutTexture(&_toBcgGrid, _boxScreen_SE, boxBcgGrid, SE_COL_BLUE_NEUTRAL|_ulA_SE>>1); 
-}
+
 void CGame::LCDDrawPointer(PIX pixI, PIX pixJ)
 {
   CDisplayMode dmCurrent;
@@ -2941,58 +2879,58 @@ void CGame::LCDDrawPointer(PIX pixI, PIX pixJ)
   pixI-=1;
   pixJ-=1;
   _pdp_SE->PutTexture( &_toPointer, PIXaabbox2D( PIX2D(pixI, pixJ), PIX2D(pixI+pixSizeI, pixJ+pixSizeJ)),
-                    LCDFadedColor(C_WHITE|255));
+                    LCDFadedColor(SE_COL_WHITE|255));
 
   //::LCDDrawPointer(pixI, pixJ);
 }
 COLOR CGame::LCDGetColor(COLOR colDefault, const char *strName)
 {
   if (!strcmp(strName, "thumbnail border")) {
-    colDefault = SE_COL_BLUE_NEUTRAL|255;
+    colDefault = SE_COL_WHITE|255;
   } else if (!strcmp(strName, "no thumbnail")) {
-    colDefault = SE_COL_ORANGE_NEUTRAL|255;
+    colDefault = SE_COL_MIDDLEGREY|255;
   } else if (!strcmp(strName, "popup box")) {
-    colDefault = SE_COL_BLUE_NEUTRAL|255;
+    colDefault = SE_COL_WHITE|255;
   } else if (!strcmp(strName, "tool tip")) {
-    colDefault = SE_COL_ORANGE_LIGHT|255;
+    colDefault = SE_COL_WHITE|255;
   } else if (!strcmp(strName, "unselected")) {
-    colDefault = SE_COL_ORANGE_NEUTRAL|255;
+    colDefault = SE_COL_MIDDLEGREY|255;
   } else if (!strcmp(strName, "selected")) {
-    colDefault = SE_COL_ORANGE_LIGHT|255;
+    colDefault = SE_COL_GREEN_DARK|255;
   } else if (!strcmp(strName, "disabled selected")) {
-    colDefault = SE_COL_ORANGE_DARK_LT |255;
+    colDefault = SE_COL_RED_DARK|255;
   } else if (!strcmp(strName, "disabled unselected")) {
-    colDefault = SE_COL_ORANGE_DARK|255;
+    colDefault = SE_COL_DARKGREY|255;
   } else if (!strcmp(strName, "label")) {
-    colDefault = C_WHITE|255;
+    colDefault = SE_COL_WHITE|255;
   } else if (!strcmp(strName, "title")) {
-    colDefault = C_WHITE|255;
+    colDefault = SE_COL_WHITE|255;
   } else if (!strcmp(strName, "editing")) {
-    colDefault = SE_COL_ORANGE_NEUTRAL|255;
+    colDefault = SE_COL_WHITE|255;
   } else if (!strcmp(strName, "hilited")) {
-    colDefault = SE_COL_ORANGE_LIGHT|255;
+    colDefault = SE_COL_WHITE|255;
   } else if (!strcmp(strName, "hilited rectangle")) {
-    colDefault = SE_COL_ORANGE_NEUTRAL|255;
+    colDefault = SE_COL_WHITE|255;
   } else if (!strcmp(strName, "edit fill")) {
-    colDefault = SE_COL_BLUE_DARK_LT|75;
+    colDefault = SE_COL_WHITE|75;
   } else if (!strcmp(strName, "editing cursor")) {
-    colDefault = SE_COL_ORANGE_NEUTRAL|255;
+    colDefault = SE_COL_BLACK|255;
   } else if (!strcmp(strName, "model box")) {
-    colDefault = SE_COL_ORANGE_NEUTRAL|255;
+    colDefault = SE_COL_WHITE|255;
   } else if (!strcmp(strName, "hiscore header")) {
-    colDefault = SE_COL_ORANGE_LIGHT|255;
+    colDefault = SE_COL_WHITE|255;
   } else if (!strcmp(strName, "hiscore data")) {
-    colDefault = SE_COL_ORANGE_NEUTRAL|255;
+    colDefault = SE_COL_MIDDLEGREY|255;
   } else if (!strcmp(strName, "hiscore last set")) {
-    colDefault = SE_COL_ORANGE_NEUTRAL|255;
+    colDefault = SE_COL_MIDDLEGREY|255;
   } else if (!strcmp(strName, "slider box")) {
-    colDefault = SE_COL_ORANGE_NEUTRAL|255;
+    colDefault = SE_COL_MIDDLEGREY|255;
   } else if (!strcmp(strName, "file info")) {
-    colDefault = SE_COL_ORANGE_NEUTRAL|255;
+    colDefault = SE_COL_MIDDLEGREY|255;
   } else if (!strcmp(strName, "display mode")) {
-    colDefault = SE_COL_ORANGE_NEUTRAL|255;
+    colDefault = SE_COL_MIDDLEGREY|255;
   } else if (!strcmp(strName, "bcg fill")) {
-    colDefault = SE_COL_BLUE_DARK|255;
+    colDefault = SE_COL_BLACK|255;
   }
   return ::LCDGetColor(colDefault, strName);
 }
@@ -3011,4 +2949,11 @@ void CGame::MenuPreRenderMenu(const char *strMenuName)
 }
 void CGame::MenuPostRenderMenu(const char *strMenuName)
 {
+}
+
+// achievement functions
+CAchievement* CGame::GetAchievement(INDEX iAchievement)
+{
+   ASSERT(iAchievement < _pAchManager->sa_AchievementList.Count());
+   return &_pAchManager->sa_AchievementList[iAchievement];
 }

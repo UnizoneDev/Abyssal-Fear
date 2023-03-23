@@ -37,9 +37,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 extern BOOL bMenuActive;
 extern BOOL bMenuRendering;
-extern CTextureObject *_ptoLogoCT;
-extern CTextureObject *_ptoLogoODI;
-extern CTextureObject *_ptoLogoEAX;
 
 INDEX _iLocalPlayer = -1;
 extern BOOL  _bPlayerMenuFromSinglePlayer = FALSE;
@@ -238,10 +235,10 @@ void InitializeMenus(void)
 
   try {
     // initialize and load corresponding fonts
-    _fdSmall.Load_t(  CTFILENAME( "Fonts\\Display3-narrow.fnt"));
-    _fdMedium.Load_t( CTFILENAME( "Fonts\\Display3-normal.fnt"));
-    _fdBig.Load_t(    CTFILENAME( "Fonts\\Display3-caps.fnt"));
-    _fdTitle.Load_t(  CTFILENAME( "Fonts\\Title2.fnt"));
+    _fdSmall.Load_t(  CTFILENAME( "Fonts\\UZConsoleFont.fnt"));
+    _fdMedium.Load_t( CTFILENAME( "Fonts\\UZConsoleFont.fnt"));
+    _fdBig.Load_t(    CTFILENAME( "Fonts\\UZBigFont.fnt"));
+    _fdTitle.Load_t(  CTFILENAME( "Fonts\\UZTitleFont.fnt"));
     _fdSmall.SetCharSpacing(-1);
     _fdSmall.SetLineSpacing( 0);
     _fdSmall.SetSpaceWidth(0.4f);
@@ -276,7 +273,6 @@ void InitializeMenus(void)
   try
   {
     TRANSLATERADIOARRAY(astrNoYes);
-    TRANSLATERADIOARRAY(astrComputerInvoke);
     TRANSLATERADIOARRAY(astrDisplayAPIRadioTexts);
     TRANSLATERADIOARRAY(astrDisplayPrefsRadioTexts);
     TRANSLATERADIOARRAY(astrBitsPerPixelRadioTexts);
@@ -434,6 +430,12 @@ void InitializeMenus(void)
   _pGUIM->gmSplitStartMenu.gm_pmgSelectedByDefault = &_pGUIM->gmSplitStartMenu.gm_mgStart;
   _pGUIM->gmSplitStartMenu.gm_pgmParentMenu = &_pGUIM->gmSplitScreenMenu;
   InitActionsForSplitStartMenu();
+
+  _pGUIM->gmAchievementsMenu.Initialize_t();
+  _pGUIM->gmAchievementsMenu.gm_strName = "Achievements";
+  _pGUIM->gmAchievementsMenu.gm_pmgSelectedByDefault = &_pGUIM->gmAchievementsMenu.gm_mgAchievements[0];
+  _pGUIM->gmAchievementsMenu.gm_pgmParentMenu = &_pGUIM->gmMainMenu;
+  InitActionsForAchievementsMenu();
   }
   catch( char *strError)
   {
@@ -536,12 +538,7 @@ void MenuUpdateMouseFocus(void)
   POINT pt;
   GetCursorPos(&pt);
   ScreenToClient(_hwndMain, &pt);
-  extern INDEX sam_bWideScreen;
-  extern CDrawPort *pdp;
-  if( sam_bWideScreen) {
-    const PIX pixHeight = pdp->GetHeight();
-    pt.y -= (pixHeight/0.75f-pixHeight)/2;
-  }
+  
   _pixCursorPosI += pt.x-_pixCursorExternPosI;
   _pixCursorPosJ  = _pixCursorExternPosJ;
   _pixCursorExternPosI = pt.x;
@@ -700,41 +697,19 @@ BOOL DoMenu( CDrawPort *pdp)
     // do not allow game to show through
     dpMenu.Fill(C_BLACK|255);
     LCDRenderClouds1();
-    LCDRenderGrid();
     LCDRenderClouds2();
 
-    FLOAT fScaleW = (FLOAT)pixW / 640.0f;
-    FLOAT fScaleH = (FLOAT)pixH / 480.0f;
-    PIX   pixI0, pixJ0, pixI1, pixJ1;
+    // [SSE] Use the same scale for width and height
+    const FLOAT fScale = (FLOAT)pixH / 480.0f;
+
+    // [SSE] Proper right side position
+    const PIX pixR = 480 * ((FLOAT)pixW / (FLOAT)pixH);
+
+    PIX pixI0, pixJ0, pixI1, pixJ1;
+
     // put logo(s) to main menu (if logos exist)
   if (pgmCurrentMenu == &_pGUIM->gmMainMenu)
     {
-      if( _ptoLogoODI!=NULL) {
-        CTextureData &td = (CTextureData&)*_ptoLogoODI->GetData();
-        #define LOGOSIZE 50
-        const PIX pixLogoWidth  = LOGOSIZE * dpMenu.dp_fWideAdjustment;
-        const PIX pixLogoHeight = LOGOSIZE* td.GetHeight() / td.GetWidth();
-        pixI0 = (640-pixLogoWidth -16)*fScaleW;
-        pixJ0 = (480-pixLogoHeight-16)*fScaleH;
-        pixI1 = pixI0+ pixLogoWidth *fScaleW;
-        pixJ1 = pixJ0+ pixLogoHeight*fScaleH;
-        dpMenu.PutTexture( _ptoLogoODI, PIXaabbox2D( PIX2D( pixI0, pixJ0),PIX2D( pixI1, pixJ1)));
-        #undef LOGOSIZE
-      }  
-      if( _ptoLogoCT!=NULL) {
-        CTextureData &td = (CTextureData&)*_ptoLogoCT->GetData();
-        #define LOGOSIZE 50
-        const PIX pixLogoWidth  = LOGOSIZE * dpMenu.dp_fWideAdjustment;
-        const PIX pixLogoHeight = LOGOSIZE* td.GetHeight() / td.GetWidth();
-        pixI0 = 12*fScaleW;
-        pixJ0 = (480-pixLogoHeight-16)*fScaleH;
-        pixI1 = pixI0+ pixLogoWidth *fScaleW;
-        pixJ1 = pixJ0+ pixLogoHeight*fScaleH;
-        dpMenu.PutTexture( _ptoLogoCT, PIXaabbox2D( PIX2D( pixI0, pixJ0),PIX2D( pixI1, pixJ1)));
-        #undef LOGOSIZE
-      } 
-      
-      {
         FLOAT fResize = Min(dpMenu.GetWidth()/640.0f, dpMenu.GetHeight()/480.0f);
         PIX pixSizeI = 256*fResize;
         PIX pixSizeJ = 64*fResize;
@@ -744,39 +719,25 @@ BOOL DoMenu( CDrawPort *pdp)
           PIX2D( pixCenterI-pixSizeI, pixHeightJ),PIX2D( pixCenterI, pixHeightJ+pixSizeJ)));
         dpMenu.PutTexture(&_toLogoMenuB, PIXaabbox2D( 
           PIX2D( pixCenterI, pixHeightJ),PIX2D( pixCenterI+pixSizeI, pixHeightJ+pixSizeJ)));
-      }
-  } else if (pgmCurrentMenu == &_pGUIM->gmAudioOptionsMenu) {
-      if( _ptoLogoEAX!=NULL) {
-        CTextureData &td = (CTextureData&)*_ptoLogoEAX->GetData();
-        const INDEX iSize = 95;
-        const PIX pixLogoWidth  = iSize * dpMenu.dp_fWideAdjustment;
-        const PIX pixLogoHeight = iSize * td.GetHeight() / td.GetWidth();
-        pixI0 =  (640-pixLogoWidth - 35)*fScaleW;
-        pixJ0 = (480-pixLogoHeight - 7)*fScaleH;
-        pixI1 = pixI0+ pixLogoWidth *fScaleW;
-        pixJ1 = pixJ0+ pixLogoHeight*fScaleH;
-        dpMenu.PutTexture( _ptoLogoEAX, PIXaabbox2D( PIX2D( pixI0, pixJ0),PIX2D( pixI1, pixJ1)));
-      }
     }
 
 #define THUMBW 96
 #define THUMBH 96
     // if there is a thumbnail
     if( _bThumbnailOn) {
-      const FLOAT fThumbScaleW = fScaleW * dpMenu.dp_fWideAdjustment;
-      PIX pixOfs = 8*fScaleW;
-      pixI0 = 8*fScaleW;
-      pixJ0 = (240-THUMBW/2)*fScaleH;
-      pixI1 = pixI0+ THUMBW*fThumbScaleW;
-      pixJ1 = pixJ0+ THUMBH*fScaleH;
+        PIX pixOfs = 8 * fScale;
+        pixI0 = 8 * fScale;
+        pixJ0 = (240 - THUMBW / 2) * fScale;
+        pixI1 = pixI0 + THUMBW * fScale;
+        pixJ1 = pixJ0 + THUMBH * fScale;
       if( _toThumbnail.GetData()!=NULL)
       { // show thumbnail with shadow and border
-        dpMenu.Fill( pixI0+pixOfs, pixJ0+pixOfs, THUMBW*fThumbScaleW, THUMBH*fScaleH, C_BLACK|128);
+        dpMenu.Fill(pixI0 + pixOfs, pixJ0 + pixOfs, THUMBW* fScale, THUMBH* fScale, C_BLACK | 128);
         dpMenu.PutTexture( &_toThumbnail, PIXaabbox2D( PIX2D( pixI0, pixJ0), PIX2D( pixI1, pixJ1)), C_WHITE|255);
-        dpMenu.DrawBorder( pixI0,pixJ0, THUMBW*fThumbScaleW,THUMBH*fScaleH, LCDGetColor(C_mdGREEN|255, "thumbnail border"));
+        dpMenu.DrawBorder(pixI0, pixJ0, THUMBW* fScale, THUMBH* fScale, LCDGetColor(C_mdGREEN | 255, "thumbnail border"));
       } else {
         dpMenu.SetFont( _pfdDisplayFont);
-        dpMenu.SetTextScaling( fScaleW);
+        dpMenu.SetTextScaling( fScale);
         dpMenu.SetTextAspect( 1.0f);
         dpMenu.PutTextCXY( TRANS("no thumbnail"), (pixI0+pixI1)/2, (pixJ0+pixJ1)/2, LCDGetColor(C_GREEN|255, "no thumbnail"));
       }
@@ -811,7 +772,6 @@ BOOL DoMenu( CDrawPort *pdp)
     LCDSetDrawport(&dpPopup);
     dpPopup.Fill(C_BLACK|255);
     LCDRenderClouds1();
-    LCDRenderGrid();
   //LCDRenderClouds2();
     LCDScreenBox(LCDGetColor(C_GREEN|255, "popup box"));
     dpPopup.Unlock();

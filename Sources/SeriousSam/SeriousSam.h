@@ -13,7 +13,7 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#define APPLICATION_NAME "SeriousSam"
+#define APPLICATION_NAME "AbyssalFear"
 
 extern HINSTANCE _hInstance;
 extern BOOL _bRunning, _bQuitScreen;
@@ -26,6 +26,9 @@ extern INDEX sam_iDisplayAdapter;
 extern INDEX sam_iGfxAPI;
 extern INDEX sam_iVideoSetup;  // 0==speed, 1==normal, 2==quality, 3==custom
 extern BOOL  sam_bAutoAdjustAudio;
+
+// Computer screen resolution
+extern PIX2D _vpixScreenRes;
 
 extern void StartNewMode( enum GfxAPIType eAPI, INDEX iAdapter, PIX pixSizeI, PIX pixSizeJ,
                           enum DisplayDepth eColorDepth, BOOL bFullScreenMode);

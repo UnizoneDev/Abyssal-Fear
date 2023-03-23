@@ -34,11 +34,11 @@ static struct GameGUI_interface _Interface;
 void Initialize(const CTFileName &fnGameSettings)
 {
   try {
-#ifndef NDEBUG 
-#define GAMEDLL _fnmApplicationExe.FileDir()+"GameMPD.dll"
-#else
-#define GAMEDLL _fnmApplicationExe.FileDir()+"GameMP.dll"
-#endif
+    #ifndef NDEBUG 
+      #define GAMEDLL "Bin\\Debug\\GameMPD.dll"
+    #else
+      #define GAMEDLL "Bin\\GameMP.dll"
+    #endif
     CTFileName fnmExpanded;
     ExpandFilePath(EFP_READ, CTString(GAMEDLL), fnmExpanded);
     HMODULE hGame = LoadLibraryA(fnmExpanded);

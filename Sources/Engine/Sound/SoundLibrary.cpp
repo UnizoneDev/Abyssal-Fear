@@ -48,6 +48,7 @@ CSoundLibrary *_pSound = NULL;
 
 // console variables
 extern FLOAT snd_tmMixAhead  = 0.2f; // mix-ahead in seconds
+extern FLOAT snd_fMasterVolume = 1.0f;  // global master volume
 extern FLOAT snd_fSoundVolume = 1.0f;   // master volume for sound playing [0..1]
 extern FLOAT snd_fMusicVolume = 1.0f;   // master volume for music playing [0..1]
 // NOTES: 
@@ -176,7 +177,7 @@ static void SndPostFunc(void *pArgs)
   snd_tmMixAhead = Clamp( snd_tmMixAhead, 0.1f, 0.9f);
   snd_iFormat    = Clamp( snd_iFormat, (INDEX)CSoundLibrary::SF_NONE, (INDEX)CSoundLibrary::SF_44100_16);
   snd_iDevice    = Clamp( snd_iDevice, -1L, 15L);
-  snd_iInterface = Clamp( snd_iInterface, 0L, 2L);
+  snd_iInterface = Clamp( snd_iInterface, 0L, 3L);
   // if any variable has been changed
   if( _tmLastMixAhead!=snd_tmMixAhead || _iLastFormat!=snd_iFormat
    || _iLastDevice!=snd_iDevice || _iLastAPI!=snd_iInterface) {
@@ -302,6 +303,37 @@ static void SetLibraryFormat( CSoundLibrary &sl)
   }
 }
 
+
+static ALuint ALSetFormat(SWORD bitsPerSample, SWORD channels)
+{
+    ALenum format = AL_NONE;
+
+    switch (channels)
+    {
+    case 1:
+        switch (bitsPerSample)
+        {
+        case 8:
+            format = AL_FORMAT_MONO8;
+        case 16:
+            format = AL_FORMAT_MONO16;
+        }
+        break;
+    case 2:
+        switch (bitsPerSample)
+        {
+        case 8:
+            format = AL_FORMAT_STEREO8;
+        case 16:
+            format = AL_FORMAT_STEREO16;
+        }
+        break;
+    default:
+        return -1;
+    }
+
+    return format;
+}
 
 
 static BOOL DSFail( CSoundLibrary &sl, char *strError) 
@@ -681,9 +713,6 @@ static BOOL StartUp_waveout( CSoundLibrary &sl, BOOL bReport=TRUE)
   return TRUE;
 }
 
-
-
-
 /*
  *  set sound format
  */
@@ -711,9 +740,10 @@ static void SetFormat_internal( CSoundLibrary &sl, CSoundLibrary::SoundFormat Es
   SetWaveFormat( EsfNew, sl.sl_SwfeFormat);
   snd_iDevice    = Clamp( snd_iDevice, -1L, (INDEX)(sl.sl_ctWaveDevices-1));
   snd_tmMixAhead = Clamp( snd_tmMixAhead, 0.1f, 0.9f);
-  snd_iInterface = Clamp( snd_iInterface, 0L, 2L);
+  snd_iInterface = Clamp( snd_iInterface, 0L, 3L);
 
   BOOL bSoundOK = FALSE;
+
   if( snd_iInterface==2) {
     // if wanted, 1st try to set EAX
     bSoundOK = StartUp_dsound( sl, bReport);  
@@ -743,7 +773,6 @@ static void SetFormat_internal( CSoundLibrary &sl, CSoundLibrary::SoundFormat Es
   _pTimer->AddHandler(&sl.sl_thTimerHandler);
 }
 
-
 /*
  *  Initialization
  */
@@ -765,9 +794,10 @@ void CSoundLibrary::Init(void)
   _pShell->DeclareSymbol( "persistent user FLOAT snd_fBFilter;",     &snd_fBFilter);
   _pShell->DeclareSymbol( "persistent user FLOAT snd_fUFilter;",     &snd_fUFilter);
   _pShell->DeclareSymbol( "persistent user FLOAT snd_fDFilter;",     &snd_fDFilter);
-  _pShell->DeclareSymbol( "persistent user FLOAT snd_fSoundVolume;", &snd_fSoundVolume);
-  _pShell->DeclareSymbol( "persistent user FLOAT snd_fMusicVolume;", &snd_fMusicVolume);
-  _pShell->DeclareSymbol( "persistent user FLOAT snd_fNormalizer;",  &snd_fNormalizer);
+  _pShell->DeclareSymbol( "persistent user FLOAT snd_fMasterVolume;",  &snd_fMasterVolume);
+  _pShell->DeclareSymbol( "persistent user FLOAT snd_fSoundVolume;",   &snd_fSoundVolume);
+  _pShell->DeclareSymbol( "persistent user FLOAT snd_fMusicVolume;",   &snd_fMusicVolume);
+  _pShell->DeclareSymbol( "persistent user FLOAT snd_fNormalizer;",    &snd_fNormalizer);
   _pShell->DeclareSymbol( "persistent user FLOAT snd_tmMixAhead post:SndPostFunc;", &snd_tmMixAhead);
   _pShell->DeclareSymbol( "persistent user INDEX snd_iInterface post:SndPostFunc;", &snd_iInterface);
   _pShell->DeclareSymbol( "persistent user INDEX snd_iDevice post:SndPostFunc;", &snd_iDevice);
@@ -1263,6 +1293,7 @@ void CSoundLibrary::MixSounds(void)
 
   // seek available buffer(s) for next crop of samples
   SLONG slDataToMix;
+
   if( sl_bUsingDirectSound) { // using direct sound
     slDataToMix = PrepareSoundBuffer_dsound( *this);
   } else { // using wave out 

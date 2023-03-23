@@ -237,7 +237,7 @@ void CMGFileButton::Render(CDrawPort *pdp)
     PIX pixI = box.Min()(1);
     PIX pixJ = box.Min()(2);
 
-    COLOR col = LCDGetColor(C_mlGREEN | 255, "file info");
+    COLOR col = LCDGetColor(C_mlBLUE | 255, "file info");
     pdp->PutText(mg_strInfo, pixI, pixJ, col);
   }
 }

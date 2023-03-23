@@ -71,7 +71,7 @@ void CPlayerProfileMenu::Initialize_t(void)
 
   // setup of player name button is done on start menu
   gm_mgNameField.mg_strText = "<???>";
-  gm_mgNameField.mg_ctMaxStringLen = 25;
+  gm_mgNameField.mg_ctMaxStringLen = 255;
   gm_mgNameField.mg_boxOnScreen = BoxPlayerEdit(1.25);
   gm_mgNameField.mg_bfsFontSize = BFS_MEDIUM;
   gm_mgNameField.mg_iCenterI = -1;
@@ -89,7 +89,7 @@ void CPlayerProfileMenu::Initialize_t(void)
 
   // setup of player name button is done on start menu
   gm_mgTeam.mg_strText = "<???>";
-  gm_mgTeam.mg_ctMaxStringLen = 25;
+  gm_mgTeam.mg_ctMaxStringLen = 255;
   gm_mgTeam.mg_boxOnScreen = BoxPlayerEdit(2.25f);
   gm_mgTeam.mg_bfsFontSize = BFS_MEDIUM;
   gm_mgTeam.mg_iCenterI = -1;
@@ -127,23 +127,18 @@ void CPlayerProfileMenu::Initialize_t(void)
   gm_mgQuotes.mg_iCenterI = -1;
   gm_mgQuotes.mg_pOnTriggerChange = NULL;
 
-  TRIGGER_MG(gm_mgAutoSave, 4.0, gm_mgQuotes, gm_mgCompDoubleClick, TRANS("AUTO SAVE"), astrNoYes);
+  TRIGGER_MG(gm_mgAutoSave, 4.0, gm_mgQuotes, gm_mgSharpTurning, TRANS("AUTO SAVE"), astrNoYes);
   gm_mgAutoSave.mg_boxOnScreen = BoxPlayerSwitch(10.0f);
   gm_mgAutoSave.mg_iCenterI = -1;
   gm_mgAutoSave.mg_pOnTriggerChange = NULL;
 
-  TRIGGER_MG(gm_mgCompDoubleClick, 4.0, gm_mgAutoSave, gm_mgSharpTurning, TRANS("INVOKE COMPUTER"), astrComputerInvoke);
-  gm_mgCompDoubleClick.mg_boxOnScreen = BoxPlayerSwitch(11.0f);
-  gm_mgCompDoubleClick.mg_iCenterI = -1;
-  gm_mgCompDoubleClick.mg_pOnTriggerChange = NULL;
-
-  TRIGGER_MG(gm_mgSharpTurning, 4.0, gm_mgCompDoubleClick, gm_mgViewBobbing, TRANS("SHARP TURNING"), astrNoYes);
-  gm_mgSharpTurning.mg_boxOnScreen = BoxPlayerSwitch(12.0f);
+  TRIGGER_MG(gm_mgSharpTurning, 4.0, gm_mgAutoSave, gm_mgViewBobbing, TRANS("SHARP TURNING"), astrNoYes);
+  gm_mgSharpTurning.mg_boxOnScreen = BoxPlayerSwitch(11.0f);
   gm_mgSharpTurning.mg_iCenterI = -1;
   gm_mgSharpTurning.mg_pOnTriggerChange = NULL;
 
   TRIGGER_MG(gm_mgViewBobbing, 4.0, gm_mgSharpTurning, gm_mgCustomizeControls, TRANS("VIEW BOBBING"), astrNoYes);
-  gm_mgViewBobbing.mg_boxOnScreen = BoxPlayerSwitch(13.0f);
+  gm_mgViewBobbing.mg_boxOnScreen = BoxPlayerSwitch(12.0f);
   gm_mgViewBobbing.mg_iCenterI = -1;
   gm_mgViewBobbing.mg_pOnTriggerChange = NULL;
 
@@ -219,9 +214,6 @@ void CPlayerProfileMenu::SelectPlayer(INDEX iPlayer)
 
   gm_mgAutoSave.mg_iSelected = (pps->ps_ulFlags&PSF_AUTOSAVE) ? 1 : 0;
   gm_mgAutoSave.ApplyCurrentSelection();
-
-  gm_mgCompDoubleClick.mg_iSelected = (pps->ps_ulFlags&PSF_COMPSINGLECLICK) ? 0 : 1;
-  gm_mgCompDoubleClick.ApplyCurrentSelection();
 
   gm_mgViewBobbing.mg_iSelected = (pps->ps_ulFlags&PSF_NOBOBBING) ? 0 : 1;
   gm_mgViewBobbing.ApplyCurrentSelection();

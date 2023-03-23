@@ -1164,7 +1164,7 @@ extern void SetVertexArray_D3D( INDEX iType, ULONG *pulVtx)
 
   // copy (or convert) vertices there and unlock
   ASSERT(pulVtx!=NULL); 
-  if( iType!=2) CopyLongs( pulVtx, pulLockedBuffer, ctLockSize); // vertex array
+  if( iType!=2) CopyLongs(pulVtx, pulLockedBuffer, ctLockSize); // vertex array
   else          abgr2argb( pulVtx, pulLockedBuffer, ctLockSize); // color array (needs conversion)
 
   // done

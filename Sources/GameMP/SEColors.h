@@ -27,5 +27,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define SE_COL_BLUE_NEUTRAL_LT  0x6097cc00
 #define SE_COL_BLUE_LIGHT       0x64b4ff00
 #define SE_COL_BLUEGREEN_LT     0x6cff6c00
+#define SE_COL_WHITE            0xffffff00
+#define SE_COL_LIGHTGREY        0xcccccc00
+#define SE_COL_MIDDLEGREY       0x99999900
+#define SE_COL_DARKGREY         0x33333300
+#define SE_COL_BLACK            0x00000000
+#define SE_COL_GREEN_DARK       0x00990000
+#define SE_COL_RED_DARK         0x99000000
 
 #endif

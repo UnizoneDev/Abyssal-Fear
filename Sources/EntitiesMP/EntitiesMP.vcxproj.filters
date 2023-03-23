@@ -8,59 +8,48 @@
     <Filter Include="Source Files\Common sources">
       <UniqueIdentifier>{eff72727-f56f-4f0e-afac-b202a832273c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{40c44e31-3be4-44a9-8aef-92eb0d62e66c}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;fi;fd</Extensions>
-    </Filter>
-    <Filter Include="Header Files\Common headers">
-      <UniqueIdentifier>{b1b59106-4305-4614-9d3a-a199972e8e55}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Class Files">
-      <UniqueIdentifier>{d652878a-c578-4041-b62b-f0edb3642a60}</UniqueIdentifier>
-      <Extensions>es</Extensions>
-    </Filter>
-    <Filter Include="Class Files\AI">
-      <UniqueIdentifier>{15e23bb9-693a-4bc5-884f-56deebba6370}</UniqueIdentifier>
-      <Extensions>es</Extensions>
-    </Filter>
-    <Filter Include="Class Files\Brushes">
-      <UniqueIdentifier>{a2bbac85-6836-400a-808a-fe3b3e2fc728}</UniqueIdentifier>
-      <Extensions>es</Extensions>
-    </Filter>
-    <Filter Include="Class Files\Effects">
-      <UniqueIdentifier>{2ae3f057-e63c-47f1-93e5-a85f7712842a}</UniqueIdentifier>
-      <Extensions>es</Extensions>
-    </Filter>
-    <Filter Include="Class Files\Enemies">
-      <UniqueIdentifier>{80a55b57-0a3c-4e6e-877c-499b03e05fef}</UniqueIdentifier>
-      <Extensions>es</Extensions>
-    </Filter>
-    <Filter Include="Class Files\Environment">
-      <UniqueIdentifier>{bd7d8803-b844-4ab6-9ca5-c53fc8711029}</UniqueIdentifier>
-      <Extensions>es</Extensions>
-    </Filter>
-    <Filter Include="Class Files\Items">
-      <UniqueIdentifier>{57aa098f-2862-44ef-a6cf-3bdc5620a09f}</UniqueIdentifier>
-      <Extensions>es</Extensions>
-    </Filter>
-    <Filter Include="Class Files\Players">
-      <UniqueIdentifier>{718f2278-5d32-45f7-af15-7e3aaf411822}</UniqueIdentifier>
-      <Extensions>es</Extensions>
-    </Filter>
-    <Filter Include="Class Files\Tools">
-      <UniqueIdentifier>{bd9fdc67-9e8f-47b1-b6e0-3e745f85d39a}</UniqueIdentifier>
-      <Extensions>es</Extensions>
-    </Filter>
-    <Filter Include="Class Files\Weapons">
-      <UniqueIdentifier>{306a9fdd-9552-40eb-b911-73bcd3cc4ef0}</UniqueIdentifier>
-      <Extensions>es</Extensions>
-    </Filter>
     <Filter Include="Links To Package">
       <UniqueIdentifier>{e16e502e-9450-4331-8926-8687b03c9153}</UniqueIdentifier>
       <Extensions>ecl</Extensions>
     </Filter>
     <Filter Include="Messages">
       <UniqueIdentifier>{7a1dcaf7-0837-41e6-9e0c-6a85f796cc5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{c891c549-0e74-4d50-aee1-a6764479f5c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Common Headers">
+      <UniqueIdentifier>{b62775a6-1b56-4c48-87a9-a71517a5e2fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class Files">
+      <UniqueIdentifier>{8c49ceab-1f26-4458-917d-9d465b590921}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class Files\AI">
+      <UniqueIdentifier>{e4949097-c471-4cb3-8a7d-02f7388c94c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class Files\Brushes">
+      <UniqueIdentifier>{b531052c-3940-4354-9086-88722f7ad7e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class Files\Effects">
+      <UniqueIdentifier>{59b113be-8f28-4daa-b7dc-479843bcf2ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class Files\Enemies">
+      <UniqueIdentifier>{1bf06da5-0fb6-45f7-92b7-1b83ccc0fa94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class Files\Environment">
+      <UniqueIdentifier>{f21a0eff-08eb-4100-8d6d-db7da8f3bc66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class Files\Players">
+      <UniqueIdentifier>{0af4a11f-fdbb-43c8-aa6b-89dbbd3334f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class Files\Items">
+      <UniqueIdentifier>{dd8a4a09-8540-4f09-9c29-3b8704e84ddc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class Files\Tools">
+      <UniqueIdentifier>{f2f3e446-dfff-4252-8bb7-45f9c9f91126}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class Files\Weapons">
+      <UniqueIdentifier>{b326f1bc-265e-4ff8-b3da-30539a9f0c81}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -82,19 +71,10 @@
     <ClCompile Include="StdH\StdH.cpp">
       <Filter>Source Files\Common sources</Filter>
     </ClCompile>
-    <ClCompile Include="AirElemental.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AirShockwave.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AirWave.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AmmoItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AmmoPack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AnimationChanger.cpp">
@@ -115,19 +95,10 @@
     <ClCompile Include="BasicEffects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Beast.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BigHead.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BlendController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BloodSpray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Boneman.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Bouncer.cpp">
@@ -142,31 +113,13 @@
     <ClCompile Include="CameraMarker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CannonBall.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CannonRotating.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CannonStatic.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Catman.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ChainsawFreak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Copier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Counter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CrateBus.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CrateRider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CreditsHolder.cpp">
@@ -187,21 +140,6 @@
     <ClCompile Include="DebugEntityStatesDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Demon.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DestroyableArchitecture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Devil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DevilMarker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DevilProjectile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DoorController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -212,9 +150,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Effector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Elemental.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EnemyBase.cpp">
@@ -247,25 +182,7 @@
     <ClCompile Include="EnvironmentParticlesHolder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Eruptor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ExotechLarva.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ExotechLarvaBattery.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ExotechLarvaCharger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Eyeman.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Fireworks.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Fish.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Fishman.cpp">
@@ -280,9 +197,6 @@
     <ClCompile Include="GhostBusterRay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Gizmo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -295,19 +209,7 @@
     <ClCompile Include="GravityRouter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Grunt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GruntSka.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Guffy.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HazeMarker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Headman.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HealthItem.cpp">
@@ -323,9 +225,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KeyItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LarvaOffspring.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
@@ -350,9 +249,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MessageItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MeteorShower.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MirrorMarker.cpp">
@@ -442,12 +338,6 @@
     <ClCompile Include="RollingStone.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Santa.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Scorpman.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ScrollHolder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -460,25 +350,10 @@
     <ClCompile Include="ShipMarker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shooter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SoundHolder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SpawnerProjectile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Spinner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="StormController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Summoner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SummonerMarker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Switch.cpp">
@@ -508,13 +383,7 @@
     <ClCompile Include="Trigger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Twister.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VoiceHolder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Walker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Watcher.cpp">
@@ -529,12 +398,6 @@
     <ClCompile Include="WeaponItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Werebull.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Woman.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="WorldBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -544,1375 +407,98 @@
     <ClCompile Include="WorldSettingsController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EvilUni.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BlackStickman.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Abomination.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gunman.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerParenter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DateChecker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PuzzleItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SwitchChecker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerBarrierBrush.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PuzzleChecker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyTouchField.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Satan.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DoomImp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomSoundHolder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LoopingTrigger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameChecker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Twitcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeadFace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LadderBrush.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OverlayHolder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AchievementGranter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExplosiveBarrel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemySquad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Korotuprok.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RedDeath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VariableChecker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyWildlife.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WildlifeFood.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Kahari.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\Common.h">
-      <Filter>Header Files\Common headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\Flags.h">
-      <Filter>Header Files\Common headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\GameInterface.h">
-      <Filter>Header Files\Common headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\Particles.h">
-      <Filter>Header Files\Common headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\PathFinding.h">
-      <Filter>Header Files\Common headers</Filter>
-    </ClInclude>
-    <ClInclude Include="StdH\StdH.h">
-      <Filter>Header Files\Common headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\WeaponPositions.h">
-      <Filter>Header Files\Common headers</Filter>
-    </ClInclude>
-    <ClInclude Include="AirElemental.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AirElemental_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AirShockwave.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AirShockwave_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AirWave.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AirWave_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AmmoItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AmmoItem_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AmmoPack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AmmoPack_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationChanger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationChanger_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationHub.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationHub_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AreaMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AreaMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArmorItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArmorItem_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BackgroundViewer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BackgroundViewer_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicEffects.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicEffects_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Beast.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BigHead.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BigHead_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BlendController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BlendController_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BloodSpray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Boneman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Boneman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Bouncer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Bouncer_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Bullet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Bullet_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CameraMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CannonBall.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CannonBall_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CannonRotating.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CannonRotating_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CannonStatic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CannonStatic_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Catman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Catman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ChainsawFreak.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ChainsawFreak_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Copier.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Copier_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Counter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Counter_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CrateBus.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CrateBus_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CrateRider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CrateRider_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CreditsHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CreditsHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cyborg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cyborg_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CyborgBike.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CyborgBike_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Damager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Damager_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Debris.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Debris_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugEntityStatesDisplay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugEntityStatesDisplay_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Demon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Demon_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DestroyableArchitecture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DestroyableArchitecture_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Devil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Devil_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DevilMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DevilMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DevilProjectile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DevilProjectile_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DoorController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DoorController_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dragonman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Dragonman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Effector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Effector_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Elemental.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Elemental_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\EmanatingParticles.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyBase_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyCounter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyCounter_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyDive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyDive_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyFly.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyFly_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyRunInto.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyRunInto_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemySpawner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemySpawner_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnvironmentBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnvironmentBase_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnvironmentMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnvironmentMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnvironmentParticlesHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnvironmentParticlesHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Eruptor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Eruptor_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ExotechLarva.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ExotechLarva_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ExotechLarvaBattery.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ExotechLarvaBattery_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ExotechLarvaCharger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ExotechLarvaCharger_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Eyeman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Eyeman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Fireworks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Fireworks_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Fish.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Fisherman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Fisherman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Fishman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Fishman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Flame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Flame_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FogMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FogMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GhostBusterRay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GhostBusterRay_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Gizmo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Global.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Global_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GradientMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GradientMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GravityMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GravityMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GravityRouter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GravityRouter_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Grunt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Grunt_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GruntSka.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GruntSka_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Guffy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Guffy_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HazeMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HazeMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Headman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HealthItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HealthItem_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Huanman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Huanman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HudPicHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HudPicHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Item.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Item_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyItem_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LarvaOffspring.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LarvaOffspring_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Light_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lightning.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Lightning_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mamut.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mamut_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mamutman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mamutman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mantaman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mantaman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Marker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Marker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageItem_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MeteorShower.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MeteorShower_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MirrorMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MirrorMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelDestruction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelDestruction_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelHolder2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelHolder2_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelHolder3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelHolder3_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MovingBrush.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MovingBrush_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MovingBrushMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MovingBrushMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MusicChanger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MusicChanger_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MusicHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MusicHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NavigationMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NavigationMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticlesHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticlesHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Pendulum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Pendulum_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PhotoAlbum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PhotoAlbum_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Pipebomb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Pipebomb_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Player_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerActionMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerActionMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerAnimator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerAnimator_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerView_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerWeapons.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerWeapons_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerWeaponsEffects.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerWeaponsEffects_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PowerUpItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PowerUpItem_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Projectile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Projectile_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PyramidSpaceShip.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PyramidSpaceShip_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PyramidSpaceShipMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PyramidSpaceShipMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Reminder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Reminder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RobotDriving.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RobotDriving_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RobotFlying.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RobotFlying_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RollingStone.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RollingStone_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Santa.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Santa_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scorpman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scorpman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScrollHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScrollHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SeriousBomb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SeriousBomb_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Ship.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Ship_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShipMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShipMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Shooter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Shooter_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SoundHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SoundHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SpawnerProjectile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SpawnerProjectile_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Spinner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Spinner_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StormController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StormController_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Summoner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Summoner_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SummonerMarker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SummonerMarker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Switch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Switch_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TacticsChanger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TacticsChanger_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TacticsHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TacticsHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Teleport.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Teleport_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Terrain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Terrain_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextFXHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextFXHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TimeController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TimeController_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TouchField.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TouchField_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Trigger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Trigger_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Twister.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Twister_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VoiceHolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VoiceHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Walker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Walker_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Watcher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Watcher_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WatchPlayers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WatchPlayers_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Water.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Water_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WeaponItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WeaponItem_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Werebull.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Werebull_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Woman.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Woman_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldBase_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldLink.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldLink_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldSettingsController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldSettingsController_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="NavigationMarker.es">
-      <Filter>Class Files\AI</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Reminder.es">
-      <Filter>Class Files\AI</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Spinner.es">
-      <Filter>Class Files\AI</Filter>
-    </CustomBuild>
-    <CustomBuild Include="TacticsChanger.es">
-      <Filter>Class Files\AI</Filter>
-    </CustomBuild>
-    <CustomBuild Include="TacticsHolder.es">
-      <Filter>Class Files\AI</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Watcher.es">
-      <Filter>Class Files\AI</Filter>
-    </CustomBuild>
-    <CustomBuild Include="WatchPlayers.es">
-      <Filter>Class Files\AI</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Bouncer.es">
-      <Filter>Class Files\Brushes</Filter>
-    </CustomBuild>
-    <CustomBuild Include="DestroyableArchitecture.es">
-      <Filter>Class Files\Brushes</Filter>
-    </CustomBuild>
-    <CustomBuild Include="MovingBrush.es">
-      <Filter>Class Files\Brushes</Filter>
-    </CustomBuild>
-    <CustomBuild Include="MovingBrushMarker.es">
-      <Filter>Class Files\Brushes</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Pendulum.es">
-      <Filter>Class Files\Brushes</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Ship.es">
-      <Filter>Class Files\Brushes</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ShipMarker.es">
-      <Filter>Class Files\Brushes</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Terrain.es">
-      <Filter>Class Files\Brushes</Filter>
-    </CustomBuild>
-    <CustomBuild Include="WorldBase.es">
-      <Filter>Class Files\Brushes</Filter>
-    </CustomBuild>
-    <CustomBuild Include="BasicEffects.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="BlendController.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="BloodSpray.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Debris.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="EffectMarker.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Effector.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Fireworks.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Lightning.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="MeteorShower.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="PhotoAlbum.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="PyramidSpaceShip.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="PyramidSpaceShipMarker.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="RollingStone.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="StormController.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="TimeController.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="WorldSettingsController.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="AirElemental.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Beast.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="BigHead.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Boneman.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="CannonRotating.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="CannonStatic.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ChainsawFreak.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="CrateBus.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="CrateRider.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Demon.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Devil.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="DevilMarker.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Elemental.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="EnemyBase.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="EnemyCounter.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="EnemyDive.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="EnemyFly.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="EnemyMarker.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="EnemyRunInto.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="EnemySpawner.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ExotechLarva.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ExotechLarvaBattery.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ExotechLarvaCharger.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Eyeman.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Fish.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Gizmo.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Grunt.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GruntSka.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Guffy.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Headman.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Santa.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Scorpman.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Shooter.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Summoner.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="SummonerMarker.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Walker.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Werebull.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Woman.es">
-      <Filter>Class Files\Enemies</Filter>
-    </CustomBuild>
-    <CustomBuild Include="EnvironmentBase.es">
-      <Filter>Class Files\Environment</Filter>
-    </CustomBuild>
-    <CustomBuild Include="EnvironmentMarker.es">
-      <Filter>Class Files\Environment</Filter>
-    </CustomBuild>
-    <CustomBuild Include="EnvironmentParticlesHolder.es">
-      <Filter>Class Files\Environment</Filter>
-    </CustomBuild>
-    <CustomBuild Include="AmmoItem.es">
-      <Filter>Class Files\Items</Filter>
-    </CustomBuild>
-    <CustomBuild Include="AmmoPack.es">
-      <Filter>Class Files\Items</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ArmorItem.es">
-      <Filter>Class Files\Items</Filter>
-    </CustomBuild>
-    <CustomBuild Include="HealthItem.es">
-      <Filter>Class Files\Items</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Item.es">
-      <Filter>Class Files\Items</Filter>
-    </CustomBuild>
-    <CustomBuild Include="KeyItem.es">
-      <Filter>Class Files\Items</Filter>
-    </CustomBuild>
-    <CustomBuild Include="MessageItem.es">
-      <Filter>Class Files\Items</Filter>
-    </CustomBuild>
-    <CustomBuild Include="PowerUpItem.es">
-      <Filter>Class Files\Items</Filter>
-    </CustomBuild>
-    <CustomBuild Include="WeaponItem.es">
-      <Filter>Class Files\Items</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Player.es">
-      <Filter>Class Files\Players</Filter>
-    </CustomBuild>
-    <CustomBuild Include="PlayerActionMarker.es">
-      <Filter>Class Files\Players</Filter>
-    </CustomBuild>
-    <CustomBuild Include="PlayerAnimator.es">
-      <Filter>Class Files\Players</Filter>
-    </CustomBuild>
-    <CustomBuild Include="PlayerMarker.es">
-      <Filter>Class Files\Players</Filter>
-    </CustomBuild>
-    <CustomBuild Include="PlayerView.es">
-      <Filter>Class Files\Players</Filter>
-    </CustomBuild>
-    <CustomBuild Include="PlayerWeapons.es">
-      <Filter>Class Files\Players</Filter>
-    </CustomBuild>
-    <CustomBuild Include="PlayerWeaponsEffects.es">
-      <Filter>Class Files\Players</Filter>
-    </CustomBuild>
-    <CustomBuild Include="AnimationChanger.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="AnimationHub.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="AreaMarker.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="BackgroundViewer.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Camera.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="CameraMarker.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Copier.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Counter.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="CreditsHolder.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Damager.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="DebugEntityStatesDisplay.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="DoorController.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Eruptor.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="FogMarker.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GradientMarker.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GravityMarker.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="GravityRouter.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="HazeMarker.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="HudPicHolder.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Light.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Marker.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="MessageHolder.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="MirrorMarker.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ModelDestruction.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ModelHolder.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ModelHolder2.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ModelHolder3.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="MusicChanger.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="MusicHolder.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ParticlesHolder.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ScrollHolder.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="SoundHolder.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Switch.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Teleport.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="TextFXHolder.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="TouchField.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Trigger.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="VoiceHolder.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="WorldLink.es">
-      <Filter>Class Files\Tools</Filter>
-    </CustomBuild>
-    <CustomBuild Include="AirShockwave.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Bullet.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="CannonBall.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="DevilProjectile.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Flame.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="LarvaOffspring.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Projectile.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="SeriousBomb.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="SpawnerProjectile.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Twister.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Water.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Global.es">
-      <Filter>Class Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="LastFileID.txt">
-      <Filter>Class Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="..\..\Flesh\Classes\Acid.ecl">
       <Filter>Links To Package</Filter>
     </CustomBuild>
@@ -2360,5 +946,1174 @@
     <CustomBuild Include="..\..\Flesh\Data\Messages\Enemies\Woman.txt">
       <Filter>Messages</Filter>
     </CustomBuild>
+    <CustomBuild Include="Global.es">
+      <Filter>Class Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Bullet.es">
+      <Filter>Class Files\Weapons</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Flame.es">
+      <Filter>Class Files\Weapons</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Projectile.es">
+      <Filter>Class Files\Weapons</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SeriousBomb.es">
+      <Filter>Class Files\Weapons</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Water.es">
+      <Filter>Class Files\Weapons</Filter>
+    </CustomBuild>
+    <CustomBuild Include="AchievementGranter.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="AnimationChanger.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="AnimationHub.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="AreaMarker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BackgroundViewer.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Camera.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="CameraMarker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Copier.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Counter.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="CreditsHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Damager.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="DateChecker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="DebugEntityStatesDisplay.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="DoorController.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="FogMarker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="GameChecker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="GameController.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="GradientMarker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="GravityMarker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="GravityRouter.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="HazeMarker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="HudPicHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Light.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="LoopingTrigger.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Marker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MessageHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MirrorMarker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ModelDestruction.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ModelHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ModelHolder2.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ModelHolder3.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MusicChanger.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MusicHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="OverlayHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PuzzleChecker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="RandomSoundHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SoundHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Switch.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SwitchChecker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Teleport.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="TextFXHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="TouchField.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Trigger.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="VariableChecker.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="VoiceHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="WorldLink.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Player.es">
+      <Filter>Class Files\Players</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PlayerActionMarker.es">
+      <Filter>Class Files\Players</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PlayerAnimator.es">
+      <Filter>Class Files\Players</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PlayerMarker.es">
+      <Filter>Class Files\Players</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PlayerParenter.es">
+      <Filter>Class Files\Players</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PlayerView.es">
+      <Filter>Class Files\Players</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PlayerWeapons.es">
+      <Filter>Class Files\Players</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PlayerWeaponsEffects.es">
+      <Filter>Class Files\Players</Filter>
+    </CustomBuild>
+    <CustomBuild Include="AmmoItem.es">
+      <Filter>Class Files\Items</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ArmorItem.es">
+      <Filter>Class Files\Items</Filter>
+    </CustomBuild>
+    <CustomBuild Include="HealthItem.es">
+      <Filter>Class Files\Items</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Item.es">
+      <Filter>Class Files\Items</Filter>
+    </CustomBuild>
+    <CustomBuild Include="KeyItem.es">
+      <Filter>Class Files\Items</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MessageItem.es">
+      <Filter>Class Files\Items</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PowerUpItem.es">
+      <Filter>Class Files\Items</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PuzzleItem.es">
+      <Filter>Class Files\Items</Filter>
+    </CustomBuild>
+    <CustomBuild Include="WeaponItem.es">
+      <Filter>Class Files\Items</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnvironmentBase.es">
+      <Filter>Class Files\Environment</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnvironmentMarker.es">
+      <Filter>Class Files\Environment</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnvironmentParticlesHolder.es">
+      <Filter>Class Files\Environment</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Abomination.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BlackStickman.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="DeadFace.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="DoomImp.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnemyBase.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnemyCounter.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnemyDive.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnemyFly.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnemyMarker.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnemyRunInto.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnemySpawner.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnemySquad.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnemyTouchField.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EnemyWildlife.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EvilUni.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Gunman.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Korotuprok.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="RedDeath.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Satan.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Shooter.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Twitcher.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BasicEffects.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BlendController.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BloodSpray.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Debris.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="EffectMarker.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Effector.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ExplosiveBarrel.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Fireworks.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Lightning.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PhotoAlbum.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PyramidSpaceShip.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PyramidSpaceShipMarker.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="RollingStone.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="StormController.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="TimeController.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="WildlifeFood.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="WorldSettingsController.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="NavigationMarker.es">
+      <Filter>Class Files\AI</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Reminder.es">
+      <Filter>Class Files\AI</Filter>
+    </CustomBuild>
+    <CustomBuild Include="TacticsChanger.es">
+      <Filter>Class Files\AI</Filter>
+    </CustomBuild>
+    <CustomBuild Include="TacticsHolder.es">
+      <Filter>Class Files\AI</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Watcher.es">
+      <Filter>Class Files\AI</Filter>
+    </CustomBuild>
+    <CustomBuild Include="WatchPlayers.es">
+      <Filter>Class Files\AI</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Bouncer.es">
+      <Filter>Class Files\Brushes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="LadderBrush.es">
+      <Filter>Class Files\Brushes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MovingBrush.es">
+      <Filter>Class Files\Brushes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="MovingBrushMarker.es">
+      <Filter>Class Files\Brushes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Pendulum.es">
+      <Filter>Class Files\Brushes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="PlayerBarrierBrush.es">
+      <Filter>Class Files\Brushes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Ship.es">
+      <Filter>Class Files\Brushes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ShipMarker.es">
+      <Filter>Class Files\Brushes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Terrain.es">
+      <Filter>Class Files\Brushes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="WorldBase.es">
+      <Filter>Class Files\Brushes</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Kahari.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Common\Common.h">
+      <Filter>Header Files\Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\EmanatingParticles.h">
+      <Filter>Header Files\Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Flags.h">
+      <Filter>Header Files\Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\GameInterface.h">
+      <Filter>Header Files\Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Particles.h">
+      <Filter>Header Files\Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\PathFinding.h">
+      <Filter>Header Files\Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\WeaponPositions.h">
+      <Filter>Header Files\Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="StdH\StdH.h">
+      <Filter>Header Files\Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Abomination.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Abomination_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AmmoItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AmmoItem_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationChanger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationChanger_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationHub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationHub_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AreaMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AreaMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArmorItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArmorItem_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BackgroundViewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BackgroundViewer_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicEffects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicEffects_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlackStickman.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlackStickman_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlendController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlendController_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BloodSpray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BloodSpray_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Bouncer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Bouncer_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Bullet_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Copier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Copier_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Counter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Counter_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CreditsHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CreditsHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Damager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Damager_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DateChecker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DateChecker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Debris.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Debris_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugEntityStatesDisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugEntityStatesDisplay_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DoorController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DoorController_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Effector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Effector_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyBase_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyCounter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyCounter_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyDive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyDive_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyFly.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyFly_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyRunInto.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyRunInto_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemySpawner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemySpawner_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvironmentBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvironmentBase_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvironmentMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvironmentMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvironmentParticlesHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvironmentParticlesHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EvilUni.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EvilUni_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Fireworks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Fireworks_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Flame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Flame_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FogMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FogMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameController_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Global_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GradientMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GradientMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GravityMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GravityMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GravityRouter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GravityRouter_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gunman.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gunman_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HazeMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HazeMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HealthItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HealthItem_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HudPicHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HudPicHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Item_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyItem_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Light_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lightning.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lightning_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Marker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Marker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageItem_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MirrorMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MirrorMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelDestruction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelDestruction_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelHolder2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelHolder2_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelHolder3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelHolder3_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingBrush.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingBrush_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingBrushMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MovingBrushMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicChanger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicChanger_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MusicHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NavigationMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NavigationMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticlesHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticlesHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pendulum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pendulum_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhotoAlbum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhotoAlbum_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Player_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerActionMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerActionMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerAnimator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerAnimator_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerParenter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerParenter_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerView_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerWeapons.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerWeapons_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerWeaponsEffects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerWeaponsEffects_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerUpItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerUpItem_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Projectile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Projectile_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PuzzleItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PuzzleItem_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PyramidSpaceShip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PyramidSpaceShip_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PyramidSpaceShipMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PyramidSpaceShipMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Reminder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Reminder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RollingStone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RollingStone_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScrollHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScrollHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SeriousBomb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SeriousBomb_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ship.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ship_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShipMarker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShipMarker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StormController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StormController_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Switch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Switch_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SwitchChecker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SwitchChecker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TacticsChanger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TacticsChanger_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TacticsHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TacticsHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Teleport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Teleport_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextFXHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextFXHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeController_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TouchField.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TouchField_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Trigger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Trigger_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VoiceHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VoiceHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Watcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Watcher_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WatchPlayers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WatchPlayers_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponItem_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldBase_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldLink.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldLink_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldSettingsController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldSettingsController_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerBarrierBrush.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerBarrierBrush_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PuzzleChecker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PuzzleChecker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyTouchField.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyTouchField_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Satan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Satan_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DoomImp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DoomImp_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomSoundHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomSoundHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoopingTrigger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoopingTrigger_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameChecker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameChecker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Twitcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Twitcher_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeadFace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DeadFace_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LadderBrush.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LadderBrush_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AchievementGranter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AchievementGranter_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExplosiveBarrel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExplosiveBarrel_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemySquad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemySquad_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Korotuprok.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Korotuprok_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RedDeath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RedDeath_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableChecker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableChecker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyWildlife.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyWildlife_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WildlifeFood.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WildlifeFood_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Kahari.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Kahari_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

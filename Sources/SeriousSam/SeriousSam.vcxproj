@@ -20,23 +20,25 @@
     <SccLocalPath>
     </SccLocalPath>
     <ProjectGuid>{F0E01B8A-1C93-85CB-693E-B9CA24A27168}</ProjectGuid>
+    <ProjectName>AbyssalFear</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -59,7 +61,7 @@
     <IntDir>Debug\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir);$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Include;$(ProjectDir);$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\Bin_1.10\Debug;$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\Bin\Debug;$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Lib;$(LibraryPath)</LibraryPath>
     <GenerateManifest>true</GenerateManifest>
     <EmbedManifest>true</EmbedManifest>
   </PropertyGroup>
@@ -68,7 +70,7 @@
     <IntDir>Release\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir);$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Include;$(ProjectDir);$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\Bin_1.10;$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\Bin;$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Lib;$(LibraryPath)</LibraryPath>
     <GenerateManifest>true</GenerateManifest>
     <EmbedManifest>true</EmbedManifest>
   </PropertyGroup>
@@ -89,6 +91,7 @@
       <ObjectFileName>.\Debug\</ObjectFileName>
       <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
       <DisableSpecificWarnings>4996;4333</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>E:\UniMain\Games\Unizone\UniSrc\UZFearSrc\Serious-Engine-SeriousEngine-1.10.21\Serious-Engine-SeriousEngine-1.10.21\Sources\openal\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -111,15 +114,15 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <IgnoreSpecificDefaultLibraries>gamed.lib gamempd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <OutputFile>Debug\SeriousSam.exe</OutputFile>
+      <OutputFile>Debug\AbyssalFear.exe</OutputFile>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <AdditionalLibraryDirectories>$(SolutionDir)Engine\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
-      <Command>copy Debug\$(TargetName).exe $(SolutionDir)..\Bin_1.10\Debug\ &gt;nul </Command>
-      <Message>Copying %(Filename) binaries to \Bin_1.10\Debug</Message>
-      <Outputs>$(SolutionDir)..\Bin_1.10\Debug\$(InputName).exe;%(Outputs)</Outputs>
+      <Command>copy Debug\$(TargetName).exe $(SolutionDir)..\Bin\Debug\ &gt;nul </Command>
+      <Message>Copying %(Filename) binaries to \Bin\Debug</Message>
+      <Outputs>$(SolutionDir)..\Bin\Debug\$(InputName).exe;%(Outputs)</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -142,6 +145,7 @@
       <ObjectFileName>.\Release\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
       <DisableSpecificWarnings>4996;4333</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>E:\UniMain\Games\Unizone\UniSrc\UZFearSrc\Serious-Engine-SeriousEngine-1.10.21\Serious-Engine-SeriousEngine-1.10.21\Sources\openal\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -164,15 +168,15 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <IgnoreSpecificDefaultLibraries>game.lib gamemp.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <OutputFile>Release\SeriousSam.exe</OutputFile>
+      <OutputFile>Release\AbyssalFear.exe</OutputFile>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <AdditionalLibraryDirectories>$(SolutionDir)Engine\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
-      <Command>copy Release\$(TargetName).exe $(SolutionDir)..\Bin_1.10\ &gt;nul </Command>
+      <Command>copy Release\$(TargetName).exe $(SolutionDir)..\Bin\ &gt;nul </Command>
       <Message>Copying %(Filename) binaries to \Bin</Message>
-      <Outputs>$(SolutionDir)..\Bin_1.10\$(InputName).exe;%(Outputs)</Outputs>
+      <Outputs>$(SolutionDir)..\Bin\$(InputName).exe;%(Outputs)</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
@@ -185,6 +189,7 @@
     <ClCompile Include="Credits.cpp" />
     <ClCompile Include="GLSettings.cpp" />
     <ClCompile Include="GUI\Components\MenuGadget.cpp" />
+    <ClCompile Include="GUI\Components\MGAchievementButton.cpp" />
     <ClCompile Include="GUI\Components\MGArrow.cpp" />
     <ClCompile Include="GUI\Components\MGButton.cpp" />
     <ClCompile Include="GUI\Components\MGChangePlayer.cpp" />
@@ -200,6 +205,7 @@
     <ClCompile Include="GUI\Components\MGTrigger.cpp" />
     <ClCompile Include="GUI\Components\MGVarButton.cpp" />
     <ClCompile Include="GUI\Menus\GameMenu.cpp" />
+    <ClCompile Include="GUI\Menus\MAchievements.cpp" />
     <ClCompile Include="GUI\Menus\MAudioOptions.cpp" />
     <ClCompile Include="GUI\Menus\MConfirm.cpp" />
     <ClCompile Include="GUI\Menus\MControls.cpp" />
@@ -235,6 +241,7 @@
     <ClCompile Include="LevelInfo.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClInclude Include="GUI\Components\MenuGadget.h" />
+    <ClInclude Include="GUI\Components\MGAchievementButton.h" />
     <ClInclude Include="GUI\Components\MGArrow.h" />
     <ClInclude Include="GUI\Components\MGButton.h" />
     <ClInclude Include="GUI\Components\MGChangePlayer.h" />
@@ -250,6 +257,7 @@
     <ClInclude Include="GUI\Components\MGTrigger.h" />
     <ClInclude Include="GUI\Components\MGVarButton.h" />
     <ClInclude Include="GUI\Menus\GameMenu.h" />
+    <ClInclude Include="GUI\Menus\MAchievements.h" />
     <ClInclude Include="GUI\Menus\MAudioOptions.h" />
     <ClInclude Include="GUI\Menus\MConfirm.h" />
     <ClInclude Include="GUI\Menus\MControls.h" />
@@ -318,7 +326,6 @@
   <ItemGroup>
     <CustomBuild Include="nocursor.cur" />
     <CustomBuild Include="nodrop.cur" />
-    <CustomBuild Include="res\SeriousSam.ico" />
     <CustomBuild Include="Splash.bmp" />
     <CustomBuild Include="..\..\Flesh\Scripts\Menu\ApplyShadowmaps.ini">
       <FileType>Document</FileType>
@@ -362,6 +369,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SeriousSam.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\SBLogo.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

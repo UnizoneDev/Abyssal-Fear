@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   #pragma once
 #endif
 
+#include "MAchievements.h"
 #include "MAudioOptions.h"
 #include "MConfirm.h"
 #include "MControls.h"
@@ -72,6 +73,7 @@ public:
   CSplitScreenMenu gmSplitScreenMenu;
   CSplitStartMenu gmSplitStartMenu;
   CSelectPlayersMenu gmSelectPlayersMenu;
+  CAchievementsMenu gmAchievementsMenu;
 };
 
 extern CMenuManager *_pGUIM; // TODO: Make singleton!

@@ -1,0 +1,19 @@
+// Animation names
+#define KNIFEVIEWMODEL_ANIM_DEFAULT 0
+#define KNIFEVIEWMODEL_ANIM_IDLE 1
+#define KNIFEVIEWMODEL_ANIM_RAISE 2
+#define KNIFEVIEWMODEL_ANIM_LOWER 3
+#define KNIFEVIEWMODEL_ANIM_ATTACK 4
+#define KNIFEVIEWMODEL_ANIM_STAB 5
+
+// Color names
+
+// Patch names
+
+// Names of collision boxes
+#define KNIFEVIEWMODEL_COLLISION_BOX_PART_NAME 0
+
+// Attaching position names
+#define KNIFEVIEWMODEL_ATTACHMENT_THEKNIFE 0
+
+// Sound names

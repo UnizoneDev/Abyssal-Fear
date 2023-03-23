@@ -25,11 +25,6 @@ extern CTString astrNoYes[] = {
   RADIOTRANS("Yes"),
 };
 
-extern CTString astrComputerInvoke[] = {
-  RADIOTRANS("Use"),
-  RADIOTRANS("Double-click use"),
-};
-
 extern CTString astrWeapon[] = {
   RADIOTRANS("Only if new"),
   RADIOTRANS("Never"),
@@ -66,9 +61,6 @@ extern CTString astrCrosshair[] = {
   "Textures\\Interface\\Crosshairs\\Crosshair2.tex",
   "Textures\\Interface\\Crosshairs\\Crosshair3.tex",
   "Textures\\Interface\\Crosshairs\\Crosshair4.tex",
-  "Textures\\Interface\\Crosshairs\\Crosshair5.tex",
-  "Textures\\Interface\\Crosshairs\\Crosshair6.tex",
-  "Textures\\Interface\\Crosshairs\\Crosshair7.tex",
 };
 
 extern CTString astrMaxPlayersRadioTexts[] = {
@@ -100,12 +92,12 @@ extern CTString astrGameTypeRadioTexts[] = {
 extern INDEX ctGameTypeRadioTexts = 1;
 
 extern CTString astrDifficultyRadioTexts[] = {
-  RADIOTRANS("Tourist"),
-  RADIOTRANS("Easy"),
+  RADIOTRANS("Subhuman"),
+  RADIOTRANS("Weak"),
   RADIOTRANS("Normal"),
-  RADIOTRANS("Hard"),
-  RADIOTRANS("Serious"),
-  RADIOTRANS("Mental"),
+  RADIOTRANS("Strong"),
+  RADIOTRANS("Powerful"),
+  RADIOTRANS("Nightmare"),
 };
 
 extern CTString astrSplitScreenRadioTexts[] = {
@@ -144,6 +136,7 @@ extern CTString astrSoundAPIRadioTexts[] = {
   RADIOTRANS("WaveOut"),
   RADIOTRANS("DirectSound"),
   RADIOTRANS("EAX"),
+  RADIOTRANS("OpenAL"),
 };
 
 ULONG GetSpawnFlagsForGameType(INDEX iGameType)

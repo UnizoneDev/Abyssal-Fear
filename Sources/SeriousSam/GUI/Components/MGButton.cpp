@@ -74,7 +74,7 @@ void CMGButton::Render(CDrawPort *pdp)
 	PIXaabbox2D box = FloatBoxToPixBox(pdp, mg_boxOnScreen);
 	COLOR col = GetCurrentColor();
 	if (mg_bEditing) {
-		col = LCDGetColor(C_GREEN | 0xFF, "editing");
+		col = LCDGetColor(C_BLUE | 0xFF, "editing");
 	}
 
 	COLOR colRectangle = col;
@@ -119,7 +119,7 @@ void CMGButton::Render(CDrawPort *pdp)
 			pixLeft = box.Min()(1) + box.Size()(1)*0.55f;
 			pixWidth = box.Size()(1)*0.45f + 1;
 		}
-		pdp->Fill(pixLeft, pixUp, pixWidth, pixHeight, LCDGetColor(C_dGREEN | 0x40, "edit fill"));
+		pdp->Fill(pixLeft, pixUp, pixWidth, pixHeight, LCDGetColor(C_dBLUE | 0x40, "edit fill"));
 	}
 
 

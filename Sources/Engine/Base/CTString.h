@@ -120,7 +120,7 @@ public:
   INDEX PrintF(const char *strFormat, ...);
   INDEX VPrintF(const char *strFormat, va_list arg);
   // Scan formatted from a string
-  INDEX ScanF(const char *strFormat, ...);
+  INDEX ScanF(const char *strFormat, ...) const;
 
   // variable management functions
   void LoadVar(const CTFileName &fnmFile);

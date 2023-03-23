@@ -63,8 +63,10 @@ public:
   // render effect texture in required mip level
   void Render( INDEX iWantedMipLevel, PIX pixTexWidth, PIX pixTexHeight);
 
-  // get effect type (true if water type effect, false if plasma or fire effect)
+  // get effect type (true if water type effect, false if plasma, fire, or glitch effect)
   BOOL IsWater(void);
+  // get effect type (true if glitch type effect, false if plasma, fire, or water effect)
+  BOOL IsGlitch(void);
   // returns number of second it took to render effect texture
   ENGINE_API DOUBLE GetRenderingTime(void);
 };

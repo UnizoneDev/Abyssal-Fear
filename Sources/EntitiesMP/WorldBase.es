@@ -349,54 +349,60 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
 
   pwo->wo_atbTextureBlendings[3].tb_strName         = "Add";
   pwo->wo_atbTextureBlendings[3].tb_ubBlendingType  = STXF_BLEND_ADD;
+
+  pwo->wo_atbTextureBlendings[4].tb_strName         = "Multiply";
+  pwo->wo_atbTextureBlendings[4].tb_ubBlendingType  = STXF_BLEND_MULTIPLY;
+
+  pwo->wo_atbTextureBlendings[5].tb_strName         = "Invert";
+  pwo->wo_atbTextureBlendings[5].tb_ubBlendingType  = STXF_BLEND_INVERT;
 // pulsating
-  pwo->wo_atbTextureBlendings[4].tb_strName         = "Shade pulsating";
-  pwo->wo_atbTextureBlendings[4].tb_ubBlendingType  = STXF_BLEND_SHADE;
-  pwo->wo_atbTextureBlendings[4].tb_colMultiply     = 0x808080FF;
-
-  pwo->wo_atbTextureBlendings[5].tb_strName         = "Blend pulsating full";
-  pwo->wo_atbTextureBlendings[5].tb_ubBlendingType  = STXF_BLEND_ALPHA;
-  pwo->wo_atbTextureBlendings[5].tb_colMultiply     = C_WHITE|0x80;
-
-  pwo->wo_atbTextureBlendings[6].tb_strName         = "Add pulsating";
-  pwo->wo_atbTextureBlendings[6].tb_ubBlendingType  = STXF_BLEND_ADD;
+  pwo->wo_atbTextureBlendings[6].tb_strName         = "Shade pulsating";
+  pwo->wo_atbTextureBlendings[6].tb_ubBlendingType  = STXF_BLEND_SHADE;
   pwo->wo_atbTextureBlendings[6].tb_colMultiply     = 0x808080FF;
 
-  pwo->wo_atbTextureBlendings[7].tb_strName         = "Blend pulsating half";
+  pwo->wo_atbTextureBlendings[7].tb_strName         = "Blend pulsating full";
   pwo->wo_atbTextureBlendings[7].tb_ubBlendingType  = STXF_BLEND_ALPHA;
-  pwo->wo_atbTextureBlendings[7].tb_colMultiply     = C_WHITE|0xC0;
+  pwo->wo_atbTextureBlendings[7].tb_colMultiply     = C_WHITE|0x80;
 
-  pwo->wo_atbTextureBlendings[8].tb_strName         = "Wsc blend";
-  pwo->wo_atbTextureBlendings[8].tb_ubBlendingType  = STXF_BLEND_ALPHA;
-  pwo->wo_atbTextureBlendings[8].tb_colMultiply     = C_WHITE|0x00;
+  pwo->wo_atbTextureBlendings[8].tb_strName         = "Add pulsating";
+  pwo->wo_atbTextureBlendings[8].tb_ubBlendingType  = STXF_BLEND_ADD;
+  pwo->wo_atbTextureBlendings[8].tb_colMultiply     = 0x808080FF;
 
-  pwo->wo_atbTextureBlendings[9].tb_strName         = "Wsc shade";
-  pwo->wo_atbTextureBlendings[9].tb_ubBlendingType  = STXF_BLEND_SHADE;
-  pwo->wo_atbTextureBlendings[9].tb_colMultiply     = C_WHITE|0xFF;
+  pwo->wo_atbTextureBlendings[9].tb_strName         = "Blend pulsating half";
+  pwo->wo_atbTextureBlendings[9].tb_ubBlendingType  = STXF_BLEND_ALPHA;
+  pwo->wo_atbTextureBlendings[9].tb_colMultiply     = C_WHITE|0xC0;
 
-  pwo->wo_atbTextureBlendings[10].tb_strName         = "Pyramid plate appearing";
+  pwo->wo_atbTextureBlendings[10].tb_strName         = "Wsc blend";
   pwo->wo_atbTextureBlendings[10].tb_ubBlendingType  = STXF_BLEND_ALPHA;
   pwo->wo_atbTextureBlendings[10].tb_colMultiply     = C_WHITE|0x00;
 
-  pwo->wo_atbTextureBlendings[11].tb_strName         = "Activated plate 1";
-  pwo->wo_atbTextureBlendings[11].tb_ubBlendingType  = STXF_BLEND_ADD;
-  pwo->wo_atbTextureBlendings[11].tb_colMultiply     = C_BLACK|CT_OPAQUE;
+  pwo->wo_atbTextureBlendings[11].tb_strName         = "Wsc shade";
+  pwo->wo_atbTextureBlendings[11].tb_ubBlendingType  = STXF_BLEND_SHADE;
+  pwo->wo_atbTextureBlendings[11].tb_colMultiply     = C_WHITE|0xFF;
 
-  pwo->wo_atbTextureBlendings[12].tb_strName         = "Activated plate 2";
-  pwo->wo_atbTextureBlendings[12].tb_ubBlendingType  = STXF_BLEND_ADD;
-  pwo->wo_atbTextureBlendings[12].tb_colMultiply     = C_BLACK|CT_OPAQUE;
+  pwo->wo_atbTextureBlendings[12].tb_strName         = "Pyramid plate appearing";
+  pwo->wo_atbTextureBlendings[12].tb_ubBlendingType  = STXF_BLEND_ALPHA;
+  pwo->wo_atbTextureBlendings[12].tb_colMultiply     = C_WHITE|0x00;
 
-  pwo->wo_atbTextureBlendings[13].tb_strName         = "Activated plate 3";
+  pwo->wo_atbTextureBlendings[13].tb_strName         = "Activated plate 1";
   pwo->wo_atbTextureBlendings[13].tb_ubBlendingType  = STXF_BLEND_ADD;
   pwo->wo_atbTextureBlendings[13].tb_colMultiply     = C_BLACK|CT_OPAQUE;
 
-  pwo->wo_atbTextureBlendings[14].tb_strName         = "Activated plate 4";
+  pwo->wo_atbTextureBlendings[14].tb_strName         = "Activated plate 2";
   pwo->wo_atbTextureBlendings[14].tb_ubBlendingType  = STXF_BLEND_ADD;
   pwo->wo_atbTextureBlendings[14].tb_colMultiply     = C_BLACK|CT_OPAQUE;
 
-  pwo->wo_atbTextureBlendings[15].tb_strName         = "Activate pyramid morph room";
-  pwo->wo_atbTextureBlendings[15].tb_ubBlendingType  = STXF_BLEND_ALPHA;
-  pwo->wo_atbTextureBlendings[15].tb_colMultiply     = C_WHITE|0x00;
+  pwo->wo_atbTextureBlendings[15].tb_strName         = "Activated plate 3";
+  pwo->wo_atbTextureBlendings[15].tb_ubBlendingType  = STXF_BLEND_ADD;
+  pwo->wo_atbTextureBlendings[15].tb_colMultiply     = C_BLACK|CT_OPAQUE;
+
+  pwo->wo_atbTextureBlendings[16].tb_strName         = "Activated plate 4";
+  pwo->wo_atbTextureBlendings[16].tb_ubBlendingType  = STXF_BLEND_ADD;
+  pwo->wo_atbTextureBlendings[16].tb_colMultiply     = C_BLACK|CT_OPAQUE;
+
+  pwo->wo_atbTextureBlendings[17].tb_strName         = "Activate pyramid morph room";
+  pwo->wo_atbTextureBlendings[17].tb_ubBlendingType  = STXF_BLEND_ALPHA;
+  pwo->wo_atbTextureBlendings[17].tb_colMultiply     = C_WHITE|0x00;
 
   pwo->wo_aitIlluminationTypes[0].it_strName = "None";
   pwo->wo_aitIlluminationTypes[1].it_strName = "Vitraj 1";
@@ -560,7 +566,136 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[21].st_fStairsHeight = 1.0f;
   pwo->wo_astSurfaceTypes[21].st_fJumpSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[21].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(22==SURFACE_METAL);
+  pwo->wo_astSurfaceTypes[22].st_strName = "Metal";
+  pwo->wo_astSurfaceTypes[22].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[22].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[22].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[22].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(23==SURFACE_METAL_NOIMPACT);
+  pwo->wo_astSurfaceTypes[23].st_strName = "Metal no impact";
+  pwo->wo_astSurfaceTypes[23].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[23].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[23].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[23].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[23].st_ulFlags = STF_NOIMPACT;
   
+  ASSERT(24==SURFACE_CARPET);
+  pwo->wo_astSurfaceTypes[24].st_strName = "Carpet";
+  pwo->wo_astSurfaceTypes[24].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[24].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[24].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[24].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(25==SURFACE_CARPET_NOIMPACT);
+  pwo->wo_astSurfaceTypes[25].st_strName = "Carpet no impact";
+  pwo->wo_astSurfaceTypes[25].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[25].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[25].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[25].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[25].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(26==SURFACE_BLOOD);
+  pwo->wo_astSurfaceTypes[26].st_strName = "Blood";
+  pwo->wo_astSurfaceTypes[26].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[26].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[26].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[26].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(27==SURFACE_GLASS);
+  pwo->wo_astSurfaceTypes[27].st_strName = "Glass";
+  pwo->wo_astSurfaceTypes[27].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[27].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[27].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[27].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(28==SURFACE_GLASS_NOIMPACT);
+  pwo->wo_astSurfaceTypes[28].st_strName = "Glass no impact";
+  pwo->wo_astSurfaceTypes[28].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[28].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[28].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[28].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[28].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(29==SURFACE_WOOD_NO_IMPACT);
+  pwo->wo_astSurfaceTypes[29].st_strName = "Wood no impact";
+  pwo->wo_astSurfaceTypes[29].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[29].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[29].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[29].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[29].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(30==SURFACE_SNOW_NO_IMPACT);
+  pwo->wo_astSurfaceTypes[30].st_strName = "Snow no impact";
+  pwo->wo_astSurfaceTypes[30].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[30].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[30].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[30].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[30].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(31==SURFACE_SAND_NO_IMPACT);
+  pwo->wo_astSurfaceTypes[31].st_strName = "Sand no impact";
+  pwo->wo_astSurfaceTypes[31].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[31].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[31].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[31].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[31].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(32==SURFACE_RED_SAND_NO_IMPACT);
+  pwo->wo_astSurfaceTypes[32].st_strName = "Red sand no impact";
+  pwo->wo_astSurfaceTypes[32].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[32].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[32].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[32].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[32].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(33==SURFACE_DIRT);
+  pwo->wo_astSurfaceTypes[33].st_strName = "Dirt";
+  pwo->wo_astSurfaceTypes[33].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[33].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[33].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[33].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(34==SURFACE_DIRT_NOIMPACT);
+  pwo->wo_astSurfaceTypes[34].st_strName = "Dirt no impact";
+  pwo->wo_astSurfaceTypes[34].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[34].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[34].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[34].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[34].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(35==SURFACE_TILE);
+  pwo->wo_astSurfaceTypes[35].st_strName = "Tile";
+  pwo->wo_astSurfaceTypes[35].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[35].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[35].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[35].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(36==SURFACE_TILE_NOIMPACT);
+  pwo->wo_astSurfaceTypes[36].st_strName = "Tile no impact";
+  pwo->wo_astSurfaceTypes[36].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[36].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[36].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[36].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[36].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(37==SURFACE_CHAINLINK);
+  pwo->wo_astSurfaceTypes[37].st_strName = "Chainlink";
+  pwo->wo_astSurfaceTypes[37].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[37].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[37].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[37].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(38==SURFACE_CHAINLINK_NOIMPACT);
+  pwo->wo_astSurfaceTypes[38].st_strName = "Chainlink no impact";
+  pwo->wo_astSurfaceTypes[38].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[38].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[38].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[38].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[38].st_ulFlags = STF_NOIMPACT;
+
   // contents
   pwo->wo_actContentTypes[0].ct_strName = "Air";
   pwo->wo_actContentTypes[0].ct_fDensity = 0.0f;
@@ -791,10 +926,10 @@ void CWorldBase_OnWorldRender(CWorld *pwo)
   pwo->wo_attTextureTransformations[35].tt_mdTransformation.FromUI(mdui);
 // blendings
   FLOAT f = Abs(Sin(tmNow*AngleDeg(180.0f)));
-  pwo->wo_atbTextureBlendings[4].tb_colMultiply = RGBAToColor(f*255, f*255, f*255, 255);
-  pwo->wo_atbTextureBlendings[5].tb_colMultiply = C_WHITE|UBYTE(255*f);
   pwo->wo_atbTextureBlendings[6].tb_colMultiply = RGBAToColor(f*255, f*255, f*255, 255);
-  pwo->wo_atbTextureBlendings[7].tb_colMultiply = C_WHITE|UBYTE(255*Lerp(0.5f, 1.0f, f));
+  pwo->wo_atbTextureBlendings[7].tb_colMultiply = C_WHITE|UBYTE(255*f);
+  pwo->wo_atbTextureBlendings[8].tb_colMultiply = RGBAToColor(f*255, f*255, f*255, 255);
+  pwo->wo_atbTextureBlendings[9].tb_colMultiply = C_WHITE|UBYTE(255*Lerp(0.5f, 1.0f, f));
 
   pwo->wo_attTextureTransformations[11].tt_mdTransformation.md_fUOffset=Sin( tmNow*22)/30;
   pwo->wo_attTextureTransformations[11].tt_mdTransformation.md_fVOffset=Cos( tmNow*26)/35;
@@ -827,7 +962,7 @@ void CWorldBase_OnWorldRender(CWorld *pwo)
   {
     FLOAT fStormFactor = pwsc->GetStormFactor();
     COLOR colBlend = LerpColor( pwsc->m_colBlendStart, pwsc->m_colBlendStop, fStormFactor);
-    pwo->wo_atbTextureBlendings[8].tb_colMultiply = colBlend;
+    pwo->wo_atbTextureBlendings[10].tb_colMultiply = colBlend;
 
     // set world polygon shading multiplier
     COLOR colShade = LerpColor( pwsc->m_colShadeStart, pwsc->m_colShadeStop, fStormFactor);
@@ -844,7 +979,7 @@ void CWorldBase_OnWorldRender(CWorld *pwo)
       colLightning = MulColors( colLightning, colFactor);
       colShade = AddColors( colShade, colLightning);
     }
-    pwo->wo_atbTextureBlendings[9].tb_colMultiply = colShade;
+    pwo->wo_atbTextureBlendings[11].tb_colMultiply = colShade;
   }
 
   // ***** Pyramid blending effects
@@ -852,13 +987,13 @@ void CWorldBase_OnWorldRender(CWorld *pwo)
   if( pwsc != NULL)
   {
     // set alpha values for switch-controlled pyramid plate activating
-    SetPyramidPlateActivateAlpha(pwo, 10, pwsc->m_tmPyramidPlatesStart, 1e6, FALSE);
-    SetPyramidPlateActivateAlpha(pwo, 11, pwsc->m_tmActivatedPlate1, pwsc->m_tmDeactivatedPlate1, TRUE);
-    SetPyramidPlateActivateAlpha(pwo, 12, pwsc->m_tmActivatedPlate2, pwsc->m_tmDeactivatedPlate2, TRUE);
-    SetPyramidPlateActivateAlpha(pwo, 13, pwsc->m_tmActivatedPlate3, pwsc->m_tmDeactivatedPlate3, TRUE);
-    SetPyramidPlateActivateAlpha(pwo, 14, pwsc->m_tmActivatedPlate4, pwsc->m_tmDeactivatedPlate4, TRUE);
+    SetPyramidPlateActivateAlpha(pwo, 12, pwsc->m_tmPyramidPlatesStart, 1e6, FALSE);
+    SetPyramidPlateActivateAlpha(pwo, 13, pwsc->m_tmActivatedPlate1, pwsc->m_tmDeactivatedPlate1, TRUE);
+    SetPyramidPlateActivateAlpha(pwo, 14, pwsc->m_tmActivatedPlate2, pwsc->m_tmDeactivatedPlate2, TRUE);
+    SetPyramidPlateActivateAlpha(pwo, 15, pwsc->m_tmActivatedPlate3, pwsc->m_tmDeactivatedPlate3, TRUE);
+    SetPyramidPlateActivateAlpha(pwo, 16, pwsc->m_tmActivatedPlate4, pwsc->m_tmDeactivatedPlate4, TRUE);
     // pyramid morph room
-    SetPyramidMorphRoomAlpha(pwo, 15, pwsc->m_tmPyramidMorphRoomActivated);
+    SetPyramidMorphRoomAlpha(pwo, 17, pwsc->m_tmPyramidMorphRoomActivated);
   }
 };
 

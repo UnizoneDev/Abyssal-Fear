@@ -15,6 +15,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "StdH.h"
 #include <Shaders/Common.h>
+#include <Engine/Base/ByteSwap.h>
 
 void DoSpecularLayer(INDEX iSpeculaTexture,INDEX iSpecularColor)
 {
@@ -22,8 +23,8 @@ void DoSpecularLayer(INDEX iSpeculaTexture,INDEX iSpecularColor)
   GFXNormal *paNormals = shaGetNormalArray();
   INDEX ctVertices = shaGetVertexCount();
   FLOAT3D &vLightDir = -shaGetLightDirection().Normalize();
-  COLOR colLight = ByteSwap(shaGetLightColor());
-  COLOR colAmbient = ByteSwap(shaGetAmbientColor());
+  COLOR colLight = ByteSwap32(shaGetLightColor());
+  COLOR colAmbient = ByteSwap32(shaGetAmbientColor());
   GFXTexCoord *ptcUVMap = shaGetNewTexCoordArray();
   Matrix12 &mObjToView = *shaGetObjToViewMatrix();
   shaCalculateLightForSpecular();
@@ -143,7 +144,7 @@ void DoReflectionLayer(INDEX iReflectionTexture,INDEX iReflectionColor,BOOL bFul
   
   // get model reflection color
   GFXColor colSrfRefl;
-  colSrfRefl.abgr = ByteSwap(shaGetColor(iReflectionColor));
+  colSrfRefl.abgr = ByteSwap32(shaGetColor(iReflectionColor));
   colSrfRefl.AttenuateA((shaGetModelColor()&CT_AMASK)>>CT_ASHIFT);
 
   if(bFullBright) {

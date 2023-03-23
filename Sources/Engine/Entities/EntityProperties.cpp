@@ -545,6 +545,36 @@ void CEntity::WriteProperties_t(CTStream &ostrm) // throw char *
         // write CPlacement3D
         ostrm.Write_t(&PROPERTY(epProperty.ep_slOffset, CPlacement3D), sizeof(CPlacement3D));
         break;
+        // if it is DOUBLE
+      case CEntityProperty::EPT_DOUBLE:
+          // write DOUBLE
+          ostrm << PROPERTY(epProperty.ep_slOffset, DOUBLE);
+          break;
+      // if it is INDEX64
+      case CEntityProperty::EPT_INDEX64:
+          // write INDEX64
+          ostrm << PROPERTY(epProperty.ep_slOffset, INDEX64);
+          break;
+          // if it is DOUBLE3D
+      case CEntityProperty::EPT_DOUBLE3D:
+          // write DOUBLE3D
+          ostrm.Write_t(&PROPERTY(epProperty.ep_slOffset, DOUBLE3D), sizeof(DOUBLE3D));
+          break;
+          // if it is DOUBLEplane3D
+      case CEntityProperty::EPT_DOUBLEplane3D:
+          // write DOUBLEplane3D
+          ostrm.Write_t(&PROPERTY(epProperty.ep_slOffset, DOUBLEplane3D), sizeof(DOUBLEplane3D));
+          break;
+          // if it is DOUBLEMATRIX3D
+      case CEntityProperty::EPT_DOUBLEMATRIX3D:
+          // write DOUBLEMATRIX3D
+          ostrm.Write_t(&PROPERTY(epProperty.ep_slOffset, DOUBLEmatrix3D), sizeof(DOUBLEmatrix3D));
+          break;
+          // if it is DOUBLEQUAT3D
+      case CEntityProperty::EPT_DOUBLEQUAT3D:
+          // write DOUBLEQUAT3D
+          ostrm.Write_t(&PROPERTY(epProperty.ep_slOffset, DOUBLEquat3D), sizeof(DOUBLEquat3D));
+          break;
       default:
         ASSERTALWAYS("Unknown property type");
       }

@@ -22,13 +22,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 void CMainMenu::Initialize_t(void)
 {
-  // intialize main menu
-  /*
-  gm_mgTitle.mg_strText = "SERIOUS SAM - BETA";  // nothing to see here, kazuya
-  gm_mgTitle.mg_boxOnScreen = BoxTitle();
-  gm_lhGadgets.AddTail( gm_mgTitle.mg_lnNode);
-  */
-
   extern CTString sam_strVersion;
   gm_mgVersionLabel.mg_strText = sam_strVersion;
   gm_mgVersionLabel.mg_boxOnScreen = BoxVersion();
@@ -47,10 +40,10 @@ void CMainMenu::Initialize_t(void)
   gm_mgModLabel.mg_bLabel = TRUE;
   gm_lhGadgets.AddTail(gm_mgModLabel.mg_lnNode);
 
-  gm_mgSingle.mg_strText = TRANS("SINGLE PLAYER");
+  gm_mgSingle.mg_strText = TRANS("DEMONSTRATION");
   gm_mgSingle.mg_bfsFontSize = BFS_LARGE;
   gm_mgSingle.mg_boxOnScreen = BoxBigRow(0.0f);
-  gm_mgSingle.mg_strTip = TRANS("single player game menus");
+  gm_mgSingle.mg_strTip = TRANS("singleplayer");
   gm_lhGadgets.AddTail(gm_mgSingle.mg_lnNode);
   gm_mgSingle.mg_pmgUp = &gm_mgQuit;
   gm_mgSingle.mg_pmgDown = &gm_mgNetwork;
@@ -59,7 +52,7 @@ void CMainMenu::Initialize_t(void)
   gm_mgNetwork.mg_strText = TRANS("NETWORK");
   gm_mgNetwork.mg_bfsFontSize = BFS_LARGE;
   gm_mgNetwork.mg_boxOnScreen = BoxBigRow(1.0f);
-  gm_mgNetwork.mg_strTip = TRANS("LAN/iNet multiplayer menus");
+  gm_mgNetwork.mg_strTip = TRANS("multiplayer");
   gm_lhGadgets.AddTail(gm_mgNetwork.mg_lnNode);
   gm_mgNetwork.mg_pmgUp = &gm_mgSingle;
   gm_mgNetwork.mg_pmgDown = &gm_mgSplitScreen;
@@ -68,16 +61,16 @@ void CMainMenu::Initialize_t(void)
   gm_mgSplitScreen.mg_strText = TRANS("SPLIT SCREEN");
   gm_mgSplitScreen.mg_bfsFontSize = BFS_LARGE;
   gm_mgSplitScreen.mg_boxOnScreen = BoxBigRow(2.0f);
-  gm_mgSplitScreen.mg_strTip = TRANS("play with multiple players on one computer");
+  gm_mgSplitScreen.mg_strTip = TRANS("local multiplayer");
   gm_lhGadgets.AddTail(gm_mgSplitScreen.mg_lnNode);
   gm_mgSplitScreen.mg_pmgUp = &gm_mgNetwork;
   gm_mgSplitScreen.mg_pmgDown = &gm_mgDemo;
   gm_mgSplitScreen.mg_pActivatedFunction = NULL;
 
-  gm_mgDemo.mg_strText = TRANS("DEMO");
+  gm_mgDemo.mg_strText = TRANS("CONTROLLED DEMONSTRATION");
   gm_mgDemo.mg_bfsFontSize = BFS_LARGE;
   gm_mgDemo.mg_boxOnScreen = BoxBigRow(3.0f);
-  gm_mgDemo.mg_strTip = TRANS("play a game demo");
+  gm_mgDemo.mg_strTip = TRANS("demo");
   gm_lhGadgets.AddTail(gm_mgDemo.mg_lnNode);
   gm_mgDemo.mg_pmgUp = &gm_mgSplitScreen;
   gm_mgDemo.mg_pmgDown = &gm_mgMods;
@@ -98,21 +91,30 @@ void CMainMenu::Initialize_t(void)
   gm_mgHighScore.mg_strTip = TRANS("view list of top ten best scores");
   gm_lhGadgets.AddTail(gm_mgHighScore.mg_lnNode);
   gm_mgHighScore.mg_pmgUp = &gm_mgMods;
-  gm_mgHighScore.mg_pmgDown = &gm_mgOptions;
+  gm_mgHighScore.mg_pmgDown = &gm_mgAchievements;
   gm_mgHighScore.mg_pActivatedFunction = NULL;
 
-  gm_mgOptions.mg_strText = TRANS("OPTIONS");
+  gm_mgAchievements.mg_strText = TRANS("ACHIEVEMENTS");
+  gm_mgAchievements.mg_bfsFontSize = BFS_LARGE;
+  gm_mgAchievements.mg_boxOnScreen = BoxBigRow(6.0f);
+  gm_mgAchievements.mg_strTip = TRANS("view list of achievements");
+  gm_lhGadgets.AddTail(gm_mgAchievements.mg_lnNode);
+  gm_mgAchievements.mg_pmgUp = &gm_mgHighScore;
+  gm_mgAchievements.mg_pmgDown = &gm_mgOptions;
+  gm_mgAchievements.mg_pActivatedFunction = NULL;
+
+  gm_mgOptions.mg_strText = TRANS("SETTINGS");
   gm_mgOptions.mg_bfsFontSize = BFS_LARGE;
-  gm_mgOptions.mg_boxOnScreen = BoxBigRow(6.0f);
+  gm_mgOptions.mg_boxOnScreen = BoxBigRow(7.0f);
   gm_mgOptions.mg_strTip = TRANS("adjust video, audio and input options");
   gm_lhGadgets.AddTail(gm_mgOptions.mg_lnNode);
-  gm_mgOptions.mg_pmgUp = &gm_mgHighScore;
+  gm_mgOptions.mg_pmgUp = &gm_mgAchievements;
   gm_mgOptions.mg_pmgDown = &gm_mgQuit;
   gm_mgOptions.mg_pActivatedFunction = NULL;
 
   gm_mgQuit.mg_strText = TRANS("QUIT");
   gm_mgQuit.mg_bfsFontSize = BFS_LARGE;
-  gm_mgQuit.mg_boxOnScreen = BoxBigRow(7.0f);
+  gm_mgQuit.mg_boxOnScreen = BoxBigRow(8.0f);
   gm_mgQuit.mg_strTip = TRANS("exit game immediately");
   gm_lhGadgets.AddTail(gm_mgQuit.mg_lnNode);
   gm_mgQuit.mg_pmgUp = &gm_mgOptions;

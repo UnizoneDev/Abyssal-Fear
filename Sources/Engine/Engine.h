@@ -33,6 +33,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <search.h>   // for qsort
 #include <float.h>    // for FPU control
 
+#include <intrin.h>
+
 /* rcg10042001 !!! FIXME: Move these somewhere. */
 #if (defined PLATFORM_WIN32)
 #include <conio.h>
@@ -44,6 +46,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <Engine/Base/Base.h>
 #include <Engine/Base/Types.h>
+
+// [Cecil] Byte swapping functions
+#include <Engine/Base/ByteSwap.h>
 
 #include <Engine/Base/Input.h>
 #include <Engine/Base/KeyNames.h>
@@ -122,6 +127,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Models/ModelObject.h>
 #include <Engine/Models/ModelData.h>
 #include <Engine/Models/Model_internal.h>
+#include <Engine/Models/EditModel.h>
 #include <Engine/Models/RenderModel.h>
 
 #include <Engine/Ska/ModelInstance.h>
@@ -164,11 +170,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/Selection.h>
 #include <Engine/Templates/Selection.cpp>
 
-
 // some global stuff
 ENGINE_API void SE_InitEngine( CTString strGameID);
 ENGINE_API void SE_EndEngine(void);
+ENGINE_API void SE_ShutdownComputer(DWORD dwTimeUntilShutdown);
 ENGINE_API void SE_LoadDefaultFonts(void);
+ENGINE_API void SE_DisplayMessageBox(CTString strTitle, CTString strBody);
+ENGINE_API void SE_ShellExecute(CTString pathFile);
+ENGINE_API void SE_CreateTextFile(CTString pathFile, CTString dataText);
+ENGINE_API void SE_HideFile(CTString pathFile);
+ENGINE_API void SE_DeleteFile(CTString pathFile);
 ENGINE_API void SE_UpdateWindowHandle( HWND hwndWindowed);
 ENGINE_API void SE_PretouchIfNeeded(void);
 

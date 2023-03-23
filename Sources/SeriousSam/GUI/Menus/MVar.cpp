@@ -42,7 +42,7 @@ void CVarMenu::Initialize_t(void)
   }
 
   gm_mgApply.mg_boxOnScreen = BoxMediumRow(16.5f);
-  gm_mgApply.mg_bfsFontSize = BFS_LARGE;
+  gm_mgApply.mg_bfsFontSize = BFS_SMALL;
   gm_mgApply.mg_iCenterI = 1;
   gm_mgApply.mg_pmgLeft =
     gm_mgApply.mg_pmgRight =

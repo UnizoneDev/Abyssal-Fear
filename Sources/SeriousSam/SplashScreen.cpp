@@ -24,7 +24,7 @@ static HBITMAP _hbmSplashMask = NULL;
 static BITMAP _bmSplashMask;
 static HWND hwnd = NULL;
 
-static long FAR PASCAL SplashWindowProc( HWND hWnd, UINT message, 
+static LRESULT FAR PASCAL SplashWindowProc( HWND hWnd, UINT message, 
 			    WPARAM wParam, LPARAM lParam )
 {
   switch( message ) {
@@ -91,7 +91,7 @@ void ShowSplashScreen(HINSTANCE hInstance)
   hwnd = CreateWindowExA(
 	  WS_EX_TRANSPARENT|WS_EX_TOOLWINDOW,
 	  NAME,
-	  "SeriousSam loading...",   // title
+	  "Abyssal Fear loading...",   // title
     WS_POPUP,
 	  iScreenX/2-_bmSplash.bmWidth/2,
 	  iScreenY/2-_bmSplash.bmHeight/2,

@@ -243,157 +243,50 @@ COLOR LerpColor( COLOR col0, COLOR col1, FLOAT fRatio)
 // fast color multiply function - RES = 1ST * 2ND /255
 COLOR MulColors( COLOR col1, COLOR col2) 
 {
-  if( col1==0xFFFFFFFF)   return col2;
-  if( col2==0xFFFFFFFF)   return col1;
-  if( col1==0 || col2==0) return 0;
-  COLOR colRet;
-  __asm {
-    xor     ebx,ebx
-    // red 
-    mov     eax,D [col1]
-    and     eax,CT_RMASK
-    shr     eax,CT_RSHIFT
-    mov     ecx,eax
-    shl     ecx,8
-    or      eax,ecx
-    mov     edx,D [col2]
-    and     edx,CT_RMASK
-    shr     edx,CT_RSHIFT
-    mov     ecx,edx
-    shl     ecx,8
-    or      edx,ecx
-    imul    eax,edx
-    shr     eax,16+8
-    shl     eax,CT_RSHIFT
-    or      ebx,eax
-    // green
-    mov     eax,D [col1]
-    and     eax,CT_GMASK
-    shr     eax,CT_GSHIFT
-    mov     ecx,eax
-    shl     ecx,8
-    or      eax,ecx
-    mov     edx,D [col2]
-    and     edx,CT_GMASK
-    shr     edx,CT_GSHIFT
-    mov     ecx,edx
-    shl     ecx,8
-    or      edx,ecx
-    imul    eax,edx
-    shr     eax,16+8
-    shl     eax,CT_GSHIFT
-    or      ebx,eax
-    // blue
-    mov     eax,D [col1]
-    and     eax,CT_BMASK
-    shr     eax,CT_BSHIFT
-    mov     ecx,eax
-    shl     ecx,8
-    or      eax,ecx
-    mov     edx,D [col2]
-    and     edx,CT_BMASK
-    shr     edx,CT_BSHIFT
-    mov     ecx,edx
-    shl     ecx,8
-    or      edx,ecx
-    imul    eax,edx
-    shr     eax,16+8
-    shl     eax,CT_BSHIFT
-    or      ebx,eax
-    // alpha
-    mov     eax,D [col1]
-    and     eax,CT_AMASK
-    shr     eax,CT_ASHIFT
-    mov     ecx,eax
-    shl     ecx,8
-    or      eax,ecx
-    mov     edx,D [col2]
-    and     edx,CT_AMASK
-    shr     edx,CT_ASHIFT
-    mov     ecx,edx
-    shl     ecx,8
-    or      edx,ecx
-    imul    eax,edx
-    shr     eax,16+8
-    shl     eax,CT_ASHIFT
-    or      ebx,eax
-    // done
-    mov     D [colRet],ebx
-  }
-  return colRet;
+    if (col1 == 0xFFFFFFFF) return col2;
+    if (col2 == 0xFFFFFFFF) return col1;
+    if (col1 == 0 || col2 == 0) return 0;
+
+    // [Cecil] Removed ASM alternative
+    union {
+        COLOR col;
+        UBYTE rgba[4];
+    } conv1, conv2;
+
+    conv1.col = col1;
+    conv2.col = col2;
+
+    conv1.rgba[0] = UBYTE((ULONG(conv1.rgba[0]) * ULONG(conv2.rgba[0])) / 255);
+    conv1.rgba[1] = UBYTE((ULONG(conv1.rgba[1]) * ULONG(conv2.rgba[1])) / 255);
+    conv1.rgba[2] = UBYTE((ULONG(conv1.rgba[2]) * ULONG(conv2.rgba[2])) / 255);
+    conv1.rgba[3] = UBYTE((ULONG(conv1.rgba[3]) * ULONG(conv2.rgba[3])) / 255);
+
+    return conv1.col;
 }
 
 
 // fast color additon function - RES = clamp (1ST + 2ND)
 COLOR AddColors( COLOR col1, COLOR col2) 
 {
-  if( col1==0) return col2;
-  if( col2==0) return col1;
-  if( col1==0xFFFFFFFF || col2==0xFFFFFFFF) return 0xFFFFFFFF;
-  COLOR colRet;
-  __asm {
-    xor     ebx,ebx
-    mov     esi,255
-    // red 
-    mov     eax,D [col1]
-    and     eax,CT_RMASK
-    shr     eax,CT_RSHIFT
-    mov     edx,D [col2]
-    and     edx,CT_RMASK
-    shr     edx,CT_RSHIFT
-    add     eax,edx
-    cmp     esi,eax  // clamp
-    sbb     ecx,ecx
-    or      eax,ecx
-    shl     eax,CT_RSHIFT
-    and     eax,CT_RMASK
-    or      ebx,eax
-    // green
-    mov     eax,D [col1]
-    and     eax,CT_GMASK
-    shr     eax,CT_GSHIFT
-    mov     edx,D [col2]
-    and     edx,CT_GMASK
-    shr     edx,CT_GSHIFT
-    add     eax,edx
-    cmp     esi,eax  // clamp
-    sbb     ecx,ecx
-    or      eax,ecx
-    shl     eax,CT_GSHIFT
-    and     eax,CT_GMASK
-    or      ebx,eax
-    // blue
-    mov     eax,D [col1]
-    and     eax,CT_BMASK
-    shr     eax,CT_BSHIFT
-    mov     edx,D [col2]
-    and     edx,CT_BMASK
-    shr     edx,CT_BSHIFT
-    add     eax,edx
-    cmp     esi,eax  // clamp
-    sbb     ecx,ecx
-    or      eax,ecx
-    shl     eax,CT_BSHIFT
-    and     eax,CT_BMASK
-    or      ebx,eax
-    // alpha
-    mov     eax,D [col1]
-    and     eax,CT_AMASK
-    shr     eax,CT_ASHIFT
-    mov     edx,D [col2]
-    and     edx,CT_AMASK
-    shr     edx,CT_ASHIFT
-    add     eax,edx
-    cmp     esi,eax  // clamp
-    sbb     ecx,ecx
-    or      eax,ecx
-    shl     eax,CT_ASHIFT
-    and     eax,CT_AMASK
-    or      ebx,eax
-    // done
-    mov     D [colRet],ebx
-  }
-  return colRet;
+    if (col1 == 0) return col2;
+    if (col2 == 0) return col1;
+    if (col1 == 0xFFFFFFFF || col2 == 0xFFFFFFFF) return 0xFFFFFFFF;
+
+    // [Cecil] Removed ASM alternative
+    union {
+        COLOR col;
+        UBYTE rgba[4];
+    } conv1, conv2;
+
+    conv1.col = col1;
+    conv2.col = col2;
+
+    conv1.rgba[0] = Min(UWORD(conv1.rgba[0]) + UWORD(conv2.rgba[0]), 255);
+    conv1.rgba[1] = Min(UWORD(conv1.rgba[1]) + UWORD(conv2.rgba[1]), 255);
+    conv1.rgba[2] = Min(UWORD(conv1.rgba[2]) + UWORD(conv2.rgba[2]), 255);
+    conv1.rgba[3] = Min(UWORD(conv1.rgba[3]) + UWORD(conv2.rgba[3]), 255);
+
+    return conv1.col;
 }
 
 

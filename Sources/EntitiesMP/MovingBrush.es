@@ -34,6 +34,27 @@ enum BlockAction {
   2 BA_SKIPMARKER   "Skip marker",  // skip moving to next marker
 };
 
+enum BrushDebrisType {
+  0 BDT_STONE1       "Stone 1",
+  1 BDT_STONE2       "Stone 2",
+  2 BDT_STONE3       "Stone 3",
+  3 BDT_WOOD1        "Wood 1",
+  4 BDT_WOOD2        "Wood 2",
+  5 BDT_WOOD3        "Wood 3",
+  6 BDT_WOOD4        "Wood 4",
+  7 BDT_METAL1       "Metal 1",
+  8 BDT_METAL2       "Metal 2",
+  9 BDT_METAL3       "Metal 3",
+ 10 BDT_METAL4       "Metal 4",
+ 11 BDT_GLASS1       "White Glass",
+ 12 BDT_GLASS2       "Turquoise Glass",
+ 13 BDT_CRETE1       "Concrete 1",
+ 14 BDT_CRETE2       "Concrete 2",
+ 15 BDT_CRETE3       "Concrete 3",
+ 16 BDT_CRETE4       "Concrete 4",
+ 17 BDT_CRETE5       "Concrete 5",
+};
+
 enum TouchOrDamageEvent {
   0 TDE_TOUCHONLY   "Touch Only", 
   1 TDE_DAMAGEONLY  "Damage Only", 
@@ -127,7 +148,6 @@ properties:
  64 CEntityPointer m_penMirror4 "Mirror 4",
 
  65 FLOAT m_fHealth             "Health" 'H' = -1.0f,
- 66 BOOL m_bBlowupByBull        "Blowup by Bull" = FALSE,   // special feature for bull crushing doors
  // send event on touch
  67 enum EventEType m_eetBlowupEvent "Blowup Event - Type" = EET_IGNORE,  // type of event to send
  68 CEntityPointer m_penBlowupEvent  "Blowup Event - Target" COLOR(C_BLACK|0xFF),            // target to send event to
@@ -143,13 +163,41 @@ properties:
  81 flags ClasificationBits m_cbClassificationBits "Clasification bits" 'C' = 0,
  82 flags VisibilityBits m_vbVisibilityBits "Visibility bits" 'V' = 0,
 
+ 100 enum BrushDebrisType m_bdtDebrisType "Debris Type" = BDT_STONE1,
+ 101 BOOL m_bBlowupByAnything "Blowup by anything" = FALSE,
+
 
 components:
 
-// ************** STONE PARTS **************
- 14 model     MODEL_STONE        "Models\\Effects\\Debris\\Stone\\Stone.mdl",
- 15 texture   TEXTURE_STONE      "Models\\Effects\\Debris\\Stone\\Stone.tex",
- 16 class     CLASS_DEBRIS       "Classes\\Debris.ecl",
+// ************** DEBRIS PARTS **************
+ 14 model     MODEL_STONE        "Models\\Effects\\Debris\\StoneDebris.mdl",
+ 15 model     MODEL_WOOD         "Models\\Effects\\Debris\\WoodDebris.mdl",
+ 16 model     MODEL_METAL        "Models\\Effects\\Debris\\MetalDebris.mdl",
+ 17 model     MODEL_GLASS        "Models\\Effects\\Debris\\GlassDebris.mdl",
+
+ 20 texture   TEXTURE_STONE1     "Models\\Effects\\Debris\\StoneDebris.tex",
+ 21 texture   TEXTURE_STONE2     "Models\\Effects\\Debris\\StoneDebris2.tex",
+ 22 texture   TEXTURE_STONE3     "Models\\Effects\\Debris\\StoneDebris3.tex",
+ 23 texture   TEXTURE_CRETE1     "Models\\Effects\\Debris\\CreteDebris.tex",
+ 24 texture   TEXTURE_CRETE2     "Models\\Effects\\Debris\\CreteDebris2.tex",
+ 25 texture   TEXTURE_CRETE3     "Models\\Effects\\Debris\\CreteDebris3.tex",
+ 26 texture   TEXTURE_CRETE4     "Models\\Effects\\Debris\\CreteDebris4.tex",
+ 27 texture   TEXTURE_CRETE5     "Models\\Effects\\Debris\\CreteDebris5.tex",
+
+ 28 texture   TEXTURE_GLASS1     "Models\\Effects\\Debris\\GlassDebris.tex",
+ 29 texture   TEXTURE_GLASS2     "Models\\Effects\\Debris\\GlassDebris2.tex",
+
+ 30 texture   TEXTURE_WOOD1      "Models\\Effects\\Debris\\WoodDebris.tex",
+ 31 texture   TEXTURE_WOOD2      "Models\\Effects\\Debris\\WoodDebris2.tex",
+ 32 texture   TEXTURE_WOOD3      "Models\\Effects\\Debris\\WoodDebris3.tex",
+ 33 texture   TEXTURE_WOOD4      "Models\\Effects\\Debris\\WoodDebris4.tex",
+
+ 34 texture   TEXTURE_METAL1     "Models\\Effects\\Debris\\MetalDebris.tex",
+ 35 texture   TEXTURE_METAL2     "Models\\Effects\\Debris\\MetalDebris2.tex",
+ 36 texture   TEXTURE_METAL3     "Models\\Effects\\Debris\\MetalDebris3.tex",
+ 37 texture   TEXTURE_METAL4     "Models\\Effects\\Debris\\MetalDebris4.tex",
+
+ 50 class     CLASS_DEBRIS       "Classes\\Debris.ecl",
   4 class     CLASS_BASIC_EFFECT "Classes\\BasicEffect.ecl",
 
 
@@ -165,7 +213,30 @@ functions:
   {
     PrecacheClass(CLASS_DEBRIS);
     PrecacheModel(MODEL_STONE);
-    PrecacheTexture(TEXTURE_STONE);
+    PrecacheModel(MODEL_WOOD);
+    PrecacheModel(MODEL_METAL);
+    PrecacheModel(MODEL_GLASS);
+    PrecacheTexture(TEXTURE_STONE1);
+    PrecacheTexture(TEXTURE_STONE2);
+    PrecacheTexture(TEXTURE_STONE3);
+    PrecacheTexture(TEXTURE_CRETE1);
+    PrecacheTexture(TEXTURE_CRETE2);
+    PrecacheTexture(TEXTURE_CRETE3);
+    PrecacheTexture(TEXTURE_CRETE4);
+    PrecacheTexture(TEXTURE_CRETE5);
+
+    PrecacheTexture(TEXTURE_METAL1);
+    PrecacheTexture(TEXTURE_METAL2);
+    PrecacheTexture(TEXTURE_METAL3);
+    PrecacheTexture(TEXTURE_METAL4);
+
+    PrecacheTexture(TEXTURE_WOOD1);
+    PrecacheTexture(TEXTURE_WOOD2);
+    PrecacheTexture(TEXTURE_WOOD3);
+    PrecacheTexture(TEXTURE_WOOD4);
+
+    PrecacheTexture(TEXTURE_GLASS1);
+    PrecacheTexture(TEXTURE_GLASS2);
   }
   /* Get force in given point. */
   void GetForce(INDEX iForce, const FLOAT3D &vPoint, 
@@ -195,23 +266,25 @@ functions:
       return;
     }
 
-    // if special feature for bull crushing doors
-    if (m_bBlowupByBull)
-    {
-      // if impact by bull
-      if( dmtType == DMT_IMPACT && IsOfClass(penInflictor, "Werebull"))
-      {
-        // receive the damage so large to blowup
-        CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, m_fHealth*2, vHitPoint, vDirection);
-        // kill the bull in place, but make sure it doesn't blow up
-        ((CLiveEntity*)penInflictor)->SetHealth(0.0f);
-        InflictDirectDamage(penInflictor, this, DMT_IMPACT, 1.0f, 
-          GetPlacement().pl_PositionVector, FLOAT3D(0,1,0));
-      }
-    }
-    else if(m_bBlowupByDamager)
+    // if special feature for damager entity
+    if(m_bBlowupByDamager)
     {
       if( dmtType == DMT_DAMAGER)
+      {
+        CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+      }
+    }
+    else if(m_bBlowupByAnything)
+    {
+      // react to weapon damage
+      if( (dmtType == DMT_EXPLOSION) ||
+          (dmtType == DMT_PROJECTILE) ||
+          (dmtType == DMT_CANNONBALL) ||
+          (dmtType == DMT_CLOSERANGE) ||
+          (dmtType == DMT_BULLET) ||
+          (dmtType == DMT_IMPACT) ||
+          (dmtType == DMT_PELLET) ||
+          (dmtType == DMT_AXE) )
       {
         CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
       }
@@ -582,7 +655,16 @@ functions:
     return slUsedMemory;
   }
 
-
+  void DebrisInitialize(EntityInfoBodyType eibtMaterialType, SLONG sModelID, SLONG sTextureID, FLOAT fEntSize, FLOATaabbox3D fBox)
+  {
+    FLOAT fEntitySize = pow(fBox.Size()(1)*fBox.Size()(2)*fBox.Size()(3)/m_ctDebrises, 1.0f/3.0f)*m_fCubeFactor;
+    Debris_Begin(eibtMaterialType, DPT_NONE, BET_NONE, fEntitySize, FLOAT3D(1.0f,2.0f,3.0f),
+    FLOAT3D(0,0,0), 1.0f+m_fCandyEffect/2.0f, m_fCandyEffect, m_colDebrises);
+                    for(INDEX iDebris = 0; iDebris<m_ctDebrises; iDebris++) {
+                        Debris_Spawn(this, this, sModelID, sTextureID, 0, 0, 0, IRnd()%4, 1.0f,
+                        FLOAT3D(FRnd()*0.8f+0.1f, FRnd()*0.8f+0.1f, FRnd()*0.8f+0.1f));
+                    }
+  }
 
 procedures:
 
@@ -896,23 +978,6 @@ procedures:
             call MoveBrush();
           }
         }
-        // if special feature for bull crushing doors
-        if (m_bBlowupByBull) {
-          // if hit by bull
-          if (IsOfClass(eTouch.penOther, "Werebull")) {
-            // calculate speed along impact normal
-            FLOAT fImpactSpeed = 
-              ((CMovableEntity&)*eTouch.penOther).en_vCurrentTranslationAbsolute%
-              -(FLOAT3D&)eTouch.plCollision;
-
-            // if strong collision
-            if (fImpactSpeed>m_fHealth) {
-              // receive artificial impact damage
-              ReceiveDamage(eTouch.penOther, DMT_IMPACT, m_fHealth*2, 
-                FLOAT3D(0,0,0), FLOAT3D(0,0,0));
-            }
-          }
-        }
         resume;
       }
       on (EBlock eBlock) : {
@@ -973,12 +1038,81 @@ procedures:
         if( m_ctDebrises>0)
         {
           FLOAT fEntitySize = pow(box.Size()(1)*box.Size()(2)*box.Size()(3)/m_ctDebrises, 1.0f/3.0f)*m_fCubeFactor;
-          
-          Debris_Begin(EIBT_ROCK, DPT_NONE, BET_NONE, fEntitySize, FLOAT3D(1.0f,2.0f,3.0f),
-            FLOAT3D(0,0,0), 1.0f+m_fCandyEffect/2.0f, m_fCandyEffect, m_colDebrises);
-          for(INDEX iDebris = 0; iDebris<m_ctDebrises; iDebris++) {
-            Debris_Spawn(this, this, MODEL_STONE, TEXTURE_STONE, 0, 0, 0, IRnd()%4, 1.0f,
-              FLOAT3D(FRnd()*0.8f+0.1f, FRnd()*0.8f+0.1f, FRnd()*0.8f+0.1f));
+            switch(m_bdtDebrisType) {
+
+            default:
+            break;
+            case BDT_STONE1:
+                DebrisInitialize(EIBT_ROCK, MODEL_STONE, TEXTURE_STONE1, fEntitySize, box);
+            break;
+
+            case BDT_STONE2:
+                DebrisInitialize(EIBT_ROCK, MODEL_STONE, TEXTURE_STONE2, fEntitySize, box);
+            break;
+
+            case BDT_STONE3:
+                DebrisInitialize(EIBT_ROCK, MODEL_STONE, TEXTURE_STONE3, fEntitySize, box);
+            break;
+
+            case BDT_WOOD1:
+                DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD1, fEntitySize, box);
+            break;
+
+            case BDT_WOOD2:
+                DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD2, fEntitySize, box);
+            break;
+
+            case BDT_WOOD3:
+                DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD3, fEntitySize, box);
+            break;
+
+            case BDT_WOOD4:
+                DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD4, fEntitySize, box);
+            break;
+
+            case BDT_METAL1:
+                DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_METAL1, fEntitySize, box);
+            break;
+
+            case BDT_METAL2:
+                DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_METAL2, fEntitySize, box);
+            break;
+
+            case BDT_METAL3:
+                DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_METAL3, fEntitySize, box);
+            break;
+
+            case BDT_METAL4:
+                DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_METAL4, fEntitySize, box);
+            break;
+
+            case BDT_GLASS1:
+                DebrisInitialize(EIBT_GLASS, MODEL_GLASS, TEXTURE_GLASS1, fEntitySize, box);
+            break;
+
+            case BDT_GLASS2:
+                DebrisInitialize(EIBT_GLASS, MODEL_GLASS, TEXTURE_GLASS2, fEntitySize, box);
+            break;
+
+            case BDT_CRETE1:
+                DebrisInitialize(EIBT_ROCK, MODEL_STONE, TEXTURE_CRETE1, fEntitySize, box);
+            break;
+
+            case BDT_CRETE2:
+                DebrisInitialize(EIBT_ROCK, MODEL_STONE, TEXTURE_CRETE2, fEntitySize, box);
+            break;
+
+            case BDT_CRETE3:
+                DebrisInitialize(EIBT_ROCK, MODEL_STONE, TEXTURE_CRETE3, fEntitySize, box);
+            break;
+
+            case BDT_CRETE4:
+                DebrisInitialize(EIBT_ROCK, MODEL_STONE, TEXTURE_CRETE4, fEntitySize, box);
+            break;
+
+            case BDT_CRETE5:
+                DebrisInitialize(EIBT_ROCK, MODEL_STONE, TEXTURE_CRETE5, fEntitySize, box);
+            break;
           }
         }
 

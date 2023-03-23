@@ -27,11 +27,48 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Base/ListIterator.inl>
 #include <Engine/Templates/DynamicArray.cpp>
 
+/*
+ * One animation of an animateable object
+ */
+class COneAnim {
+public:
+  COneAnim();
+  ~COneAnim();
+  // copy constructor
+	COneAnim &operator=(const COneAnim &oaAnim);
+  NAME oa_Name;
+  TIME oa_SecsPerFrame;	    // speed of this animation
+  INDEX oa_NumberOfFrames;
+  INDEX *oa_FrameIndices;   // array of frame indices
+};
+
+/*
+ * Node used for linking ptrs to COneAnim objects while loading
+ * script file before turning them into an array
+ * Class is used only for loading script files
+ */
+class COneAnimNode
+{
+public:
+	~COneAnimNode();
+  COneAnimNode(COneAnim *AnimToInsert, CListHead *LH);
+	CListNode coan_Node;
+	COneAnim *coan_OneAnim;
+};
 COneAnimNode::~COneAnimNode()
 {
   ASSERT( coan_OneAnim != NULL);
   delete coan_OneAnim;
 }
+
+/*
+ * This temporary list head class is used for automatic deleting of temporary list on exit
+ */
+class CTmpListHead : public CListHead
+{
+public:
+	~CTmpListHead();
+};
 
 CTmpListHead::~CTmpListHead()
 {
@@ -425,6 +462,21 @@ void CAnimData::Write_t( CTStream *ostrFile)  // throw char *
 							ad_Anims[i].oa_NumberOfFrames * sizeof( INDEX));
 	}
 };
+
+// print #define <animation name> lines for all animations into given file
+void CAnimData::ExportAnimationNames_t( CTStream *ostrFile, CTString strAnimationPrefix) // throw char *
+{
+  char chrLine[ 256];
+  // for each animation
+  for( INDEX iAnimation=0; iAnimation<ad_NumberOfAnims; iAnimation++)
+  {
+    // prepare one #define line (add prefix)
+    sprintf( chrLine, "#define %s%s %d", strAnimationPrefix, ad_Anims[ iAnimation].oa_Name,
+             iAnimation);
+    // put it into file
+    ostrFile->PutLine_t( chrLine);
+  }
+}
 
 // Get info about some animation
 void CAnimData::GetAnimInfo(INDEX iAnimNo, CAnimInfo &aiInfo) const

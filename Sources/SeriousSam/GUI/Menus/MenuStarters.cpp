@@ -86,6 +86,11 @@ void StartSinglePlayerNewMenuCustom(void)
   ChangeToMenu(&_pGUIM->gmSinglePlayerNewMenu);
 }
 
+void StartAchievementsMenu(void)
+{
+    ChangeToMenu(&_pGUIM->gmAchievementsMenu);
+}
+
 static void SetQuickLoadNotes(void)
 {
   CLoadSaveMenu &gmCurrent = _pGUIM->gmLoadSaveMenu;

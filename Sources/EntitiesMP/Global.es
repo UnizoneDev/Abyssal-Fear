@@ -53,7 +53,11 @@ event EStopAttack {  // OBSOLETE!
 };
 event EStopBlindness {  // make enemy not blind any more
 };
-event EStopDeafness {  // make enemy not blind any more
+event EStopDeafness {  // make enemy not deaf any more
+};
+event EStopDormancy {  // make enemy not dormant any more
+};
+event EStartDormancy {  // make enemy dormant
 };
 event EReceiveScore { // sent to player when enemy is killed
   INDEX iPoints
@@ -83,6 +87,8 @@ enum EventEType {
  10 EET_STOPBLINDNESS     "Stop blindness event",       // enemy stop being blind
  11 EET_STOPDEAFNESS      "Stop deafness event",        // enemy stop being deaf
  12 EET_TELEPORTMOVINGBRUSH "Teleport moving brush",    // moving brush teleporting event
+ 13 EET_STOPDORMANCY      "Stop dormancy event",        // enemy stop being dormant
+ 14 EET_STARTDORMANCY     "Start dormancy event",       // enemy start being dormant
 };
 
 
@@ -98,11 +104,13 @@ enum EntityInfoBodyType {
   8 EIBT_METAL  "Metal",
   9 EIBT_ROBOT  "Robot",
  10 EIBT_ICE    "Ice",
+ 11 EIBT_GLASS  "Glass",
 };
 
 enum MessageSound {
   0 MSS_NONE   "None",    // no sound
   1 MSS_INFO   "Info",    // just simple info
+  2 MSS_SECRET "Secret",  // secret area has been found
 };
 
 enum ParticleTexture {
@@ -131,6 +139,13 @@ enum SoundType {
   4 SNDT_PLAYER       "",     // sound from player weapon or player is wounded
 };
 
+enum SmellType {
+  0 SMLT_NONE         "",     // internal
+  1 SMLT_FOOD         "",     // I'm very hungry. GIVE ME THE SALT!!
+  2 SMLT_MEAT         "",     // FRESH MEAT?!!?
+  3 SMLT_GARBAGE      "",     // take the trash out!
+};
+
 // hit enum
 enum BulletHitType {
   0 BHT_NONE                "",     // none
@@ -144,18 +159,34 @@ enum BulletHitType {
   8 BHT_BRUSH_GRASS         "",     // brush grass
   9 BHT_BRUSH_WOOD          "",     // brush wood
  10 BHT_BRUSH_SNOW          "",     // brush snow
+ 11 BHT_BRUSH_METAL         "",     // brush metal
+ 12 BHT_BRUSH_CARPET        "",     // brush carpet
+ 13 BHT_BRUSH_BLOOD         "",     // brush blood
+ 14 BHT_BRUSH_UNDER_BLOOD   "",     // brush under blood
+ 15 BHT_BRUSH_GLASS         "",     // brush glass
+ 16 BHT_BRUSH_DIRT          "",     // brush dirt
+ 17 BHT_BRUSH_TILE          "",     // brush tile
+ 18 BHT_BRUSH_CHAINLINK     "",     // brush chainlink
 };
 
 enum EffectParticlesType {
-  0 EPT_NONE                  "",     // no partcicles
+  0 EPT_NONE                  "",    // no partcicles
   1 EPT_BULLET_STONE          "",    // bullet particles on stone
   2 EPT_BULLET_SAND           "",    // bullet particles on sand
   3 EPT_BULLET_WATER          "",    // bullet particles on water
   4 EPT_BULLET_UNDER_WATER    "",    // bullet particles underwater
   5 EPT_BULLET_RED_SAND       "",    // bullet particles on red sand
-  6 EPT_BULLET_GRASS          "",    // bullet particles on sand
-  7 EPT_BULLET_WOOD           "",    // bullet particles on sand
+  6 EPT_BULLET_GRASS          "",    // bullet particles on grass
+  7 EPT_BULLET_WOOD           "",    // bullet particles on wood
   8 EPT_BULLET_SNOW           "",    // bullet particles on snow
+  9 EPT_BULLET_METAL          "",    // bullet particles on metal
+ 10 EPT_BULLET_CARPET         "",    // bullet particles on carpet
+ 11 EPT_BULLET_BLOOD          "",    // bullet particles on blood
+ 12 EPT_BULLET_UNDER_BLOOD    "",    // bullet particles underblood
+ 13 EPT_BULLET_GLASS          "",    // bullet particles on glass
+ 14 EPT_BULLET_DIRT           "",    // bullet particles on dirt
+ 15 EPT_BULLET_TILE           "",    // bullet particles on tile
+ 16 EPT_BULLET_CHAINLINK      "",    // bullet particles on chainlink
 };
 
 enum SprayParticlesType {
@@ -176,24 +207,25 @@ enum SprayParticlesType {
  14 SPT_GOO         "Goo",          // yellow bloodlike substance
  15 SPT_TREE01      "Tree 01",      // tree 01
  16 SPT_COLOREDSTONE "Colored stone", // colored stone
+ 17 SPT_SMOKE       "Smoke",        // Smoke of Black Stickmen
 };
 
 // weapon bits
 enum WeaponBits {
-  0 WB_00   "Knife",
-  1 WB_01   "Colt",
-  2 WB_02   "Double colt",
-  3 WB_03   "Single shotgun",
-  4 WB_04   "Double shotgun",
-  5 WB_05   "Tommygun",
-  6 WB_06   "Minigun",
-  7 WB_07   "Rocket launcher",
-  8 WB_08   "Grenade launcher",
-  9 WB_09   "Chainsaw",
- 10 WB_10   "Flamer",
- 11 WB_11   "Laser",
- 12 WB_12   "Sniper",
- 13 WB_13   "Ironcannon",
+  0 WB_00   "Holstered",
+  1 WB_01   "Knife",
+  2 WB_02   "Axe",
+  3 WB_03   "Pistol",
+  4 WB_04   "Shotgun",
+  5 WB_05   "SMG",
+  6 WB_06   "",
+  7 WB_07   "",
+  8 WB_08   "",
+  9 WB_09   "",
+ 10 WB_10   "",
+ 11 WB_11   "",
+ 12 WB_12   "",
+ 13 WB_13   "",
  14 WB_14   "",
  15 WB_15   "",
  16 WB_16   "",
@@ -259,6 +291,11 @@ event ESound {
   CEntityPointer penTarget,
 };
 
+event ESmell {
+  enum SmellType EsmltSmell,
+  CEntityPointer penTarget,
+};
+
 event EScroll {
   BOOL bStart,
   CEntityPointer penSender,
@@ -279,11 +316,24 @@ event ECredits {
   CEntityPointer penSender,
 };
 
+event EOverlayFX {
+  BOOL bStart,
+  CEntityPointer penSender,
+};
+
+enum MessageFont {
+  0 FNT_NORMAL       "Normal",
+  1 FNT_RUNIC        "Demon Sigils",
+};
+
 // event for printing centered message
 event ECenterMessage {
   CTString strMessage,          // the message
   TIME tmLength,                // how long to keep it
   enum MessageSound mssSound,   // sound to play
+  enum MessageFont mfFont,      // whether demonic or english
+  FLOAT fMessagePositionX,      // left or right
+  FLOAT fMessagePositionY,      // up or down
 };
 
 // event for sending computer message to a player

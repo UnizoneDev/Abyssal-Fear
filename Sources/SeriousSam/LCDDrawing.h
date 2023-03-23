@@ -29,7 +29,6 @@ extern void LCDScreenBoxOpenLeft(COLOR col);
 extern void LCDScreenBoxOpenRight(COLOR col);
 extern void LCDRenderClouds1(void);
 extern void LCDRenderClouds2(void);
-extern void LCDRenderGrid(void);
 extern void LCDDrawPointer(PIX pixI, PIX pixJ);
 extern COLOR LCDGetColor(COLOR colDefault, const char *strName);
 extern COLOR LCDFadedColor(COLOR col);

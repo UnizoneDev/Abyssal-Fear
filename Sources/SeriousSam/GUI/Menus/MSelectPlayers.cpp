@@ -71,7 +71,7 @@ void CSelectPlayersMenu::Initialize_t(void)
   gm_lhGadgets.AddTail(gm_mgPlayer3Change.mg_lnNode);
 
   gm_mgNotes.mg_boxOnScreen = BoxMediumRow(9.0);
-  gm_mgNotes.mg_bfsFontSize = BFS_MEDIUM;
+  gm_mgNotes.mg_bfsFontSize = BFS_SMALL;
   gm_mgNotes.mg_iCenterI = -1;
   gm_mgNotes.mg_bEnabled = FALSE;
   gm_mgNotes.mg_bLabel = TRUE;
@@ -100,7 +100,7 @@ void CSelectPlayersMenu::Initialize_t(void)
   */
 
   ADD_GADGET(gm_mgStart, BoxMediumRow(11), &gm_mgSplitScreenCfg, &gm_mgPlayer0Change, NULL, NULL, TRANS("START"));
-  gm_mgStart.mg_bfsFontSize = BFS_LARGE;
+  gm_mgStart.mg_bfsFontSize = BFS_SMALL;
   gm_mgStart.mg_iCenterI = 0;
 }
 

@@ -34,6 +34,12 @@ void (*immChangeGain)(const float fGain) = NULL;
 FLOAT ifeel_fGain = 1.0f;
 INDEX ifeel_bEnabled = FALSE;
 
+#ifndef NDEBUG
+  #define IFEEL_DLL_NAME "Bin/Debug/ImmWrapper.dll"
+#else
+  #define IFEEL_DLL_NAME "Bin/ImmWrapper.dll"
+#endif
+
 void ifeel_GainChange(void *ptr)
 {
   IFeel_ChangeGain(ifeel_fGain);
@@ -105,7 +111,6 @@ BOOL IFeel_InitDevice(HINSTANCE &hInstance, HWND &hWnd)
   _pShell->DeclareSymbol("const user INDEX sys_bIFeelEnabled;", &ifeel_bEnabled);
   IFeel_ChangeGain(ifeel_fGain);
 
-#define IFEEL_DLL_NAME _fnmApplicationExe.FileDir()+"ImmWrapper.dll"
   // load iFeel lib 
   CTFileName fnmExpanded;
   ExpandFilePath(EFP_READ | EFP_NOZIPS,(CTString)IFEEL_DLL_NAME,fnmExpanded);

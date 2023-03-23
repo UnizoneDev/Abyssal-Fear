@@ -1,0 +1,18 @@
+// Animation names
+#define SHOTGUNVIEWMODEL_ANIM_DEFAULT 0
+#define SHOTGUNVIEWMODEL_ANIM_IDLE 1
+#define SHOTGUNVIEWMODEL_ANIM_RAISE 2
+#define SHOTGUNVIEWMODEL_ANIM_LOWER 3
+#define SHOTGUNVIEWMODEL_ANIM_FIRE 4
+
+// Color names
+
+// Patch names
+
+// Names of collision boxes
+#define SHOTGUNVIEWMODEL_COLLISION_BOX_PART_NAME 0
+
+// Attaching position names
+#define SHOTGUNVIEWMODEL_ATTACHMENT_SHOTGUN 0
+
+// Sound names

@@ -506,19 +506,18 @@ INDEX CTString::VPrintF(const char *strFormat, va_list arg)
 
 
 
-static void *psscanf = &sscanf;
 // Scan formatted from a string
-__declspec(naked) INDEX CTString::ScanF(const char *strFormat, ...)
+INDEX CTString::ScanF(const char* strFormat, ...) const
 {
-  __asm {
-    push    eax
-    mov     eax,dword ptr [esp+8]
-    mov     eax,dword ptr [eax]
-    mov     dword ptr [esp+8], eax
-    pop     eax
-    jmp     dword ptr [psscanf]
-  }
+    va_list arg;
+    va_start(arg, strFormat);
+
+    INDEX iResult = vsscanf(str_String, strFormat, arg);
+    va_end(arg);
+
+    return iResult;
 }
+
 
 
   // split string in two strings at specified position (char AT splitting position goes to str2)

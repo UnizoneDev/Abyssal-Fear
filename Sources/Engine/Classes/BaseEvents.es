@@ -82,6 +82,8 @@ enum DamageType {
   16 DMT_HEAT       "Heat",         // walking under open sun too long
   17 DMT_DAMAGER    "Damager",      // caused by damager
   18 DMT_CHAINSAW   "Chain saw",    // caused by chainsaw
+  19 DMT_PELLET     "Pellets",      // caused by ordinary pellets from shotguns
+  20 DMT_AXE        "Axe",          // caused by axe
 9999 DMT_NONE       "no damage",    // internal
 };
 

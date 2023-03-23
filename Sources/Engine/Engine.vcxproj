@@ -21,11 +21,12 @@
     </SccLocalPath>
     <Keyword>MFCProj</Keyword>
     <ProjectGuid>{4B6F587C-7C59-4481-FBB9-CA44380D0CBF}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -35,7 +36,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -43,7 +44,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -51,24 +52,21 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\WorldEditor\Qt.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
-    <Import Project="..\WorldEditor\Qt.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
-    <Import Project="..\WorldEditor\Qt.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>Debug\</OutDir>
     <IntDir>Debug\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <ExecutablePath>$(SolutionDir)..\Tools.Win32;$(SolutionDir)..\Bin_1.10\Debug;$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath>$(SolutionDir)..\Tools.Win32;$(SolutionDir)..\Bin\Debug;$(ExecutablePath)</ExecutablePath>
     <IncludePath>$(SolutionDir);$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Include;$(SolutionDir)Engine;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)D</TargetName>
@@ -77,7 +75,7 @@
     <OutDir>Release\</OutDir>
     <IntDir>Release\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <ExecutablePath>$(SolutionDir)..\Tools.Win32;$(SolutionDir)..\Bin_1.10;$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath>$(SolutionDir)..\Tools.Win32;$(SolutionDir)..\Bin;$(ExecutablePath)</ExecutablePath>
     <IncludePath>$(SolutionDir);$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)..\Tools.Win32\Libraries\DX8SDK\Lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
@@ -100,7 +98,7 @@
       <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DisableSpecificWarnings>4603;4996;4812;4333</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;$(Qt_dir)\include\;$(Qt_dir)\include\QtCore\;$(Qt_dir)\include\QtGui\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;$(SolutionDir)openal\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -124,19 +122,19 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>Debug/EngineD.dll</OutputFile>
       <ImportLibrary>.\Debug\EngineD.lib</ImportLibrary>
-      <AdditionalDependencies>gdi32.lib;DbgHelp.lib;assimpd.lib;irrXMLd.lib;zlibstaticd.lib;Qt5Cored.lib;Qt5Guid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gdi32.lib;DbgHelp.lib;assimpd.lib;irrXMLd.lib;zlibstaticd.lib;common.lib;winmm.lib;advapi32.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <IgnoreSpecificDefaultLibraries>libci.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;$(Qt_dir)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;$(SolutionDir)openalBuild\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
-      <Command>copy Debug\$(TargetName).dll $(SolutionDir)..\Bin_1.10\Debug\ &gt;nul</Command>
-      <Message>Copying %(Filename) binaries to \Bin_1.10\Debug</Message>
-      <Outputs>$(SolutionDir)..\Bin_1.10\Debug\$(TargetName).dll;%(Outputs)</Outputs>
+      <Command>copy Debug\$(TargetName).dll $(SolutionDir)..\Bin\Debug\ &gt;nul</Command>
+      <Message>Copying %(Filename) binaries to \Bin\Debug</Message>
+      <Outputs>$(SolutionDir)..\Bin\Debug\$(TargetName).dll;%(Outputs)</Outputs>
     </CustomBuildStep>
     <PreBuildEvent>
-      <Command>del $(SolutionDir)..\Bin_1.10\Debug\$(TargetName).dll /q &gt;nul</Command>
+      <Command>del $(SolutionDir)..\Bin\Debug\$(TargetName).dll /q &gt;nul</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -158,7 +156,7 @@
       <ObjectFileName>.\Release\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
       <DisableSpecificWarnings>4603;4996;4812;4333</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;$(Qt_dir)\include\;$(Qt_dir)\include\QtCore\;$(Qt_dir)\include\QtGui\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;$(SolutionDir)openal\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -182,19 +180,19 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Release\Engine.dll</OutputFile>
       <ImportLibrary>.\Release\Engine.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;DbgHelp.lib;assimp.lib;irrXML.lib;zlibstatic.lib;Qt5Core.lib;Qt5Gui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;DbgHelp.lib;assimp.lib;irrXML.lib;zlibstatic.lib;common.lib;winmm.lib;advapi32.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <IgnoreSpecificDefaultLibraries>libci.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;$(Qt_dir)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;$(SolutionDir)openalBuild\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
-      <Command>copy Release\$(TargetName).dll $(SolutionDir)..\Bin_1.10\ &gt;nul</Command>
+      <Command>copy Release\$(TargetName).dll $(SolutionDir)..\Bin\ &gt;nul</Command>
       <Message>Copying %(Filename) binaries to \Bin</Message>
-      <Outputs>$(SolutionDir)..\Bin_1.10\$(TargetName).dll;%(Outputs)</Outputs>
+      <Outputs>$(SolutionDir)..\Bin\$(TargetName).dll;%(Outputs)</Outputs>
     </CustomBuildStep>
     <PreBuildEvent>
-      <Command>del $(SolutionDir)..\Bin_1.10\$(TargetName).dll /q &gt;nul</Command>
+      <Command>del $(SolutionDir)..\Bin\$(TargetName).dll /q &gt;nul</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
@@ -430,9 +428,6 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StdH.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="Math\TextureMapping_Utils.cpp" />
-    <ClCompile Include="Models\ImportedMesh.cpp" />
-    <ClCompile Include="Models\ImportedSkeletalAnimation.cpp" />
-    <ClCompile Include="Models\ImportedSkeleton.cpp" />
     <ClCompile Include="Sound\SoundData.cpp" />
     <ClCompile Include="Sound\SoundDecoder.cpp" />
     <ClCompile Include="Sound\SoundLibrary.cpp" />
@@ -440,6 +435,8 @@
     <ClCompile Include="Sound\SoundObject.cpp" />
     <ClCompile Include="Sound\SoundProfile.cpp" />
     <ClCompile Include="Sound\Wave.cpp" />
+    <ClCompile Include="Models\EditModel.cpp" />
+    <ClCompile Include="Models\MipMaker.cpp" />
     <ClCompile Include="Models\Model.cpp" />
     <ClCompile Include="Models\ModelProfile.cpp" />
     <ClCompile Include="Models\Normals.cpp" />
@@ -700,6 +697,7 @@
     <ClInclude Include="Base\Anim.h" />
     <ClInclude Include="Base\Assert.h" />
     <ClInclude Include="Base\Base.h" />
+    <ClInclude Include="Base\ByteSwap.h" />
     <ClInclude Include="Base\Changeable.h" />
     <ClInclude Include="Base\ChangeableRT.h" />
     <ClInclude Include="Base\Console.h" />
@@ -781,9 +779,6 @@
     <ClInclude Include="Graphics\TextureEffects.h" />
     <ClInclude Include="Graphics\Vertex.h" />
     <ClInclude Include="Graphics\ViewPort.h" />
-    <ClInclude Include="Models\ImportedMesh.h" />
-    <ClInclude Include="Models\ImportedSkeletalAnimation.h" />
-    <ClInclude Include="Models\ImportedSkeleton.h" />
     <ClInclude Include="Sound\al_functions.h" />
     <ClInclude Include="Sound\DSound.h" />
     <ClInclude Include="Sound\eax.h" />
@@ -795,6 +790,8 @@
     <ClInclude Include="Sound\SoundObject.h" />
     <ClInclude Include="Sound\SoundProfile.h" />
     <ClInclude Include="Sound\Wave.h" />
+    <ClInclude Include="Models\EditModel.h" />
+    <ClInclude Include="Models\MipMaker.h" />
     <ClInclude Include="Models\Model.h" />
     <ClInclude Include="Models\Model_internal.h" />
     <ClInclude Include="Models\ModelData.h" />

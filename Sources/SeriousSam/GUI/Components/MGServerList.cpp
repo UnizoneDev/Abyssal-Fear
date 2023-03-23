@@ -267,7 +267,7 @@ void CMGServerList::Render(CDrawPort *pdp)
       CTString strPlayersCt(0, "%2d/%2d", ns.ns_ctPlayers, ns.ns_ctMaxPlayers);
       CTString strMod = ns.ns_strMod;
       if (strMod == "") {
-        strMod = "SeriousSam";
+        strMod = "AbyssalFear";
       }
       PrintInBox(pdp, apixSeparatorI[0] + pixCharSizeI / 2, pixJ, apixSeparatorI[1] - apixSeparatorI[0] - pixCharSizeI, ns.ns_strSession, colItem);
       PrintInBox(pdp, apixSeparatorI[1] + pixCharSizeI / 2, pixJ, apixSeparatorI[2] - apixSeparatorI[1] - pixCharSizeI, TranslateConst(ns.ns_strWorld), colItem);

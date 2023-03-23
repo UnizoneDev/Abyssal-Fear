@@ -113,7 +113,7 @@ void ParseCommandLine(CTString strCmd)
       cmd_bQuickJoin = TRUE;
     } else if (strWord=="+game") {
       CTString strMod = GetNextParam();
-      if (strMod!="SeriousSam") { // (we ignore default mod - always use base dir in that case)
+      if (strMod!="AbyssalFear") { // (we ignore default mod - always use base dir in that case)
         _fnmMod = "Mods\\"+strMod+"\\";
       }
     } else if (strWord=="+cdpath") {

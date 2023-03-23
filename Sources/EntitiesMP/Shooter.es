@@ -22,14 +22,12 @@ uses "EntitiesMP/ModelHolder2";
 uses "EntitiesMP/Projectile";
 uses "EntitiesMP/SoundHolder";
 uses "EntitiesMP/BloodSpray";
-uses "EntitiesMP/CannonBall";
 
 enum FireType {
   0 SFT_WOODEN_DART "Wooden dart",
   1 SFT_FIRE        "Fire",
   2 SFT_GAS         "-none-",
-  3 SFT_IRONBALL    "Ironball",
-  4 SFT_FIREBALL    "Fireball",
+  3 SFT_FIREBALL    "Fireball",
 };
 
 class CShooter: CModelHolder2 {
@@ -42,8 +40,6 @@ properties:
   2  FLOAT m_fShootingPeriod                "Shooting Period" = 1.0f,
   5  enum FireType m_sftType                "Type" 'Y' = SFT_WOODEN_DART,
   7  FLOAT m_fHealth                        "Health" = 0.0f,
-  8  FLOAT m_fCannonBallSize                "Cannon/fire ball size" = 1.0f,
-  9  FLOAT m_fCannonBallPower               "Cannon/fire ball power" = 10.0f, 
  10 ANIMATION m_iModelPreFireAnimation     "Model pre-fire animation" = 0,
  11 ANIMATION m_iTexturePreFireAnimation   "Texture pre-fire animation" = 0,
  12 ANIMATION m_iModelPostFireAnimation    "Model post-fire animation" = 0,
@@ -65,7 +61,6 @@ properties:
 components:
   1 class CLASS_PROJECTILE    "Classes\\Projectile.ecl",
   2 class CLASS_BLOOD_SPRAY   "Classes\\BloodSpray.ecl",
-  3 class CLASS_CANNONBALL    "Classes\\CannonBall.ecl",
 
 functions:                                        
   
@@ -73,7 +68,6 @@ functions:
     CModelHolder2::Precache();
     PrecacheClass(CLASS_PROJECTILE, PRT_SHOOTER_WOODEN_DART);
     PrecacheClass(CLASS_PROJECTILE, PRT_SHOOTER_FIREBALL);
-    PrecacheClass(CLASS_CANNONBALL);
   };
 
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
@@ -104,7 +98,7 @@ functions:
         
         // remember spray type
         eSpawnSpray.sptType = penDestruction->m_sptType;
-        eSpawnSpray.fSizeMultiplier = 1.0f;
+        eSpawnSpray.fSizeMultiplier = 0.5f;
         
         // get your down vector (simulates gravity)
         FLOAT3D vDn(-en_mRotation(1,2), -en_mRotation(2,2), -en_mRotation(3,2));
@@ -210,36 +204,6 @@ functions:
     }
   };
 
-  void ShootCannonball()
-  {
-    // cannon ball start position
-    CPlacement3D plBall = GetPlacement();
-    // create cannon ball
-    CEntityPointer penBall = CreateEntity(plBall, CLASS_CANNONBALL);
-    // init and launch cannon ball
-    ELaunchCannonBall eLaunch;
-    eLaunch.penLauncher = this;
-    eLaunch.fLaunchPower = 10.0f+m_fCannonBallPower; // ranges from 50-150 (since iPower can be max 100)
-    eLaunch.cbtType = CBT_IRON;
-    eLaunch.fSize = m_fCannonBallSize;
-    penBall->Initialize(eLaunch);
-  };
-
-  void ShootFireball()
-  {
-    // cannon ball start position
-    CPlacement3D plBall = GetPlacement();
-    // create cannon ball
-    CEntityPointer penBall = CreateEntity(plBall, CLASS_CANNONBALL);
-    // init and launch cannon ball
-    ELaunchCannonBall eLaunch;
-    eLaunch.penLauncher = this;
-    eLaunch.fLaunchPower = 10.0f+m_fCannonBallPower; // ranges from 50-150 (since iPower can be max 100)
-    eLaunch.cbtType = CBT_IRON;
-    eLaunch.fSize = m_fCannonBallSize;
-    penBall->Initialize(eLaunch);
-  };
-
 procedures:
   
   FireOnce()
@@ -257,9 +221,6 @@ procedures:
         ShootProjectile(PRT_SHOOTER_WOODEN_DART, FLOAT3D (0.0f, 0.0f, 0.0f), ANGLE3D (0.0f, 0.0f, 0.0f));
         break;
       case SFT_GAS:
-        break;
-      case SFT_IRONBALL:
-        ShootCannonball();
         break;
       case SFT_FIREBALL:
         ShootProjectile(PRT_SHOOTER_FIREBALL, FLOAT3D (0.0f, 0.0f, 0.0f), ANGLE3D (0.0f, 0.0f, 0.0f));
@@ -349,11 +310,6 @@ procedures:
       SetHealth(10000.0f);
       m_bIndestructable = TRUE;
     }
-
-    ClampUp(m_fCannonBallSize, 10.0f);
-    ClampDn(m_fCannonBallSize, 0.1f);
-    ClampUp(m_fCannonBallPower, 100.0f);
-    ClampDn(m_fCannonBallPower, 0.0f);
     
     if (m_penSoundLaunch!=NULL && !IsOfClass(m_penSoundLaunch, "SoundHolder")) {
       WarningMessage( "Entity '%s' is not of class SoundHolder!", m_penSoundLaunch);

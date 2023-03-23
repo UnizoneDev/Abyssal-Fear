@@ -80,6 +80,7 @@ properties:
  71 CEntityPointer m_penTextFXHolder,
  72 CEntityPointer m_penCreditsHolder,
  73 CEntityPointer m_penHudPicFXHolder,
+ 74 CEntityPointer m_penOverlayFXHolder,
 
 components:
   1 model   MODEL_WORLD_SETTINGS_CONTROLLER     "Models\\Editor\\WorldSettingsController.mdl",
@@ -172,6 +173,23 @@ functions:
           m_penHudPicFXHolder=NULL;
         }
       }
+      return TRUE;
+    }
+    if( ee.ee_slEvent==EVENTCODE_EOverlayFX)
+    {
+      EOverlayFX eolfx = ((EOverlayFX &) ee);
+      if( eolfx.bStart)
+      {
+        m_penOverlayFXHolder=eolfx.penSender;
+      }
+      else
+      {
+        if( m_penOverlayFXHolder==eolfx.penSender)
+        {
+          m_penOverlayFXHolder=NULL;
+        }
+      }
+
       return TRUE;
     }
     if( ee.ee_slEvent==EVENTCODE_ECredits)

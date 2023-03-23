@@ -41,6 +41,7 @@ extern void PlayMenuSound(CSoundData *psd);
 #define LEVELS_ON_SCREEN 16
 #define SERVERS_ON_SCREEN 15
 #define VARS_ON_SCREEN 14
+#define ACHIEVEMENTS_ON_SCREEN 8
 
 extern CListHead _lhServers;
 

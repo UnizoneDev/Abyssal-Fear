@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "StdH.h"
 #include "EntitiesMP/Common/PathFinding.h"
 
-#define MAX_TARGETS 6
+#define MAX_TARGETS 8
 %}
 
 uses "EntitiesMP/Marker";
@@ -39,8 +39,11 @@ thumbnail "Thumbnails\\NavigationMarker.tbn";
 features  "HasName", "IsTargetable";
 
 properties:
-  1 CTString m_strName          "Name" 'N' = "Marker",
-  2 RANGE m_fMarkerRange        "Marker Range" 'M' = 1.0f,  // range around marker (marker doesn't have to be hit directly)
+  1 CTString m_strName             "Name" 'N' = "Marker",
+  2 RANGE m_fMarkerRange           "Marker Range" 'M' = 1.0f,  // range around marker (marker doesn't have to be hit directly)
+  3 enum BoolEType m_betJump       "Jump"  'J' = BET_IGNORE,
+  4 enum BoolEType m_betHideBehindCover "Hide Behind Cover" = BET_IGNORE,
+  5 enum BoolEType m_betCrouch     "Crouch" = BET_IGNORE,
 
   100 CEntityPointer m_penTarget0  "Target 0" 'T' COLOR(C_dBLUE|0xFF),
   101 CEntityPointer m_penTarget1  "Target 1"     COLOR(C_dBLUE|0xFF),
@@ -48,6 +51,8 @@ properties:
   103 CEntityPointer m_penTarget3  "Target 3"     COLOR(C_dBLUE|0xFF),
   104 CEntityPointer m_penTarget4  "Target 4"     COLOR(C_dBLUE|0xFF),
   105 CEntityPointer m_penTarget5  "Target 5"     COLOR(C_dBLUE|0xFF),
+  106 CEntityPointer m_penTarget6  "Target 6"     COLOR(C_dBLUE|0xFF),
+  107 CEntityPointer m_penTarget7  "Target 7"     COLOR(C_dBLUE|0xFF),
 
   {
     CPathNode *m_ppnNode;  // for pathfinding algorithm

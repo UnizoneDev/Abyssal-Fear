@@ -31,49 +31,11 @@ typedef char FILE_NAME[PATH_MAX];
 /*
  * An object used for obtaining animation's information
  */
-class ENGINE_API CAnimInfo {
+class CAnimInfo {
 public:
   NAME ai_AnimName;
   TIME ai_SecsPerFrame;	    // speed of this animation
   INDEX ai_NumberOfFrames;
-};
-
-/*
- * One animation of an animateable object
- */
-class ENGINE_API COneAnim {
-public:
-  COneAnim();
-  ~COneAnim();
-  // copy constructor
-  COneAnim& operator=(const COneAnim& oaAnim);
-  NAME oa_Name;
-  TIME oa_SecsPerFrame;	    // speed of this animation
-  INDEX oa_NumberOfFrames;
-  INDEX* oa_FrameIndices;   // array of frame indices
-};
-
-/*
- * Node used for linking ptrs to COneAnim objects while loading
- * script file before turning them into an array
- * Class is used only for loading script files
- */
-class COneAnimNode
-{
-public:
-  ~COneAnimNode();
-  COneAnimNode(COneAnim* AnimToInsert, CListHead* LH);
-  CListNode coan_Node;
-  COneAnim* coan_OneAnim;
-};
-
-/*
- * This temporary list head class is used for automatic deleting of temporary list on exit
- */
-class CTmpListHead : public CListHead
-{
-public:
-  ~CTmpListHead();
 };
 
 /*
@@ -140,6 +102,8 @@ public:
   ENGINE_API INDEX GetAnimsCt(void) const;
 	// load list of frames from script file
   ENGINE_API void LoadFromScript_t( CTStream *File, CListHead *FrameFileList); // throw char *
+  // print #define <animation name> lines for all animations into given file
+  void ExportAnimationNames_t( CTStream *ostrFile, CTString strAnimationPrefix);  // throw char *
 	void Read_t( CTStream *istrFile); // throw char *
 	void Write_t( CTStream *ostrFile); // throw char *
 };

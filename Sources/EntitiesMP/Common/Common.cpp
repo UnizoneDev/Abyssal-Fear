@@ -23,9 +23,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/BackgroundViewer.h"
 #include "EntitiesMP/SoundHolder.h"
 #include "GameMP/PlayerSettings.h"
-#include "ModelsMP/Player/SeriousSam/Player.h"
-#include "ModelsMP/Player/SeriousSam/Body.h"
-#include "ModelsMP/Player/SeriousSam/Head.h"
+#include "Models/Player/Uni/Player.h"
+#include "Models/Player/Uni/Body.h"
+#include "Models/Player/Uni/Head.h"
 extern INDEX ent_bReportBrokenChains;
 
 void CCompMessageID::Clear(void)
@@ -75,6 +75,7 @@ void CCompMessageID::NewMessage(const CTFileName &fnm)
   // mark as unread
   cmi_bRead = FALSE;
 }
+
 
 /************************************************************
  *          COMMON FUNCTIONS FOR ENTITY CLASSES             *
@@ -187,6 +188,12 @@ void SendToTarget(CEntity *penSendEvent, EventEType eetEventType, CEntity *penCa
       case EET_TELEPORTMOVINGBRUSH:
         penSendEvent->SendEvent(ETeleportMovingBrush());
         break;
+      case EET_STOPDORMANCY:
+          penSendEvent->SendEvent(EStopDormancy());
+          break;
+      case EET_STARTDORMANCY:
+          penSendEvent->SendEvent(EStartDormancy());
+          break;
     }
   }
 };
@@ -239,6 +246,12 @@ void SendInRange(CEntity *penSource, EventEType eetEventType, const FLOATaabbox3
     case EET_STOPDEAFNESS:
       penSource->SendEventInRange(EStopDeafness(), boxRange);
       break;
+    case EET_STOPDORMANCY:
+      penSource->SendEventInRange(EStopDormancy(), boxRange);
+      break;
+    case EET_STARTDORMANCY:
+      penSource->SendEventInRange(EStartDormancy(), boxRange);
+      break;
   }
 };
 
@@ -265,15 +278,42 @@ EffectParticlesType GetParticleEffectTypeForSurface(INDEX iSurfaceType)
   EffectParticlesType eptType = EPT_BULLET_STONE;
   switch( iSurfaceType)
   {
-    case SURFACE_SAND:     {eptType=EPT_BULLET_SAND; break;}
-    case SURFACE_RED_SAND: {eptType=EPT_BULLET_RED_SAND; break;}
+    case SURFACE_SAND:
+    case SURFACE_SAND_NOIMPACT:
+      {eptType=EPT_BULLET_SAND; break;}
+    case SURFACE_RED_SAND:
+    case SURFACE_RED_SAND_NOIMPACT:
+    {eptType=EPT_BULLET_RED_SAND; break;}
     case SURFACE_WATER:    {eptType=EPT_BULLET_WATER; break;}
-    case SURFACE_GRASS:    
+    case SURFACE_GRASS:
     case SURFACE_GRASS_SLIDING:
     case SURFACE_GRASS_NOIMPACT:
       {eptType=EPT_BULLET_GRASS; break;}
-    case SURFACE_WOOD:     {eptType=EPT_BULLET_WOOD; break;}
-    case SURFACE_SNOW:     {eptType=EPT_BULLET_SNOW; break;}
+    case SURFACE_WOOD:
+    case SURFACE_WOOD_NOIMPACT:
+      {eptType=EPT_BULLET_WOOD; break;}
+    case SURFACE_SNOW:     
+    case SURFACE_SNOW_NOIMPACT:
+      {eptType=EPT_BULLET_SNOW; break;}
+    case SURFACE_METAL:
+    case SURFACE_METAL_NOIMPACT:
+      {eptType = EPT_BULLET_METAL; break; }
+    case SURFACE_CARPET:
+    case SURFACE_CARPET_NOIMPACT:
+      {eptType = EPT_BULLET_CARPET; break; }
+    case SURFACE_BLOOD: {eptType = EPT_BULLET_BLOOD; break; }
+    case SURFACE_GLASS:
+    case SURFACE_GLASS_NOIMPACT:
+      {eptType = EPT_BULLET_GLASS; break; }
+    case SURFACE_DIRT:
+    case SURFACE_DIRT_NOIMPACT:
+    {eptType = EPT_BULLET_DIRT; break; }
+    case SURFACE_TILE:
+    case SURFACE_TILE_NOIMPACT:
+    {eptType = EPT_BULLET_TILE; break; }
+    case SURFACE_CHAINLINK:
+    case SURFACE_CHAINLINK_NOIMPACT:
+    {eptType = EPT_BULLET_CHAINLINK; break; }
   }
   return eptType;
 }
@@ -283,15 +323,42 @@ BulletHitType GetBulletHitTypeForSurface(INDEX iSurfaceType)
   BulletHitType bhtType = BHT_BRUSH_STONE;
   switch( iSurfaceType)
   {
-    case SURFACE_SAND:     {bhtType=BHT_BRUSH_SAND; break;}
-    case SURFACE_RED_SAND: {bhtType=BHT_BRUSH_RED_SAND; break;}
+    case SURFACE_SAND:   
+    case SURFACE_SAND_NOIMPACT:
+      {bhtType=BHT_BRUSH_SAND; break;}
+    case SURFACE_RED_SAND: 
+    case SURFACE_RED_SAND_NOIMPACT:
+      {bhtType=BHT_BRUSH_RED_SAND; break;}
     case SURFACE_WATER:    {bhtType=BHT_BRUSH_WATER; break;}
     case SURFACE_GRASS:
     case SURFACE_GRASS_SLIDING:
     case SURFACE_GRASS_NOIMPACT:
       {bhtType=BHT_BRUSH_GRASS; break;}
-    case SURFACE_WOOD:     {bhtType=BHT_BRUSH_WOOD; break;}
-    case SURFACE_SNOW:     {bhtType=BHT_BRUSH_SNOW; break;}
+    case SURFACE_WOOD:
+    case SURFACE_WOOD_NOIMPACT:
+    {bhtType=BHT_BRUSH_WOOD; break;}
+    case SURFACE_SNOW:   
+    case SURFACE_SNOW_NOIMPACT:
+      {bhtType=BHT_BRUSH_SNOW; break;}
+    case SURFACE_METAL:
+    case SURFACE_METAL_NOIMPACT:
+    {bhtType = BHT_BRUSH_METAL; break; }
+    case SURFACE_CARPET: 
+    case SURFACE_CARPET_NOIMPACT:
+    {bhtType = BHT_BRUSH_CARPET; break; }
+    case SURFACE_BLOOD: {bhtType = BHT_BRUSH_BLOOD; break; }
+    case SURFACE_GLASS:
+    case SURFACE_GLASS_NOIMPACT:
+    {bhtType = BHT_BRUSH_GLASS; break; }
+    case SURFACE_DIRT:
+    case SURFACE_DIRT_NOIMPACT:
+    {bhtType = BHT_BRUSH_DIRT; break; }
+    case SURFACE_TILE:
+    case SURFACE_TILE_NOIMPACT:
+    {bhtType = BHT_BRUSH_TILE; break; }
+    case SURFACE_CHAINLINK:
+    case SURFACE_CHAINLINK_NOIMPACT:
+    {bhtType = BHT_BRUSH_CHAINLINK; break; }
   }
   return bhtType;
 }
@@ -310,6 +377,14 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
     case BHT_BRUSH_GRASS:
     case BHT_BRUSH_WOOD:
     case BHT_BRUSH_SNOW:
+    case BHT_BRUSH_METAL:
+    case BHT_BRUSH_CARPET:
+    case BHT_BRUSH_BLOOD:
+    case BHT_BRUSH_UNDER_BLOOD:
+    case BHT_BRUSH_GLASS:
+    case BHT_BRUSH_DIRT:
+    case BHT_BRUSH_TILE:
+    case BHT_BRUSH_CHAINLINK:
     {
       // bullet stain
       ESpawnEffect ese;
@@ -319,10 +394,18 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if( bhtType == BHT_BRUSH_SAND)          {ese.betType = BET_BULLETSTAINSAND;};
         if( bhtType == BHT_BRUSH_RED_SAND)      {ese.betType = BET_BULLETSTAINREDSAND;};
         if( bhtType == BHT_BRUSH_WATER)         {ese.betType = BET_BULLETSTAINWATER;};
-        if( bhtType == BHT_BRUSH_UNDER_WATER)   {ese.betType = BET_BULLETSTAINUNDERWATER;};
+        if( bhtType == BHT_BRUSH_UNDER_WATER)   { ese.betType = BET_BULLETSTAINUNDERWATER; };
         if( bhtType == BHT_BRUSH_GRASS)         {ese.betType = BET_BULLETSTAINGRASS;};
         if( bhtType == BHT_BRUSH_WOOD)          {ese.betType = BET_BULLETSTAINWOOD;};
         if( bhtType == BHT_BRUSH_SNOW)          {ese.betType = BET_BULLETSTAINSNOW;};
+        if (bhtType == BHT_BRUSH_METAL)         { ese.betType = BET_BULLETSTAINMETAL; };
+        if (bhtType == BHT_BRUSH_CARPET)        { ese.betType = BET_BULLETSTAINCARPET; };
+        if (bhtType == BHT_BRUSH_BLOOD)         { ese.betType = BET_BULLETSTAINBLOOD; };
+        if (bhtType == BHT_BRUSH_UNDER_BLOOD)   { ese.betType = BET_BULLETSTAINUNDERBLOOD; };
+        if (bhtType == BHT_BRUSH_GLASS)         { ese.betType = BET_BULLETSTAINGLASS; };
+        if (bhtType == BHT_BRUSH_DIRT)          { ese.betType = BET_BULLETSTAINDIRT; };
+        if (bhtType == BHT_BRUSH_TILE)          { ese.betType = BET_BULLETSTAINTILE; };
+        if (bhtType == BHT_BRUSH_CHAINLINK) { ese.betType = BET_BULLETSTAINCHAINLINK; };
       }
       else
       {
@@ -330,10 +413,18 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if( bhtType == BHT_BRUSH_SAND)          {ese.betType = BET_BULLETSTAINSANDNOSOUND;};
         if( bhtType == BHT_BRUSH_RED_SAND)      {ese.betType = BET_BULLETSTAINREDSANDNOSOUND;};
         if( bhtType == BHT_BRUSH_WATER)         {ese.betType = BET_BULLETSTAINWATERNOSOUND;};
-        if( bhtType == BHT_BRUSH_UNDER_WATER)   {ese.betType = BET_BULLETSTAINUNDERWATERNOSOUND;};
+        if (bhtType == BHT_BRUSH_UNDER_WATER)   { ese.betType = BET_BULLETSTAINUNDERWATERNOSOUND; };
         if( bhtType == BHT_BRUSH_GRASS)         {ese.betType = BET_BULLETSTAINGRASSNOSOUND;};
         if( bhtType == BHT_BRUSH_WOOD)          {ese.betType = BET_BULLETSTAINWOODNOSOUND;};
         if( bhtType == BHT_BRUSH_SNOW)          {ese.betType = BET_BULLETSTAINSNOWNOSOUND;};
+        if (bhtType == BHT_BRUSH_METAL)         { ese.betType = BET_BULLETSTAINMETALNOSOUND; };
+        if (bhtType == BHT_BRUSH_CARPET)        { ese.betType = BET_BULLETSTAINCARPETNOSOUND; };
+        if (bhtType == BHT_BRUSH_BLOOD)         { ese.betType = BET_BULLETSTAINBLOODNOSOUND; };
+        if (bhtType == BHT_BRUSH_UNDER_BLOOD)   { ese.betType = BET_BULLETSTAINUNDERBLOODNOSOUND; };
+        if (bhtType == BHT_BRUSH_GLASS)         { ese.betType = BET_BULLETSTAINGLASSNOSOUND; };
+        if (bhtType == BHT_BRUSH_DIRT)          { ese.betType = BET_BULLETSTAINDIRTNOSOUND; };
+        if (bhtType == BHT_BRUSH_TILE)          { ese.betType = BET_BULLETSTAINTILENOSOUND; };
+        if (bhtType == BHT_BRUSH_CHAINLINK)     { ese.betType = BET_BULLETSTAINCHAINLINKNOSOUND; };
       }
 
       ese.vNormal = vHitNormal;
@@ -512,22 +603,9 @@ void KickEntity(CEntity *penTarget, FLOAT3D vSpeed) {
  *                          FLARES                          *
  ************************************************************/
 // lens flare variables
-CLensFlareType _lftStandard;
-CLensFlareType _lftStandardReflections;
-CLensFlareType _lftYellowStarRedRing;
-CLensFlareType _lftYellowStarRedRingFar;
-CLensFlareType _lftWhiteGlowStarRedRing;
-CLensFlareType _lftWhiteGlowStar;
-CLensFlareType _lftWhiteGlowStarNG;
-CLensFlareType _lftWhiteStarRedRingStreaks;
-CLensFlareType _lftWhiteStarRedReflections;
-CLensFlareType _lftBlueStarBlueReflections;
-CLensFlareType _lftProjectileStarGlow;
-CLensFlareType _lftProjectileWhiteBubbleGlow;
-CLensFlareType _lftProjectileYellowBubbleGlow;
-CLensFlareType _lftPVSpaceShipWindowFlare;
-CLensFlareType _lftCatmanFireGlow;
-CLensFlareType _lftWhiteGlowFar;
+CLensFlareType _lftOrange;
+CLensFlareType _lftBlue;
+CLensFlareType _lftWhite;
 static BOOL _bLensFlaresLoaded = FALSE;
 
 #define FLARE_CREATE(type,noof,tex,pos,rot,i,j,flags,amp,des,falloff)\
@@ -563,123 +641,26 @@ void InitLensFlares(void) {
     return; // Player class is not auto-freed, so the engine may attempt to access this function several times
   }
 
-  // standard flare
-  FLARE_CREATE(_lftStandard, 1, "01\\WhiteRedRing2.tex", 0.0f, 180.0f, 1/5.0f, 1/5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
-  FLARE_GLARE(_lftStandard, 20.0f, 0.3f, 0.8f, 1.0f);
+  // Orange Flare 1
+  FLARE_CREATE(_lftOrange, 1, "Orange01\\OrangeFlare01.tex", 0.0f, 180.0f, 1/5.0f, 1/5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
+  FLARE_GLARE(_lftOrange, 20.0f, 0.3f, 0.8f, 1.0f);
 
-  // standard flare with huge reflections
-  FLARE_CREATE(_lftStandardReflections, 15, "01\\WhiteRedRing2.tex", 0.0f, 180.0f, 1.36f, 1.36f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
-  FLARE_GLARE(_lftStandardReflections, 20.0f, 0.3f, 0.8f, 1.0f);
-  REFLECTION(_lftStandardReflections, 1, "01\\WhiteRing.tex", -0.3f, 0.1f);
-  REFLECTION(_lftStandardReflections, 2, "01\\BlueDisc.tex", 1-0.5f, 0.047f);
-  REFLECTION(_lftStandardReflections, 3, "01\\BlueDisc.tex", 1-0.41f, 0.078f);
-  REFLECTION(_lftStandardReflections, 4, "01\\BlueDiscWeak.tex", 1-0.45f, 0.15f);
-  REFLECTION(_lftStandardReflections, 5, "01\\BrownDisc.tex", 1-0.2f, 0.05f);
-  REFLECTION(_lftStandardReflections, 6, "01\\WhiteGradient.tex", 1-0.1f, 0.016f);
-  REFLECTION(_lftStandardReflections, 7, "01\\WhiteGradient.tex", 1+0.29f, 0.027f);
-  REFLECTION(_lftStandardReflections, 8, "01\\BrownDisc.tex", 1+0.5f, 0.05f);
-  REFLECTION(_lftStandardReflections, 9, "01\\BrownDisc.tex", 1+0.43f, 0.11f);
-  REFLECTION(_lftStandardReflections,10, "01\\BrownRing.tex", 1+0.49f, 0.19f);
-  REFLECTION(_lftStandardReflections,11, "01\\BlueDisc.tex", 1+0.68f, 0.08f);
-  REFLECTION(_lftStandardReflections,12, "01\\BlueGradient.tex", 1+0.7f, 0.043f);
-  REFLECTION(_lftStandardReflections,13, "01\\GreenRing.tex", 1+1.04f, 0.27f);
-  REFLECTION(_lftStandardReflections,14, "01\\RainbowRing.tex", 1+1.35f, 0.53f);
+  // Blue Flare 1
+  FLARE_CREATE(_lftBlue, 1, "Blue01\\BlueFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
+  FLARE_GLARE(_lftBlue, 20.0f, 0.3f, 0.8f, 1.0f);
 
-  // nice yellow star with red ring
-  FLARE_CREATE(_lftYellowStarRedRing, 1, "02\\Flare05.tex", 0.0f, 180.0f, 1/5.0f, 1/5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
-  FLARE_GLARE(_lftYellowStarRedRing, 20.0f, 0.3f, 0.8f, 1.0f);
-
-  // same yellow star with red ring but visible from far away
-  FLARE_CREATE(_lftYellowStarRedRingFar, 1, "02\\Flare05.tex", 0.0f, 180.0f, 1/12.0f, 1/12.0f, OLF_FADESIZE, 0.25f, 0.5f, 128.0f);
-  FLARE_GLARE(_lftYellowStarRedRingFar, 20.0f, 0.3f, 0.8f, 1.0f);
-  
-  // nice yellow star with red ring
-  FLARE_CREATE(_lftWhiteGlowStarRedRing, 1, "03\\Flare06.tex", 0.0f, 180.0f, 1/5.0f, 1/5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
-  FLARE_GLARE(_lftWhiteGlowStarRedRing, 20.0f, 0.3f, 0.8f, 1.0f);
-  
-  FLARE_CREATE(_lftWhiteGlowStar, 1, "04\\Flare07.tex", 0.0f, 180.0f, 1/5.0f, 1/5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
-  FLARE_GLARE(_lftWhiteGlowStar, 20.0f, 0.3f, 0.8f, 1.0f);
-  
-  FLARE_CREATE(_lftWhiteGlowStarNG, 1, "04\\Flare07.tex", 0.0f, 180.0f, 1/5.0f, 1/5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
-
-  FLARE_CREATE(_lftWhiteStarRedRingStreaks, 1, "05\\Flare09.tex", 0.0f, 180.0f, 1/5.0f, 1/5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
-  FLARE_GLARE(_lftWhiteStarRedRingStreaks, 20.0f, 0.3f, 0.8f, 1.0f);
-  
-  // white star flare with many red and brown hexagons
-  FLARE_CREATE(_lftWhiteStarRedReflections, 12, "06\\WhiteStarManyStreaks.tex", 0.0f, 0.0f, 0.20625f, 0.20625f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
-  FLARE_GLARE(_lftWhiteStarRedReflections, 20.0f, 0.3f, 0.8f, 1.0f);
-  REFLECTION(_lftWhiteStarRedReflections, 1, "06\\DarkRedPentagram.tex" ,-0.92424242f,0.06875f); 
-  REFLECTION(_lftWhiteStarRedReflections, 2, "06\\LillaPentagram.tex"   ,0.28787879f,0.0296875f);
-  REFLECTION(_lftWhiteStarRedReflections, 3, "06\\MagentaPentagram.tex" ,0.43939394f,0.05f);     
-  REFLECTION(_lftWhiteStarRedReflections, 4, "06\\MagentaGlow.tex"      ,1.52272727f,0.009375f); 
-  REFLECTION(_lftWhiteStarRedReflections, 5, "06\\DarkRedPentagram.tex" ,1.9469697f,0.06875f);   
-  REFLECTION(_lftWhiteStarRedReflections, 6, "06\\MagentaGlow.tex"      ,1.96212121f,0.05f);     
-  REFLECTION(_lftWhiteStarRedReflections, 7, "06\\DarkRedPentagram.tex" ,1.08333333f,0.06875f);  
-  REFLECTION(_lftWhiteStarRedReflections, 8, "06\\DarkRedPentagram.tex" ,1.59848485f,0.06875f);  
-  REFLECTION(_lftWhiteStarRedReflections, 9, "06\\DarkRedPentagram.tex" ,1.67424242f,0.06875f);  
-  REFLECTION(_lftWhiteStarRedReflections,10, "06\\DarkRedPentagram.tex" ,-0.12878788f,0.03125f); 
-  REFLECTION(_lftWhiteStarRedReflections,11, "06\\BrownPentagram.tex"   ,0.03030303f,0.021875f); 
-
-  // blue star flare with many blue flares
-  FLARE_CREATE(_lftBlueStarBlueReflections, 21, "07\\BlueStarManyStreaks.tex", 0.0f, 0.0f, 0.4f, 0.4f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
-  FLARE_GLARE(_lftBlueStarBlueReflections, 20.0f, 0.3f, 0.8f, 1.0f);
-  REFLECTION(_lftBlueStarBlueReflections, 1, "07\\BlueGlow.tex", -0.5f,0.05f); 
-  REFLECTION(_lftBlueStarBlueReflections, 2, "07\\BluePentagram.tex", -0.25f,0.03f); 
-  REFLECTION(_lftBlueStarBlueReflections, 3, "07\\GreenGlow.tex", -0.05f,0.04f); 
-  REFLECTION(_lftBlueStarBlueReflections, 4, "07\\GreenGlow.tex", 0.3f,0.02f); 
-  REFLECTION(_lftBlueStarBlueReflections, 5, "07\\BluePentagram.tex", 0.5f,0.05f); 
-  REFLECTION(_lftBlueStarBlueReflections, 6, "07\\DarkBluePentagram.tex", 0.8f,0.04f); 
-  REFLECTION(_lftBlueStarBlueReflections, 7, "07\\LittleBluePentagram.tex", 1.2f,0.02f); 
-  REFLECTION(_lftBlueStarBlueReflections, 8, "07\\MagentaPentagram.tex", 1.13f,0.08f); 
-  REFLECTION(_lftBlueStarBlueReflections, 9, "07\\DarkBluePentagram.tex", 1.24f,0.03f); 
-  REFLECTION(_lftBlueStarBlueReflections,10, "07\\BlueGlow.tex", 1.4f,0.06f); 
-  REFLECTION(_lftBlueStarBlueReflections,11, "07\\GreenGlow.tex", 1.5f,0.02f); 
-  REFLECTION(_lftBlueStarBlueReflections,12, "07\\BluePentagram.tex", 1.64f,0.05f); 
-  REFLECTION(_lftBlueStarBlueReflections,13, "07\\LittleBluePentagram.tex", 1.7f,0.05f); 
-  REFLECTION(_lftBlueStarBlueReflections,14, "07\\BluePentagram.tex", 1.8f,0.06f); 
-  REFLECTION(_lftBlueStarBlueReflections,15, "07\\MagentaPentagram.tex", 2.0f,0.01f); 
-  REFLECTION(_lftBlueStarBlueReflections,16, "07\\BlueGlow.tex", 2.0f,0.06f); 
-  REFLECTION(_lftBlueStarBlueReflections,17, "07\\MagentaPentagram.tex", 2.0f,0.02f); 
-  REFLECTION(_lftBlueStarBlueReflections,18, "07\\GreenGlow.tex", 2.1f,0.015f); 
-  REFLECTION(_lftBlueStarBlueReflections,19, "07\\BluePentagram.tex", 2.4f,0.05f); 
-  REFLECTION(_lftBlueStarBlueReflections,20, "07\\DarkBluePentagram.tex", 2.8f,0.03f); 
-
-  FLARE_CREATE(_lftProjectileStarGlow, 1, "08\\FlarePower.tex", 0.0f, 180.0f, 1/5.0f, 1/5.0f, OLF_FADESIZE, 7.0f, 0.5f, 10.0f);
-  FLARE_GLARE(_lftProjectileStarGlow, 20.0f, 0.3f, 0.8f, 1.0f);
-
-  FLARE_CREATE(_lftProjectileWhiteBubbleGlow, 1, "09\\FlareWhiteBubble.tex", 0.0f, 180.0f, 1/5.0f, 1/5.0f, OLF_FADESIZE, 7.0f, 0.5f, 10.0f);
-  FLARE_GLARE(_lftProjectileWhiteBubbleGlow, 20.0f, 0.3f, 0.8f, 1.0f);
-
-  FLARE_CREATE(_lftProjectileYellowBubbleGlow, 1, "10\\FlareYellowBubble.tex", 0.0f, 180.0f, 1/10.0f, 1/10.0f, OLF_FADESIZE, 7.0f, 0.5f, 10.0f);
-  FLARE_GLARE(_lftProjectileYellowBubbleGlow, 20.0f, 0.3f, 0.8f, 1.0f);
-
-  FLARE_CREATE(_lftPVSpaceShipWindowFlare, 1, "05\\Flare09.tex", 0.0f, 180.0f, 1/10.0f, 1/10.0f, OLF_FADESIZE, 1.0f, 0.0f, 10.0f);
-
-  FLARE_CREATE(_lftCatmanFireGlow, 1, "12\\Flare12.tex", 0.0f, 180.0f, 1/12.0f, 1/12.0f, OLF_FADESIZE, 7.0f, 0.5f, 128.0f);
-  
-  FLARE_CREATE(_lftWhiteGlowFar, 1, "13\\Flare13.tex", 0.0f, 180.0f, 1/16.0f, 1/16.0f, OLF_FADESIZE, 7.0f, 0.5f, 128.0f);
+  // Orange Flare 1
+  FLARE_CREATE(_lftWhite, 1, "White01\\WhiteFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
+  FLARE_GLARE(_lftWhite, 20.0f, 0.3f, 0.8f, 1.0f);
 
   _bLensFlaresLoaded = TRUE;
 };
 
 // close lens flares effects
 void CloseLensFlares(void) {
-  _lftStandard.lft_aolfFlares.Clear();
-  _lftStandardReflections.lft_aolfFlares.Clear();
-  _lftYellowStarRedRing.lft_aolfFlares.Clear();
-  _lftYellowStarRedRingFar.lft_aolfFlares.Clear();
-  _lftWhiteGlowStarRedRing.lft_aolfFlares.Clear();
-  _lftWhiteGlowStar.lft_aolfFlares.Clear();
-  _lftWhiteGlowStarNG.lft_aolfFlares.Clear();
-  _lftWhiteStarRedRingStreaks.lft_aolfFlares.Clear();
-  _lftWhiteStarRedReflections.lft_aolfFlares.Clear();
-  _lftBlueStarBlueReflections.lft_aolfFlares.Clear();
-  _lftProjectileStarGlow.lft_aolfFlares.Clear();
-  _lftProjectileWhiteBubbleGlow.lft_aolfFlares.Clear();
-  _lftProjectileYellowBubbleGlow.lft_aolfFlares.Clear();
-  _lftPVSpaceShipWindowFlare.lft_aolfFlares.Clear();
-  _lftCatmanFireGlow.lft_aolfFlares.Clear();
-  _lftWhiteGlowFar.lft_aolfFlares.Clear();
+  _lftOrange.lft_aolfFlares.Clear();
+  _lftBlue.lft_aolfFlares.Clear();
+  _lftWhite.lft_aolfFlares.Clear();
   _bLensFlaresLoaded = FALSE;
 };
 
@@ -933,7 +914,7 @@ BOOL SetPlayerAppearance(CModelObject *pmo, CPlayerCharacter *ppc, CTString &str
   pmo->mo_toBump.SetData(NULL);
   pmo->RemoveAllAttachmentModels();
 
-  DECLARE_CTFILENAME(fnmDefault, "ModelsMP\\Player\\SeriousSam.amc");
+  DECLARE_CTFILENAME(fnmDefault, "Models\\Player\\Uni.amc");
 
   // if no character, or player models are disabled
   if (ppc==NULL) {
@@ -1307,7 +1288,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
 
 // Print center screen message
 void PrintCenterMessage(CEntity *penThis, CEntity *penCaused, 
-  const CTString &strMessage, TIME tmLength, enum MessageSound mssSound)
+  const CTString &strMessage, TIME tmLength, enum MessageSound mssSound, enum MessageFont mfFont, FLOAT fMsgPosX, FLOAT fMsgPosY)
 {
   penCaused = FixupCausedToPlayer(penThis, penCaused);
 
@@ -1315,6 +1296,9 @@ void PrintCenterMessage(CEntity *penThis, CEntity *penCaused,
   eMsg.strMessage = strMessage;
   eMsg.tmLength = tmLength;
   eMsg.mssSound = mssSound;
+  eMsg.mfFont = mfFont;
+  eMsg.fMessagePositionX = fMsgPosX;
+  eMsg.fMessagePositionY = fMsgPosY;
   penCaused->SendEvent(eMsg);
 }
 
@@ -1436,4 +1420,3 @@ class CWorldSettingsController *GetWSC(CEntity *pen)
   }
   return pwsc;
 }
-

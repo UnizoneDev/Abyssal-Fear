@@ -41,7 +41,7 @@ void UpdateInputEnabledState(CViewPort *pvp)
 {
   // input should be enabled if application is active
   // and no menu is active and no console is active
-  BOOL bShouldBeEnabled = _pGame->gm_csConsoleState==CS_OFF && _pGame->gm_csComputerState==CS_OFF;
+  BOOL bShouldBeEnabled = _pGame->gm_csConsoleState==CS_OFF;
 
   // if should be turned off
   if (!bShouldBeEnabled && _bInputEnabled) {
@@ -66,8 +66,7 @@ void UpdateInputEnabledState(CViewPort *pvp)
 void UpdatePauseState(void)
 {
   BOOL bShouldPause = 
-     _pGame->gm_csConsoleState ==CS_ON || _pGame->gm_csConsoleState ==CS_TURNINGON || _pGame->gm_csConsoleState ==CS_TURNINGOFF ||
-     _pGame->gm_csComputerState==CS_ON || _pGame->gm_csComputerState==CS_TURNINGON || _pGame->gm_csComputerState==CS_TURNINGOFF;
+     _pGame->gm_csConsoleState ==CS_ON || _pGame->gm_csConsoleState ==CS_TURNINGON || _pGame->gm_csConsoleState ==CS_TURNINGOFF;
 
   _pNetwork->SetLocalPause(bShouldPause);
 }
@@ -161,7 +160,7 @@ void CGame::QuickTest(const CTFileName &fnMapName,
 
       // if pause pressed
       if (msg.message==WM_KEYDOWN && msg.wParam==VK_PAUSE && 
-        _pGame->gm_csConsoleState==CS_OFF && _pGame->gm_csComputerState==CS_OFF) {
+        _pGame->gm_csConsoleState==CS_OFF) {
         // toggle pause
         _pNetwork->TogglePause();
       }
@@ -181,34 +180,14 @@ void CGame::QuickTest(const CTFileName &fnMapName,
       }
       if (msg.message==WM_KEYDOWN) {
         ConsoleKeyDown(msg);
-        if (_pGame->gm_csConsoleState!=CS_ON) {
-          ComputerKeyDown(msg);
-        }
       } else if (msg.message==WM_KEYUP) {
         // special handler for talk (not to invoke return key bind)
         if( msg.wParam==VK_RETURN && _pGame->gm_csConsoleState==CS_TALK) _pGame->gm_csConsoleState = CS_OFF;
       } else if (msg.message==WM_CHAR) {
         ConsoleChar(msg);
       }
-      if (msg.message==WM_LBUTTONDOWN
-        ||msg.message==WM_RBUTTONDOWN
-        ||msg.message==WM_LBUTTONDBLCLK
-        ||msg.message==WM_RBUTTONDBLCLK
-        ||msg.message==WM_LBUTTONUP
-        ||msg.message==WM_RBUTTONUP) {
-        if (_pGame->gm_csConsoleState!=CS_ON) {
-          ComputerKeyDown(msg);
-        }
-      }
     }
 
-    // get real cursor position
-    if (_pGame->gm_csComputerState != CS_OFF) {
-      POINT pt;
-      ::GetCursorPos(&pt);
-      ::ScreenToClient(pvp->vp_hWnd, &pt);
-      ComputerMouseMove(pt.x, pt.y);
-    }
     UpdatePauseState();
     UpdateInputEnabledState(pvp);
       
@@ -229,11 +208,9 @@ void CGame::QuickTest(const CTFileName &fnMapName,
         pdp->Fill(C_BLACK| CT_OPAQUE);
         pdp->FillZBuffer(ZBUF_BACK);
       }
-      // redraw view
-      if (_pGame->gm_csComputerState != CS_ON) {
-        GameRedrawView(pdp, (_pGame->gm_csConsoleState==CS_ON)?0:GRV_SHOWEXTRAS);
-      }
-      ComputerRender(pdp);
+      
+      GameRedrawView(pdp, (_pGame->gm_csConsoleState==CS_ON)?0:GRV_SHOWEXTRAS);
+
       ConsoleRender(pdp);
       pdp->Unlock();
       // show it
@@ -243,10 +220,6 @@ void CGame::QuickTest(const CTFileName &fnMapName,
 
   if (_pGame->gm_csConsoleState != CS_OFF) {
     _pGame->gm_csConsoleState = CS_TURNINGOFF;
-  }
-  if (_pGame->gm_csComputerState != CS_OFF) {
-    _pGame->gm_csComputerState = CS_TURNINGOFF;
-    cmp_ppenPlayer = NULL;
   }
 
   _pInput->DisableInput();

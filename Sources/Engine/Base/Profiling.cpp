@@ -24,13 +24,7 @@ template CStaticArray<CProfileTimer>;
 
 static inline __int64 ReadTSC_profile(void)
 {
-  __int64 mmRet;
-  __asm {
-    rdtsc
-    mov   dword ptr [mmRet+0],eax
-    mov   dword ptr [mmRet+4],edx
-  }
-  return mmRet;
+  return __rdtsc();
 }
 
 

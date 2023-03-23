@@ -1719,6 +1719,7 @@ out:;
           // adjust against sliding upwards
           cmMove.cm_plClippedPlane = FLOATplane3D(-en_vGravityDir, 0);
         }
+
         // if cannot be damaged by impact
         INDEX iSurface = cmMove.cm_pbpoHit->bpo_bppProperties.bpp_ubSurfaceType;
         if (en_pwoWorld->wo_astSurfaceTypes[iSurface].st_ulFlags&STF_NOIMPACT) {
@@ -1874,6 +1875,7 @@ out:;
               // the plane that is more orthogonal to the movement direction.
               FLOAT3D &vHitPlane = (FLOAT3D&)cmMove.cm_plClippedPlane;//cmMove.cm_pbpoHit->bpo_pbplPlane->bpl_plAbsolute;
               BOOL bHitStairs = cmMove.cm_pbpoHit->bpo_ulFlags&BPOF_STAIRS;
+
               // if the plane hit is steep enough to climb on it 
               // (cannot climb low slopes as if those were stairs)
               if ((vHitPlane%en_vGravityDir>-stHit.st_fClimbSlopeCos)

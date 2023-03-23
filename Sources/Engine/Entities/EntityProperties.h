@@ -95,7 +95,14 @@ public:
     EPT_FLOATMATRIX3D = 24,     // FLOATmatrix3D
     EPT_FLAGS = 25,             // flags - ULONG bitfield with names for each field
     EPT_MODELINSTANCE = 26,
-    // next free number: 27
+    EPT_DOUBLE = 27,            // DOUBLE
+    EPT_INDEX64 = 28,           // INDEX64
+    EPT_DOUBLE3D = 29,          // DOUBLE3D
+    EPT_DOUBLEplane3D = 30,     // DOUBLEplane3D
+    EPT_DOUBLEAABBOX3D = 31,    // DOUBLEaabbox3D
+    EPT_DOUBLEMATRIX3D = 32,    // DOUBLEmatrix3D
+    EPT_DOUBLEQUAT3D = 33,      // DOUBLEquat3D
+    // next free number: 34
   } ep_eptType;               // type of property
   CEntityPropertyEnumType *ep_pepetEnumType;   // if the type is EPT_ENUM or EPT_FLAGS
 

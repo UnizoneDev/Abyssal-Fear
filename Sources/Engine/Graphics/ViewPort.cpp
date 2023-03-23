@@ -182,7 +182,7 @@ void CViewPort::OpenCanvas(void)
 	  0,0,  // window size
 	  vp_hWndParent,
 	  NULL,
-	  (HINSTANCE)GetWindowLong(vp_hWndParent, GWL_HINSTANCE),
+      (HINSTANCE)GetWindowLong(vp_hWndParent, GWL_HINSTANCE),
 	  NULL);
   ASSERT( vp_hWnd!=NULL);
 #ifdef SE1_D3D

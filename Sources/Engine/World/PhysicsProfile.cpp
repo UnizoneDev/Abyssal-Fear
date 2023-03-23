@@ -80,6 +80,8 @@ CPhysicsProfile::CPhysicsProfile(void)
   SETTIMERNAME(PTI_REMENTITYFROMGRID,             " RemoveEntityFromCollisionGrid()", "");
   SETTIMERNAME(PTI_MOVEENTITYINGRID,              " MoveEntityInCollisionGrid()", "");
 
+  SETTIMERNAME(PTI_TRYTOCLIMBLADDER, " TryToClimbLadder()", "try");
+
   SETCOUNTERNAME(PCI_GRAVITY_NONTRIVIAL,  "non-trivial gravity moves");
   SETCOUNTERNAME(PCI_GRAVITY_TRIVIAL,     "trivial gravity moves");
 

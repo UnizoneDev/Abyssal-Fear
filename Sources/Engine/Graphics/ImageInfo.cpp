@@ -15,17 +15,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "stdh.h"
 
+#include <Engine/Base/ByteSwap.h>
 #include <Engine/Graphics/ImageInfo.h>
 #include <Engine/Graphics/Color.h>
 
 #include <Engine/Base/Stream.h>
 #include <Engine/Base/Memory.h>
 #include <Engine/Math/Functions.h>
-
-#include <QImage>
-#include <QImageReader>
-
-#include <set>
 
 extern void FlipBitmap( UBYTE *pubSrc, UBYTE *pubDst, PIX pixWidth, PIX pixHeight, INDEX iFlipType, BOOL bAlphaChannel);
 
@@ -180,7 +176,7 @@ void CImageInfo::ExpandEdges( INDEX ctPasses/*=8192*/)
       { // determine pixel location
         const PIX pixOffset = pixV*ii_Width + pixU;
         // do nothing if it is already visible
-        COLOR col = ByteSwap(pulSrc[pixOffset]);
+        COLOR col = ByteSwap32(pulSrc[pixOffset]);
         if( ((col&CT_AMASK)>>CT_ASHIFT)>3) continue;
         bAllPixelsVisible = FALSE;
         // average all surrounding pixels that are visible
@@ -189,7 +185,7 @@ void CImageInfo::ExpandEdges( INDEX ctPasses/*=8192*/)
         for( INDEX j=-1; j<=1; j++) {
           for( INDEX i=-1; i<=1; i++) {
             const PIX pixSurrOffset = pixOffset + j*ii_Width + i;
-            col = ByteSwap(pulSrc[pixSurrOffset]);
+            col = ByteSwap32(pulSrc[pixSurrOffset]);
             if( ((col&CT_AMASK)>>CT_ASHIFT)<4) continue; // skip non-visible pixels
             UBYTE ubR, ubG, ubB;
             ColorToRGB( col, ubR,ubG,ubB);
@@ -202,7 +198,7 @@ void CImageInfo::ExpandEdges( INDEX ctPasses/*=8192*/)
           ulRa/=ctVisible;  ulGa/=ctVisible;  ulBa/=ctVisible;
           col = RGBAToColor( ulRa,ulGa,ulBa,255);
           // put it to center pixel
-          pulDst[pixOffset] = ByteSwap(col);
+          pulDst[pixOffset] = ByteSwap32(col);
         }
       }
     } // copy resulting picture over source
@@ -254,20 +250,6 @@ INDEX CImageInfo::GetGfxFileInfo_t( const CTFileName &strFileName) // throw char
     ii_BitsPerPixel = PCXhdr.PixelBits * PCXhdr.Planes;
     // we done here, no need to check further
     return PCX_FILE;
-  }
-
-  auto fullFileName = strFileName;
-  fullFileName.RemoveApplicationPath_t();
-  fullFileName = _fnmApplicationPath + _fnmMod + fullFileName;
-  fullFileName.SetAbsolutePath();
-
-  QImage im;
-  if (im.load(QString(fullFileName.str_String)))
-  {
-    ii_Width = im.width();
-    ii_Height = im.height();
-    ii_BitsPerPixel = im.hasAlphaChannel() ? 32 : 24;
-    return OTHER_IMAGE_FILE;
   }
 
   // we didn't found a supported gfx format, sorry ...
@@ -524,67 +506,7 @@ void CImageInfo::LoadPCX_t( const CTFileName &strFileName) // throw char *
 void CImageInfo::LoadAnyGfxFormat_t( const CTFileName &strFileName) // throw char *
 {
   INDEX iFileFormat = GetGfxFileInfo_t( strFileName);
-  if (iFileFormat == PCX_FILE)
-  {
-    LoadPCX_t(strFileName);
-    return;
-  }
-  else if (iFileFormat == TGA_FILE)
-  {
-    LoadTGA_t(strFileName);
-    return;
-  }
-  else if (iFileFormat == OTHER_IMAGE_FILE)
-  {
-    auto fullFileName = strFileName;
-    fullFileName.RemoveApplicationPath_t();
-    fullFileName = _fnmApplicationPath + _fnmMod + fullFileName;
-    fullFileName.SetAbsolutePath();
-
-    QImage im;
-    if (im.load(QString(fullFileName.str_String)))
-    {
-      const auto format = im.format();
-      if (im.hasAlphaChannel() && format != QImage::Format_RGBA8888)
-        im = im.convertToFormat(QImage::Format_RGBA8888);
-      else if (format != QImage::Format_RGB888)
-        im = im.convertToFormat(QImage::Format_RGB888);
-
-      ii_BitsPerPixel = im.hasAlphaChannel() ? 32 : 24;
-      ii_Width = im.width();
-      ii_Height = im.height();
-      const auto bytesPerPixel = ii_BitsPerPixel / 8;
-      const auto byteCount = ii_Width * ii_Height * bytesPerPixel;
-      ii_Picture = (UBYTE*)AllocMemory(byteCount);
-
-      if (im.byteCount() == byteCount)
-      {
-        memcpy(ii_Picture, im.constBits(), byteCount);
-      }
-      else
-      {
-        const auto lineSize = ii_Width * bytesPerPixel;
-        for (size_t line = 0; line < ii_Height; ++line)
-          memcpy(ii_Picture + line * lineSize, im.constBits() + line * im.bytesPerLine(), lineSize);
-      }
-      return;
-    }
-  }
-
-  throw( "Gfx format not supported.");
-}
-
-std::vector<std::string> CImageInfo::GetSupportedImportFormats()
-{
-  std::set<std::string> formats;
-  for (const auto& format : QImageReader::supportedImageFormats())
-    formats.insert('.' + QString(format).toLower().toStdString());
-  formats.insert(".tga");
-  formats.insert(".pcx");
-  return { formats.begin(), formats.end() };
-}
-
-std::vector<std::string> CImageInfo::GetSupportedExportFormats()
-{
-  return { ".tga" };
+  if( iFileFormat == PCX_FILE) LoadPCX_t( strFileName);
+  if( iFileFormat == TGA_FILE) LoadTGA_t( strFileName);
+  if( iFileFormat == UNSUPPORTED_FILE) throw( "Gfx format not supported.");
 }

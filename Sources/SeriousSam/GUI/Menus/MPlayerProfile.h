@@ -45,7 +45,6 @@ public:
   CMGTrigger gm_mg3rdPerson;
   CMGTrigger gm_mgQuotes;
   CMGTrigger gm_mgAutoSave;
-  CMGTrigger gm_mgCompDoubleClick;
   CMGTrigger gm_mgViewBobbing;
   CMGTrigger gm_mgSharpTurning;
   CMGModel gm_mgModel;

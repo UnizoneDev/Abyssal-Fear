@@ -112,6 +112,10 @@ functions:
         Particles_DamageSmoke(this, m_tmStarted, m_boxSizedOwner, m_fDamagePower);
         Particles_ElectricitySparks( this, m_tmStarted, 5.0f, 0.0f, 32);        
       }
+    case SPT_SMOKE:
+      {
+        Particles_DamageSmoke(this, m_tmStarted, m_boxSizedOwner, m_fDamagePower);
+      }
     }
   };
 
