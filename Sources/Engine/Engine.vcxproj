@@ -98,7 +98,7 @@
       <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DisableSpecificWarnings>4603;4996;4812;4333</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;$(SolutionDir)openal\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -122,11 +122,11 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>Debug/EngineD.dll</OutputFile>
       <ImportLibrary>.\Debug\EngineD.lib</ImportLibrary>
-      <AdditionalDependencies>gdi32.lib;DbgHelp.lib;assimpd.lib;irrXMLd.lib;zlibstaticd.lib;common.lib;winmm.lib;advapi32.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gdi32.lib;DbgHelp.lib;assimpd.lib;irrXMLd.lib;zlibstaticd.lib;common.lib;winmm.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <IgnoreSpecificDefaultLibraries>libci.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;$(SolutionDir)openalBuild\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
       <Command>copy Debug\$(TargetName).dll $(SolutionDir)..\Bin\Debug\ &gt;nul</Command>
@@ -156,7 +156,7 @@
       <ObjectFileName>.\Release\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
       <DisableSpecificWarnings>4603;4996;4812;4333</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;$(SolutionDir)openal\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libvorbis\include\;..\libogg\include\;..\assimp\include\;..\assimpBuild\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -180,11 +180,11 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\Release\Engine.dll</OutputFile>
       <ImportLibrary>.\Release\Engine.lib</ImportLibrary>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;DbgHelp.lib;assimp.lib;irrXML.lib;zlibstatic.lib;common.lib;winmm.lib;advapi32.lib;openal32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;DbgHelp.lib;assimp.lib;irrXML.lib;zlibstatic.lib;common.lib;winmm.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <IgnoreSpecificDefaultLibraries>libci.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;$(SolutionDir)openalBuild\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)assimpBuild\code\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\zlib\$(Configuration)\;$(SolutionDir)assimpBuild\contrib\irrXML\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <CustomBuildStep>
       <Command>copy Release\$(TargetName).dll $(SolutionDir)..\Bin\ &gt;nul</Command>
