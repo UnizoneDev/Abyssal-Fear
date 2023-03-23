@@ -136,7 +136,6 @@ extern CTString astrSoundAPIRadioTexts[] = {
   RADIOTRANS("WaveOut"),
   RADIOTRANS("DirectSound"),
   RADIOTRANS("EAX"),
-  RADIOTRANS("OpenAL"),
 };
 
 ULONG GetSpawnFlagsForGameType(INDEX iGameType)

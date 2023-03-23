@@ -177,7 +177,7 @@ static void SndPostFunc(void *pArgs)
   snd_tmMixAhead = Clamp( snd_tmMixAhead, 0.1f, 0.9f);
   snd_iFormat    = Clamp( snd_iFormat, (INDEX)CSoundLibrary::SF_NONE, (INDEX)CSoundLibrary::SF_44100_16);
   snd_iDevice    = Clamp( snd_iDevice, -1L, 15L);
-  snd_iInterface = Clamp( snd_iInterface, 0L, 3L);
+  snd_iInterface = Clamp( snd_iInterface, 0L, 2L);
   // if any variable has been changed
   if( _tmLastMixAhead!=snd_tmMixAhead || _iLastFormat!=snd_iFormat
    || _iLastDevice!=snd_iDevice || _iLastAPI!=snd_iInterface) {
@@ -740,7 +740,7 @@ static void SetFormat_internal( CSoundLibrary &sl, CSoundLibrary::SoundFormat Es
   SetWaveFormat( EsfNew, sl.sl_SwfeFormat);
   snd_iDevice    = Clamp( snd_iDevice, -1L, (INDEX)(sl.sl_ctWaveDevices-1));
   snd_tmMixAhead = Clamp( snd_tmMixAhead, 0.1f, 0.9f);
-  snd_iInterface = Clamp( snd_iInterface, 0L, 3L);
+  snd_iInterface = Clamp( snd_iInterface, 0L, 2L);
 
   BOOL bSoundOK = FALSE;
 

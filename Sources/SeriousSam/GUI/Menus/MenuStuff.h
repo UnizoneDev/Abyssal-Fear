@@ -46,7 +46,7 @@ extern CTString astrDisplayPrefsRadioTexts[4];
 extern CTString astrDisplayAPIRadioTexts[2];
 extern CTString astrBitsPerPixelRadioTexts[3];
 extern CTString astrFrequencyRadioTexts[4];
-extern CTString astrSoundAPIRadioTexts[4];
+extern CTString astrSoundAPIRadioTexts[3];
 
 extern PIX apixWidths[20][2];
 
