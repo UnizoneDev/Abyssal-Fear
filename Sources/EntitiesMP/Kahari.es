@@ -195,7 +195,7 @@ functions:
 
     // animation - IGNORE DAMAGE WOUND -
     SpawnReminder(this, 0.5f, 0);
-    m_iChargeHitAnimation = KAHARI_ANIM_LEAP;
+    m_iChargeHitAnimation = KAHARI_ANIM_LEAPATTACK;
     m_fChargeHitDamage = 25.0f;
     m_fChargeHitAngle = 0.0f;
     m_fChargeHitSpeed = 8.0f;

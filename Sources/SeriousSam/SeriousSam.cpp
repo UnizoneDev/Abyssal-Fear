@@ -394,12 +394,6 @@ BOOL Init( HINSTANCE hInstance, int nCmdShow, CTString strCmdLine)
   _hInstance = hInstance;
   ShowSplashScreen(hInstance);
 
-  if (GetFileAttributesA("HiddenEvil\\IPierceYourHeart.uzd") == INVALID_FILE_ATTRIBUTES)
-  {
-      MessageBoxA(NULL, "IPierceYourHeart.uzd not found.", "FATAL ERROR", MB_ICONERROR);
-      End();
-  }
-
   // Get screen resolution
   _vpixScreenRes = PIX2D(::GetSystemMetrics(SM_CXSCREEN),
       ::GetSystemMetrics(SM_CYSCREEN));

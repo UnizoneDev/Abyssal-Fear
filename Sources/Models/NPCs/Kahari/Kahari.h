@@ -9,6 +9,7 @@
 #define KAHARI_ANIM_DEATHBACK 7
 #define KAHARI_ANIM_MELEE1 8
 #define KAHARI_ANIM_MELEE2 9
+#define KAHARI_ANIM_LEAPATTACK 10
 
 // Color names
 

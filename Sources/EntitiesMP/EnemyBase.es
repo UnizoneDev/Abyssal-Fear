@@ -228,6 +228,7 @@ properties:
 252 BOOL m_bHideBehindCover = FALSE,
 253 BOOL m_bNoIdleSound "Quiet" = FALSE,
 254 BOOL m_bCrouch = FALSE,
+255 BOOL m_bAnosmic "Anosmic" = FALSE,    // anosmic
 
 //171 INDEX m_iTacticsRetried = 0,
 
@@ -2850,6 +2851,7 @@ procedures:
       SetBoolFromBoolEType(m_bBlind, pem->m_betBlind);
       SetBoolFromBoolEType(m_bDeaf,  pem->m_betDeaf);
       SetBoolFromBoolEType(m_bDormant,  pem->m_betDormant);
+      SetBoolFromBoolEType(m_bAnosmic,  pem->m_betAnosmic);
 
       // if should start tactics
       if (pem->m_bStartTactics){
@@ -2857,6 +2859,7 @@ procedures:
         m_bBlind = FALSE;
         m_bDeaf = FALSE;
         m_bDormant = FALSE;
+        m_bAnosmic = FALSE;
         m_bHideBehindCover = FALSE;
         // unconditional tactics start
         StartTacticsNow();
@@ -2967,6 +2970,7 @@ procedures:
     m_bBlind = FALSE;
     m_bDeaf = FALSE;
     m_bDormant = FALSE;
+    m_bAnosmic = FALSE;
 
     SeeNotify();          // notify seeing
     GetWatcher()->SendEvent(EStop());   // stop looking
@@ -4075,10 +4079,10 @@ procedures:
         m_bDormant = FALSE;
         resume;
       }
-      // if should start being dormant
-      on (EStartDormancy) : {
-        // start being dormant
-        m_bDormant = TRUE;
+      // if should stop being anosmic
+      on (EStopAnosmia) : {
+        // stop being anosmic
+        m_bAnosmic = FALSE;
         resume;
       }
       // support for jumping using bouncers

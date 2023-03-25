@@ -55,9 +55,9 @@ event EStopBlindness {  // make enemy not blind any more
 };
 event EStopDeafness {  // make enemy not deaf any more
 };
-event EStopDormancy {  // make enemy not dormant any more
+event EStopAnosmia {  // make enemy not anosmic any more
 };
-event EStartDormancy {  // make enemy dormant
+event EStopDormancy {  // make enemy not dormant any more
 };
 event EReceiveScore { // sent to player when enemy is killed
   INDEX iPoints
@@ -88,7 +88,7 @@ enum EventEType {
  11 EET_STOPDEAFNESS      "Stop deafness event",        // enemy stop being deaf
  12 EET_TELEPORTMOVINGBRUSH "Teleport moving brush",    // moving brush teleporting event
  13 EET_STOPDORMANCY      "Stop dormancy event",        // enemy stop being dormant
- 14 EET_STARTDORMANCY     "Start dormancy event",       // enemy start being dormant
+ 14 EET_STOPANOSMIA       "Stop anosmia event",         // enemy stop being anosmic
 };
 
 

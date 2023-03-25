@@ -96,6 +96,8 @@ extern CPlayer *_apenPlayers[NET_MAXGAMEPLAYERS] = {0};
 // status bar textures
 static CTextureObject _toHealth;
 static CTextureObject _toOxygen;
+static CTextureObject _toFlame;
+static CTextureObject _toPoison;
 static CTextureObject _toScore;
 static CTextureObject _toHiScore;
 static CTextureObject _toMessage;
@@ -1156,7 +1158,9 @@ extern void InitHUD(void)
     // initialize status bar textures
     _toHealth.SetData_t(  CTFILENAME("Textures\\Interface\\HealthIcon.tex"));
     _toArmor.SetData_t(   CTFILENAME("Textures\\Interface\\ArmorIcon.tex"));
-    _toOxygen.SetData_t(  CTFILENAME("TexturesMP\\Interface\\Oxygen-2.tex"));
+    _toOxygen.SetData_t(  CTFILENAME("Textures\\Interface\\OxygenIcon.tex"));
+    _toFlame.SetData_t(   CTFILENAME("Textures\\Interface\\FlameIcon.tex"));
+    _toPoison.SetData_t(  CTFILENAME("Textures\\Interface\\PoisonIcon.tex"));
     _toFrags.SetData_t(   CTFILENAME("TexturesMP\\Interface\\IBead.tex"));
     _toDeaths.SetData_t(  CTFILENAME("TexturesMP\\Interface\\ISkull.tex"));
     _toScore.SetData_t(   CTFILENAME("TexturesMP\\Interface\\IScore.tex"));
@@ -1193,6 +1197,8 @@ extern void InitHUD(void)
     ((CTextureData*)_toHealth .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toArmor  .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toOxygen .GetData())->Force(TEX_CONSTANT);
+    ((CTextureData*)_toFlame  .GetData())->Force(TEX_CONSTANT);
+    ((CTextureData*)_toPoison .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toFrags  .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toDeaths .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toScore  .GetData())->Force(TEX_CONSTANT);

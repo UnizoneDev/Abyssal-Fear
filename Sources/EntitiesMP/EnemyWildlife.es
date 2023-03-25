@@ -164,10 +164,10 @@ procedures:
         m_bDormant = FALSE;
         resume;
       }
-      // if should start being dormant
-      on (EStartDormancy) : {
-        // start being dormant
-        m_bDormant = TRUE;
+      // if should stop being anosmic
+      on (EStopAnosmia) : {
+        // stop being anosmic
+        m_bAnosmic = FALSE;
         resume;
       }
       // support for jumping using bouncers

@@ -191,8 +191,8 @@ void SendToTarget(CEntity *penSendEvent, EventEType eetEventType, CEntity *penCa
       case EET_STOPDORMANCY:
           penSendEvent->SendEvent(EStopDormancy());
           break;
-      case EET_STARTDORMANCY:
-          penSendEvent->SendEvent(EStartDormancy());
+      case EET_STOPANOSMIA:
+          penSendEvent->SendEvent(EStopAnosmia());
           break;
     }
   }
@@ -249,8 +249,8 @@ void SendInRange(CEntity *penSource, EventEType eetEventType, const FLOATaabbox3
     case EET_STOPDORMANCY:
       penSource->SendEventInRange(EStopDormancy(), boxRange);
       break;
-    case EET_STARTDORMANCY:
-      penSource->SendEventInRange(EStartDormancy(), boxRange);
+    case EET_STOPANOSMIA:
+      penSource->SendEventInRange(EStopAnosmia(), boxRange);
       break;
   }
 };

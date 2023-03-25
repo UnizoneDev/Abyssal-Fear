@@ -39,6 +39,7 @@ properties:
  21 enum BoolEType m_betDormant "Dormant" = BET_IGNORE,
  22 enum BoolEType m_betHideBehindCover "Hide Behind Cover" = BET_IGNORE,
  23 enum BoolEType m_betCrouch "Crouch" = BET_IGNORE,
+ 24 enum BoolEType m_betAnosmic  "Anosmic" = BET_IGNORE,
 
  18 BOOL m_bStartTactics          "Start Tactics" = FALSE, 
 
