@@ -76,6 +76,8 @@ enum FactionType {
 #define MF_MOVEXZY  (1L<<2)
 #define MF_MOVEY    (1L<<3)
 #define MF_MOVEX    (1L<<4)
+
+#define CONFIGSTRING "%256[^=]=\"%256[^\"]\""
 %}
 
 class export CEnemyBase : CMovableModelEntity {
@@ -211,6 +213,7 @@ properties:
 195 BOOL m_bIsActive = TRUE, // [SSE]
 
 220 enum FactionType m_ftFactionType = FT_NONE,
+221 CTFileName m_fnmConfig "Enemy Config" = CTString(""),
 
 // how fast can enemy jump
 230 FLOAT m_fJumpSpeed = 0.0f,
@@ -288,6 +291,82 @@ functions:
     plSpawn.pl_OrientationAngle(1) = FRnd() * 360.0f;
 
     return CreateEntity(plSpawn, CLASS_KEY);
+  };
+
+  // --------------------------------------------------------------------------------------
+  // The config checkers
+  // --------------------------------------------------------------------------------------
+
+  // Set string properties
+  virtual void SetStringProperty(const CTString &strProp, const CTString &strValue) {
+       if (strProp == "name")       { m_strName = strValue; }
+       else if (strProp == "description") { m_strDescription = strValue; }
+  };
+
+  // Set number properties
+  virtual void SetNumberProperty(const CTString &strProp, const FLOAT fValue) {
+       if (strProp == "fWalkSpeed") { m_fWalkSpeed = fValue; }
+       else if (strProp == "aWalkRotateSpeed") { m_aWalkRotateSpeed = fValue; }
+       else if (strProp == "fAttackRunSpeed") { m_fAttackRunSpeed = fValue; }
+       else if (strProp == "aAttackRotateSpeed") { m_aAttackRotateSpeed = fValue; }
+       else if (strProp == "fCloseRunSpeed") { m_fCloseRunSpeed = fValue; }
+       else if (strProp == "aCloseRotateSpeed") { m_aCloseRotateSpeed = fValue; }
+       else if (strProp == "fAttackDistance") { m_fAttackDistance = fValue; }
+       else if (strProp == "fCloseDistance") { m_fCloseDistance = fValue; }
+       else if (strProp == "fAttackFireTime") { m_fAttackFireTime = fValue; }
+       else if (strProp == "fCloseFireTime") { m_fCloseFireTime = fValue; }
+       else if (strProp == "fStopDistance") { m_fStopDistance = fValue; }
+       else if (strProp == "fIgnoreRange") { m_fIgnoreRange = fValue; }
+  };
+
+  void LoadEnemyConfig(void) {
+    if (m_fnmConfig == "") {
+      return;
+    }
+
+    // Open enemy config file
+    try {
+      CTFileStream strm;
+      strm.Open_t(m_fnmConfig);
+
+      CTString strLine;
+      char strProp[256];
+
+      // Value types
+      FLOAT fValue;
+      char strValue[256];
+
+      INDEX iLine = 0;
+
+      while (!strm.AtEOF()) {
+        // Read non-empty line
+        strm.GetLine_t(strLine);
+        iLine++;
+
+        strLine.TrimSpacesLeft();
+        strLine.TrimSpacesRight();
+
+        if (strLine == "") {
+          continue;
+        }
+
+        // Try to read the line with a string value as "strProp=strValue"
+        if (strLine.ScanF(CONFIGSTRING, strProp, strValue) == 2) {
+        SetStringProperty(strProp, strValue);
+
+        // Try to read the line with a number value as "strProp=fValue"
+        } else if (strLine.ScanF("%256[^=]=%g", strProp, &fValue) == 2) {
+          SetNumberProperty(strProp, fValue);
+
+        // Invalid line
+        } else {
+          ThrowF_t(TRANS("Couldn't read a key-value pair on line %d"), iLine);
+        }
+      }
+
+    } catch (char *strError) {
+      CPrintF(TRANS("Cannot open enemy config file:\n%s\n"), strError);
+    }
   };
 
   // --------------------------------------------------------------------------------------
@@ -3988,6 +4067,9 @@ procedures:
     // this wait amount has to be lower than the one in music holder, so that the enemies are initialized before
     // they get counted
     autowait(_pTimer->TickQuantum);
+
+    // check for configuration file
+    LoadEnemyConfig();
 
     // spawn your watcher
     if (m_penWatcher == NULL) {

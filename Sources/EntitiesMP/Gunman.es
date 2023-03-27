@@ -140,18 +140,6 @@ functions:
 
       pen->Reinitialize();
     }
-    else
-    {
-      CEntityPointer pen = SpawnAmmo();
-      pen->Initialize();
-
-      CAmmoItem *penAmmo = (CAmmoItem*)&*pen;
-      penAmmo->m_bDropped = TRUE;
-      penAmmo->m_bPickupOnce = TRUE;
-      penAmmo->m_EaitType = AIT_BULLETS;
-
-      pen->Reinitialize();
-    }
   }
 
   void Precache(void) {

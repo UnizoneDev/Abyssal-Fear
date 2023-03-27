@@ -16,7 +16,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 1006
 %{
 #include "StdH.h"
-extern void JumpFromBouncer(CEntity *penToBounce, CEntity *penBouncer);
 %}
 
 enum LadderSounds {
@@ -85,7 +84,6 @@ procedures:
         if(m_bCanEnemiesUse) {
           if(IsDerivedFromClass(ePass.penOther, "Player") || IsDerivedFromClass(ePass.penOther, "Enemy Base"))
           {
-            JumpFromBouncer(this, ePass.penOther);
             resume;
           }
           else
@@ -96,7 +94,6 @@ procedures:
         else {
           if(IsDerivedFromClass(ePass.penOther, "Player"))
           {
-            JumpFromBouncer(this, ePass.penOther);
             resume;
           }
           else

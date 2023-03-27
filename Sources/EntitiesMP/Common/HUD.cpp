@@ -1162,19 +1162,19 @@ extern void InitHUD(void)
     _toFlame.SetData_t(   CTFILENAME("Textures\\Interface\\FlameIcon.tex"));
     _toPoison.SetData_t(  CTFILENAME("Textures\\Interface\\PoisonIcon.tex"));
     _toFrags.SetData_t(   CTFILENAME("TexturesMP\\Interface\\IBead.tex"));
-    _toDeaths.SetData_t(  CTFILENAME("TexturesMP\\Interface\\ISkull.tex"));
+    _toDeaths.SetData_t(  CTFILENAME("Textures\\Interface\\DeathIcon.tex"));
     _toScore.SetData_t(   CTFILENAME("TexturesMP\\Interface\\IScore.tex"));
-    _toHiScore.SetData_t( CTFILENAME("TexturesMP\\Interface\\IHiScore.tex"));
+    _toHiScore.SetData_t( CTFILENAME("Textures\\Interface\\HighScoreIcon.tex"));
     _toMessage.SetData_t( CTFILENAME("TexturesMP\\Interface\\IMessage.tex"));
     _toMana.SetData_t(    CTFILENAME("TexturesMP\\Interface\\IValue.tex"));
 
     // initialize ammo textures
-    _toABullets.SetData_t(CTFILENAME("TexturesMP\\Interface\\AmBullets.tex"));
-    _toAShells.SetData_t(CTFILENAME("TexturesMP\\Interface\\AmShells.tex"));
-    _toAMediumBullets.SetData_t(CTFILENAME("TexturesMP\\Interface\\AmBullets.tex"));
-    _toAInsertedBullets.SetData_t(CTFILENAME("TexturesMP\\Interface\\AmBullets.tex"));
-    _toAInsertedShells.SetData_t(CTFILENAME("TexturesMP\\Interface\\AmShells.tex"));
-    _toAInsertedSMGBullets.SetData_t(CTFILENAME("TexturesMP\\Interface\\AmBullets.tex"));
+    _toABullets.SetData_t(CTFILENAME("Textures\\Interface\\ABullets.tex"));
+    _toAShells.SetData_t(CTFILENAME("Textures\\Interface\\AShells.tex"));
+    _toAMediumBullets.SetData_t(CTFILENAME("Textures\\Interface\\AMediumBullets.tex"));
+    _toAInsertedBullets.SetData_t(CTFILENAME("Textures\\Interface\\ABullets.tex"));
+    _toAInsertedShells.SetData_t(CTFILENAME("Textures\\Interface\\AShells.tex"));
+    _toAInsertedSMGBullets.SetData_t(CTFILENAME("Textures\\Interface\\AMediumBullets.tex"));
 
     // initialize weapon textures
     _toWHolstered.SetData_t(       CTFILENAME("Textures\\Interface\\WHolstered.tex"));

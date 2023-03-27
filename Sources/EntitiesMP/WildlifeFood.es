@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 %}
 
-class export CWildlifeFood : CMovableModelEntity {
+class CWildlifeFood : CMovableModelEntity {
 name      "Wildlife Food";
 thumbnail "Thumbnails\\WildlifeFood.tbn";
 features  "HasName";

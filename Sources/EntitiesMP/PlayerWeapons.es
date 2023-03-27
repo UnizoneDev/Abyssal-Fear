@@ -43,8 +43,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/PlayerAnimator.h"
 #include "EntitiesMP/MovingBrush.h"
 #include "EntitiesMP/MessageHolder.h"
-#include "EntitiesMP/BackgroundViewer.h"
-#include "EntitiesMP/WorldSettingsController.h"
 #include "EntitiesMP/EnemyBase.h"
 extern INDEX hud_bShowWeapon;
 
@@ -430,26 +428,6 @@ components:
 
 
 functions:
-   
-  void ShakeItBaby(FLOAT tmShaketime, FLOAT fPower, FLOAT fFade, BOOL bFadeIn)
-  {
-    CWorldSettingsController *pwsc = GetWSC(this);
-    if (pwsc!=NULL) {
-      pwsc->m_tmShakeStarted = tmShaketime;
-      pwsc->m_vShakePos = GetPlacement().pl_PositionVector;
-      pwsc->m_fShakeFalloff = 450.0f;
-      pwsc->m_fShakeFade = fFade;
-
-      pwsc->m_fShakeIntensityZ = 0.25*fPower;
-      pwsc->m_tmShakeFrequencyZ = 0.25f;
-      pwsc->m_fShakeIntensityY = 0.125f*fPower;
-      pwsc->m_tmShakeFrequencyY = 0.125f;
-      pwsc->m_fShakeIntensityB = 0.15f*fPower;
-      pwsc->m_tmShakeFrequencyB = 0.35f;
-
-      pwsc->m_bShakeFadeIn = bFadeIn;
-    }
-  }
 
  // add to prediction any entities that this entity depends on
   void AddDependentsToPrediction(void)
@@ -2558,7 +2536,7 @@ procedures:
 
     // fire bullets
     FireBullets(wpn_fFX[WEAPON_SHOTGUN], wpn_fFY[WEAPON_SHOTGUN], 
-        500.0f, 10.0f, 8, afShotgunPellets, 0.2f, 0.05f, DMT_PELLET);
+        500.0f, 8.0f, 8, afShotgunPellets, 0.2f, 0.05f, DMT_PELLET);
 
 
     if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("Colt_fire");}
@@ -2571,9 +2549,6 @@ procedures:
     // sound
     CPlayer &pl = (CPlayer&)*m_penPlayer;
     PlaySound(pl.m_soWeapon0, SOUND_SHOTGUN_FIRE, SOF_3D|SOF_VOLUMETRIC);
-
-    // shotgun shake
-    ShakeItBaby(_pTimer->CurrentTick(), 4.0f, 3.5f, FALSE);
 
     // shotgun fire
     INDEX iAnim = SHOTGUNVIEWMODEL_ANIM_FIRE;
