@@ -9,6 +9,7 @@
 #define REDDEATH_ANIM_MELEE2 7
 #define REDDEATH_ANIM_BACKDEATH 8
 #define REDDEATH_ANIM_LEAP 9
+#define REDDEATH_ANIM_BANG1 10
 
 // Color names
 
