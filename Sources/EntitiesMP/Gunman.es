@@ -375,8 +375,8 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_LESSER;
-    SetHealth(100.0f);
-    m_fMaxHealth = 100.0f;
+    SetHealth(150.0f);
+    m_fMaxHealth = 150.0f;
     en_tmMaxHoldBreath = 30.0f;
     en_fDensity = 2000.0f;
     m_fBlowUpSize = 2.0f;
@@ -420,7 +420,7 @@ functions:
         m_fCloseFireTime = 1.0f;
         m_fIgnoreRange = 200.0f;
         // damage/explode properties
-        m_fBlowUpAmount = 80.0f;
+        m_fBlowUpAmount = 140.0f;
         m_fBodyParts = 4;
         m_fDamageWounded = 45.0f;
 

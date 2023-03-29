@@ -268,7 +268,7 @@ functions:
         m_fCloseFireTime = 1.0f;
         m_fIgnoreRange = 200.0f;
         // damage/explode properties
-        m_fBlowUpAmount = 80.0f;
+        m_fBlowUpAmount = 175.0f;
         m_fBodyParts = 4;
 
     StandingAnim();

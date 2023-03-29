@@ -2381,7 +2381,7 @@ procedures:
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.175f);
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 80.0f : 40.0f), DMT_AXE)) {
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 70.0f : 50.0f), DMT_AXE)) {
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2445,7 +2445,7 @@ procedures:
 
     // fire bullet
     FireOneBullet(wpn_fFX[WEAPON_PISTOL], wpn_fFY[WEAPON_PISTOL], 500.0f,
-    ((GetSP()->sp_bCooperative) ? 15.0f : 30.0f), DMT_BULLET);
+    ((GetSP()->sp_bCooperative) ? 30.0f : 50.0f), DMT_BULLET);
 
     if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("Pistol_fire");}
     DoRecoil();
