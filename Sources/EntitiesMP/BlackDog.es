@@ -149,7 +149,7 @@ functions:
   };
 
   void JumpingAnim(void) {
-    StartModelAnim(BLACKDOG_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART);
+    StartModelAnim(BLACKDOG_ANIM_LEAP, AOF_LOOPING|AOF_NORESTART);
   };
 
   void SightSound(void) {
