@@ -192,7 +192,7 @@ functions:
 
   // jump on enemy
   JumpOnEnemy(EVoid) {
-    StartModelAnim(BLACKDOG_ANIM_RUN, 0);
+    StartModelAnim(BLACKDOG_ANIM_LEAP, 0);
 
     // jump
     FLOAT3D vDir = (m_penEnemy->GetPlacement().pl_PositionVector -
@@ -204,7 +204,7 @@ functions:
 
     // animation - IGNORE DAMAGE WOUND -
     SpawnReminder(this, 0.5f, 0);
-    m_iChargeHitAnimation = BLACKDOG_ANIM_RUN;
+    m_iChargeHitAnimation = BLACKDOG_ANIM_LEAP;
     m_fChargeHitDamage = 10.0f;
     m_fChargeHitAngle = 0.0f;
     m_fChargeHitSpeed = 8.0f;
