@@ -40,6 +40,8 @@ enum ProjectileType {
   3 PRT_GUNMAN_BULLET         "Gunman Bullet",
   4 PRT_DOOMIMP_FIREBALL      "Doom Imp Fireball",
   5 PRT_MUTANT_SPIT           "Mutant Spit",
+  6 PRT_SHOOTER_FIREBALL      "Shooter Fireball",
+  7 PRT_SHOOTER_SPIT          "Shooter Spit",
 };
 
 enum ProjectileMovingType {
@@ -108,6 +110,7 @@ void CProjectile_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheTexture(TEX_BULLET);    
     break;
   case PRT_DOOMIMP_FIREBALL:
+  case PRT_SHOOTER_FIREBALL:
     pdec->PrecacheModel(MODEL_FIREBALL);
     pdec->PrecacheTexture(TEX_FIREBALL);  
     pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_FIREBALL);
@@ -116,6 +119,7 @@ void CProjectile_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_FIREBALL_PLANE);
     break;
   case PRT_MUTANT_SPIT:
+  case PRT_SHOOTER_SPIT:
     pdec->PrecacheModel(MODEL_BLOODSPIT);
     pdec->PrecacheTexture(TEX_BLOODSPIT);
     pdec->PrecacheClass(CLASS_BLOOD_SPRAY);
@@ -229,7 +233,7 @@ functions:
   void PostMoving(void) {
     CMovableModelEntity::PostMoving();
     // if flamer flame
-    if (m_prtType==PRT_FLAME || m_prtType==PRT_SHOOTER_FLAME || m_prtType==PRT_DOOMIMP_FIREBALL) {
+    if (m_prtType==PRT_FLAME || m_prtType==PRT_SHOOTER_FLAME || m_prtType==PRT_DOOMIMP_FIREBALL || m_prtType==PRT_SHOOTER_FIREBALL) {
       // if came to water
       CContentType &ctDn = GetWorld()->wo_actContentTypes[en_iDnContent];
       // stop existing
@@ -330,6 +334,7 @@ functions:
         lsNew.ls_plftLensFlare = NULL;
         break;
       case PRT_DOOMIMP_FIREBALL:
+      case PRT_SHOOTER_FIREBALL:
         lsNew.ls_colColor = C_dORANGE;
         lsNew.ls_rFallOff = 1.0f;
         lsNew.ls_plftLensFlare = NULL;
@@ -373,6 +378,7 @@ functions:
         Particles_BombTrail(this); 
         break;
       case PRT_DOOMIMP_FIREBALL:
+      case PRT_SHOOTER_FIREBALL:
         Particles_Fireball01Trail(this);
         break;
     }
@@ -545,7 +551,7 @@ void GunmanBullet(void) {
   m_bCanHitHimself = FALSE;
   m_bCanBeDestroyed = FALSE;
   m_fWaitAfterDeath = 0.0f;
-  m_pmtMove = PMT_SLIDING;
+  m_pmtMove = PMT_FLYING;
 };
 
 /************************************************************
@@ -569,7 +575,7 @@ void DoomImpFireball(void) {
   m_bCanHitHimself = FALSE;
   m_bCanBeDestroyed = FALSE;
   m_fWaitAfterDeath = 0.0f;
-  m_pmtMove = PMT_SLIDING;
+  m_pmtMove = PMT_FLYING;
 };
 
 /************************************************************
@@ -593,7 +599,55 @@ void MutantBloodSpit(void) {
   m_bCanHitHimself = FALSE;
   m_bCanBeDestroyed = FALSE;
   m_fWaitAfterDeath = 0.0f;
-  m_pmtMove = PMT_SLIDING;
+  m_pmtMove = PMT_FLYING;
+};
+
+/*********************************************************************
+ *                  SHOOTER FIREBALL PROJECTILE                      *
+ *********************************************************************/
+void ShooterFireball(void) {
+  // set appearance
+  InitAsModel();
+  SetPhysicsFlags(EPF_PROJECTILE_FLYING);
+  SetCollisionFlags(ECF_PROJECTILE_MAGIC);
+  SetModel(MODEL_FIREBALL);
+  SetModelMainTexture(TEX_FIREBALL);
+  // start moving
+  LaunchAsPropelledProjectile(FLOAT3D(0.0f, 0.0f, -15.0f), (CMovableEntity*)(CEntity*)m_penLauncher);
+  SetDesiredRotation(ANGLE3D(0, 0, 0));
+  m_fFlyTime = 5.0f;
+  m_fDamageAmount = 10.0f;
+  m_fSoundRange = 0.0f;
+  m_bExplode = FALSE;
+  m_bLightSource = TRUE;
+  m_bCanHitHimself = FALSE;
+  m_bCanBeDestroyed = FALSE;
+  m_fWaitAfterDeath = 0.0f;
+  m_pmtMove = PMT_FLYING;
+};
+
+/*******************************************************************
+ *                   SHOOTER BLOOD PROJECTILE                      *
+ *******************************************************************/
+void ShooterBloodSpit(void) {
+  // set appearance
+  InitAsModel();
+  SetPhysicsFlags(EPF_PROJECTILE_FLYING);
+  SetCollisionFlags(ECF_PROJECTILE_MAGIC);
+  SetModel(MODEL_BLOODSPIT);
+  SetModelMainTexture(TEX_BLOODSPIT);
+  // start moving
+  LaunchAsPropelledProjectile(FLOAT3D(0.0f, 0.0f, -15.0f), (CMovableEntity*)(CEntity*)m_penLauncher);
+  SetDesiredRotation(ANGLE3D(0, 0, 0));
+  m_fFlyTime = 5.0f;
+  m_fDamageAmount = 10.0f;
+  m_fSoundRange = 0.0f;
+  m_bExplode = FALSE;
+  m_bLightSource = FALSE;
+  m_bCanHitHimself = FALSE;
+  m_bCanBeDestroyed = FALSE;
+  m_fWaitAfterDeath = 0.0f;
+  m_pmtMove = PMT_FLYING;
 };
 
 /************************************************************
@@ -1252,7 +1306,9 @@ procedures:
 
     switch (m_prtType) {
       case PRT_GUNMAN_BULLET: Particles_BombTrail_Prepare(this); break;
-      case PRT_DOOMIMP_FIREBALL: Particles_Fireball01Trail_Prepare(this); break;
+      case PRT_DOOMIMP_FIREBALL:
+      case PRT_SHOOTER_FIREBALL:
+      Particles_Fireball01Trail_Prepare(this); break;
     }
 
     // projectile initialization
@@ -1264,6 +1320,8 @@ procedures:
       case PRT_GUNMAN_BULLET: GunmanBullet(); break;
       case PRT_DOOMIMP_FIREBALL: DoomImpFireball(); break;
       case PRT_MUTANT_SPIT: MutantBloodSpit(); break;
+      case PRT_SHOOTER_FIREBALL: ShooterFireball(); break;
+      case PRT_SHOOTER_SPIT: ShooterBloodSpit(); break;
       default: ASSERTALWAYS("Unknown projectile type");
     }
 
@@ -1289,8 +1347,12 @@ procedures:
 
     // projectile explosion
     switch (m_prtType) {
-      case PRT_DOOMIMP_FIREBALL: FireballExplosion(); break;
-      case PRT_MUTANT_SPIT: MutantBloodExplosion(); break;
+      case PRT_DOOMIMP_FIREBALL: 
+      case PRT_SHOOTER_FIREBALL: 
+      FireballExplosion(); break;
+      case PRT_MUTANT_SPIT:
+      case PRT_SHOOTER_SPIT:
+      MutantBloodExplosion(); break;
     }
 
     // wait after death

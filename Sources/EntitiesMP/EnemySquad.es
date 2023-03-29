@@ -44,6 +44,7 @@ properties:
   2 INDEX m_iSquadSlots = 0,			                          // How many members are in our team?
   3 CEntityPointer m_penSquadLeader "Squad Leader",	              // Who is the commander?
   4 INDEX m_iCommandIndex = 0,			                          // What command should I obey?
+  5 CTString m_strSquadName "Squad Name" = "Enemy Squad 1",      // Which squad do I belong to?
 
   {
     // array of squad members
@@ -95,12 +96,30 @@ BOOL IsSquadFull(void)
 
 void AddSquadMember(CEnemySquad *penMember)
 {
-  m_cenMembers.Add(penMember);
+  if(penMember->m_strSquadName != this->m_strSquadName)
+  {
+    return;
+  }
+
+  if(!IsSquadFull())
+  {
+    m_cenMembers.Add(penMember);
+    m_iSquadSlots++;
+  }
 }
 
 void RemoveSquadMember(CEnemySquad *penMember)
 {
-  m_cenMembers.Remove(penMember);
+  if(penMember->m_strSquadName != this->m_strSquadName)
+  {
+    return;
+  }
+
+  if(m_cenMembers.Count() <= 0)
+  {
+    m_cenMembers.Remove(penMember);
+    m_iSquadSlots--;
+  }
 }
 
 void CountSquadMembers(void)
@@ -126,11 +145,9 @@ virtual void LeaderAlertSound(void) {};
 procedures:
 
   CheckLeaderDeath(EVoid) {
-    m_bCoward = IsLeaderDead();
-    
-    autowait(3.0f);
-
-    m_bCoward = FALSE;
+    if(IsLeaderDead())
+    {
+    }
 
     return EBegin();
   };
@@ -159,8 +176,20 @@ procedures:
     {
       SendEventInRange(ELeaderDeath(), FLOATaabbox3D(GetPlacement().pl_PositionVector, 16.0f));
     }
+
     jump CEnemyBase::Die(eDeath);
   };
+
+  // before main loop
+  PreMainLoop(EVoid)
+  {
+    for(INDEX iSlots = 0; iSlots > MAX_SQUAD_MEMBERS; iSlots++)
+    {
+      AddSquadMember(this);
+    }
+    
+    return EReturn();
+  }
 
   // main loop
   MainLoop(EVoid) : CEnemyBase::MainLoop {

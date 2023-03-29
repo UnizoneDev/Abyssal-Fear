@@ -24,10 +24,9 @@ uses "EntitiesMP/SoundHolder";
 uses "EntitiesMP/BloodSpray";
 
 enum FireType {
-  0 SFT_WOODEN_DART "Wooden dart",
+  0 SFT_BLOOD_SPIT  "Blood spit",
   1 SFT_FIRE        "Fire",
-  2 SFT_GAS         "-none-",
-  3 SFT_FIREBALL    "Fireball",
+  2 SFT_FIREBALL    "Fireball",
 };
 
 class CShooter: CModelHolder2 {
@@ -38,7 +37,7 @@ features  "HasName", "IsTargetable";
 properties:
   
   2  FLOAT m_fShootingPeriod                "Shooting Period" = 1.0f,
-  5  enum FireType m_sftType                "Type" 'Y' = SFT_WOODEN_DART,
+  5  enum FireType m_sftType                "Type" 'Y' = SFT_BLOOD_SPIT,
   7  FLOAT m_fHealth                        "Health" = 0.0f,
  10 ANIMATION m_iModelPreFireAnimation     "Model pre-fire animation" = 0,
  11 ANIMATION m_iTexturePreFireAnimation   "Texture pre-fire animation" = 0,
@@ -63,7 +62,7 @@ components:
   2 class CLASS_BLOOD_SPRAY   "Classes\\BloodSpray.ecl",
 
 functions:                                        
-  
+
   void Precache(void) {
     CModelHolder2::Precache();
     PrecacheClass(CLASS_PROJECTILE, PRT_SHOOTER_WOODEN_DART);
@@ -217,10 +216,8 @@ procedures:
     autowait(GetModelObject()->GetAnimLength(m_iModelPreFireAnimation));
     
     switch (m_sftType) {
-      case SFT_WOODEN_DART:
-        ShootProjectile(PRT_SHOOTER_WOODEN_DART, FLOAT3D (0.0f, 0.0f, 0.0f), ANGLE3D (0.0f, 0.0f, 0.0f));
-        break;
-      case SFT_GAS:
+      case SFT_BLOOD_SPIT:
+        ShootProjectile(PRT_SHOOTER_SPIT, FLOAT3D (0.0f, 0.0f, 0.0f), ANGLE3D (0.0f, 0.0f, 0.0f));
         break;
       case SFT_FIREBALL:
         ShootProjectile(PRT_SHOOTER_FIREBALL, FLOAT3D (0.0f, 0.0f, 0.0f), ANGLE3D (0.0f, 0.0f, 0.0f));

@@ -66,7 +66,7 @@ virtual void DrinkingSound(void) {};
 procedures:
   
   MoveToFood(EVoid) {
-    while (m_penFoodTarget!=NULL && IsOfClass(m_penFoodTarget, "ExplosiveBarrel"))
+    while (m_penFoodTarget!=NULL && IsOfClass(m_penFoodTarget, "Wildlife Food"))
     {
       m_vStartPosition = m_penFoodTarget->GetPlacement().pl_PositionVector;
 

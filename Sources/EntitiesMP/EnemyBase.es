@@ -55,7 +55,7 @@ enum DestinationType {
   0 DT_PLAYERCURRENT "",    // go to where player is now
   1 DT_PLAYERSPOTTED "",    // go to where player was last seen
   2 DT_PATHTEMPORARY "",    // go to navigation marker - temporary, only until you spot player again
-  3 DT_PATHPERSISTENT "",    // go to navigation marker - until you really get there
+  3 DT_PATHPERSISTENT "",   // go to navigation marker - until you really get there
 };
 
 enum FactionType {
