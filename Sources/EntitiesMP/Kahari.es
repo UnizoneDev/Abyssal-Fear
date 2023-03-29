@@ -183,7 +183,7 @@ functions:
 
   // jump on enemy
   JumpOnEnemy(EVoid) {
-    StartModelAnim(KAHARI_ANIM_LEAP, 0);
+    StartModelAnim(KAHARI_ANIM_LEAPATTACK, 0);
 
     // jump
     FLOAT3D vDir = (m_penEnemy->GetPlacement().pl_PositionVector -

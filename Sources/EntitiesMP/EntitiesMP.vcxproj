@@ -184,6 +184,7 @@
   <ItemGroup>
     <ClCompile Include="Abomination.cpp" />
     <ClCompile Include="AchievementGranter.cpp" />
+    <ClCompile Include="BlackDog.cpp" />
     <ClCompile Include="BlackStickman.cpp" />
     <ClCompile Include="Common\Common.cpp" />
     <ClCompile Include="Common\EmanatingParticles.cpp" />
@@ -805,6 +806,8 @@
     <ClInclude Include="BackgroundViewer_tables.h" />
     <ClInclude Include="BasicEffects.h" />
     <ClInclude Include="BasicEffects_tables.h" />
+    <ClInclude Include="BlackDog.h" />
+    <ClInclude Include="BlackDog_tables.h" />
     <ClInclude Include="BlackStickman.h" />
     <ClInclude Include="BlackStickman_tables.h" />
     <ClInclude Include="BlendController.h" />
@@ -2440,6 +2443,19 @@ ecc EntitiesMP/%(Filename).es </Command>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Kahari.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="BlackDog.es">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
 ecc EntitiesMP/%(Filename).es </Command>

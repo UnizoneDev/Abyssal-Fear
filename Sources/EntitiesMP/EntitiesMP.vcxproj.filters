@@ -497,6 +497,9 @@
     <ClCompile Include="Kahari.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BlackDog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Flesh\Classes\Acid.ecl">
@@ -1327,6 +1330,9 @@
     <CustomBuild Include="Kahari.es">
       <Filter>Class Files\Enemies</Filter>
     </CustomBuild>
+    <CustomBuild Include="BlackDog.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Common.h">
@@ -2113,6 +2119,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Kahari_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlackDog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BlackDog_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
