@@ -16,13 +16,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 1027
 %{
 #include "StdH.h"
+#include "Models/Props/Fruit/CitrusOrange.h"
 %}
 
-
-
-%{
-
-%}
+enum WildlifeFoodType {
+  0 WFT_ORANGE        "Orange",
+  1 WFT_MEAT          "Meat",
+  2 WFT_GREENMEAT     "Green Meat"
+};
 
 class CWildlifeFood : CMovableModelEntity {
 name      "Wildlife Food";
@@ -31,10 +32,15 @@ features  "HasName";
 
 properties:
   1 CTString m_strName                    "Name" 'N' = "Wildlife Food",              // class name
+  2 enum WildlifeFoodType m_wfType        "Type" = WFT_ORANGE,                       // type
 
 components:
-  1 model   MODEL_APPLE     "Models\\Props\\Barrel1\\Barrel1.mdl",
-  2 texture TEXTURE_APPLE   "Models\\Props\\Barrel1\\Barrel1.tex",
+  1 model   MODEL_ORANGE     "Models\\Props\\Fruit\\CitrusOrange.mdl",
+  2 texture TEXTURE_ORANGE   "Models\\Props\\Fruit\\CitrusOrange.tex",
+
+  10 model   MODEL_FLESH          "Models\\Effects\\Debris\\FleshDebris.mdl",
+  11 texture TEXTURE_FLESH_RED    "Models\\Effects\\Debris\\FleshDebrisRed.tex",
+  12 texture TEXTURE_FLESH_GREEN  "Models\\Effects\\Debris\\FleshDebrisGreen.tex",
 
 
 functions:
@@ -45,8 +51,8 @@ functions:
   };
 
   void Precache(void) {
-    PrecacheModel(MODEL_APPLE);
-    PrecacheTexture(TEXTURE_APPLE);
+    PrecacheModel(MODEL_ORANGE);
+    PrecacheTexture(TEXTURE_ORANGE);
   };
 
 /* Receive damage */
@@ -68,15 +74,31 @@ procedures:
     InitAsModel();
     SetPhysicsFlags(EPF_MODEL_SLIDING);
     SetCollisionFlags(ECF_MODEL);
-    SetHealth(50.0f);
-    SetModel(MODEL_APPLE);
-    SetModelMainTexture(TEXTURE_APPLE);
+    SetHealth(40.0f);
+    switch(m_wfType)
+    {
+      case WFT_ORANGE:
+        SetModel(MODEL_ORANGE);
+        SetModelMainTexture(TEXTURE_ORANGE);
+        break;
+      case WFT_MEAT:
+        SetModel(MODEL_FLESH);
+        SetModelMainTexture(TEXTURE_FLESH_RED);
+        break;
+      case WFT_GREENMEAT:
+        SetModel(MODEL_FLESH);
+        SetModelMainTexture(TEXTURE_FLESH_GREEN);
+        break;
+    }
     ModelChangeNotify();
 
     // spawn in world editor
     autowait(0.1f);
     
     wait() {
+      on (EBegin) : {
+          resume;
+      }
       on (EDeath) : {
           SwitchToEditorModel();
           SetPhysicsFlags(EPF_MODEL_IMMATERIAL);

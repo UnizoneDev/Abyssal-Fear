@@ -40,7 +40,7 @@ properties:
   1 BOOL m_bFistHit = FALSE,
   
 components:
-  1 class   CLASS_BASE				"Classes\\EnemyBase.ecl",
+  1 class   CLASS_BASE				"Classes\\EnemyWildlife.ecl",
   2 model   MODEL_BLACKDOG		    "Models\\NPCs\\BlackDog\\BlackDog.mdl",
   3 texture TEXTURE_BLACKDOG   		"Models\\NPCs\\BlackDog\\BlackDog.tex",
 
@@ -152,6 +152,10 @@ functions:
     StartModelAnim(BLACKDOG_ANIM_LEAP, AOF_LOOPING|AOF_NORESTART);
   };
 
+  void EatingAnim(void) {
+    StartModelAnim(BLACKDOG_ANIM_BITE, AOF_LOOPING|AOF_NORESTART);
+  };
+
   void SightSound(void) {
     switch(IRnd()%2)
     {
@@ -184,7 +188,7 @@ functions:
     if (CalcDist(m_penEnemy) < 2.5f) {
       jump BiteEnemy();
     // jump
-    } else if (CalcDist(m_penEnemy) < 14.0f) {
+    } else if (CalcDist(m_penEnemy) < 10.0f) {
       jump JumpOnEnemy();
     }
     return EReturn();
@@ -199,7 +203,7 @@ functions:
                     GetPlacement().pl_PositionVector).Normalize();
     vDir *= !GetRotationMatrix();
     vDir *= m_fCloseRunSpeed*2.0f;
-    vDir(2) = 2.5f;
+    vDir(2) = 3.0f;
     SetDesiredTranslation(vDir);
 
     // animation - IGNORE DAMAGE WOUND -
@@ -234,13 +238,17 @@ functions:
     }
 
     autowait(0.3f);
-    MaybeSwitchToAnotherPlayer();
+    if(!CheckIfFull()) {
+      MaybeSwitchToAnotherFood();
+    } else {
+      MaybeSwitchToAnotherPlayer();
+    }
     return EReturn();
   }
 
   /************************************************************
- *                       M  A  I  N                         *
- ************************************************************/
+   *                       M  A  I  N                         *
+   ************************************************************/
   Main(EVoid) {
     // declare yourself as a model
     InitAsModel();
@@ -248,9 +256,9 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_WILDLIFE;
-    SetHealth(200.0f);
-    m_fMaxHealth = 200.0f;
-    m_fDamageWounded = 170.0f;
+    SetHealth(150.0f);
+    m_fMaxHealth = 150.0f;
+    m_fDamageWounded = 60.0f;
     m_iScore = 2500;
     en_tmMaxHoldBreath = 30.0f;
     en_fDensity = 2000.0f;
