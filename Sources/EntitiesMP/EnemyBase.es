@@ -501,29 +501,6 @@ functions:
   }
 
   // --------------------------------------------------------------------------------------
-  // Check if we maybe switch to some other food (for hungry beasts in coop).
-  // --------------------------------------------------------------------------------------
-  void MaybeSwitchToAnotherFood(void)
-  {
-    // If in single player then no need to check.
-    if (GetSP()->sp_bSinglePlayer) {
-      return;
-    }
-
-    // If current player is inside threat distance then do not switch.
-    if (CalcDist(m_penEnemy) < GetThreatDistance()) {
-      return;
-    }
-
-    // maybe switch
-    CEntity *penNewEnemy = GetWatcher()->CheckAnotherFood(m_penEnemy);
-    if (penNewEnemy!=m_penEnemy && penNewEnemy != NULL) {
-      m_penEnemy = penNewEnemy;
-      SendEvent(EReconsiderBehavior());
-    }
-  }
-
-  // --------------------------------------------------------------------------------------
   // Get the faction you currently are in
   // --------------------------------------------------------------------------------------
   INDEX GetFaction()

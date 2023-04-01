@@ -62,6 +62,29 @@ virtual void DrinkingSound(void) {};
 //  Main AI Functions  //
 /////////////////////////
 
+  // --------------------------------------------------------------------------------------
+  // Check if we maybe switch to some other food (for hungry beasts in coop).
+  // --------------------------------------------------------------------------------------
+  void MaybeSwitchToAnotherFood(void)
+  {
+    // If in single player then no need to check.
+    if (GetSP()->sp_bSinglePlayer) {
+      return;
+    }
+
+    // If current player is inside threat distance then do not switch.
+    if (CalcDist(m_penEnemy) < GetThreatDistance()) {
+      return;
+    }
+
+    // maybe switch
+    CEntity *penNewEnemy = GetWatcher()->CheckAnotherFood(m_penEnemy);
+    if (penNewEnemy!=m_penEnemy && penNewEnemy != NULL) {
+      m_penEnemy = penNewEnemy;
+      SendEvent(EReconsiderBehavior());
+    }
+  }
+
 procedures:
 
 /************************************************************
@@ -82,17 +105,67 @@ procedures:
     return;
   };
 
-  FindFood()
+  EatFood(EVoid)
   {
-    m_vDesiredPosition = m_penEnemy->GetPlacement().pl_PositionVector;
-    if(!CheckIfFull()) {
-      m_ulMovementFlags = SetDesiredMovement(); 
-      MovementAnimation(m_ulMovementFlags);
-    } else {
+    // if we touched food and are hungry
+    if (IsDerivedFromClass(m_penEnemy, "Wildlife Food") && !CheckIfFull())
+    {
+      if(!CheckIfFull()) {
+        EatingAnim();
+        StopMoving();
+        autowait(0.2f);
+        EatingSound();
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, GetPlacement().pl_PositionVector, -en_vGravityDir);
+        autowait(0.4f);
+      }
+    }
+  }
+
+  FindFood(EVoid)
+  {
+    if(!IsDerivedFromClass(m_penEnemy, "Wildlife Food")) {
       return EReturn();
     }
+
+    // if the food not eaten or deleted
+    if (!(m_penEnemy->GetFlags()&ENF_ALIVE) || m_penEnemy->GetFlags()&ENF_DELETED) {
+        SetTargetNone();
+      return EReturn();
+    }
+
+    m_vDesiredPosition = m_penEnemy->GetPlacement().pl_PositionVector;
+    m_fMoveFrequency = 0.1f;
+
+    while (TRUE)
+    {
+      // adjust direction and speed
+      m_fMoveSpeed = m_fCloseRunSpeed;
+      m_aRotateSpeed = m_aCloseRotateSpeed;
+      FLOAT3D vTranslation = GetDesiredTranslation();
+      SetDesiredMovement(); 
+      SetDesiredTranslation(vTranslation);
+
+      wait(m_fMoveFrequency)
+      {
+        on (EBegin) : { resume; };
+        on (ESound) : { resume; }     // ignore all sounds
+        on (EWatch) : { resume; }     // ignore watch
+        on (ETimer) : { stop; }       // timer tick expire
+        on (ETouch etouch) :
+        {
+          // if we touched food, then eat it
+          if ( IsDerivedFromClass( etouch.penOther, "Wildlife Food") && !CheckIfFull())
+          {            
+            jump EatFood();
+          }
+          // we didn't touch ground nor player, ignore
+          resume;
+        }
+      }
+    }
+
     return EReturn();
-  }
+  };
 
   // --------------------------------------------------------------------------------------
   // Move.
