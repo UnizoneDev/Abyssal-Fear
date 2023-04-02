@@ -754,6 +754,9 @@
     <ClCompile Include="Math\TextureMapping_Utils.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Base\Config.cpp">
+      <Filter>Source Files\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base\Anim.h">
@@ -1375,6 +1378,9 @@
       <Filter>Header Files\Math Headers</Filter>
     </ClInclude>
     <ClInclude Include="Base\ByteSwap.h">
+      <Filter>Header Files\Base Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\Config.h">
       <Filter>Header Files\Base Headers</Filter>
     </ClInclude>
   </ItemGroup>

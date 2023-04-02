@@ -324,48 +324,20 @@ functions:
       return;
     }
 
-    // Open enemy config file
-    try {
-      CTFileStream strm;
-      strm.Open_t(m_fnmConfig);
+    // Load variables into this stack
+    CConfigPairs aConfig;
+    LoadConfigFile(m_fnmConfig, aConfig);
 
-      CTString strLine;
-      char strProp[256];
-
-      // Value types
-      FLOAT fValue;
-      char strValue[256];
-
-      INDEX iLine = 0;
-
-      while (!strm.AtEOF()) {
-        // Read non-empty line
-        strm.GetLine_t(strLine);
-        iLine++;
-
-        strLine.TrimSpacesLeft();
-        strLine.TrimSpacesRight();
-
-        if (strLine == "") {
-          continue;
-        }
-
-        // Try to read the line with a string value as "strProp=strValue"
-        if (strLine.ScanF(CONFIGSTRING, strProp, strValue) == 2) {
-        SetStringProperty(strProp, strValue);
-
-        // Try to read the line with a number value as "strProp=fValue"
-        } else if (strLine.ScanF("%256[^=]=%g", strProp, &fValue) == 2) {
-          SetNumberProperty(strProp, fValue);
-
-        // Invalid line
+    // Iterate through it
+    for (INDEX i = 0; i < aConfig.Count(); i++) {
+        const ConfigPair &pair = aConfig[i];
+  
+        // Set string or number value
+        if (pair.val.bString) {
+            SetStringProperty(pair.key, pair.val.strValue);
         } else {
-          ThrowF_t(TRANS("Couldn't read a key-value pair on line %d"), iLine);
+            SetNumberProperty(pair.key, pair.val.fValue);
         }
-      }
-
-    } catch (char *strError) {
-      CPrintF(TRANS("Cannot open enemy config file:\n%s\n"), strError);
     }
   };
 

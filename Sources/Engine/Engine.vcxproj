@@ -208,6 +208,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StdH.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="Base\Changeable.cpp" />
+    <ClCompile Include="Base\Config.cpp" />
     <ClCompile Include="Base\Console.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">StdH.h</PrecompiledHeaderFile>
@@ -700,6 +701,7 @@
     <ClInclude Include="Base\ByteSwap.h" />
     <ClInclude Include="Base\Changeable.h" />
     <ClInclude Include="Base\ChangeableRT.h" />
+    <ClInclude Include="Base\Config.h" />
     <ClInclude Include="Base\Console.h" />
     <ClInclude Include="Base\Console_internal.h" />
     <ClInclude Include="Base\CRC.h" />
