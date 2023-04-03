@@ -76,8 +76,6 @@ enum FactionType {
 #define MF_MOVEXZY  (1L<<2)
 #define MF_MOVEY    (1L<<3)
 #define MF_MOVEX    (1L<<4)
-
-#define CONFIGSTRING "%256[^=]=\"%256[^\"]\""
 %}
 
 class export CEnemyBase : CMovableModelEntity {
@@ -319,6 +317,11 @@ functions:
        else if (strProp == "fIgnoreRange") { m_fIgnoreRange = fValue; }
   };
 
+  // Set index properties
+  virtual void SetIndexProperty(const CTString &strProp, const INDEX iValue) {
+       if (strProp == "fBodyParts") { m_fBodyParts = iValue; }
+  };
+
   void LoadEnemyConfig(void) {
     if (m_fnmConfig == "") {
       return;
@@ -335,8 +338,10 @@ functions:
         // Set string or number value
         if (pair.val.bString) {
             SetStringProperty(pair.key, pair.val.strValue);
-        } else {
+        } else if (pair.val.bFloat) {
             SetNumberProperty(pair.key, pair.val.fValue);
+        } else {
+            SetIndexProperty(pair.key, pair.val.iValue);
         }
     }
   };
@@ -3468,6 +3473,121 @@ procedures:
           m_fMoveSpeed = GetProp(m_fWalkSpeed) * fSpeedMultiplier;
           m_aRotateSpeed = 0.0f;
           m_vDesiredPosition = FLOAT3D(0.0f, 0.0f, +m_fMoveSpeed);
+          // start moving
+          SetDesiredTranslation(m_vDesiredPosition);
+          resume;
+        }
+      }
+    }
+    // stop rotating
+    StopRotating();
+
+    // return to caller
+    return EReturn();
+  };
+
+  // --------------------------------------------------------------------------------------
+  // Call this to make the enemy randomly strafe left or right
+  // --------------------------------------------------------------------------------------
+  StrafeLeftOrRightRandom(EVoid) 
+  {
+    INDEX IRandomStrafe = IRnd()%2;
+
+    // stop moving
+    StopMoving();
+    // play animation for locking
+    if(IRandomStrafe == 1) {
+      StrafeRightAnim();
+    } else {
+      StrafeLeftAnim();
+    }
+    // wait charge time
+    m_fLockStartTime = _pTimer->CurrentTick();
+    while (m_fLockStartTime+GetProp(m_fLockOnEnemyTime) > _pTimer->CurrentTick()) {
+      // each tick
+      m_fMoveFrequency = 0.05f;
+      wait (m_fMoveFrequency) {
+        on (ETimer) : { stop; }
+        on (EBegin) : {
+          FLOAT fSpeedMultiplier = 1.0f;
+          m_fMoveSpeed = GetProp(m_fWalkSpeed) * fSpeedMultiplier;
+          m_aRotateSpeed = 0.0f;
+
+          INDEX IRandomStrafe = IRnd()%2;
+          if(IRandomStrafe == 1) {
+            m_vDesiredPosition = FLOAT3D(-m_fMoveSpeed, 0.0f, 0.0f);
+          } else {
+            m_vDesiredPosition = FLOAT3D(+m_fMoveSpeed, 0.0f, 0.0f);
+          }
+          
+          // start moving
+          SetDesiredTranslation(m_vDesiredPosition);
+          resume;
+        }
+      }
+    }
+    // stop rotating
+    StopRotating();
+
+    // return to caller
+    return EReturn();
+  };
+
+  // --------------------------------------------------------------------------------------
+  // Call this to make the enemy strafe to the left
+  // --------------------------------------------------------------------------------------
+  StrafeLeft(EVoid) 
+  {
+    // stop moving
+    StopMoving();
+    // play animation for locking
+    StrafeLeftAnim();
+    // wait charge time
+    m_fLockStartTime = _pTimer->CurrentTick();
+    while (m_fLockStartTime+GetProp(m_fLockOnEnemyTime) > _pTimer->CurrentTick()) {
+      // each tick
+      m_fMoveFrequency = 0.05f;
+      wait (m_fMoveFrequency) {
+        on (ETimer) : { stop; }
+        on (EBegin) : {
+          FLOAT fSpeedMultiplier = 1.0f;
+          m_fMoveSpeed = GetProp(m_fWalkSpeed) * fSpeedMultiplier;
+          m_aRotateSpeed = 0.0f;
+          m_vDesiredPosition = FLOAT3D(-m_fMoveSpeed, 0.0f, 0.0f);
+          // start moving
+          SetDesiredTranslation(m_vDesiredPosition);
+          resume;
+        }
+      }
+    }
+    // stop rotating
+    StopRotating();
+
+    // return to caller
+    return EReturn();
+  };
+
+  // --------------------------------------------------------------------------------------
+  // Call this to make the enemy strafe to the right
+  // --------------------------------------------------------------------------------------
+  StrafeRight(EVoid) 
+  {
+    // stop moving
+    StopMoving();
+    // play animation for locking
+    StrafeRightAnim();
+    // wait charge time
+    m_fLockStartTime = _pTimer->CurrentTick();
+    while (m_fLockStartTime+GetProp(m_fLockOnEnemyTime) > _pTimer->CurrentTick()) {
+      // each tick
+      m_fMoveFrequency = 0.05f;
+      wait (m_fMoveFrequency) {
+        on (ETimer) : { stop; }
+        on (EBegin) : {
+          FLOAT fSpeedMultiplier = 1.0f;
+          m_fMoveSpeed = GetProp(m_fWalkSpeed) * fSpeedMultiplier;
+          m_aRotateSpeed = 0.0f;
+          m_vDesiredPosition = FLOAT3D(+m_fMoveSpeed, 0.0f, 0.0f);
           // start moving
           SetDesiredTranslation(m_vDesiredPosition);
           resume;

@@ -337,6 +337,12 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_attTextureTransformations[44].tt_strName = "D Super Fast";
   pwo->wo_attTextureTransformations[45].tt_strName = "D Abnormaly Fast";
 
+  pwo->wo_attTextureTransformations[46].tt_strName = "Weird movement extremly slow";
+  pwo->wo_attTextureTransformations[47].tt_strName = "Weird movement very slow";
+  pwo->wo_attTextureTransformations[48].tt_strName = "Weird movement slow";
+  pwo->wo_attTextureTransformations[49].tt_strName = "Weird movement normal";
+  pwo->wo_attTextureTransformations[50].tt_strName = "Weird movement fast";
+
 // static
   pwo->wo_atbTextureBlendings[0].tb_strName         = "Opaque";
   pwo->wo_atbTextureBlendings[0].tb_ubBlendingType  = STXF_BLEND_OPAQUE;
@@ -945,6 +951,43 @@ void CWorldBase_OnWorldRender(CWorld *pwo)
 
   pwo->wo_attTextureTransformations[15].tt_mdTransformation.md_fUOffset=Sin( tmNow*15);
   pwo->wo_attTextureTransformations[15].tt_mdTransformation.md_fVOffset=Cos( tmNow*25);
+
+
+  mdui.mdui_aURotation = 8192*1/1024.0f*tmNow;
+  mdui.mdui_aVRotation = 8192*4/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[46].tt_mdTransformation.FromUI(mdui);
+
+  pwo->wo_attTextureTransformations[46].tt_mdTransformation.md_fUOffset=Sin( tmNow*22)/30;
+  pwo->wo_attTextureTransformations[46].tt_mdTransformation.md_fVOffset=Cos( tmNow*26)/35;
+
+  mdui.mdui_aURotation = 8192*2/1024.0f*tmNow;
+  mdui.mdui_aVRotation = 8192*8/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[47].tt_mdTransformation.FromUI(mdui);
+
+  pwo->wo_attTextureTransformations[47].tt_mdTransformation.md_fUOffset=Sin( tmNow*32)/10;
+  pwo->wo_attTextureTransformations[47].tt_mdTransformation.md_fVOffset=Cos( tmNow*22)/15;
+
+  mdui.mdui_aURotation = 8192*4/1024.0f*tmNow;
+  mdui.mdui_aVRotation = 8192*16/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[48].tt_mdTransformation.FromUI(mdui);
+
+  pwo->wo_attTextureTransformations[48].tt_mdTransformation.md_fUOffset=Sin( tmNow*15)/7;
+  pwo->wo_attTextureTransformations[48].tt_mdTransformation.md_fVOffset=Cos( tmNow*25)/8;
+
+  mdui.mdui_aURotation = 8192*8/1024.0f*tmNow;
+  mdui.mdui_aVRotation = 8192*32/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[49].tt_mdTransformation.FromUI(mdui);
+
+  pwo->wo_attTextureTransformations[49].tt_mdTransformation.md_fUOffset=Sin( tmNow*32)/3;
+  pwo->wo_attTextureTransformations[49].tt_mdTransformation.md_fVOffset=Cos( tmNow*22)/3;
+
+  mdui.mdui_aURotation = 8192*16/1024.0f*tmNow;
+  mdui.mdui_aVRotation = 8192*64/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[50].tt_mdTransformation.FromUI(mdui);
+
+  pwo->wo_attTextureTransformations[50].tt_mdTransformation.md_fUOffset=Sin( tmNow*15);
+  pwo->wo_attTextureTransformations[50].tt_mdTransformation.md_fVOffset=Cos( tmNow*25);
+
 
   // ----------- Obtain world settings controller
   CWorldSettingsController *pwsc = NULL;

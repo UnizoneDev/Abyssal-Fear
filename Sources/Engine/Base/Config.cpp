@@ -29,6 +29,7 @@ void LoadConfigFile(const CTFileName &fnmFileName, CConfigPairs &aConfig)
         char strProp[256];
 
         // Value types
+        INDEX iValue;
         FLOAT fValue;
         char strValue[256];
 
@@ -60,6 +61,14 @@ void LoadConfigFile(const CTFileName &fnmFileName, CConfigPairs &aConfig)
                 ConfigPair& pair = aConfig.Push();
                 pair.key = strProp; // Set key name
                 pair.val.SetNumber(fValue); // Set number value
+
+              // Try to read the line with a number value as "strProp=iValue"
+            }
+            else if (strLine.ScanF("%256[^=]=%d", strProp, &iValue) == 2) {
+                // After reading a number value
+                ConfigPair& pair = aConfig.Push();
+                pair.key = strProp; // Set key name
+                pair.val.SetIndex(iValue); // Set number value
 
               // Invalid line
             }

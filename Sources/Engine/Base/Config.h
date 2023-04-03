@@ -30,18 +30,28 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 class ENGINE_API ConfigValue {
     public:
     BOOL bString;
+    BOOL bFloat;
 
     CTString strValue;
     FLOAT fValue;
+    INDEX iValue;
 
     void SetString(const CTString& str) {
         strValue = str;
         bString = TRUE;
+        bFloat = FALSE;
     };
 
     void SetNumber(const FLOAT f) {
         fValue = f;
         bString = FALSE;
+        bFloat = TRUE;
+    };
+
+    void SetIndex(const INDEX i) {
+        iValue = i;
+        bString = FALSE;
+        bFloat = FALSE;
     };
 };
 

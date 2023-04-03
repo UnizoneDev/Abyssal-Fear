@@ -312,6 +312,8 @@ functions:
 
     autowait(0.3f);
     MaybeSwitchToAnotherPlayer();
+
+    m_fLockOnEnemyTime = 1.0f;
     autocall CEnemyBase::StepBackwards() EReturn;
 
     return EReturn();
@@ -360,6 +362,10 @@ functions:
 
     autowait(0.5f + FRnd()/3);
     MaybeSwitchToAnotherPlayer();
+
+    m_fLockOnEnemyTime = 1.0f;
+    autocall CEnemyBase::StrafeLeft() EReturn;
+    autocall CEnemyBase::StrafeRight() EReturn;
 
     return EEnd();
   };
