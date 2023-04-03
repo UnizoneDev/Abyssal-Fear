@@ -2506,6 +2506,50 @@ void Particles_Ghostbuster(const FLOAT3D &vSrc, const FLOAT3D &vDst, INDEX ctRay
   Particle_Flush();
 }
 
+void Particles_GenericBeam(CTextureObject *ptoCustomTexture, const FLOAT3D& vSrc, const FLOAT3D& vDst, INDEX ctRays, FLOAT fSize, FLOAT fPower,
+    FLOAT fKneeDivider /*=33.3333333f*/)
+{
+    Particle_PrepareTexture(ptoCustomTexture, PBT_ADD);
+    Particle_SetTexturePart(512, 512, 0, 0);
+    // get direction vector
+    FLOAT3D vZ = vDst - vSrc;
+    FLOAT fLen = vZ.Length();
+    vZ.Normalize();
+
+    // get two normal vectors
+    FLOAT3D vX;
+    if (Abs(vZ(2)) > 0.5) {
+        vX = FLOAT3D(1.0f, 0.0f, 0.0f) * vZ;
+    }
+    else {
+        vX = FLOAT3D(0.0f, 1.0f, 0.0f) * vZ;
+    }
+    FLOAT3D vY = vZ * vX;
+    const FLOAT fStep = fLen / fKneeDivider;
+
+    for (INDEX iRay = 0; iRay < ctRays; iRay++)
+    {
+        FLOAT3D v0 = vSrc;
+        FLOAT fT = FLOAT(iRay) / ctRays + _pTimer->GetLerpedCurrentTick() / 1.5f;
+        FLOAT fDT = fT - INDEX(fT);
+        FLOAT fFade = 1 - fDT * 4.0f;
+
+        if (fFade > 1 || fFade <= 0) continue;
+        UBYTE ubFade = NormFloatToByte(fFade * fPower);
+        COLOR colFade = RGBToColor(ubFade, ubFade, ubFade);
+        for (FLOAT fPos = fStep; fPos < fLen + fStep / 2; fPos += fStep)
+        {
+            INDEX iOffset = ULONG(fPos * 1234.5678f + iRay * 103) % 32;
+            FLOAT3D v1 = vSrc + (vZ * fPos + vX * (0.5f * GetParticleStarPos(iOffset, 0) * fSize) +
+                vY * (0.5f * GetParticleStarPos(iOffset, 1) * fSize));
+            Particle_RenderLine(v0, v1, 0.125f * fSize, colFade | 0xFF);
+            v0 = v1;
+        }
+    }
+    // all done
+    Particle_Flush();
+}
+
 // growth - one for each drawport
 
 static int qsort_CompareGrowth(const void *pvGrowth0, const void *pvGrowth1)
