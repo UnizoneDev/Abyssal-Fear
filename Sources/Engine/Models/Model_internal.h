@@ -178,9 +178,9 @@ struct ENGINE_API MappingSurface
   COLOR   ms_colColor;														// color of this surface
   FLOAT3D ms_vSurfaceCenterOffset;                // vector of surface center offseting
 
-  COLOR ms_colDiffuse;														  // difuse color of this surface
-  COLOR ms_colReflections;												      // reflections color of this surface
-  COLOR ms_colSpecular;														  // specular color of this surface
+  COLOR ms_colDiffuse;														// difuse color of this surface
+  COLOR ms_colReflections;												// reflections color of this surface
+  COLOR ms_colSpecular;														// specular color of this surface
   COLOR ms_colBump;															  // bump color of this surface
 
   ULONG ms_ulOnColor;                             // on and off colors for surface
