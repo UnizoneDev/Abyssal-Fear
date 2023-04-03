@@ -2405,8 +2405,7 @@ void CModelObject::RenderModel_View(CRenderModel& rm)
 
 
     // if patches are on and are enabled for this mip model
-    // TODO !!!!
-    // if( (mo_PatchMask!=0) && (mmi.mmpi_ulFlags&MM_PATCHES_VISIBLE)) RenderPatches_View(rm);
+    if( (mo_PatchMask!=0) && (mmi.mmpi_ulFlags&MM_PATCHES_VISIBLE)) RenderPatches_View(rm);
 
 
 
