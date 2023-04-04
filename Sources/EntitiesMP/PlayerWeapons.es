@@ -258,7 +258,7 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
     pdec->PrecacheSound(SOUND_PIPE_HIT2          );
     pdec->PrecacheSound(SOUND_PIPE_HIT3          );
     pdec->PrecacheSound(SOUND_KNIFE_SWING        );
-    pdec->PrecacheSound(SOUND_KNIFE_HIT          );
+    pdec->PrecacheSound(SOUND_PIPE_BANG          );
   }
 
   // precache animator too
@@ -430,6 +430,7 @@ components:
  73 sound   SOUND_PIPE_HIT1            "Sounds\\Weapons\\Punch1.wav",
  74 sound   SOUND_PIPE_HIT2            "Sounds\\Weapons\\Punch2.wav",
  75 sound   SOUND_PIPE_HIT3            "Sounds\\Weapons\\Punch3.wav",
+ 76 sound   SOUND_PIPE_BANG            "Sounds\\Weapons\\MetalPipeBang.wav",
 
 // ************** REFLECTIONS **************
 200 texture TEX_REFL_BWRIPLES01         "Models\\ReflectionTextures\\BWRiples01.tex",
@@ -1043,7 +1044,7 @@ functions:
       case WEAPON_PIPE: {
         SetComponents(this, m_moWeapon, MODEL_PIPE, TEXTURE_HAND, 0, 0, 0);
         AddAttachmentToModel(this, m_moWeapon, METALPIPEVIEWMODEL_ATTACHMENT_THEPIPE, MODEL_PIPEITEM, 
-                             TEXTURE_PIPEITEM, 0, 0, 0);
+                             TEXTURE_PIPEITEM, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
         m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_IDLE, 0);
         break; }
     }
@@ -2815,7 +2816,7 @@ procedures:
       if (m_bMeleeHitModel || m_bMeleeHitBrush)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
+        PlaySound(pl.m_soWeapon1, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
       }
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
@@ -2835,7 +2836,7 @@ procedures:
       if (m_bMeleeHitModel || m_bMeleeHitBrush)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
+        PlaySound(pl.m_soWeapon1, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
       }
       autowait(m_fAnimWaitTime/2);
     }
