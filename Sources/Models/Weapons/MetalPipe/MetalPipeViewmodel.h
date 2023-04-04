@@ -1,0 +1,18 @@
+// Animation names
+#define METALPIPEVIEWMODEL_ANIM_DEFAULT 0
+#define METALPIPEVIEWMODEL_ANIM_IDLE 1
+#define METALPIPEVIEWMODEL_ANIM_LOWER 2
+#define METALPIPEVIEWMODEL_ANIM_RAISE 3
+#define METALPIPEVIEWMODEL_ANIM_ATTACK 4
+
+// Color names
+
+// Patch names
+
+// Names of collision boxes
+#define METALPIPEVIEWMODEL_COLLISION_BOX_PART_NAME 0
+
+// Attaching position names
+#define METALPIPEVIEWMODEL_ATTACHMENT_THEPIPE 0
+
+// Sound names

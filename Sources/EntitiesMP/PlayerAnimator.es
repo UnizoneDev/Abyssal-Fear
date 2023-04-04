@@ -26,6 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "Models/Weapons/Pistol/PistolItem.h"
 #include "Models/Weapons/Shotgun/ShotgunItem.h"
 #include "Models/Weapons/SMG/SMGItem.h"
+#include "Models/Weapons/MetalPipe/PipeWeapon.h"
 %}
 
 uses "EntitiesMP/Player";
@@ -112,6 +113,12 @@ void CPlayerAnimator_Precache(ULONG ulAvailable)
     pdec->PrecacheModel(MODEL_SMGITEM                );
     pdec->PrecacheTexture(TEXTURE_SMGITEM            );
   }
+
+  // precache weapons player has
+  if ( ulAvailable&(1<<(WEAPON_PIPE-1)) ) {
+    pdec->PrecacheModel(MODEL_PIPE                 );
+    pdec->PrecacheTexture(TEXTURE_PIPE);
+  }
 }
 %}
 
@@ -186,6 +193,10 @@ components:
 // ************** SMG **************
  50 model   MODEL_SMGITEM            "Models\\Weapons\\SMG\\SMGItem.mdl",
  51 texture TEXTURE_SMGITEM          "Models\\Weapons\\SMG\\SMG.tex",
+
+// ************** PIPE **************
+ 60 model   MODEL_PIPE                 "Models\\Weapons\\MetalPipe\\PipeWeapon.mdl",
+ 61 texture TEXTURE_PIPE               "Models\\Weapons\\MetalPipe\\PipeWeapon.tex",
 
 // ************** GOLDEN SWASTIKA **************
 180 model   MODEL_GOLDSWASTIKA                "Models\\Items\\Keys\\GoldenSwastika\\Swastika.mdl",
@@ -298,7 +309,7 @@ functions:
     CModelObject *pmoBodyRen = GetBodyRen();
     CModelObject *pmoBodyDef = GetBody();
     // for each weapon attachment
-    for (INDEX iWeapon = BODY_ATTACHMENT_PISTOL; iWeapon<=BODY_ATTACHMENT_ITEM; iWeapon++) {
+    for (INDEX iWeapon = BODY_ATTACHMENT_PISTOL; iWeapon<=BODY_ATTACHMENT_PIPE; iWeapon++) {
       CAttachmentModelObject *pamoWeapDef = pmoBodyDef->GetAttachmentModel(iWeapon);
       CAttachmentModelObject *pamoWeapRen = pmoBodyRen->GetAttachmentModel(iWeapon);
       // if it doesn't exist in either
@@ -360,6 +371,10 @@ functions:
     // *********** SMG ***********
       case WEAPON_SMG:
         AddWeaponAttachment(BODY_ATTACHMENT_SMG, MODEL_SMGITEM, TEXTURE_SMGITEM, 0, 0, 0);
+        break;
+
+      case WEAPON_PIPE:
+        AddWeaponAttachment(BODY_ATTACHMENT_PIPE, MODEL_PIPE, TEXTURE_PIPE, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
         break;
       
       default:
@@ -861,7 +876,7 @@ functions:
       switch (iWeapon) {
         case WEAPON_NONE: case WEAPON_HOLSTERED:
           break;
-        case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL:
+        case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_PIPE:
           iAnim += BODY_ANIM_COLT_SWIM_STAND-BODY_ANIM_COLT_STAND;
           break;
         case WEAPON_SHOTGUN: case WEAPON_SMG:
@@ -895,7 +910,7 @@ functions:
       case WEAPON_NONE: case WEAPON_HOLSTERED:
         SetBodyAnimation(iNone, ulFlags);
         break;
-      case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL:
+      case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_PIPE:
         if (m_bSwim) { iColt += BODY_ANIM_COLT_SWIM_STAND-BODY_ANIM_COLT_STAND; }
         SetBodyAnimation(iColt, ulFlags);
         break;
@@ -959,6 +974,9 @@ functions:
         break;
       case WEAPON_SMG:
         pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_SMG);
+        break;
+      case WEAPON_PIPE:
+        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_PIPE);
         break;
       default:
         ASSERT(FALSE);

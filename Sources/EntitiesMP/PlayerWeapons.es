@@ -33,6 +33,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "Models/Weapons/Shotgun/ShotgunItem.h"
 #include "Models/Weapons/SMG/SMGViewmodel.h"
 #include "Models/Weapons/SMG/SMGItem.h"
+#include "Models/Weapons/MetalPipe/MetalPipeViewmodel.h"
+#include "Models/Weapons/MetalPipe/PipeWeapon.h"
 
 // Mission Pack player body instead of the old one
 #include "Models/Player/Uni/Body.h"
@@ -46,7 +48,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/EnemyBase.h"
 extern INDEX hud_bShowWeapon;
 
-extern const INDEX aiWeaponsRemap[7] = { 0,  1,  2,  3,  4,  5,  6 };
+extern const INDEX aiWeaponsRemap[8] = { 0,  1,  2,  3,  7,  4,  5,  6 };
 
 %}
 
@@ -101,12 +103,13 @@ enum WeaponType {
   4 WEAPON_PISTOL             "",
   5 WEAPON_SHOTGUN            "",
   6 WEAPON_SMG                "",
-  7 WEAPON_LAST               "",
-}; // see 'WEAPONS_ALLAVAILABLEMASK' -> (1111111111111 == 0x1FFFFFF)
+  7 WEAPON_PIPE               "",
+  8 WEAPON_LAST               "",
+}; // see 'WEAPONS_ALLAVAILABLEMASK' -> (1111111111111 == 0x1FFFFFFF)
 
 %{
 // AVAILABLE WEAPON MASK
-#define WEAPONS_ALLAVAILABLEMASK 0x1FFFFFF
+#define WEAPONS_ALLAVAILABLEMASK 0x1FFFFFFF
 
 /*
 #if BUILD_TEST
@@ -226,6 +229,9 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
   if ( ulAvailable&(1<<(WEAPON_AXE-1)) ) {
     pdec->PrecacheModel(MODEL_AXE                 );
     pdec->PrecacheModel(MODEL_AXEITEM             );
+    pdec->PrecacheSound(SOUND_KNIFE_SWING         );
+    pdec->PrecacheSound(SOUND_KNIFE_SLASH         );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT           );
   }
 
   if ( ulAvailable&(1<<(WEAPON_SHOTGUN-1)) ) {
@@ -242,6 +248,17 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
     pdec->PrecacheTexture(TEXTURE_SMGITEM       );
     pdec->PrecacheSound(SOUND_SMG_FIRE          );
     pdec->PrecacheSound(SOUND_SMG_RELOAD        );
+  }
+
+  if ( ulAvailable&(1<<(WEAPON_PIPE-1)) ) {
+    pdec->PrecacheModel(MODEL_PIPE               );
+    pdec->PrecacheModel(MODEL_PIPEITEM           );
+    pdec->PrecacheTexture(TEXTURE_PIPEITEM       );
+    pdec->PrecacheSound(SOUND_PIPE_HIT1          );
+    pdec->PrecacheSound(SOUND_PIPE_HIT2          );
+    pdec->PrecacheSound(SOUND_PIPE_HIT3          );
+    pdec->PrecacheSound(SOUND_KNIFE_SWING        );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT          );
   }
 
   // precache animator too
@@ -405,6 +422,14 @@ components:
  62 texture TEXTURE_SMGITEM          "Models\\Weapons\\SMG\\SMG.tex",
  63 sound   SOUND_SMG_FIRE           "Models\\NPCs\\Gunman\\Sounds\\SMGAttack.wav",
  64 sound   SOUND_SMG_RELOAD         "Models\\NPCs\\Gunman\\Sounds\\SMGReload.wav",
+
+// ************** METAL PIPE **************
+ 70 model   MODEL_PIPEITEM             "Models\\Weapons\\MetalPipe\\PipeWeapon.mdl",
+ 71 texture TEXTURE_PIPEITEM           "Models\\Weapons\\MetalPipe\\PipeWeapon.tex",
+ 72 model   MODEL_PIPE                 "Models\\Weapons\\MetalPipe\\MetalPipeViewmodel.mdl",
+ 73 sound   SOUND_PIPE_HIT1            "Sounds\\Weapons\\Punch1.wav",
+ 74 sound   SOUND_PIPE_HIT2            "Sounds\\Weapons\\Punch2.wav",
+ 75 sound   SOUND_PIPE_HIT3            "Sounds\\Weapons\\Punch3.wav",
 
 // ************** REFLECTIONS **************
 200 texture TEX_REFL_BWRIPLES01         "Models\\ReflectionTextures\\BWRiples01.tex",
@@ -1014,6 +1039,13 @@ functions:
         AddAttachmentToModel(this, mo, SMGITEM_ATTACHMENT_FLARE_MUZZLE, MODEL_FLARE01, TEXTURE_FLARE01, 0, 0, 0);
         m_moWeapon.PlayAnim(SMGVIEWMODEL_ANIM_IDLE, 0);
         break; }
+      // pipe
+      case WEAPON_PIPE: {
+        SetComponents(this, m_moWeapon, MODEL_PIPE, TEXTURE_HAND, 0, 0, 0);
+        AddAttachmentToModel(this, m_moWeapon, METALPIPEVIEWMODEL_ATTACHMENT_THEPIPE, MODEL_PIPEITEM, 
+                             TEXTURE_PIPEITEM, 0, 0, 0);
+        m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_IDLE, 0);
+        break; }
     }
   };
 
@@ -1397,6 +1429,7 @@ functions:
       case WEAPON_PISTOL:          return m_iBullets;
       case WEAPON_SHOTGUN:         return m_iShells;
       case WEAPON_SMG:             return m_iMediumBullets;
+      case WEAPON_PIPE:            return 0;
     }
     return 0;
   };
@@ -1410,6 +1443,7 @@ functions:
       case WEAPON_PISTOL:          return m_iPistolBullets;
       case WEAPON_SHOTGUN:         return m_iShotgunShells;
       case WEAPON_SMG:             return m_iSMGBullets;
+      case WEAPON_PIPE:            return 0;
     }
     return 0;
   };
@@ -1424,6 +1458,7 @@ functions:
       case WEAPON_PISTOL:          return m_iMaxBullets;
       case WEAPON_SHOTGUN:         return m_iMaxShells;
       case WEAPON_SMG:             return m_iMaxMediumBullets;
+      case WEAPON_PIPE:            return 0;
     }
     return 0;
   };
@@ -1437,6 +1472,7 @@ functions:
       case WEAPON_PISTOL:          return m_iMaxPistolBullets;
       case WEAPON_SHOTGUN:         return m_iMaxShotgunShells;
       case WEAPON_SMG:             return m_iMaxSMGBullets;
+      case WEAPON_PIPE:            return 0;
     }
     return 0;
   };
@@ -1453,7 +1489,7 @@ functions:
     // all weapons
     m_iAvailableWeapons = WEAPONS_ALLAVAILABLEMASK;
     // m_iAvailableWeapons &= ~WEAPONS_DISABLEDMASK;
-    m_ulMeleeWeapons = (1 << WEAPON_KNIFE|WEAPON_AXE);
+    m_ulMeleeWeapons = (1 << WEAPON_KNIFE|WEAPON_AXE|WEAPON_PIPE);
     m_ulSmallGuns = (1 << WEAPON_PISTOL);
     m_ulBigGuns = (1 << WEAPON_SHOTGUN|WEAPON_SMG);
     // ammo for all weapons
@@ -1500,6 +1536,7 @@ functions:
       case WEAPON_HOLSTERED:
       case WEAPON_KNIFE:
       case WEAPON_AXE:
+      case WEAPON_PIPE:
         break;
       case WEAPON_PISTOL:
         iAmmoPicked = Max(10.0f, m_iMaxBullets*fMaxAmmoRatio);
@@ -1555,6 +1592,7 @@ functions:
       case WEAPON_PISTOL: wit = WIT_PISTOL; break;
       case WEAPON_SHOTGUN: wit = WIT_SHOTGUN; break;
       case WEAPON_SMG: wit = WIT_SMG; break;
+      case WEAPON_PIPE: wit = WIT_PIPE; break;
     }
 
     switch(wit) {
@@ -1565,6 +1603,7 @@ functions:
       case WIT_PISTOL: m_ulSmallGuns &= ~(1 << WEAPON_PISTOL); break;
       case WIT_SHOTGUN: m_ulBigGuns &= ~(1 << WEAPON_SHOTGUN); break;
       case WIT_SMG: m_ulBigGuns &= ~(1 << WEAPON_SMG); break;
+      case WIT_PIPE: m_ulMeleeWeapons &= ~(1 << WEAPON_PIPE); break;
     }
 
 
@@ -1590,6 +1629,7 @@ functions:
       case WIT_AXE: Ewi.iWeapon = WEAPON_AXE; break;
       case WIT_SHOTGUN: Ewi.iWeapon = WEAPON_SHOTGUN; break;
       case WIT_SMG: Ewi.iWeapon = WEAPON_SMG; break;
+      case WIT_PIPE: Ewi.iWeapon = WEAPON_PIPE; break;
       default:
         ASSERTALWAYS("Uknown weapon type");
     }
@@ -1607,6 +1647,7 @@ functions:
       case WIT_PISTOL: m_ulSmallGuns |= (1 << WEAPON_PISTOL); break;
       case WIT_SHOTGUN: m_ulBigGuns |= (1 << WEAPON_SHOTGUN); break;
       case WIT_SMG: m_ulBigGuns |= (1 << WEAPON_SMG); break;
+      case WIT_PIPE: m_ulMeleeWeapons |= (1 << WEAPON_PIPE); break;
     }
 
     ULONG ulOldWeapons = m_iAvailableWeapons;
@@ -1636,6 +1677,10 @@ functions:
       case WIT_SMG:            
         ((CPlayer&)*m_penPlayer).ItemPicked(TRANS("9mm Submachine Gun"), 0);
         fnmMsg = CTFILENAME("Data\\Messages\\Weapons\\SMG.txt"); 
+        break;
+      case WIT_PIPE:            
+        ((CPlayer&)*m_penPlayer).ItemPicked(TRANS("Metal Pipe"), 0);
+        fnmMsg = CTFILENAME("Data\\Messages\\Weapons\\Pipe.txt"); 
         break;
       default:
         ASSERTALWAYS("Uknown weapon type");
@@ -1742,7 +1787,7 @@ functions:
   INDEX GetSelectedWeapon(WeaponType EwtSelectedWeapon) {
     switch(EwtSelectedWeapon) {
       case WEAPON_HOLSTERED: return 0;
-      case WEAPON_KNIFE: case WEAPON_AXE: return 1;
+      case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PIPE: return 1;
       case WEAPON_PISTOL: return 2;
       case WEAPON_SHOTGUN: return 3;
       case WEAPON_SMG: return 4;
@@ -1756,6 +1801,7 @@ functions:
       case WEAPON_HOLSTERED: return WEAPON_HOLSTERED;
       case WEAPON_KNIFE: return WEAPON_AXE;
       case WEAPON_AXE: return WEAPON_KNIFE;
+      case WEAPON_PIPE: return WEAPON_PIPE;
       case WEAPON_PISTOL: return WEAPON_PISTOL;
       case WEAPON_SHOTGUN: return WEAPON_SHOTGUN;
       case WEAPON_SMG: return WEAPON_SMG;
@@ -1789,7 +1835,8 @@ functions:
   {
     switch (m_iCurrentWeapon) {
       case WEAPON_NONE: 
-      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_SHOTGUN: case WEAPON_SMG:
+      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_SHOTGUN: case WEAPON_SMG: case WEAPON_PIPE:
+        WeaponSelectOk(WEAPON_PIPE)||
         WeaponSelectOk(WEAPON_SMG)||
         WeaponSelectOk(WEAPON_SHOTGUN)||
         WeaponSelectOk(WEAPON_PISTOL)||
@@ -1806,7 +1853,7 @@ functions:
   // does weapon have ammo
   BOOL HasAmmo(WeaponType EwtWeapon) {
     switch (EwtWeapon) {
-      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: return TRUE;
+      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PIPE: return TRUE;
       case WEAPON_PISTOL: return (m_iBullets>0);
       case WEAPON_SHOTGUN: return (m_iShells>0);
       case WEAPON_SMG: return (m_iMediumBullets>0);
@@ -1817,7 +1864,7 @@ functions:
   // does weapon have inserted ammo
   BOOL HasInsertedAmmo(WeaponType EwtWeapon) {
     switch (EwtWeapon) {
-      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: return TRUE;
+      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PIPE: return TRUE;
       case WEAPON_PISTOL: return (m_iPistolBullets>0);
       case WEAPON_SHOTGUN: return (m_iShotgunShells>0);
       case WEAPON_SMG: return (m_iSMGBullets>0);
@@ -1846,6 +1893,9 @@ functions:
         break;
       case WEAPON_SMG:
         m_moWeapon.PlayAnim(SMGVIEWMODEL_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART|AOF_SMOOTHCHANGE);
+        break;
+      case WEAPON_PIPE:
+        m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART|AOF_SMOOTHCHANGE);
         break;
       default:
         ASSERTALWAYS("Unknown weapon.");
@@ -1891,10 +1941,17 @@ functions:
     return m_moWeapon.GetAnimLength(iAnim);
   };
 
+  FLOAT PipeBoring(void) {
+    // play boring anim
+    INDEX iAnim = METALPIPEVIEWMODEL_ANIM_IDLE;
+    m_moWeapon.PlayAnim(iAnim, AOF_SMOOTHCHANGE);
+    return m_moWeapon.GetAnimLength(iAnim);
+  };
+
   // find the weapon position in the remap array
   WeaponType FindRemapedPos(WeaponType wt)
   {
-    for (INDEX i=0; i<7; i++)
+    for (INDEX i=0; i<8; i++)
     {
       if (aiWeaponsRemap[i]==wt) {
         return (WeaponType)i;
@@ -1934,9 +1991,9 @@ functions:
     FOREVER {
       (INDEX&)wti += iDir;
       if (wti<WEAPON_NONE + 1) {
-        wti = WEAPON_SMG;
+        wti = WEAPON_PIPE;
       }
-      if (wti>6) {
+      if (wti>7) {
         wti = WEAPON_HOLSTERED;
       }
       if (wti==wtOrg) {
@@ -2055,6 +2112,9 @@ procedures:
       case WEAPON_SMG:
         m_iAnim = SMGVIEWMODEL_ANIM_LOWER;
         break;
+      case WEAPON_PIPE:
+        m_iAnim = METALPIPEVIEWMODEL_ANIM_LOWER;
+        break;
       default: ASSERTALWAYS("Unknown weapon.");
     }
     // start animator
@@ -2093,6 +2153,9 @@ procedures:
         break;
       case WEAPON_SMG:
         m_iAnim = SMGVIEWMODEL_ANIM_RAISE;
+        break;
+      case WEAPON_PIPE:
+        m_iAnim = METALPIPEVIEWMODEL_ANIM_RAISE;
         break;
       case WEAPON_NONE:
         break;
@@ -2143,6 +2206,7 @@ procedures:
             case WEAPON_PISTOL: call FirePistol(); break;
             case WEAPON_SHOTGUN: call FireShotgun(); break;
             case WEAPON_SMG: call FireSMG(); break;
+            case WEAPON_PIPE:  call SwingPipe(); break;
             default: ASSERTALWAYS("Unknown weapon.");
           }
           resume;
@@ -2182,11 +2246,12 @@ procedures:
           // fire one shot
           switch (m_iCurrentWeapon) {
             case WEAPON_HOLSTERED: call AltHolstered(); break;
-            case WEAPON_KNIFE:  call StabKnife(); break;
-            case WEAPON_AXE:    call AltAxe(); break;
-            case WEAPON_PISTOL: call AltPistol(); break;
+            case WEAPON_KNIFE:   call StabKnife(); break;
+            case WEAPON_AXE:     call AltAxe(); break;
+            case WEAPON_PISTOL:  call AltPistol(); break;
             case WEAPON_SHOTGUN: call AltShotgun(); break;
-            case WEAPON_SMG: call AltSMG(); break;
+            case WEAPON_SMG:     call AltSMG(); break;
+            case WEAPON_PIPE:    call AltPipe(); break;
             default: ASSERTALWAYS("Unknown weapon.");
           }
           resume;
@@ -2264,12 +2329,21 @@ procedures:
     
   // ***************** SWING KNIFE *****************
   SwingKnife() {
+
+    INDEX iSwing = IRnd()%2;
+
     // animator swing
     GetAnimator()->FireAnimation(BODY_ANIM_KNIFE_ATTACK, 0);
     // sound
     CPlayer &pl = (CPlayer&)*m_penPlayer;
     // depending on stand choose random attack
-    m_iAnim = KNIFEVIEWMODEL_ANIM_ATTACK; m_fAnimWaitTime = 0.25f;
+
+    if(iSwing == 1) {
+      m_iAnim = KNIFEVIEWMODEL_ANIM_ATTACK;
+    } else {
+      m_iAnim = KNIFEVIEWMODEL_ANIM_SLASH;
+    }
+     m_fAnimWaitTime = 0.25f;
     PlaySound(pl.m_soWeapon0, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
     if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("Knife_back");}
     
@@ -2277,7 +2351,7 @@ procedures:
     m_bMeleeHitEnemy = FALSE;
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
-    autowait(0.125f);
+    autowait(0.15f);
 
     if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_CLOSERANGE)) {
       if (m_bMeleeHitEnemy)
@@ -2329,7 +2403,7 @@ procedures:
     m_bMeleeHitEnemy = FALSE;
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
-    autowait(0.125f);
+    autowait(0.15f);
 
     if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_CLOSERANGE)) {
       if (m_bMeleeHitEnemy)
@@ -2710,6 +2784,74 @@ procedures:
     return EEnd();
   };
 
+  // ***************** SWING PIPE *****************
+  SwingPipe() {
+    // animator swing
+    GetAnimator()->FireAnimation(BODY_ANIM_KNIFE_ATTACK, 0);
+    // sound
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    
+    m_iAnim = METALPIPEVIEWMODEL_ANIM_ATTACK; m_fAnimWaitTime = 0.35f;
+    PlaySound(pl.m_soWeapon0, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
+      if(_pNetwork->IsPlayerLocal(m_penPlayer))
+        {IFeel_PlayEffect("Knife_back");}
+    m_moWeapon.PlayAnim(m_iAnim, 0);
+    m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitModel = FALSE;
+    m_bMeleeHitBrush = FALSE;
+    autowait(0.25f);
+    if (CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_CLOSERANGE)) {
+      if (m_bMeleeHitEnemy)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%3)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      }
+      if (m_bMeleeHitModel || m_bMeleeHitBrush)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime);
+    } else if (TRUE) {
+      autowait(m_fAnimWaitTime/2);
+      CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_CLOSERANGE);
+      if (m_bMeleeHitEnemy)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%3)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      }
+      if (m_bMeleeHitModel || m_bMeleeHitBrush)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime/2);
+    }
+
+    if (m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime>=_pTimer->TickQuantum) {
+      autowait(m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime);
+    }
+    return EEnd();
+  };
+
+  // ***************** PIPE ALTFIRE DUMMY *****************
+  AltPipe() {
+    autowait(0.25);
+    return EEnd();
+  };
+
   Reload() {
     m_bReloadWeapon = FALSE;
 
@@ -2738,6 +2880,7 @@ procedures:
       case WEAPON_PISTOL: fWait = PistolBoring(); break;
       case WEAPON_SHOTGUN: fWait = ShotgunBoring(); break;
       case WEAPON_SMG: fWait = SMGBoring(); break;
+      case WEAPON_PIPE: fWait = PipeBoring(); break;
       default: ASSERTALWAYS("Unknown weapon.");
     }
     if (fWait > 0.0f) { autowait(fWait); }

@@ -218,7 +218,7 @@ enum WeaponBits {
   3 WB_03   "Pistol",
   4 WB_04   "Shotgun",
   5 WB_05   "SMG",
-  6 WB_06   "",
+  6 WB_06   "Pipe",
   7 WB_07   "",
   8 WB_08   "",
   9 WB_09   "",

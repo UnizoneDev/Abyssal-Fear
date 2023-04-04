@@ -70,7 +70,7 @@ enum BarOrientations {
   BO_DOWN  = 4,
 };
 
-extern const INDEX aiWeaponsRemap[7];
+extern const INDEX aiWeaponsRemap[8];
 
 // maximal mana for master status
 #define MANA_MASTER 10000
@@ -121,6 +121,7 @@ static CTextureObject _toWAxe;
 static CTextureObject _toWPistol;
 static CTextureObject _toWShotgun;
 static CTextureObject _toWSMG;
+static CTextureObject _toWPipe;
 
 // powerup textures (ORDER IS THE SAME AS IN PLAYER.ES!)
 #define MAX_POWERUPS 4
@@ -162,7 +163,7 @@ struct WeaponInfo {
   BOOL wi_bHasWeapon;
 };
 
-extern struct WeaponInfo _awiWeapons[7];
+extern struct WeaponInfo _awiWeapons[8];
 static struct AmmoInfo _aaiAmmo[3] = {
     { &_toABullets,       &_awiWeapons[4],  NULL,  0, 0, 0, -9, FALSE }, //  0
     { &_toAShells,        &_awiWeapons[5],  NULL,  0, 0, 0, -9, FALSE }, //  1
@@ -176,7 +177,7 @@ static struct AmmoInfo _aaiInsertedAmmo[3] = {
 static const INDEX aiAmmoRemap[3] = { 0,  1,  2 };
 static const INDEX aiInsertedAmmoRemap[3] = { 0,  1,  2 };
 
-struct WeaponInfo _awiWeapons[7] = {
+struct WeaponInfo _awiWeapons[8] = {
   { WEAPON_NONE,            NULL,                 NULL,         NULL,         FALSE },   //  0
   { WEAPON_HOLSTERED,       &_toWHolstered,       NULL,         NULL,         FALSE },   //  1
   { WEAPON_KNIFE,           &_toWKnife,           NULL,         NULL,         FALSE },   //  2
@@ -184,6 +185,7 @@ struct WeaponInfo _awiWeapons[7] = {
   { WEAPON_PISTOL,          &_toWPistol,          &_aaiAmmo[0], &_aaiInsertedAmmo[0], FALSE },   //  4
   { WEAPON_SHOTGUN,         &_toWShotgun,         &_aaiAmmo[1], &_aaiInsertedAmmo[1], FALSE },   //  5
   { WEAPON_SMG,             &_toWSMG,             &_aaiAmmo[2], &_aaiInsertedAmmo[2], FALSE },   //  6
+  { WEAPON_PIPE,            &_toWPipe,            NULL,         NULL,         FALSE },   //  7
 };
 
 
@@ -1183,6 +1185,7 @@ extern void InitHUD(void)
     _toWPistol.SetData_t(          CTFILENAME("Textures\\Interface\\WPistol.tex"));
     _toWShotgun.SetData_t(         CTFILENAME("Textures\\Interface\\WShotgun.tex"));
     _toWSMG.SetData_t(             CTFILENAME("Textures\\Interface\\WSMG.tex"));
+    _toWPipe.SetData_t(            CTFILENAME("Textures\\Interface\\WPipe.tex"));
         
     // initialize powerup textures (DO NOT CHANGE ORDER!)
     _atoPowerups[0].SetData_t( CTFILENAME("TexturesMP\\Interface\\PInvisibility.tex"));
@@ -1219,6 +1222,7 @@ extern void InitHUD(void)
     ((CTextureData*)_toWPistol.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toWShotgun.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toWSMG.GetData())->Force(TEX_CONSTANT);
+    ((CTextureData*)_toWPipe.GetData())->Force(TEX_CONSTANT);
     
     ((CTextureData*)_atoPowerups[0].GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_atoPowerups[1].GetData())->Force(TEX_CONSTANT);

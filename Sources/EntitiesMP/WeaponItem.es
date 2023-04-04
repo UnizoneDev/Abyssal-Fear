@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "Models/Weapons/Pistol/PistolItem.h"
 #include "Models/Weapons/Shotgun/ShotgunItem.h"
 #include "Models/Weapons/SMG/SMGItem.h"
+#include "Models/Weapons/MetalPipe/PipeWeapon.h"
 
 #include "EntitiesMP/PlayerWeapons.h"
 
@@ -35,7 +36,8 @@ enum WeaponItemType {
   1 WIT_PISTOL            "Pistol",
   2 WIT_AXE               "Axe",
   3 WIT_SHOTGUN           "Shotgun",
-  4 WIT_SMG               "Submachine Gun"
+  4 WIT_SMG               "Submachine Gun",
+  5 WIT_PIPE              "Metal Pipe"
 };
 
 // event for sending through receive item
@@ -80,6 +82,10 @@ components:
  38 model   MODEL_KNIFEITEM             "Models\\Weapons\\Knife\\KnifeWeapon.mdl",
  39 texture TEXTURE_KNIFEITEM           "Models\\Weapons\\Knife\\KnifeWeapon.tex",
 
+// ************** PIPE **************
+ 40 model   MODEL_PIPEITEM               "Models\\Weapons\\MetalPipe\\PipeWeapon.mdl",
+ 41 texture TEXTURE_PIPEITEM             "Models\\Weapons\\MetalPipe\\PipeWeapon.tex",
+
 // ************** REFLECTIONS **************
 200 texture TEX_REFL_BWRIPLES01         "Models\\ReflectionTextures\\BWRiples01.tex",
 201 texture TEX_REFL_BWRIPLES02         "Models\\ReflectionTextures\\BWRiples02.tex",
@@ -105,6 +111,7 @@ functions:
       case WIT_AXE:             CPlayerWeapons_Precache(1<<(INDEX(WEAPON_AXE            )-1)); break;
       case WIT_SHOTGUN:         CPlayerWeapons_Precache(1<<(INDEX(WEAPON_SHOTGUN        )-1)); break;
       case WIT_SMG:             CPlayerWeapons_Precache(1<<(INDEX(WEAPON_SMG            )-1)); break;
+      case WIT_PIPE :           CPlayerWeapons_Precache(1<<(INDEX(WEAPON_PIPE           )-1)); break;
     }
   }
   /* Fill in entity statistics - for AI purposes only */
@@ -169,6 +176,14 @@ functions:
         m_strDescription.PrintF("Submachine Gun");
         AddItem(MODEL_SMGITEM, TEXTURE_SMGITEM, 0, 0, 0);
         StretchItem( bDM ?  vDMStretch : FLOAT3D(4.0f, 4.0f, 4.0f));
+        break;
+
+    // *********** PIPE ***********
+      case WIT_PIPE:
+        m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 10.0f; 
+        m_strDescription.PrintF("Metal Pipe");
+        AddItem(MODEL_PIPEITEM, TEXTURE_PIPEITEM, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
+        StretchItem( bDM ?  vDMStretch : FLOAT3D(4.25f, 4.25f, 4.25f));
         break;
     }
 };
