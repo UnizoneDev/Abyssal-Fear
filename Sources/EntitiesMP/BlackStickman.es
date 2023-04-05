@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %{
 #include "StdH.h"
 #include "Models/NPCs/BlackStickman/BlackStickman.h"
+#include "Models/NPCs/BlackStickman/BlackStickmanReflective.h"
+#include "Models/NPCs/BlackStickman/BlackStickmanTranslucent.h"
 %}
 
 uses "EntitiesMP/EnemyBase";
@@ -80,6 +82,8 @@ components:
  20 texture TEXTURE_BLACKSTICKMAN           "Models\\NPCs\\BlackStickman\\blackstickman.tex",
  21 model   MODEL_BLACKSTICKMANREFLECTIVE   "Models\\NPCs\\BlackStickman\\BlackStickmanReflective.mdl",
  22 model   MODEL_BLACKSTICKMANTRANSLUCENT  "Models\\NPCs\\BlackStickman\\BlackStickmanTranslucent.mdl",
+ 23 texture TEXTURE_VANTABLACKSTICKMAN      "Models\\NPCs\\BlackStickman\\vantablackstickman.tex",
+ 24 texture TEX_BUMP_DETAIL                 "Models\\NPCs\\BlackStickman\\BlackStickmanDetail.tex",
 
 
  // ************** REFLECTIONS **************
@@ -147,6 +151,7 @@ functions:
     PrecacheTexture(TEX_SPEC_WEAK            );
     PrecacheTexture(TEX_SPEC_MEDIUM          );
     PrecacheTexture(TEX_SPEC_STRONG          );
+    PrecacheTexture(TEX_BUMP_DETAIL          );
   };
 
   /* Fill in entity statistics - for AI purposes only */
@@ -479,25 +484,28 @@ functions:
     {
       default:
       SetModel(MODEL_BLACKSTICKMAN);
+      SetModelMainTexture(TEXTURE_BLACKSTICKMAN);
       break;
 
       case BSCT_NORMAL:
       SetModel(MODEL_BLACKSTICKMAN);
+      SetModelMainTexture(TEXTURE_BLACKSTICKMAN);
+      SetModelBumpTexture(TEX_BUMP_DETAIL);
       break;
 
       case BSCT_TRANSLUCENT:
       SetModel(MODEL_BLACKSTICKMANTRANSLUCENT);
+      SetModelMainTexture(TEXTURE_VANTABLACKSTICKMAN);
       break;
 
       case BSCT_REFLECTIVE:
       SetModel(MODEL_BLACKSTICKMANREFLECTIVE);
+      SetModelMainTexture(TEXTURE_VANTABLACKSTICKMAN);
       SetModelSpecularTexture(TEX_SPEC_STRONG);
       SetModelReflectionTexture(TEX_REFL_PURPLE01);
       break;
     }
-    
-        // set your texture
-        SetModelMainTexture(TEXTURE_BLACKSTICKMAN);
+
         // setup moving speed
         m_fWalkSpeed = FRnd() + 1.5f;
         m_aWalkRotateSpeed = AngleDeg(FRnd()*10.0f + 500.0f);

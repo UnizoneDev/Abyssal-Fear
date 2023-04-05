@@ -1315,6 +1315,11 @@ functions:
         return FALSE;
       }
 
+      if((this->GetFaction() == FT_WILDLIFE || this->GetFaction() == FT_SHADOW) && (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_LESSER))
+      {
+        return FALSE;
+      }
+
       return TRUE;
     }
 

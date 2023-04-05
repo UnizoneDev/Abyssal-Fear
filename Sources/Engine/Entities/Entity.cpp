@@ -2529,6 +2529,14 @@ void CEntity::SetModelSpecularTexture(SLONG idTextureComponent)
     ECT_TEXTURE, idTextureComponent);
   en_pmoModelObject->mo_toSpecular.SetData(pecTexture->ec_ptdTexture);
 }
+/* Set the specular texture data for model entity. */
+void CEntity::SetModelBumpTexture(SLONG idTextureComponent)
+{
+    ASSERT(en_RenderType == RT_MODEL || en_RenderType == RT_EDITORMODEL);
+    CEntityComponent* pecTexture = en_pecClass->ComponentForTypeAndID(
+        ECT_TEXTURE, idTextureComponent);
+    en_pmoModelObject->mo_toBump.SetData(pecTexture->ec_ptdTexture);
+}
 
 /* Add attachment to model */
 void CEntity::AddAttachment(INDEX iAttachment, ULONG ulIDModel, ULONG ulIDTexture)
@@ -2587,6 +2595,15 @@ void CEntity::SetModelAttachmentSpecularTexture(INDEX iAttachment, SLONG idTextu
   CEntityComponent *pecTexture = en_pecClass->ComponentForTypeAndID(
     ECT_TEXTURE, idTextureComponent);
   mo.mo_toSpecular.SetData(pecTexture->ec_ptdTexture);
+}
+/* Set the bump texture data for attachment model entity. */
+void CEntity::SetModelAttachmentBumpTexture(INDEX iAttachment, SLONG idTextureComponent)
+{
+    ASSERT(en_RenderType == RT_MODEL || en_RenderType == RT_EDITORMODEL);
+    CModelObject& mo = en_pmoModelObject->GetAttachmentModel(iAttachment)->amo_moModelObject;
+    CEntityComponent* pecTexture = en_pecClass->ComponentForTypeAndID(
+        ECT_TEXTURE, idTextureComponent);
+    mo.mo_toBump.SetData(pecTexture->ec_ptdTexture);
 }
 
 // Get all vertices of model entity in absolute space

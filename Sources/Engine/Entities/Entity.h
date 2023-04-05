@@ -358,6 +358,8 @@ public:
   void SetModelReflectionTexture(SLONG idTextureComponent);
   /* Set the specular texture data for model entity. */
   void SetModelSpecularTexture(SLONG idTextureComponent);
+  /* Set the bump texture data for model entity. */
+  void SetModelBumpTexture(SLONG idTextureComponent);
 
   /* Add attachment to model */
   void AddAttachment(INDEX iAttachment, ULONG ulIDModel, ULONG ulIDTexture);
@@ -368,6 +370,8 @@ public:
   void SetModelAttachmentReflectionTexture(INDEX iAttachment, SLONG idTextureComponent);
   /* Set the specular texture data for model attachment entity. */
   void SetModelAttachmentSpecularTexture(INDEX iAttachment, SLONG idTextureComponent);
+  /* Set the bump texture data for model attachment entity. */
+  void SetModelAttachmentBumpTexture(INDEX iAttachment, SLONG idTextureComponent);
   
   // Get all vertices of model entity in absolute space
   void GetModelVerticesAbsolute( CStaticStackArray<FLOAT3D> &avVertices, FLOAT fNormalOffset, FLOAT fMipFactor);

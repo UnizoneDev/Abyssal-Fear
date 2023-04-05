@@ -6,7 +6,7 @@
 // Patch names
 
 // Names of collision boxes
-#define PISTOLITEM_COLLISION_BOX_PART_NAME 0
+#define PISTOLITEM_COLLISION_BOX_DEFAULT 0
 
 // Attaching position names
 #define PISTOLITEM_ATTACHMENT_FLARE_MUZZLE 0
