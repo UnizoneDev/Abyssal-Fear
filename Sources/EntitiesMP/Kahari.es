@@ -47,6 +47,13 @@ components:
   10 sound   SOUND_HIT              "Models\\NPCs\\Abomination\\Sounds\\Hit.wav",
   11 sound   SOUND_SWING            "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
 
+  12 sound   SOUND_SIGHT1           "Models\\NPCs\\Kahari\\Sounds\\Sight1.wav",
+  13 sound   SOUND_SIGHT2           "Models\\NPCs\\Kahari\\Sounds\\Sight2.wav",
+  14 sound   SOUND_WOUND1           "Models\\NPCs\\Kahari\\Sounds\\Wound1.wav",
+  15 sound   SOUND_WOUND2           "Models\\NPCs\\Kahari\\Sounds\\Wound2.wav",
+  16 sound   SOUND_DEATH            "Models\\NPCs\\Kahari\\Sounds\\Death.wav",
+  17 sound   SOUND_IDLE             "Models\\NPCs\\Kahari\\Sounds\\Idle.wav",
+
 functions:
   // describe how this enemy killed player
   virtual CTString GetPlayerKillDescription(const CTString &strPlayerName, const EDeath &eDeath)
@@ -70,6 +77,13 @@ functions:
     CEnemyBase::Precache();
     PrecacheSound(SOUND_HIT);
     PrecacheSound(SOUND_SWING);
+
+    PrecacheSound(SOUND_SIGHT1);
+    PrecacheSound(SOUND_SIGHT2);
+    PrecacheSound(SOUND_WOUND1);
+    PrecacheSound(SOUND_WOUND2);
+    PrecacheSound(SOUND_DEATH);
+    PrecacheSound(SOUND_IDLE);
   };
 
   /* Fill in entity statistics - for AI purposes only */
@@ -158,6 +172,33 @@ functions:
 
   void JumpingAnim(void) {
     StartModelAnim(KAHARI_ANIM_LEAP, AOF_LOOPING|AOF_NORESTART);
+  };
+
+
+  void SightSound(void) {
+    switch(IRnd()%2)
+    {
+        case 0: PlaySound(m_soSound, SOUND_SIGHT1, SOF_3D); break;
+        case 1: PlaySound(m_soSound, SOUND_SIGHT2, SOF_3D); break;
+        default: ASSERTALWAYS("Kahari unknown sight sound");
+    }
+  };
+
+  void WoundSound(void) {
+    switch(IRnd()%2)
+    {
+        case 0: PlaySound(m_soSound, SOUND_WOUND1, SOF_3D); break;
+        case 1: PlaySound(m_soSound, SOUND_WOUND2, SOF_3D); break;
+        default: ASSERTALWAYS("Kahari unknown wound sound");
+    }
+  };
+
+  void IdleSound(void) {
+    PlaySound(m_soSound, SOUND_IDLE, SOF_3D);
+  };
+
+  void DeathSound(void) {
+    PlaySound(m_soSound, SOUND_DEATH, SOF_3D);
   };
 
 

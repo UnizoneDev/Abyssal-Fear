@@ -296,6 +296,7 @@ void DecAmmo(INDEX &ctAmmo, INDEX iDec = 1)
     ctAmmo-=iDec;
   }
 }
+
 %}
 
 class export CPlayerWeapons : CRationalEntity {
@@ -1614,7 +1615,7 @@ functions:
     pwi->CEntity::Initialize();
     
     const FLOATmatrix3D &m = GetPlayer()->GetRotationMatrix();
-    FLOAT3D vSpeed = FLOAT3D(5.0f, 10.0f, -7.5f);
+    FLOAT3D vSpeed = FLOAT3D(7.0f, 10.0f, -9.0f);
     pwi->GiveImpulseTranslationAbsolute(vSpeed*m);
   }
 
@@ -1802,10 +1803,10 @@ functions:
       case WEAPON_HOLSTERED: return WEAPON_HOLSTERED;
       case WEAPON_KNIFE: return WEAPON_AXE;
       case WEAPON_AXE: return WEAPON_KNIFE;
-      case WEAPON_PIPE: return WEAPON_PIPE;
       case WEAPON_PISTOL: return WEAPON_PISTOL;
       case WEAPON_SHOTGUN: return WEAPON_SHOTGUN;
       case WEAPON_SMG: return WEAPON_SMG;
+      case WEAPON_PIPE: return WEAPON_PIPE;
     }
     return WEAPON_NONE;
   };
@@ -2354,7 +2355,7 @@ procedures:
     m_bMeleeHitBrush = FALSE;
     autowait(0.15f);
 
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_CLOSERANGE)) {
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP)) {
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2369,7 +2370,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_CLOSERANGE);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP);
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2406,7 +2407,7 @@ procedures:
     m_bMeleeHitBrush = FALSE;
     autowait(0.15f);
 
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_CLOSERANGE)) {
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP)) {
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2420,7 +2421,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_CLOSERANGE);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP);
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2470,7 +2471,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 80.0f : 40.0f), DMT_AXE);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 70.0f : 50.0f), DMT_AXE);
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2801,7 +2802,7 @@ procedures:
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.25f);
-    if (CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_CLOSERANGE)) {
+    if (CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_BLUNT)) {
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2821,7 +2822,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_CLOSERANGE);
+      CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_BLUNT);
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;

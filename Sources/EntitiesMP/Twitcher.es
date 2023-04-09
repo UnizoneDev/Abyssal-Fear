@@ -28,6 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %}
 
 uses "EntitiesMP/EnemyBase";
+uses "EntitiesMP/Projectile";
 
 enum TwitcherType {
   0 TWC_BALDWHITE      "Bald White",
@@ -69,6 +70,7 @@ properties:
   
 components:
   1 class   CLASS_BASE            "Classes\\EnemyBase.ecl",
+  2 class   CLASS_PROJECTILE      "Classes\\Projectile.ecl",
 
  10 model   MODEL_TWITCHERBALD               "Models\\NPCs\\Twitcher\\TwitcherBald.mdl",
  11 texture TEXTURE_TWITCHERBALD_WHITE       "Models\\NPCs\\Twitcher\\Twitcher1.tex",
@@ -189,6 +191,8 @@ functions:
     PrecacheSound(SOUND_BRIDE_SIGHT2);
     PrecacheSound(SOUND_BRIDE_WOUND2);
     PrecacheSound(SOUND_BRIDE_DEATH2);
+
+    PrecacheClass(CLASS_PROJECTILE, PRT_MUTANT_SPIT);
   };
 
   /* Fill in entity statistics - for AI purposes only */
@@ -566,6 +570,21 @@ functions:
 
   void RotatingAnim(void) {
     RunningAnim();
+  };
+
+  void BacksteppingAnim(void) {
+    if(m_twChar == TWC_STRONGBLADED2)
+    {
+      StartModelAnim(TWITCHERBLADED2_ANIM_BACKPEDAL, AOF_LOOPING|AOF_NORESTART);
+    }
+    else if(m_twChar == TWC_STRONGBLADED)
+    {
+      StartModelAnim(TWITCHERBLADED_ANIM_BACKPEDAL, AOF_LOOPING|AOF_NORESTART);
+    }
+    else
+    {
+      WalkingAnim();
+    }
   };
 
   void JumpingAnim(void) {
@@ -1011,6 +1030,18 @@ functions:
 
     autowait(0.3f);
     MaybeSwitchToAnotherPlayer();
+
+    if(m_twChar == TWC_STRONGBLADED2)
+    {
+      m_fLockOnEnemyTime = 1.0f;
+      autocall CEnemyBase::StepBackwards() EReturn;
+    }
+    else if(m_twChar == TWC_STRONGBLADED)
+    {
+      m_fLockOnEnemyTime = 1.0f;
+      autocall CEnemyBase::StepBackwards() EReturn;
+    }
+
     return EReturn();
   }
 

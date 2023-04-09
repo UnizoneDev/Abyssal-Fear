@@ -111,7 +111,7 @@ functions:
       case WIT_AXE:             CPlayerWeapons_Precache(1<<(INDEX(WEAPON_AXE            )-1)); break;
       case WIT_SHOTGUN:         CPlayerWeapons_Precache(1<<(INDEX(WEAPON_SHOTGUN        )-1)); break;
       case WIT_SMG:             CPlayerWeapons_Precache(1<<(INDEX(WEAPON_SMG            )-1)); break;
-      case WIT_PIPE :           CPlayerWeapons_Precache(1<<(INDEX(WEAPON_PIPE           )-1)); break;
+      case WIT_PIPE:            CPlayerWeapons_Precache(1<<(INDEX(WEAPON_PIPE           )-1)); break;
     }
   }
   /* Fill in entity statistics - for AI purposes only */
@@ -138,12 +138,12 @@ functions:
     FLOAT3D vDMStretch = FLOAT3D( 2.0f, 2.0f, 2.0f);
     
     switch (m_EwitType) {
-    // *********** AXE ***********
+    // *********** KNIFE ***********
       case WIT_KNIFE:
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 10.0f; 
         m_strDescription.PrintF("Knife");
         AddItem(MODEL_KNIFEITEM, TEXTURE_KNIFEITEM, 0, 0, 0);
-        StretchItem( bDM ?  vDMStretch : FLOAT3D(4.25f, 4.25f, 4.25f));
+        StretchItem( bDM ?  vDMStretch : FLOAT3D(2.0f, 2.0f, 2.0f));
         break;
 
     // *********** PISTOL ***********
@@ -151,7 +151,7 @@ functions:
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 10.0f; 
         m_strDescription.PrintF("Pistol");
         AddItem(MODEL_PISTOLITEM, TEXTURE_PISTOLITEM, 0, 0, 0);
-        StretchItem( bDM ?  vDMStretch : FLOAT3D(4.5f, 4.5f, 4.5f));
+        StretchItem( bDM ?  vDMStretch : FLOAT3D(2.5f, 2.5f, 2.5f));
         break;
 
     // *********** AXE ***********
@@ -159,7 +159,7 @@ functions:
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 10.0f; 
         m_strDescription.PrintF("Axe");
         AddItem(MODEL_AXEITEM, TEXTURE_AXEITEM, 0, 0, 0);
-        StretchItem( bDM ?  vDMStretch : FLOAT3D(4.5f, 4.5f, 4.5f));
+        StretchItem( bDM ?  vDMStretch : FLOAT3D(2.5f, 2.5f, 2.5f));
         break;
 
     // *********** SHOTGUN ***********
@@ -167,7 +167,7 @@ functions:
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 10.0f; 
         m_strDescription.PrintF("Shotgun");
         AddItem(MODEL_SHOTGUNITEM, TEXTURE_SHOTGUNITEM, 0, 0, 0);
-        StretchItem( bDM ?  vDMStretch : FLOAT3D(4.25f, 4.25f, 4.25f));
+        StretchItem( bDM ?  vDMStretch : FLOAT3D(2.25f, 2.25f, 2.25f));
         break;
 
     // *********** SMG ***********
@@ -175,7 +175,7 @@ functions:
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 10.0f; 
         m_strDescription.PrintF("Submachine Gun");
         AddItem(MODEL_SMGITEM, TEXTURE_SMGITEM, 0, 0, 0);
-        StretchItem( bDM ?  vDMStretch : FLOAT3D(4.0f, 4.0f, 4.0f));
+        StretchItem( bDM ?  vDMStretch : FLOAT3D(2.0f, 2.0f, 2.0f));
         break;
 
     // *********** PIPE ***********
@@ -183,7 +183,7 @@ functions:
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 10.0f; 
         m_strDescription.PrintF("Metal Pipe");
         AddItem(MODEL_PIPEITEM, TEXTURE_PIPEITEM, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
-        StretchItem( bDM ?  vDMStretch : FLOAT3D(4.25f, 4.25f, 4.25f));
+        StretchItem( bDM ?  vDMStretch : FLOAT3D(2.0f, 2.0f, 2.0f));
         break;
     }
 };

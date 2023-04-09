@@ -35,6 +35,7 @@ enum GunmanType {
   0 GMC_PISTOL   "Standard",        // standard variant
   1 GMC_KEY      "Security",        // key dropping variant
   2 GMC_LEADER   "Squad Leader",    // variant that can give out commands to his members
+  3 GMC_SHOTGUN  "Shotgunner",      // shotgun variant
 };
 
 %{
@@ -71,10 +72,13 @@ components:
  13 texture TEXTURE_PISTOL             "Models\\Weapons\\Pistol\\Pistol.tex",
  14 texture TEXTURE_GUNMAN_SECURITY    "Models\\NPCs\\Gunman\\GunmanSecurity.tex",
  15 texture TEXTURE_GUNMAN_LEADER      "Models\\NPCs\\Gunman\\GunmanLeader.tex",
+ 16 model   MODEL_SHOTGUN              "Models\\Weapons\\Shotgun\\ShotgunItem.mdl",
+ 17 texture TEXTURE_SHOTGUN            "Models\\Weapons\\Shotgun\\Shotgun.tex",
 
  20 sound   SOUND_FIRE                 "Models\\NPCs\\Gunman\\Sounds\\PistolAttack.wav",
  21 sound   SOUND_HIT                  "Models\\NPCs\\Gunman\\Sounds\\Kick.wav",
  22 sound   SOUND_SWING                "Models\\Weapons\\Knife\\Sounds\\Swing.wav", 
+ 23 sound   SOUND_FIRE_SHOTGUN         "Models\\NPCs\\Gunman\\Sounds\\ShotgunAttack.wav",
 
  50 model   MODEL_ITEM            "Models\\Items\\ItemHolder\\ItemHolder.mdl",
  51 model   MODEL_BULLETS         "Models\\Items\\Ammo\\PistolClip\\PistolClip.mdl",
@@ -115,11 +119,13 @@ functions:
   };
 
   virtual const CTFileName &GetComputerMessageName(void) const {
+    static DECLARE_CTFILENAME(fnmGunmanShotgunner, "Data\\Messages\\NPCs\\GunmanShotgunner.txt");
     static DECLARE_CTFILENAME(fnmGunmanLeader, "Data\\Messages\\NPCs\\GunmanLeader.txt");
     static DECLARE_CTFILENAME(fnmGunmanSecurity, "Data\\Messages\\NPCs\\GunmanSecurity.txt");
     static DECLARE_CTFILENAME(fnmGunman, "Data\\Messages\\NPCs\\Gunman.txt");
     switch(m_gmChar) {
     default: ASSERT(FALSE);
+    case GMC_SHOTGUN : return fnmGunmanShotgunner;
     case GMC_LEADER: return fnmGunmanLeader;
     case GMC_KEY: return fnmGunmanSecurity;
     case GMC_PISTOL : return fnmGunman;
@@ -147,6 +153,7 @@ functions:
     PrecacheSound(SOUND_FIRE);
     PrecacheSound(SOUND_HIT);
     PrecacheSound(SOUND_SWING);
+    PrecacheSound(SOUND_FIRE_SHOTGUN);
     PrecacheClass(CLASS_PROJECTILE, PRT_GUNMAN_BULLET);
     PrecacheClass(CLASS_AMMO, AIT_BULLETS);
     PrecacheClass(CLASS_AMMO, AIT_SHELLS);
@@ -178,6 +185,7 @@ functions:
   {
     CEnemyBase::FillEntityStatistics(pes);
     switch(m_gmChar) {
+    case GMC_SHOTGUN : { pes->es_strName+=" Shotgunner"; } break;
     case GMC_LEADER: { pes->es_strName+=" Leader"; } break;
     case GMC_KEY: { pes->es_strName+=" Security"; } break;
     case GMC_PISTOL : { pes->es_strName+=" Officer"; } break;
@@ -204,7 +212,14 @@ functions:
   // damage anim
   INDEX AnimForDamage(FLOAT fDamage) {
     INDEX iAnim;
-    iAnim = GUNMAN_ANIM_WOUND;
+    if (m_gmChar == GMC_SHOTGUN)
+    {
+      iAnim = GUNMAN_ANIM_WOUNDSHOTGUN;
+    }
+    else
+    {
+      iAnim = GUNMAN_ANIM_WOUND;
+    }
     StartModelAnim(iAnim, 0);
     return iAnim;
   };
@@ -231,23 +246,58 @@ functions:
 
   // virtual anim functions
   void StandingAnim(void) {
-    StartModelAnim(GUNMAN_ANIM_STAND, AOF_LOOPING|AOF_NORESTART);
+    if (m_gmChar == GMC_SHOTGUN)
+    {
+      StartModelAnim(GUNMAN_ANIM_STANDSHOTGUN, AOF_LOOPING|AOF_NORESTART);
+    }
+    else
+    {
+      StartModelAnim(GUNMAN_ANIM_STAND, AOF_LOOPING|AOF_NORESTART);
+    }
   };
 
   void WalkingAnim(void) {
-    StartModelAnim(GUNMAN_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+    if (m_gmChar == GMC_SHOTGUN)
+    {
+      StartModelAnim(GUNMAN_ANIM_WALKSHOTGUN, AOF_LOOPING|AOF_NORESTART);
+    }
+    else
+    {
+      StartModelAnim(GUNMAN_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+    }
   };
 
   void RunningAnim(void) {
-    StartModelAnim(GUNMAN_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
+    if (m_gmChar == GMC_SHOTGUN)
+    {
+      StartModelAnim(GUNMAN_ANIM_RUNSHOTGUN, AOF_LOOPING|AOF_NORESTART);
+    }
+    else
+    {
+      StartModelAnim(GUNMAN_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
+    }
   };
 
   void StrafeLeftAnim(void) {
-    StartModelAnim(GUNMAN_ANIM_STRAFELEFT, AOF_LOOPING|AOF_NORESTART);
+    if (m_gmChar == GMC_SHOTGUN)
+    {
+      StartModelAnim(GUNMAN_ANIM_STRAFELEFTSHOTGUN, AOF_LOOPING|AOF_NORESTART);
+    }
+    else
+    {
+      StartModelAnim(GUNMAN_ANIM_STRAFELEFT, AOF_LOOPING|AOF_NORESTART);
+    }
   };
 
   void StrafeRightAnim(void) {
-    StartModelAnim(GUNMAN_ANIM_STRAFERIGHT, AOF_LOOPING|AOF_NORESTART);
+    if (m_gmChar == GMC_SHOTGUN)
+    {
+      StartModelAnim(GUNMAN_ANIM_STRAFERIGHTSHOTGUN, AOF_LOOPING|AOF_NORESTART);
+    }
+    else
+    {
+      StartModelAnim(GUNMAN_ANIM_STRAFERIGHT, AOF_LOOPING|AOF_NORESTART);
+    }
   };
 
   void RotatingAnim(void) {
@@ -258,6 +308,17 @@ functions:
     RunningAnim();
   };
 
+  void BacksteppingAnim(void) {
+    if (m_gmChar == GMC_SHOTGUN)
+    {
+      StartModelAnim(GUNMAN_ANIM_BACKPEDALSHOTGUN, AOF_LOOPING|AOF_NORESTART);
+    }
+    else
+    {
+      StartModelAnim(GUNMAN_ANIM_BACKPEDAL, AOF_LOOPING|AOF_NORESTART);
+    }
+  };
+
 
   procedures:
 
@@ -265,14 +326,37 @@ functions:
   // melee attack enemy
   Hit(EVoid) : CEnemyBase::Hit
   {
-    autocall GunmanKickAttack() EEnd;
-    return EReturn();
+    if (m_gmChar == GMC_SHOTGUN)
+    {
+      autocall GunmanShotgunMeleeAttack() EEnd;
+      return EReturn();
+    }
+    else if (GMC_LEADER)
+    {
+      autocall GunmanKickAttack() EEnd;
+      return EReturn();
+    }
+    else if (GMC_KEY)
+    {
+      autocall GunmanKickAttack() EEnd;
+      return EReturn();
+    }
+    else if (GMC_PISTOL)
+    {
+      autocall GunmanKickAttack() EEnd;
+      return EReturn();
+    }
   };
 
 
   Fire(EVoid) : CEnemyBase::Fire
   {
-    if (m_gmChar == GMC_LEADER)
+    if (m_gmChar == GMC_SHOTGUN)
+    {
+      autocall GunmanShotgunAttack() EEnd;
+      return EReturn();
+    }
+    else if (m_gmChar == GMC_LEADER)
     {
       autocall GunmanLeaderPistolAttack() EEnd;
       return EReturn();
@@ -305,6 +389,36 @@ functions:
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 10.0f, FLOAT3D(0, 0, 0), vDirection);
+      }
+    } else {
+      PlaySound(m_soSound, SOUND_SWING, SOF_3D);
+    }
+
+    autowait(0.3f);
+    MaybeSwitchToAnotherPlayer();
+
+    m_fLockOnEnemyTime = 1.0f;
+    autocall CEnemyBase::StepBackwards() EReturn;
+
+    return EReturn();
+  };
+
+
+  GunmanShotgunMeleeAttack(EVoid) {
+    // close attack
+    StartModelAnim(GUNMAN_ANIM_MELEESHOTGUN, 0);
+    m_bFistHit = FALSE;
+    autowait(0.30f);
+    if (CalcDist(m_penEnemy) < 3.5f) {
+      m_bFistHit = TRUE;
+    }
+    
+    if (m_bFistHit) {
+      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
+      if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
+        vDirection.Normalize();
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, FLOAT3D(0, 0, 0), vDirection);
       }
     } else {
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
@@ -370,6 +484,26 @@ functions:
     return EEnd();
   };
 
+  // Gunman shotgun attack
+  GunmanShotgunAttack(EVoid) {
+    m_fLockOnEnemyTime = 0.5f;
+    autocall CEnemyBase::LockOnEnemy() EReturn;
+    StandingAnim();
+    autowait(0.25f + FRnd()/4);
+
+    StartModelAnim(GUNMAN_ANIM_SHOOTSHOTGUN, 0);
+    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(-1.0f, 1.0f, 0.0f), ANGLE3D(-8.0f, 0, 0));
+    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(-0.5f, 1.0f, 0.0f), ANGLE3D(-4.0f, 0, 0));
+    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(0.5f, 1.0f, 0.0f), ANGLE3D(4.0f, 0, 0));
+    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(1.0f, 1.0f, 0.0f), ANGLE3D(8.0f, 0, 0));
+    PlaySound(m_soSound, SOUND_FIRE_SHOTGUN, SOF_3D);
+
+    autowait(0.5f + FRnd()/3);
+    MaybeSwitchToAnotherPlayer();
+
+    return EEnd();
+  };
+
 
 /************************************************************
  *                       M  A  I  N                         *
@@ -390,26 +524,46 @@ functions:
     // set your appearance
     SetModel(MODEL_GUNMAN);
     // set your texture
-    if (m_gmChar==GMC_LEADER) {
+
+    switch(m_gmChar)
+    {
+      case GMC_SHOTGUN:
+        SetHealth(220.0f);
+        m_fMaxHealth = 220.0f;
+        SetModelMainTexture(TEXTURE_GUNMAN);
+        AddAttachment(GUNMAN_ATTACHMENT_SHOTGUN, MODEL_SHOTGUN, TEXTURE_SHOTGUN);
+        GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        ModelChangeNotify();
+        m_iScore = 2500;
+      break;
+
+      case GMC_LEADER:
+        SetHealth(175.0f);
+        m_fMaxHealth = 175.0f;
         SetModelMainTexture(TEXTURE_GUNMAN_LEADER);
         AddAttachment(GUNMAN_ATTACHMENT_PISTOL, MODEL_PISTOL, TEXTURE_PISTOL);
         GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
         m_bIsLeader = TRUE;
         m_iScore = 2500;
-    } else if (m_gmChar==GMC_KEY) {
+      break;
+
+      case GMC_KEY:
         SetModelMainTexture(TEXTURE_GUNMAN_SECURITY);
         AddAttachment(GUNMAN_ATTACHMENT_PISTOL, MODEL_PISTOL, TEXTURE_PISTOL);
         GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
         m_iScore = 1000;
-    } else {
+      break;
+
+      case GMC_PISTOL:
         SetModelMainTexture(TEXTURE_GUNMAN);
         AddAttachment(GUNMAN_ATTACHMENT_PISTOL, MODEL_PISTOL, TEXTURE_PISTOL);
         GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
         m_iScore = 500;
-    } 
+      break;
+    }
         
         // setup moving speed
         m_fWalkSpeed = FRnd() + 2.5f;

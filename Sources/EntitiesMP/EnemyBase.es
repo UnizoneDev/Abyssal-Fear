@@ -210,6 +210,10 @@ properties:
 
 195 BOOL m_bIsActive = TRUE, // [SSE]
 
+// [Cecil] New properties
+200 FLOAT m_fStrafeDir = 1.0f,
+201 FLOAT m_tmStrafeUpdate = -1.0f,
+
 220 enum FactionType m_ftFactionType = FT_NONE,
 221 CTFileName m_fnmConfig "Enemy Config" = CTString(""),
 
@@ -223,6 +227,7 @@ properties:
 243 BOOL m_bCanCrouch  "Can Crouch" = FALSE,
 244 BOOL m_bCanClimb  "Can Climb" = FALSE,
 245 BOOL m_bCanTakeCover  "Can Take Cover" = FALSE,
+246 BOOL m_bCheckForPits  "Check For Pits" = FALSE,
 
 250 BOOL m_bCoward   "Coward" = FALSE,
 251 BOOL m_bDormant  "Dormant" = FALSE,
@@ -1490,15 +1495,25 @@ functions:
     
     if (ulFlags&MF_MOVEY) {
       JumpingAnim();
+    } else if (ulFlags&MF_MOVEX) {
+      if (m_fStrafeDir == 1.0f) {
+        StrafeLeftAnim();
+      } else {
+        StrafeRightAnim();
+      }
     } else if (ulFlags&MF_MOVEZ) {
       if(m_bCrouch == TRUE) {
         CrawlingAnim();
       } else {
-        if (m_fMoveSpeed==GetProp(m_fAttackRunSpeed) * fSpeedMultiplier || m_fMoveSpeed==GetProp(m_fCloseRunSpeed) * fSpeedMultiplier
-          || m_fMoveSpeed>GetProp(m_fWalkSpeed) * fSpeedMultiplier) {
-          RunningAnim();
+        if(m_fMoveSpeed < 0.0f) {
+          BacksteppingAnim();
         } else {
-          WalkingAnim();
+          if (m_fMoveSpeed==GetProp(m_fAttackRunSpeed) * fSpeedMultiplier || m_fMoveSpeed==GetProp(m_fCloseRunSpeed) * fSpeedMultiplier
+            || m_fMoveSpeed>GetProp(m_fWalkSpeed) * fSpeedMultiplier) {
+            RunningAnim();
+          } else {
+            WalkingAnim();
+          }
         }
       } 
     } else if (ulFlags&MF_ROTATEH) {
@@ -1515,6 +1530,61 @@ functions:
       }
     }
   }
+
+  // [Cecil] Check for a bottomless pit in front of the bot in some direction
+  BOOL CheckPit(FLOAT3D vMovement, FLOAT fHeadingDir, FLOAT fDistance) {
+    if (fDistance <= 0.0f) {
+      return FALSE;
+    }
+
+    ANGLE3D aMoveDir;
+
+    DirectionVectorToAngles(vMovement, aMoveDir);
+    aMoveDir(1) += fHeadingDir;
+    AnglesToDirectionVector(aMoveDir, vMovement);
+
+    // Movement direction offset
+    vMovement = vMovement.SafeNormalize() * fDistance;
+
+    const FLOAT3D vEnemy = GetPlacement().pl_PositionVector;
+
+    // Set custom values for the check
+    const FLOAT3D vNextPos = en_vNextPosition;
+    const FLOAT fStepDnHeight = en_fStepDnHeight;
+
+    en_vNextPosition = vEnemy + (vMovement + FLOAT3D(0.0f, 2.0f, 0.0f)) * GetRotationMatrix();
+    en_fStepDnHeight = 16.0f;
+
+    // Check if there's any proper polygon below the position
+    BOOL bFall = WouldFallInNextPosition();
+
+    // Restore values
+    en_vNextPosition = vNextPos;
+    en_fStepDnHeight = fStepDnHeight;
+
+    return bFall;
+  };
+
+  // [Cecil] Try to avoid bottomless pits around the bot
+  FLOAT AvoidPits(const FLOAT3D &vMovement, FLOAT fDistance) {
+    const FLOAT fSideAngle = 30.0f * m_fStrafeDir;
+
+    // Check on one side
+    if (!CheckPit(vMovement, fSideAngle, fDistance)) {
+      return fSideAngle;
+
+    // Check on the opposite side
+    } else if (!CheckPit(vMovement, -fSideAngle, fDistance)) {
+      return -fSideAngle;
+
+    // Check closer behind
+    } else if (!CheckPit(vMovement, 180.0f, fDistance - 1.0f)) {
+      return 180.0f;
+    }
+
+    return 0.0f;
+  };
+
 
   // --------------------------------------------------------------------------------------
   // Set desired rotation and translation to go/orient towards desired position
@@ -1585,7 +1655,7 @@ functions:
         m_fJumpSpeed = 0.0f;
 
         m_ulMovementFlags |= MF_MOVEY;
-
+        
         if (m_ulMovementFlags & MF_MOVEY) {
           SpawnReminder(this, GetCurrentAnimLength(), 1);
         }
@@ -1594,12 +1664,64 @@ functions:
       FLOAT3D vTranslation(0.0f, 0.0f, 0.0f);
       vTranslation(3) = -m_fMoveSpeed;
 
+      if (m_tmStrafeUpdate <= _pTimer->CurrentTick()) {
+        m_fStrafeDir = (IRnd() % 2) ? -1.0f : 1.0f;
+        m_tmStrafeUpdate = _pTimer->CurrentTick() + 3.0f + FRnd();
+      }
+
+      if (m_bCheckForPits) {
+        // [Cecil] If found a pit in the movement direction
+        FLOAT3D vMoveDir(0.0f, 0.0f, -1.0f);
+
+        if (CheckPit(vMoveDir, 0.0f, 3.0f)) {
+          // Able to jump over
+          if (!CheckPit(vMoveDir, 0.0f, 8.0f)) {
+            vTranslation = vMoveDir * m_fMoveSpeed;
+            vTranslation(2) = m_fJumpHeight;
+
+          } else {
+            ANGLE3D aMoveDir;
+            DirectionVectorToAngles(vMoveDir, aMoveDir);
+
+            // Check 3 meters in front
+            FLOAT fAvoid = AvoidPits(vMoveDir, 3.0f);
+
+            if (fAvoid != 0.0f) {
+              // Go to the side
+              aMoveDir(1) += fAvoid;
+              AnglesToDirectionVector(aMoveDir, vMoveDir);
+
+              // Check 2 meters to the side
+              fAvoid = AvoidPits(vMoveDir, 2.0f);
+
+              if (fAvoid != 0.0f) {
+                // Go to the side
+                aMoveDir(1) += fAvoid;
+                AnglesToDirectionVector(aMoveDir, vMoveDir);
+              }
+
+            // Go backwards
+            } else {
+              aMoveDir(1) += 180.0f;
+              AnglesToDirectionVector(aMoveDir, vMoveDir);
+            }
+
+            vTranslation = vMoveDir * m_fMoveSpeed;
+          }
+        }
+      }
+
       // start moving
       SetDesiredTranslation(vTranslation);
 
       m_fJumpSpeed = 0.0f;
 
       m_ulMovementFlags |= MF_MOVEZ;
+
+      if(vTranslation(1) != 0) {
+        m_ulMovementFlags &= ~MF_MOVEZ;
+        m_ulMovementFlags |= MF_MOVEX;
+      }
 
     // if we may not move
     } else {
@@ -1634,6 +1756,7 @@ functions:
   {
     SetDesiredTranslation(FLOAT3D(0.0f, 0.0f, 0.0f));
   };
+
 
   // --------------------------------------------------------------------------------------
   // Calc distance to entity in one plane (relative to owner gravity).
@@ -2484,8 +2607,8 @@ functions:
   virtual void RotatingAnim(void) {};
   virtual void ChargeAnim(void) {};
   virtual void JumpingAnim(void) {};
-  virtual void StrafeLeftAnim(void) {};
-  virtual void StrafeRightAnim(void) {};
+  virtual void StrafeLeftAnim(void) { RunningAnim(); };
+  virtual void StrafeRightAnim(void) { RunningAnim(); };
   virtual void ClimbingUpAnim(void) {};
   virtual void ClimbingDownAnim(void) {};
   virtual void DismountAnim(void) {};
@@ -2537,7 +2660,7 @@ functions:
       if (eReminder.iValue == 1) {
         m_ulMovementFlags &= ~MF_MOVEY;
         MovementAnimation(m_ulMovementFlags);
-      return TRUE;
+        return TRUE;
       }
     }
 

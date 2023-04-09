@@ -778,6 +778,18 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_actContentTypes[6].ct_tmSwimDamageFrequency = 0.5f;
   pwo->wo_actContentTypes[6].ct_ulFlags = CTF_SWIMABLE|CTF_FADESPINNING;
 
+  pwo->wo_actContentTypes[7].ct_strName = "Acid";
+  pwo->wo_actContentTypes[7].ct_fDensity = 1000.0f;
+  pwo->wo_actContentTypes[7].ct_fFluidFriction     = 1.0f;
+  pwo->wo_actContentTypes[7].ct_fControlMultiplier = 2.0f;
+  pwo->wo_actContentTypes[7].ct_fSpeedMultiplier = 0.5f;
+  pwo->wo_actContentTypes[7].ct_fDrowningDamageAmount = 0.0f;
+  pwo->wo_actContentTypes[7].ct_tmDrowningDamageDelay = 1.0f;
+  pwo->wo_actContentTypes[7].ct_iSwimDamageType = DMT_ACID;
+  pwo->wo_actContentTypes[7].ct_fSwimDamageAmount = 25.0f;
+  pwo->wo_actContentTypes[7].ct_tmSwimDamageFrequency = 0.25f;
+  pwo->wo_actContentTypes[7].ct_ulFlags = CTF_FADESPINNING;
+
   // environments
   pwo->wo_aetEnvironmentTypes[ 0].et_strName = "Normal";
   pwo->wo_aetEnvironmentTypes[ 0].et_iType = 1;
@@ -834,6 +846,22 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_aetEnvironmentTypes[13].et_strName = "Underwater";
   pwo->wo_aetEnvironmentTypes[13].et_iType = EAX_ENVIRONMENT_UNDERWATER;
   pwo->wo_aetEnvironmentTypes[13].et_fSize = 1.8f;
+
+  pwo->wo_aetEnvironmentTypes[14].et_strName = "Dream";
+  pwo->wo_aetEnvironmentTypes[14].et_iType = EAX_ENVIRONMENT_DRUGGED;
+  pwo->wo_aetEnvironmentTypes[14].et_fSize = 1.7f;
+
+  pwo->wo_aetEnvironmentTypes[15].et_strName = "Nightmare";
+  pwo->wo_aetEnvironmentTypes[15].et_iType = EAX_ENVIRONMENT_PSYCHOTIC;
+  pwo->wo_aetEnvironmentTypes[15].et_fSize = 2.1f;
+
+  pwo->wo_aetEnvironmentTypes[16].et_strName = "Forest";
+  pwo->wo_aetEnvironmentTypes[16].et_iType = EAX_ENVIRONMENT_FOREST;
+  pwo->wo_aetEnvironmentTypes[16].et_fSize = 6.3f;
+
+  pwo->wo_aetEnvironmentTypes[17].et_strName = "Hallucination";
+  pwo->wo_aetEnvironmentTypes[17].et_iType = EAX_ENVIRONMENT_DIZZY;
+  pwo->wo_aetEnvironmentTypes[17].et_fSize = 4.2f;
 
   // declare console variables
   _pShell->DeclareSymbol("user void MakeWorldStatistics(void);",  &MakeWorldStatistics);

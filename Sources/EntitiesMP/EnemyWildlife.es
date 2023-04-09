@@ -117,6 +117,7 @@ procedures:
         EatingSound();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, GetPlacement().pl_PositionVector, -en_vGravityDir);
         autowait(0.4f);
+        m_iFullFromHunger++;
       }
     }
   }

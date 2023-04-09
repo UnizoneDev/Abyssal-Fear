@@ -33,6 +33,7 @@ properties:
   7 FLOAT m_fSize "Ray Size" = 1.0f,
   8 FLOAT m_fPower "Ray Power" = 1.0f,
   9 FLOAT m_fKneeDivider "Ray Knee Divider" = 5.0f,
+ 10 BOOL m_bActive                "Active" 'V' = TRUE,
 
 {
   CTextureObject m_toBeam;
@@ -58,7 +59,11 @@ functions:
     if(m_penStartPos==NULL) { return; }
     if(m_penEndPos==NULL) { return; }
 
-    // Passed by reference, do '&m_toBeam' to pass by pointer
+    if(!m_bActive)
+    {
+      return;
+    }
+
     Particles_GenericBeam(&m_toBeam, m_penStartPos->GetPlacement().pl_PositionVector, m_penEndPos->GetPlacement().pl_PositionVector, 
     m_iRays, m_fSize, m_fPower, m_fKneeDivider);
   };
@@ -86,6 +91,44 @@ functions:
 
 procedures:
 
+  Active() {
+    ASSERT(m_bActive);
+
+    //main loop
+    wait() {
+      on (EBegin) : { 
+        resume;
+      }
+      // if deactivated
+      on (EDeactivate) : {
+        // go to inactive state
+        m_bActive = FALSE;
+        jump Inactive();
+      }
+    }
+  };
+
+  Inactive() {
+    ASSERT(!m_bActive);
+    while (TRUE) {
+      // wait 
+      wait() {
+        // if activated
+        on (EActivate) : {
+          // go to active state
+          m_bActive = TRUE;
+          jump Active();
+        }
+        otherwise() : {
+          resume;
+        };
+      };
+      
+      // wait a bit to recover
+      autowait(0.1f);
+    }
+  }
+
   Main(EVoid)
   {
     // set appearance
@@ -100,6 +143,13 @@ procedures:
 
     // setup texture
     SetBeamTexture();
+
+    // go into active or inactive state
+    if (m_bActive) {
+      jump Active();
+    } else {
+      jump Inactive();
+    }
 
     return;
   }

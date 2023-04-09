@@ -99,6 +99,10 @@ functions:
         // must always blowup
         m_fBlowUpAmount = 0;
       }
+
+      if(IsDerivedFromClass(penInflictor, "Enemy Base")) {
+        SetTargetHardForce(penInflictor);
+      }
     }
   };
 

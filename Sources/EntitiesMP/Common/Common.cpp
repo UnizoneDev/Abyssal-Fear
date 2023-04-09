@@ -1193,6 +1193,7 @@ static EntityInfo eiWood  = {EIBT_WOOD };
 static EntityInfo eiMetal = {EIBT_METAL};
 static EntityInfo eiRobot = {EIBT_ROBOT};
 static EntityInfo eiIce   = {EIBT_ICE  };
+static EntityInfo eiGlass = {EIBT_GLASS};
 
 // get default entity info for given body type
 EntityInfo *GetStdEntityInfo(EntityInfoBodyType eibt)
@@ -1208,6 +1209,7 @@ EntityInfo *GetStdEntityInfo(EntityInfoBodyType eibt)
   case EIBT_METAL: {return &eiMetal; } break;
   case EIBT_ROBOT: {return &eiRobot; } break;
   case EIBT_ICE  : {return &eiIce  ; } break;
+  case EIBT_GLASS: {return &eiGlass; } break;
   default:    {return NULL;} break;
   };
 }
@@ -1278,6 +1280,13 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_CLOSERANGE:return 0.5f;
     case DMT_BURNING:   return 0.5f;
     case DMT_FREEZING:  return 0.5f;
+    }
+    return 1.0f;
+  case EIBT_GLASS:
+    switch (dtDamage) {
+    case DMT_BLUNT:  return 1.5f;
+    case DMT_SHARP:  return 1.5f;
+    case DMT_CLOSERANGE: return 1.5f;
     }
     return 1.0f;
   default:

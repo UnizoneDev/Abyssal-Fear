@@ -84,6 +84,8 @@ enum DamageType {
   18 DMT_CHAINSAW   "Chain saw",    // caused by chainsaw
   19 DMT_PELLET     "Pellets",      // caused by ordinary pellets from shotguns
   20 DMT_AXE        "Axe",          // caused by axe
+  21 DMT_SHARP      "Sharp",        // caused by sharp blades
+  22 DMT_BLUNT      "Blunt",        // caused by blunt weapons
 9999 DMT_NONE       "no damage",    // internal
 };
 
