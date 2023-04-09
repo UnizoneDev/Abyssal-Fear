@@ -1284,9 +1284,9 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     return 1.0f;
   case EIBT_GLASS:
     switch (dtDamage) {
-    case DMT_BLUNT:  return 1.5f;
-    case DMT_SHARP:  return 1.5f;
     case DMT_CLOSERANGE: return 1.5f;
+    case DMT_SHARP:  return 1.5f;
+    case DMT_BLUNT:  return 1.5f;
     }
     return 1.0f;
   default:
