@@ -2892,6 +2892,8 @@ functions:
     case DMT_BRUSH:
     case DMT_BURNING:
     case DMT_AXE:
+    case DMT_SHARP:
+    case DMT_BLUNT:
       // do nothing
       break;
     default:
@@ -2920,8 +2922,18 @@ functions:
     if ((m_tmSpraySpawned<=_pTimer->CurrentTick()-_pTimer->TickQuantum*8 || 
       m_fSprayDamage+fDamageAmmount>50.0f)) {
 
+      FLOAT3D vHitPointCorrect = vHitPoint;
+
+      if (dmtType == DMT_CLOSERANGE || dmtType == DMT_AXE || dmtType == DMT_SHARP || dmtType == DMT_BLUNT)
+      {
+        const EntityInfo& info = *((EntityInfo*)GetEntityInfo());
+        CPlacement3D plCenter(FLOAT3D(info.vTargetCenter[0], info.vTargetCenter[1], info.vTargetCenter[2]), ANGLE3D(0, 0, 0));
+        plCenter.RelativeToAbsoluteSmooth(GetPlacement());
+        vHitPointCorrect = plCenter.pl_PositionVector - vDirection;
+      }
+
       // spawn blood spray
-      CPlacement3D plSpray = CPlacement3D( vHitPoint, ANGLE3D(0, 0, 0));
+      CPlacement3D plSpray = CPlacement3D( vHitPointCorrect, ANGLE3D(0, 0, 0));
       m_penSpray = CreateEntity( plSpray, CLASS_BLOOD_SPRAY);
       m_penSpray->SetParent( this);
       ESpawnSpray eSpawnSpray;
@@ -2929,22 +2941,22 @@ functions:
       
       if( m_fMaxDamageAmmount > 10.0f)
       {
-        eSpawnSpray.fDamagePower = 1.0f;
+        eSpawnSpray.fDamagePower = 1.25f;
       }
       else if(m_fSprayDamage+fDamageAmmount>50.0f)
       {
-        eSpawnSpray.fDamagePower = 0.5f;
+        eSpawnSpray.fDamagePower = 0.75f;
       }
       else
       {
-        eSpawnSpray.fDamagePower = 0.25f;
+        eSpawnSpray.fDamagePower = 0.45f;
       }
 
       eSpawnSpray.sptType = SPT_BLOOD;
       eSpawnSpray.fSizeMultiplier = 0.5f;
 
       // setup direction of spray
-      FLOAT3D vHitPointRelative = vHitPoint - GetPlacement().pl_PositionVector;
+      FLOAT3D vHitPointRelative = vHitPointCorrect - GetPlacement().pl_PositionVector;
       FLOAT3D vReflectingNormal;
       GetNormalComponent( vHitPointRelative, en_vGravityDir, vReflectingNormal);
       vReflectingNormal.Normalize();
@@ -2956,7 +2968,7 @@ functions:
 
       eSpawnSpray.vDirection = vSpilDirection;
       eSpawnSpray.penOwner = this;
-    
+
       // initialize spray
       m_penSpray->Initialize( eSpawnSpray);
       m_tmSpraySpawned = _pTimer->CurrentTick();

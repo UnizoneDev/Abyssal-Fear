@@ -257,6 +257,7 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
     pdec->PrecacheSound(SOUND_PIPE_HIT1          );
     pdec->PrecacheSound(SOUND_PIPE_HIT2          );
     pdec->PrecacheSound(SOUND_PIPE_HIT3          );
+    pdec->PrecacheSound(SOUND_PIPE_HIT4          );
     pdec->PrecacheSound(SOUND_KNIFE_SWING        );
     pdec->PrecacheSound(SOUND_PIPE_BANG          );
   }
@@ -432,6 +433,7 @@ components:
  74 sound   SOUND_PIPE_HIT2            "Sounds\\Weapons\\Punch2.wav",
  75 sound   SOUND_PIPE_HIT3            "Sounds\\Weapons\\Punch3.wav",
  76 sound   SOUND_PIPE_BANG            "Sounds\\Weapons\\MetalPipeBang.wav",
+ 77 sound   SOUND_PIPE_HIT4            "Sounds\\Weapons\\Punch4.wav",
 
 // ************** REFLECTIONS **************
 200 texture TEX_REFL_BWRIPLES01         "Models\\ReflectionTextures\\BWRiples01.tex",
@@ -2806,11 +2808,12 @@ procedures:
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        switch(IRnd()%3)
+        switch(IRnd()%4)
         {
           case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
           case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
           case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
           default: ASSERTALWAYS("MetalPipe unknown hit sound");
         }
       }
@@ -2826,11 +2829,12 @@ procedures:
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        switch(IRnd()%3)
+        switch(IRnd()%4)
         {
           case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
           case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
           case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
           default: ASSERTALWAYS("MetalPipe unknown hit sound");
         }
       }

@@ -1036,11 +1036,11 @@ functions:
       eSpawnSpray.colBurnColor=C_WHITE|CT_OPAQUE;
       
       if ( m_fMaxDamageAmmount > 10.0f) {
-        eSpawnSpray.fDamagePower = 1.0f;
+        eSpawnSpray.fDamagePower = 1.25f;
       } else if (m_fSprayDamage+fNewDamage>50.0f) {
-        eSpawnSpray.fDamagePower = 0.5f;
+        eSpawnSpray.fDamagePower = 0.75f;
       } else {
-        eSpawnSpray.fDamagePower = 0.25f;
+        eSpawnSpray.fDamagePower = 0.45f;
       }
 
       eSpawnSpray.sptType = m_sptType;
