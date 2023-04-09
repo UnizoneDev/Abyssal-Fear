@@ -573,7 +573,11 @@ functions:
   };
 
   void BacksteppingAnim(void) {
-    if(m_twChar == TWC_STRONGBLADED2)
+    if(m_twChar == TWC_STRONGBLADED3)
+    {
+      StartModelAnim(TWITCHERBLADED3_ANIM_BACKPEDAL, AOF_LOOPING|AOF_NORESTART);
+    }
+    else if(m_twChar == TWC_STRONGBLADED2)
     {
       StartModelAnim(TWITCHERBLADED2_ANIM_BACKPEDAL, AOF_LOOPING|AOF_NORESTART);
     }
@@ -1031,7 +1035,12 @@ functions:
     autowait(0.3f);
     MaybeSwitchToAnotherPlayer();
 
-    if(m_twChar == TWC_STRONGBLADED2)
+    if(m_twChar == TWC_STRONGBLADED3)
+    {
+      m_fLockOnEnemyTime = 1.0f;
+      autocall CEnemyBase::StepBackwards() EReturn;
+    }
+    else if(m_twChar == TWC_STRONGBLADED2)
     {
       m_fLockOnEnemyTime = 1.0f;
       autocall CEnemyBase::StepBackwards() EReturn;
@@ -1078,6 +1087,18 @@ functions:
 
     autowait(0.3f);
     MaybeSwitchToAnotherPlayer();
+
+    if(m_twChar == TWC_STRONGBLADED3)
+    {
+      m_fLockOnEnemyTime = 1.0f;
+      autocall CEnemyBase::StepBackwards() EReturn;
+    }
+    else if(m_twChar == TWC_STRONGBLADED2)
+    {
+      m_fLockOnEnemyTime = 1.0f;
+      autocall CEnemyBase::StepBackwards() EReturn;
+    }
+
     return EReturn();
   }
 
