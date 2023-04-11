@@ -31,7 +31,9 @@ enum AchievementType {
   4 AT_DIE10TIMES         "Keel Over And Die",
   5 AT_DISOBEYGUNMEN      "Scared Straight",
   6 AT_CURETWITCHERS      "Flap Your Hands",
-  7 AT_ALLYABUSE          "Stop Freaking Betraying Me"
+  7 AT_ALLYABUSE          "Stop Freaking Betraying Me",
+  8 AT_PUNISHSINNERS      "The Time Has Come",
+  9 AT_SECRETENDING       "It Was Just A Bad Dream"
 };
 
 %{
@@ -101,6 +103,16 @@ functions:
           break;
         }
         case AT_ALLYABUSE:
+        {
+          pProgressAchievement(m_atAchievement, FALSE, m_iProgressToAdd);
+          break;
+        }
+        case AT_PUNISHSINNERS:
+        {
+          pProgressAchievement(m_atAchievement, FALSE, m_iProgressToAdd);
+          break;
+        }
+        case AT_SECRETENDING:
         {
           pProgressAchievement(m_atAchievement, FALSE, m_iProgressToAdd);
           break;

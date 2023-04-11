@@ -314,6 +314,13 @@ EffectParticlesType GetParticleEffectTypeForSurface(INDEX iSurfaceType)
     case SURFACE_CHAINLINK:
     case SURFACE_CHAINLINK_NOIMPACT:
     {eptType = EPT_BULLET_CHAINLINK; break; }
+    case SURFACE_ACID: {eptType = EPT_BULLET_ACID; break; }
+    case SURFACE_GRATE:
+    case SURFACE_GRATE_NOIMPACT:
+    {eptType = EPT_BULLET_GRATE; break; }
+    case SURFACE_MUD:
+    case SURFACE_MUD_NOIMPACT:
+    {eptType = EPT_BULLET_MUD; break; }
   }
   return eptType;
 }
@@ -359,6 +366,13 @@ BulletHitType GetBulletHitTypeForSurface(INDEX iSurfaceType)
     case SURFACE_CHAINLINK:
     case SURFACE_CHAINLINK_NOIMPACT:
     {bhtType = BHT_BRUSH_CHAINLINK; break; }
+    case SURFACE_ACID: {bhtType = BHT_BRUSH_ACID; break; }
+    case SURFACE_GRATE:
+    case SURFACE_GRATE_NOIMPACT:
+    {bhtType = BHT_BRUSH_GRATE; break; }
+    case SURFACE_MUD:
+    case SURFACE_MUD_NOIMPACT:
+    {bhtType = BHT_BRUSH_MUD; break; }
   }
   return bhtType;
 }
@@ -385,6 +399,9 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
     case BHT_BRUSH_DIRT:
     case BHT_BRUSH_TILE:
     case BHT_BRUSH_CHAINLINK:
+    case BHT_BRUSH_ACID:
+    case BHT_BRUSH_GRATE:
+    case BHT_BRUSH_MUD:
     {
       // bullet stain
       ESpawnEffect ese;
@@ -405,7 +422,11 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if (bhtType == BHT_BRUSH_GLASS)         { ese.betType = BET_BULLETSTAINGLASS; };
         if (bhtType == BHT_BRUSH_DIRT)          { ese.betType = BET_BULLETSTAINDIRT; };
         if (bhtType == BHT_BRUSH_TILE)          { ese.betType = BET_BULLETSTAINTILE; };
-        if (bhtType == BHT_BRUSH_CHAINLINK) { ese.betType = BET_BULLETSTAINCHAINLINK; };
+        if (bhtType == BHT_BRUSH_CHAINLINK)     { ese.betType = BET_BULLETSTAINCHAINLINK; };
+        if (bhtType == BHT_BRUSH_ACID)          { ese.betType = BET_BULLETSTAINACID; };
+        if (bhtType == BHT_BRUSH_UNDER_ACID)    { ese.betType = BET_BULLETSTAINUNDERACID; };
+        if (bhtType == BHT_BRUSH_GRATE)         { ese.betType = BET_BULLETSTAINGRATE; };
+        if (bhtType == BHT_BRUSH_MUD)           { ese.betType = BET_BULLETSTAINMUD; };
       }
       else
       {
@@ -425,6 +446,10 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if (bhtType == BHT_BRUSH_DIRT)          { ese.betType = BET_BULLETSTAINDIRTNOSOUND; };
         if (bhtType == BHT_BRUSH_TILE)          { ese.betType = BET_BULLETSTAINTILENOSOUND; };
         if (bhtType == BHT_BRUSH_CHAINLINK)     { ese.betType = BET_BULLETSTAINCHAINLINKNOSOUND; };
+        if (bhtType == BHT_BRUSH_ACID)          { ese.betType = BET_BULLETSTAINACIDNOSOUND; };
+        if (bhtType == BHT_BRUSH_UNDER_ACID)    { ese.betType = BET_BULLETSTAINUNDERACIDNOSOUND; };
+        if (bhtType == BHT_BRUSH_GRATE)         { ese.betType = BET_BULLETSTAINGRATENOSOUND; };
+        if (bhtType == BHT_BRUSH_MUD)           { ese.betType = BET_BULLETSTAINMUDNOSOUND; };
       }
 
       ese.vNormal = vHitNormal;

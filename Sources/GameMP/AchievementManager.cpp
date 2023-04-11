@@ -22,7 +22,7 @@ CAchievementManager::CAchievementManager()
 {
     _pShell->DeclareSymbol("void ProgressAchievement(INDEX, INDEX, INDEX);", &ProgressAchievement);
 
-    sa_AchievementList.New(8);
+    sa_AchievementList.New(10);
     // CAchievement(strName, strDescription, ctMaxProgress, bHidden) constructor
     sa_AchievementList[0] = CAchievement("Obsessive", "Find all endings.", 0, FALSE);  // get all endings
     sa_AchievementList[1] = CAchievement("Deathwish", "Kill 50 hostiles.", 50, FALSE); // kill 50 demons
@@ -32,6 +32,8 @@ CAchievementManager::CAchievementManager()
     sa_AchievementList[5] = CAchievement("Scared straight?", "Murder 30 gunmen", 30, FALSE); // kill 30 gunmen
     sa_AchievementList[6] = CAchievement("Flap your hands!", "Kill 50 twitchers.", 50, FALSE); // kill 50 twitchers
     sa_AchievementList[7] = CAchievement("Stop freaking betraying me!", "Betray 10 allies fatally.", 10, FALSE); // kill 10 allies
+    sa_AchievementList[8] = CAchievement("The time has come", "Murder 40 sinners", 40, FALSE);  // kill 40 sinners
+    sa_AchievementList[9] = CAchievement("It was just a bad dream", "Wake up from this nightmare.", 0, TRUE); // achieve the secret ending
 };
 
 // Alternative method instead of a constructor

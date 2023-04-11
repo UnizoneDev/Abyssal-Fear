@@ -279,8 +279,8 @@ functions:
 
   // death
   INDEX AnimForDeath(void) {
-    INDEX iAnim;
-    FLOAT3D vFront;
+      INDEX iAnim;
+      FLOAT3D vFront;
       GetHeadingDirection(0, vFront);
       FLOAT fDamageDir = m_vDamage%vFront;
 
@@ -591,6 +591,28 @@ functions:
     }
   };
 
+  void StrafeLeftAnim(void) {
+    if (m_twChar == TWC_STRONGBLADED3)
+    {
+      StartModelAnim(TWITCHERBLADED3_ANIM_STRAFERIGHT, AOF_LOOPING|AOF_NORESTART);
+    }
+    else
+    {
+      RunningAnim();
+    }
+  };
+
+  void StrafeRightAnim(void) {
+    if (m_twChar == TWC_STRONGBLADED3)
+    {
+      StartModelAnim(TWITCHERBLADED3_ANIM_STRAFELEFT, AOF_LOOPING|AOF_NORESTART);
+    }
+    else
+    {
+      RunningAnim();
+    }
+  };
+
   void JumpingAnim(void) {
     if(m_twChar == TWC_STRONGBLADED3)
     {
@@ -759,6 +781,24 @@ functions:
   procedures:
 
 
+  BlockEnemyMelee(EVoid) {
+    if(m_twChar == TWC_STRONGBLADED)
+    {
+      StartModelAnim(TWITCHERBLADED_ANIM_BLOCK1, 0);
+    }
+
+    autowait(0.25f);
+
+    m_bIsBlocking = TRUE;
+
+    autowait(1.0f);
+
+    m_bIsBlocking = FALSE;
+
+    return EReturn();
+  }
+
+
   Fire(EVoid) : CEnemyBase::Fire
   {
     if(m_twChar == TWC_STRONGBLADED2)
@@ -869,6 +909,12 @@ functions:
 
     autowait(0.3f);
     MaybeSwitchToAnotherPlayer();
+
+    if(m_twChar == TWC_STRONGBLADED)
+    {
+      autocall BlockEnemyMelee() EReturn;
+    }
+
     return EReturn();
   }
 
@@ -975,6 +1021,12 @@ functions:
 
     autowait(0.3f);
     MaybeSwitchToAnotherPlayer();
+
+    if(m_twChar == TWC_STRONGBLADED)
+    {
+      autocall BlockEnemyMelee() EReturn;
+    }
+
     return EReturn();
   }
 
@@ -1249,13 +1301,13 @@ functions:
     }
 
         // setup moving speed
-        if(m_bMoveFast)
+        if(m_bMoveFast || m_twChar == TWC_STRONGBLADED2 || m_twChar == TWC_STRONGBLADED3)
         {
           m_fWalkSpeed = FRnd() + 3.0f;
           m_aWalkRotateSpeed = AngleDeg(FRnd()*20.0f + 525.0f);
-          m_fAttackRunSpeed = FRnd() + 7.0f;
+          m_fAttackRunSpeed = FRnd() + 6.0f;
           m_aAttackRotateSpeed = AngleDeg(FRnd()*60 + 275.0f);
-          m_fCloseRunSpeed = FRnd() + 7.0f;
+          m_fCloseRunSpeed = FRnd() + 6.0f;
           m_aCloseRotateSpeed = AngleDeg(FRnd()*60 + 275.0f);
         }
         else

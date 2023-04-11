@@ -99,6 +99,9 @@ static CTextureObject _toBulletGlass;
 static CTextureObject _toBulletDirt;
 static CTextureObject _toBulletTile;
 static CTextureObject _toBulletChainlink;
+static CTextureObject _toBulletAcid;
+static CTextureObject _toBulletGrate;
+static CTextureObject _toBulletMud;
 static CTextureObject _toAirSprayTexture;
 static CTextureObject _toFlameThrowerGradient;
 static CTextureObject _toFlameThrowerStartGradient;
@@ -278,6 +281,9 @@ void InitParticles(void)
     _toBulletDirt.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayDirt.tex"));
     _toBulletTile.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayTile.tex"));
     _toBulletChainlink.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayChainlink.tex"));
+    _toBulletAcid.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayAcid.tex"));
+    _toBulletGrate.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayGrate.tex"));
+    _toBulletMud.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayMud.tex"));
     _toAirSprayTexture.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\AirSpray.tex"));
     _toFlameThrowerGradient.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\FlameThrowerGradient.tex"));
     _toFlameThrowerStartGradient.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\FlameThrowerStartGradient.tex"));
@@ -415,6 +421,9 @@ void CloseParticles(void)
   _toBulletDirt.SetData(NULL);
   _toBulletTile.SetData(NULL);
   _toBulletChainlink.SetData(NULL);
+  _toBulletAcid.SetData(NULL);
+  _toBulletGrate.SetData(NULL);
+  _toBulletMud.SetData(NULL);
   _toAirSprayTexture.SetData(NULL);
   _toFlameThrowerGradient.SetData(NULL);
   _toFlameThrowerStartGradient.SetData(NULL);
@@ -3689,6 +3698,35 @@ void Particles_BulletSpray(INDEX iRndBase, FLOAT3D vSource, FLOAT3D vGDir, enum 
         fSpeedStart = 1.25f;
         break;
     }
+    case EPT_BULLET_ACID:
+    {
+        Particle_PrepareTexture(&_toBulletAcid, PBT_BLEND);
+        fSizeStart = 0.08f;
+        fSpeedStart = 1.75f;
+        fConeMultiplier = 0.125f;
+
+        FLOAT fFadeStart = BULLET_SPRAY_WATER_FADEOUT_START;
+        FLOAT fLifeTotal = BULLET_SPRAY_WATER_TOTAL_TIME;
+        FLOAT fFadeLen = fLifeTotal - fFadeStart;
+
+        break;
+    }
+    case EPT_BULLET_GRATE:
+    {
+        colSmoke = 0xFFE8C000;
+        Particle_PrepareTexture(&_toBulletGrate, PBT_BLEND);
+        fSizeStart = 0.15f;
+        fSpeedStart = 1.25f;
+        break;
+    }
+    case EPT_BULLET_MUD:
+    {
+        colSmoke = 0xFFE8C000;
+        Particle_PrepareTexture(&_toBulletMud, PBT_BLEND);
+        fSizeStart = 0.15f;
+        fSpeedStart = 1.75f;
+        break;
+    }
     default:
     {
       colSmoke = C_WHITE;
@@ -3732,7 +3770,8 @@ void Particles_BulletSpray(INDEX iRndBase, FLOAT3D vSource, FLOAT3D vGDir, enum 
   Particle_Flush();
   
   //---------------------------------------
-  if( (fT<BULLET_SPARK_TOTAL_TIME) && (eptType != EPT_BULLET_WATER) && (eptType != EPT_BULLET_UNDER_WATER) && (eptType != EPT_BULLET_BLOOD) && (eptType != EPT_BULLET_UNDER_BLOOD) )
+  if( (fT<BULLET_SPARK_TOTAL_TIME) && (eptType != EPT_BULLET_WATER) && (eptType != EPT_BULLET_UNDER_WATER) && (eptType != EPT_BULLET_BLOOD) && (eptType != EPT_BULLET_UNDER_BLOOD)
+      && (eptType != EPT_BULLET_ACID) && (eptType != EPT_BULLET_UNDER_ACID))
   {
     // render spark lines
     Particle_PrepareTexture(&_toBulletSpark, PBT_ADD);
@@ -3757,7 +3796,8 @@ void Particles_BulletSpray(INDEX iRndBase, FLOAT3D vSource, FLOAT3D vGDir, enum 
   }
 
   //---------------------------------------
-  if( (fT<BULLET_SMOKE_TOTAL_TIME) && (eptType != EPT_BULLET_WATER) && (eptType != EPT_BULLET_UNDER_WATER) && (eptType != EPT_BULLET_BLOOD) && (eptType != EPT_BULLET_UNDER_BLOOD) )
+  if( (fT<BULLET_SMOKE_TOTAL_TIME) && (eptType != EPT_BULLET_WATER) && (eptType != EPT_BULLET_UNDER_WATER) && (eptType != EPT_BULLET_BLOOD) && (eptType != EPT_BULLET_UNDER_BLOOD)
+      && (eptType != EPT_BULLET_ACID) && (eptType != EPT_BULLET_UNDER_ACID))
   {
     // render smoke
     Particle_PrepareTexture( &_toBulletSmoke, PBT_BLEND);

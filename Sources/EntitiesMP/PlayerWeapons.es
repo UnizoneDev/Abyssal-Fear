@@ -2852,9 +2852,23 @@ procedures:
     return EEnd();
   };
 
-  // ***************** PIPE ALTFIRE DUMMY *****************
+  // ***************** PIPE ALTFIRE BLOCK *****************
   AltPipe() {
-    autowait(0.25);
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    pl.m_bIsBlocking = TRUE;
+
+    m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_BLOCKIDLE, 0);
+
+    while(m_bAltFireWeapon)
+    {
+      autowait(m_fAnimWaitTime);
+    }
+
+    m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_IDLE, 0);
+
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    pl.m_bIsBlocking = FALSE;
+
     return EEnd();
   };
 

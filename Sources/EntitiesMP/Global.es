@@ -167,6 +167,10 @@ enum BulletHitType {
  16 BHT_BRUSH_DIRT          "",     // brush dirt
  17 BHT_BRUSH_TILE          "",     // brush tile
  18 BHT_BRUSH_CHAINLINK     "",     // brush chainlink
+ 19 BHT_BRUSH_ACID          "",     // brush acid
+ 20 BHT_BRUSH_UNDER_ACID    "",     // brush under acid
+ 21 BHT_BRUSH_GRATE         "",     // brush grate
+ 22 BHT_BRUSH_MUD           "",     // brush mud
 };
 
 enum EffectParticlesType {
@@ -187,6 +191,10 @@ enum EffectParticlesType {
  14 EPT_BULLET_DIRT           "",    // bullet particles on dirt
  15 EPT_BULLET_TILE           "",    // bullet particles on tile
  16 EPT_BULLET_CHAINLINK      "",    // bullet particles on chainlink
+ 17 EPT_BULLET_ACID           "",    // bullet particles on acid
+ 18 EPT_BULLET_UNDER_ACID     "",    // bullet particles underacid
+ 19 EPT_BULLET_GRATE          "",    // bullet particles on grate
+ 20 EPT_BULLET_MUD            "",    // bullet particles on mud
 };
 
 enum SprayParticlesType {

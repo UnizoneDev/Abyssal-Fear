@@ -589,6 +589,8 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_LAND_DIRT          );
   pdec->PrecacheSound(SOUND_LAND_TILE          );
   pdec->PrecacheSound(SOUND_LAND_CHAINLINK     );
+  pdec->PrecacheSound(SOUND_LAND_GRATE         );
+  pdec->PrecacheSound(SOUND_LAND_MUD           );
   pdec->PrecacheSound(SOUND_WATERAMBIENT       );
   pdec->PrecacheSound(SOUND_WATERBUBBLES       );
   pdec->PrecacheSound(SOUND_WATERWALK_L        );
@@ -613,6 +615,10 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_WALK_TILE_R        );
   pdec->PrecacheSound(SOUND_WALK_CHAINLINK_L   );
   pdec->PrecacheSound(SOUND_WALK_CHAINLINK_R   );
+  pdec->PrecacheSound(SOUND_WALK_GRATE_L       );
+  pdec->PrecacheSound(SOUND_WALK_GRATE_R       );
+  pdec->PrecacheSound(SOUND_WALK_MUD_L         );
+  pdec->PrecacheSound(SOUND_WALK_MUD_R         );
 //pdec->PrecacheSound(SOUND_HIGHSCORE          );
   pdec->PrecacheSound(SOUND_SNIPER_ZOOM        );
   pdec->PrecacheSound(SOUND_SNIPER_QZOOM       );
@@ -641,6 +647,8 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_F_LAND_DIRT          );
   pdec->PrecacheSound(SOUND_F_LAND_TILE          );
   pdec->PrecacheSound(SOUND_F_LAND_CHAINLINK     );
+  pdec->PrecacheSound(SOUND_F_LAND_GRATE         );
+  pdec->PrecacheSound(SOUND_F_LAND_MUD           );
   pdec->PrecacheSound(SOUND_F_WATERWALK_L        );
   pdec->PrecacheSound(SOUND_F_WATERWALK_R        );
   pdec->PrecacheSound(SOUND_F_WALK_GRASS_L       );
@@ -661,6 +669,10 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_F_WALK_TILE_R        );
   pdec->PrecacheSound(SOUND_F_WALK_CHAINLINK_L   );
   pdec->PrecacheSound(SOUND_F_WALK_CHAINLINK_R   );
+  pdec->PrecacheSound(SOUND_F_WALK_GRATE_L       );
+  pdec->PrecacheSound(SOUND_F_WALK_GRATE_R       );
+  pdec->PrecacheSound(SOUND_F_WALK_MUD_L         );
+  pdec->PrecacheSound(SOUND_F_WALK_MUD_R         );
 //pdec->PrecacheSound(SOUND_F_HIGHSCORE          );
   pdec->PrecacheSound(SOUND_BLOWUP               );
 
@@ -1151,6 +1163,8 @@ properties:
  201 FLOAT m_fMessagePosX = 0.0f,
  202 FLOAT m_fMessagePosY = 0.0f,
 
+ 203 BOOL m_bIsBlocking = FALSE,
+
 {
   ShellLaunchData ShellLaunchData_array;  // array of data describing flying empty shells
   INDEX m_iFirstEmptySLD;                         // index of last added empty shell
@@ -1225,6 +1239,10 @@ components:
 101 sound SOUND_WALK_TILE_R     "Sounds\\Player\\WalkTileR.wav",
 102 sound SOUND_WALK_CHAINLINK_L "Sounds\\Player\\WalkChainlinkL.wav",
 103 sound SOUND_WALK_CHAINLINK_R "Sounds\\Player\\WalkChainlinkR.wav",
+115 sound SOUND_WALK_GRATE_L    "Sounds\\Player\\WalkGrateL.wav",
+116 sound SOUND_WALK_GRATE_R    "Sounds\\Player\\WalkGrateR.wav",
+118 sound SOUND_WALK_MUD_L      "Sounds\\Player\\WalkMudL.wav",
+119 sound SOUND_WALK_MUD_R      "Sounds\\Player\\WalkMudR.wav",
 104 sound SOUND_LAND_SAND       "Sounds\\Player\\LandSand.wav",
 105 sound SOUND_LAND_GRASS      "Sounds\\Player\\LandGrass.wav",
 106 sound SOUND_LAND_WOOD       "Sounds\\Player\\LandWood.wav",
@@ -1235,6 +1253,8 @@ components:
 111 sound SOUND_LAND_DIRT       "Sounds\\Player\\LandDirt.wav",
 112 sound SOUND_LAND_TILE       "Sounds\\Player\\LandTile.wav",
 113 sound SOUND_LAND_CHAINLINK  "Sounds\\Player\\LandChainlink.wav",
+117 sound SOUND_LAND_GRATE      "Sounds\\Player\\LandGrate.wav",
+120 sound SOUND_LAND_MUD        "Sounds\\Player\\LandMud.wav",
 114 sound SOUND_BLOWUP          "Sounds\\Player\\BlowUp.wav",
  
 
@@ -1271,6 +1291,10 @@ components:
 201 sound SOUND_F_WALK_TILE_R     "SoundsMP\\Player\\Female\\WalkTileR.wav",
 202 sound SOUND_F_WALK_CHAINLINK_L "SoundsMP\\Player\\Female\\WalkChainlinkL.wav",
 203 sound SOUND_F_WALK_CHAINLINK_R "SoundsMP\\Player\\Female\\WalkChainlinkR.wav",
+222 sound SOUND_F_WALK_GRATE_L    "SoundsMP\\Player\\Female\\WalkGrateL.wav",
+223 sound SOUND_F_WALK_GRATE_R    "SoundsMP\\Player\\Female\\WalkGrateR.wav",
+225 sound SOUND_F_WALK_MUD_L      "SoundsMP\\Player\\Female\\WalkMudL.wav",
+226 sound SOUND_F_WALK_MUD_R      "SoundsMP\\Player\\Female\\WalkMudR.wav",
 204 sound SOUND_F_LAND_SAND       "SoundsMP\\Player\\Female\\LandSand.wav",
 205 sound SOUND_F_LAND_GRASS      "SoundsMP\\Player\\Female\\LandGrass.wav",
 206 sound SOUND_F_LAND_WOOD       "SoundsMP\\Player\\Female\\LandWood.wav",
@@ -1281,6 +1305,8 @@ components:
 211 sound SOUND_F_LAND_DIRT       "SoundsMP\\Player\\Female\\LandDirt.wav",
 212 sound SOUND_F_LAND_TILE       "SoundsMP\\Player\\Female\\LandTile.wav",
 213 sound SOUND_F_LAND_CHAINLINK  "SoundsMP\\Player\\Female\\LandChainlink.wav",
+224 sound SOUND_F_LAND_GRATE      "SoundsMP\\Player\\Female\\LandGrate.wav",
+227 sound SOUND_F_LAND_MUD        "SoundsMP\\Player\\Female\\LandMud.wav",
 
 // gender-independent sounds
 214 sound SOUND_SILENCE         "Sounds\\Misc\\Silence.wav",
@@ -2979,6 +3005,25 @@ functions:
   }
 
 
+  // --------------------------------------------------------------------------------------
+  // Get cos of angle in direction in current gravity plane.
+  // --------------------------------------------------------------------------------------
+  FLOAT GetPlaneFrustumAngle(const FLOAT3D &vDir)
+  {
+    FLOAT3D vPlaneDelta;
+    // find vector from you to target in XZ plane
+    GetNormalComponent(vDir, en_vGravityDir, vPlaneDelta);
+    // find front vector
+    FLOAT3D vFront = -GetRotationMatrix().GetColumn(3);
+    FLOAT3D vPlaneFront;
+    GetNormalComponent(vFront, en_vGravityDir, vPlaneFront);
+    // make dot product to determine if you can see target (view angle)
+    vPlaneDelta.SafeNormalize();
+    vPlaneFront.SafeNormalize();
+    return vPlaneDelta%vPlaneFront;
+  }
+
+
   /* Receive damage */
   void ReceiveDamage( CEntity *penInflictor, enum DamageType dmtType,
                       FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection)
@@ -3031,6 +3076,37 @@ functions:
     // ignore zero damages
     if (fDamageAmmount<=0) {
       return;
+    }
+
+    FLOAT3D vProperDamageDir = (vDirection.ManhattanNorm() > 0.5f) ? vDirection : -en_vGravityDir;
+    vProperDamageDir = (vProperDamageDir - en_vGravityDir * 0.5f).Normalize();
+
+    if(m_bIsBlocking) {
+      if(IsOfClass(penInflictor, "Player") || IsDerivedFromClass(penInflictor, "Enemy Base")) {
+        if (GetPlaneFrustumAngle(vProperDamageDir) < Cos(90.0f)) {
+        switch(dmtType) {
+          case DMT_DROWNING:
+          case DMT_BURNING:
+          case DMT_FREEZING:
+          case DMT_ACID:
+          case DMT_TELEPORT:
+          case DMT_BRUSH:
+          case DMT_HEAT:
+          case DMT_ABYSS:
+          case DMT_SPIKESTAB:
+          case DMT_EXPLOSION:
+          case DMT_PROJECTILE:
+          case DMT_BULLET:
+          case DMT_PELLET:
+          case DMT_IMPACT:
+          return;
+          break;
+
+          default: break;
+        }
+        return;
+        }
+      }
     }
 
     FLOAT fSubHealth, fSubArmor;
@@ -4007,6 +4083,14 @@ functions:
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CHAINLINK ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CHAINLINK_NOIMPACT) ) {
              iSoundLand = SOUND_LAND_CHAINLINK;
+          } else if (en_pbpoStandOn!=NULL && 
+            (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE_NOIMPACT) ) {
+             iSoundLand = SOUND_LAND_GRATE;
+          } else if (en_pbpoStandOn!=NULL && 
+            (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
+             iSoundLand = SOUND_LAND_MUD;
           }
           else {
           }
@@ -4216,6 +4300,16 @@ functions:
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CHAINLINK_NOIMPACT) ) {
         iSoundWalkL = SOUND_WALK_CHAINLINK_L;
         iSoundWalkR = SOUND_WALK_CHAINLINK_R;
+      } else if (en_pbpoStandOn!=NULL && 
+        (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE ||
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE_NOIMPACT) ) {
+        iSoundWalkL = SOUND_WALK_GRATE_L;
+        iSoundWalkR = SOUND_WALK_GRATE_R;
+      } else if (en_pbpoStandOn!=NULL && 
+        (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
+        iSoundWalkL = SOUND_WALK_MUD_L;
+        iSoundWalkR = SOUND_WALK_MUD_R;
       }
       else {
       }

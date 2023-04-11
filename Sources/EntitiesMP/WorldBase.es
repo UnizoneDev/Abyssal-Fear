@@ -702,6 +702,43 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[38].st_fClimbSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[38].st_ulFlags = STF_NOIMPACT;
 
+  ASSERT(39==SURFACE_ACID);
+  pwo->wo_astSurfaceTypes[39].st_strName = "Acid";
+  pwo->wo_astSurfaceTypes[39].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[39].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[39].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[39].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(40==SURFACE_GRATE);
+  pwo->wo_astSurfaceTypes[40].st_strName = "Grate";
+  pwo->wo_astSurfaceTypes[40].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[40].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[40].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[40].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(41==SURFACE_GRATE_NOIMPACT);
+  pwo->wo_astSurfaceTypes[41].st_strName = "Grate no impact";
+  pwo->wo_astSurfaceTypes[41].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[41].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[41].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[41].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[41].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(42==SURFACE_MUD);
+  pwo->wo_astSurfaceTypes[42].st_strName = "Mud";
+  pwo->wo_astSurfaceTypes[42].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[42].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[42].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[42].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(43==SURFACE_MUD_NOIMPACT);
+  pwo->wo_astSurfaceTypes[43].st_strName = "Mud no impact";
+  pwo->wo_astSurfaceTypes[43].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[43].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[43].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[43].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[43].st_ulFlags = STF_NOIMPACT;
+
   // contents
   pwo->wo_actContentTypes[0].ct_strName = "Air";
   pwo->wo_actContentTypes[0].ct_fDensity = 0.0f;
@@ -780,15 +817,15 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
 
   pwo->wo_actContentTypes[7].ct_strName = "Acid";
   pwo->wo_actContentTypes[7].ct_fDensity = 1000.0f;
-  pwo->wo_actContentTypes[7].ct_fFluidFriction     = 1.0f;
-  pwo->wo_actContentTypes[7].ct_fControlMultiplier = 2.0f;
-  pwo->wo_actContentTypes[7].ct_fSpeedMultiplier = 0.5f;
+  pwo->wo_actContentTypes[7].ct_fFluidFriction     = 0.0f;
+  pwo->wo_actContentTypes[7].ct_fControlMultiplier = 1.75f;
+  pwo->wo_actContentTypes[7].ct_fSpeedMultiplier = 0.75f;
   pwo->wo_actContentTypes[7].ct_fDrowningDamageAmount = 0.0f;
   pwo->wo_actContentTypes[7].ct_tmDrowningDamageDelay = 1.0f;
   pwo->wo_actContentTypes[7].ct_iSwimDamageType = DMT_ACID;
-  pwo->wo_actContentTypes[7].ct_fSwimDamageAmount = 25.0f;
-  pwo->wo_actContentTypes[7].ct_tmSwimDamageFrequency = 0.25f;
-  pwo->wo_actContentTypes[7].ct_ulFlags = CTF_FADESPINNING;
+  pwo->wo_actContentTypes[7].ct_fSwimDamageAmount = 10.0f;
+  pwo->wo_actContentTypes[7].ct_tmSwimDamageFrequency = 0.5f;
+  pwo->wo_actContentTypes[7].ct_ulFlags = CTF_SWIMABLE|CTF_FADESPINNING;
 
   // environments
   pwo->wo_aetEnvironmentTypes[ 0].et_strName = "Normal";
@@ -853,7 +890,7 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
 
   pwo->wo_aetEnvironmentTypes[15].et_strName = "Nightmare";
   pwo->wo_aetEnvironmentTypes[15].et_iType = EAX_ENVIRONMENT_PSYCHOTIC;
-  pwo->wo_aetEnvironmentTypes[15].et_fSize = 2.1f;
+  pwo->wo_aetEnvironmentTypes[15].et_fSize = 4.2f;
 
   pwo->wo_aetEnvironmentTypes[16].et_strName = "Forest";
   pwo->wo_aetEnvironmentTypes[16].et_iType = EAX_ENVIRONMENT_FOREST;
@@ -862,6 +899,14 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_aetEnvironmentTypes[17].et_strName = "Hallucination";
   pwo->wo_aetEnvironmentTypes[17].et_iType = EAX_ENVIRONMENT_DIZZY;
   pwo->wo_aetEnvironmentTypes[17].et_fSize = 4.2f;
+
+  pwo->wo_aetEnvironmentTypes[18].et_strName = "Nightmare Extreme";
+  pwo->wo_aetEnvironmentTypes[18].et_iType = EAX_ENVIRONMENT_PSYCHOTIC;
+  pwo->wo_aetEnvironmentTypes[18].et_fSize = 1.25f;
+
+  pwo->wo_aetEnvironmentTypes[19].et_strName = "Dream Extreme";
+  pwo->wo_aetEnvironmentTypes[19].et_iType = EAX_ENVIRONMENT_DRUGGED;
+  pwo->wo_aetEnvironmentTypes[19].et_fSize = 4.8f;
 
   // declare console variables
   _pShell->DeclareSymbol("user void MakeWorldStatistics(void);",  &MakeWorldStatistics);

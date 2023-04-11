@@ -101,6 +101,14 @@ enum BasicEffectType {
  73 BET_BULLETSTAINCHAINLINKNOSOUND  "Bullet stain chainlink no sound",
  74 BET_EXPLOSIVEBARREL                 "Explosive barrel explode",     // explosive explosion
  75 BET_EXPLOSIVEBARREL_PLANE           "Explosive barrel plane",     // explosive explosion on plane
+ 76 BET_BULLETSTAINACID         "Bullet stain acid",     // bullet stain with ricochet on acid surface
+ 77 BET_BULLETSTAINUNDERACID    "Bullet stain underacid",    // bullet stain with ricochet on underacid surface
+ 78 BET_BULLETSTAINACIDNOSOUND      "Bullet stain acid nosound",  // bullet stain on acid surface with no sound
+ 79 BET_BULLETSTAINUNDERACIDNOSOUND "Bullet stain underacid no sound", // bullet stain on under acid surface with no sound
+ 80 BET_BULLETSTAINGRATE    "Bullet stain grate", 
+ 81 BET_BULLETSTAINGRATENOSOUND  "Bullet stain grate no sound",
+ 82 BET_BULLETSTAINMUD    "Bullet stain mud", 
+ 83 BET_BULLETSTAINMUDNOSOUND  "Bullet stain mud no sound",
 };
 
 
@@ -203,6 +211,14 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
   case BET_BULLETSTAINTILENOSOUND:
   case BET_BULLETSTAINCHAINLINK:
   case BET_BULLETSTAINCHAINLINKNOSOUND:
+  case BET_BULLETSTAINACID:
+  case BET_BULLETSTAINUNDERACID:
+  case BET_BULLETSTAINACIDNOSOUND:
+  case BET_BULLETSTAINUNDERACIDNOSOUND:
+  case BET_BULLETSTAINGRATE:
+  case BET_BULLETSTAINGRATENOSOUND:
+  case BET_BULLETSTAINMUD:
+  case BET_BULLETSTAINMUDNOSOUND:
     pdec->PrecacheModel(MODEL_BULLET_HIT);
     pdec->PrecacheTexture(TEXTURE_BULLET_HIT);
     pdec->PrecacheTexture(TEXTURE_BULLET_SAND);
@@ -211,6 +227,7 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheModel(MODEL_SHOCKWAVE);
     pdec->PrecacheTexture(TEXTURE_WATER_WAVE);
     pdec->PrecacheTexture(TEXTURE_BLOOD_WAVE);
+    pdec->PrecacheTexture(TEXTURE_ACID_WAVE);
     pdec->PrecacheSound(SOUND_BULLET_STONE);
     pdec->PrecacheSound(SOUND_BULLET_SAND);
     pdec->PrecacheSound(SOUND_BULLET_WATER);
@@ -226,6 +243,9 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheSound(SOUND_BULLET_DIRT);
     pdec->PrecacheSound(SOUND_BULLET_TILE);
     pdec->PrecacheSound(SOUND_BULLET_CHAINLINK);
+    pdec->PrecacheSound(SOUND_BULLET_ACID);
+    pdec->PrecacheSound(SOUND_BULLET_GRATE);
+    pdec->PrecacheSound(SOUND_BULLET_MUD);
     break;
   case BET_BULLETTRAIL:
     pdec->PrecacheModel(MODEL_BULLET_TRAIL);
@@ -369,6 +389,9 @@ components:
  125 sound  SOUND_BULLET_DIRT     "Sounds\\Weapons\\BulletHitDirt.wav",
  126 sound  SOUND_BULLET_TILE     "Sounds\\Weapons\\BulletHitTile.wav",
  127 sound  SOUND_BULLET_CHAINLINK "Sounds\\Weapons\\BulletHitChainlink.wav",
+ 128 sound  SOUND_BULLET_ACID     "Sounds\\Weapons\\BulletHitAcid.wav",
+ 129 sound  SOUND_BULLET_GRATE    "Sounds\\Weapons\\BulletHitGrate.wav",
+ 133 sound  SOUND_BULLET_MUD      "Sounds\\Weapons\\BulletHitMud.wav",
 
 // ********** BLOOD **********
  21 model   MODEL_BLOOD_EXPLODE   "Models\\Effects\\BloodCloud\\BloodCloud.mdl",
@@ -409,6 +432,7 @@ components:
 // ********** Water shockwave texture **********
  120 texture TEXTURE_WATER_WAVE          "Models\\Effects\\ShockWave\\WaterWave.tex",
  130 texture TEXTURE_BLOOD_WAVE          "Models\\Effects\\ShockWave\\BloodWave.tex",
+ 132 texture TEXTURE_ACID_WAVE           "Models\\Effects\\ShockWave\\AcidWave.tex",
 
 functions:
 
@@ -701,7 +725,7 @@ functions:
     if( (m_betType>=BET_BULLETSTAINSTONE && m_betType<=BET_BULLETSTAINREDSANDNOSOUND) ||
         (m_betType>=BET_BULLETSTAINGRASS && m_betType<=BET_BULLETSTAINWOODNOSOUND) ||
         (m_betType>=BET_BULLETSTAINSNOW  && m_betType<=BET_BULLETSTAINSNOWNOSOUND) ||
-        (m_betType>=BET_BULLETSTAINMETAL && m_betType<=BET_BULLETSTAINCHAINLINKNOSOUND) )
+        (m_betType>=BET_BULLETSTAINMETAL && m_betType<=BET_BULLETSTAINMUDNOSOUND) )
     {
       if( pbpoNearBrush != NULL)
       {
@@ -1209,6 +1233,31 @@ functions:
     m_eptType = EPT_BULLET_BLOOD;
   }
 
+  void BulletStainAcid(BOOL bSound)
+  {
+    if( bSound)
+    {
+      m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
+      PlaySound(m_soEffect, SOUND_BULLET_ACID, SOF_3D);
+      m_fSoundTime = GetSoundLength(SOUND_BULLET_ACID);
+    }
+
+    SetModel(MODEL_SHOCKWAVE);
+    SetModelMainTexture(TEXTURE_ACID_WAVE);
+    CModelObject &moShockwave = *GetModelObject();
+    moShockwave.PlayAnim(SHOCKWAVE_ANIM_MEDIUM, 0);
+    moShockwave.StretchModel(FLOAT3D(0.25f, 0.25f, 0.25f));
+    ModelChangeNotify();
+
+    SetNormalWithRandomBanking();
+    FindGravityVectorFromSector();
+    m_fWaitTime = 0.5f;
+    m_fFadeTime = 0.5f;
+    m_bLightSource = FALSE;
+    m_tmWaitAfterDeath = 1.0f;
+    m_eptType = EPT_BULLET_ACID;
+  }
+
   void BulletTrail(void) {
     Stretch();
     SetModel(MODEL_BULLET_TRAIL);
@@ -1445,6 +1494,56 @@ functions:
     m_vStretch = vTemp;
   };
 
+  void BulletStainGrate(BOOL bSound) {
+    if( bSound)
+    {
+      m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
+      PlaySound(m_soEffect, SOUND_BULLET_GRATE, SOF_3D);
+      m_fSoundTime = GetSoundLength(SOUND_BULLET_GRATE);
+    }
+    
+    SetModel(MODEL_BULLET_STAIN);
+    SetModelMainTexture(TEXTURE_BULLET_METAL);
+    CModelObject &moHole = *GetModelObject();
+    moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
+    ModelChangeNotify();
+    moHole.mo_colBlendColor = 0x7f7f7fFF;
+
+    SetNormalWithRandomBanking();
+    m_fWaitTime = 2.0f;
+    m_fFadeTime = 2.0f;
+    m_bLightSource = FALSE;
+    m_eptType = EPT_BULLET_GRATE;
+    FLOAT3D vTemp = m_vStretch;
+    ParentToNearestPolygonAndStretch();
+    m_vStretch = vTemp;
+  };
+
+  void BulletStainMud(BOOL bSound) {
+    if( bSound)
+    {
+      m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
+      PlaySound(m_soEffect, SOUND_BULLET_MUD, SOF_3D);
+      m_fSoundTime = GetSoundLength(SOUND_BULLET_MUD);
+    }
+    
+    SetModel(MODEL_BULLET_STAIN);
+    SetModelMainTexture(TEXTURE_BULLET_STAIN);
+    CModelObject &moHole = *GetModelObject();
+    moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
+    ModelChangeNotify();
+    moHole.mo_colBlendColor = 0x7f7f7fFF;
+
+    SetNormalWithRandomBanking();
+    m_fWaitTime = 2.0f;
+    m_fFadeTime = 2.0f;
+    m_bLightSource = FALSE;
+    m_eptType = EPT_BULLET_MUD;
+    FLOAT3D vTemp = m_vStretch;
+    ParentToNearestPolygonAndStretch();
+    m_vStretch = vTemp;
+  };
+
 /************************************************************
  *                  BLOOD SPILL / STAIN                     *
  ************************************************************/
@@ -1641,6 +1740,10 @@ procedures:
       case BET_BULLETSTAINUNDERWATERNOSOUND: BulletStainStone(FALSE, FALSE); break;
       case BET_BULLETSTAINBLOODNOSOUND: BulletStainBlood(FALSE); break;
       case BET_BULLETSTAINUNDERBLOODNOSOUND: BulletStainStone(FALSE, FALSE); break;
+      case BET_BULLETSTAINACID: BulletStainAcid(TRUE); break;
+      case BET_BULLETSTAINUNDERACID: BulletStainStone(TRUE, FALSE); break;
+      case BET_BULLETSTAINACIDNOSOUND: BulletStainAcid(FALSE); break;
+      case BET_BULLETSTAINUNDERACIDNOSOUND: BulletStainStone(FALSE, FALSE); break;
       case BET_BLOODSPILL: BloodSpill(m_colMultiplyColor); break;
       case BET_BLOODSTAIN: BloodStain(); break;
       case BET_GIZMOSTAIN: GizmoStain(); break;
@@ -1685,6 +1788,10 @@ procedures:
       case BET_BULLETSTAINCHAINLINKNOSOUND: BulletStainChainlink(FALSE); break;
       case BET_EXPLOSIVEBARREL: ProjectileExplosion(); break;
       case BET_EXPLOSIVEBARREL_PLANE: ProjectilePlaneExplosion(); break;
+      case BET_BULLETSTAINGRATE: BulletStainGrate(TRUE); break;
+      case BET_BULLETSTAINGRATENOSOUND: BulletStainGrate(FALSE); break;
+      case BET_BULLETSTAINMUD: BulletStainMud(TRUE); break;
+      case BET_BULLETSTAINMUDNOSOUND: BulletStainMud(FALSE); break;
       default:
         ASSERTALWAYS("Unknown effect type");
     }

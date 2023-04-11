@@ -40,6 +40,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define SURFACE_TILE_NOIMPACT 36
 #define SURFACE_CHAINLINK 37
 #define SURFACE_CHAINLINK_NOIMPACT 38
+#define SURFACE_ACID 39
+#define SURFACE_GRATE 40
+#define SURFACE_GRATE_NOIMPACT 41
+#define SURFACE_MUD 42
+#define SURFACE_MUD_NOIMPACT 43
 
 // Max ammo
 #define MAX_BULLETS INDEX(100)
