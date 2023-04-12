@@ -25,6 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "Models/NPCs/Twitcher/TwitcherFemale2.h"
 #include "Models/NPCs/Twitcher/TwitcherBladed2.h"
 #include "Models/NPCs/Twitcher/TwitcherBladed3.h"
+#include "Models/NPCs/Twitcher/TwitcherSkinned.h"
 %}
 
 uses "EntitiesMP/EnemyBase";
@@ -45,6 +46,7 @@ enum TwitcherType {
  11 TWC_STRONGCORPSE   "Strong Corpse",
  12 TWC_STRONGBLADED2  "Strong Bladed 2",
  13 TWC_STRONGBLADED3  "Strong Bladed 3",
+ 14 TWC_SKINNEDBLADED  "Skinned Bladed",
 };
 
 %{
@@ -95,6 +97,8 @@ components:
  61 texture TEXTURE_TWITCHERBLADED2          "Models\\NPCs\\Twitcher\\Twitcher1m.tex",
  62 model   MODEL_TWITCHERBLADED3            "Models\\NPCs\\Twitcher\\TwitcherBladed3.mdl",
  63 texture TEXTURE_TWITCHERBLADED3          "Models\\NPCs\\Twitcher\\Twitcher1n.tex",
+ 64 model   MODEL_TWITCHERSKINNED            "Models\\NPCs\\Twitcher\\TwitcherSkinned.mdl",
+ 65 texture TEXTURE_TWITCHERSKINNED          "Models\\NPCs\\Twitcher\\Twitcher1p.tex",
 
  30 sound   SOUND_HIT                  "Models\\NPCs\\Gunman\\Sounds\\Kick.wav",
  31 sound   SOUND_SWING                "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
@@ -148,6 +152,7 @@ functions:
     static DECLARE_CTFILENAME(fnmTwitcherBladed, "Data\\Messages\\NPCs\\TwitcherBladed.txt");
     static DECLARE_CTFILENAME(fnmTwitcherMale2, "Data\\Messages\\NPCs\\TwitcherMale2.txt");
     static DECLARE_CTFILENAME(fnmTwitcherFemale2, "Data\\Messages\\NPCs\\TwitcherFemale2.txt");
+    static DECLARE_CTFILENAME(fnmTwitcherSkinned, "Data\\Messages\\NPCs\\TwitcherSkinned.txt");
     switch(m_twChar) {
     default: ASSERT(FALSE);
     case TWC_BALDWHITE: case TWC_BALDBLACK: return fnmTwitcherBald;
@@ -157,6 +162,7 @@ functions:
     case TWC_STRONGBLADED: case TWC_STRONGBLADED2: case TWC_STRONGBLADED3: return fnmTwitcherBladed;
     case TWC_MALE2WHITE: case TWC_MALE2BLACK: return fnmTwitcherMale2;
     case TWC_FEMALE2PALE: return fnmTwitcherFemale2;
+    case TWC_SKINNEDBLADED: return fnmTwitcherSkinned;
     }
   };
 
@@ -214,6 +220,7 @@ functions:
     case TWC_STRONGCORPSE: { pes->es_strName+=" Strong Corpse"; } break;
     case TWC_STRONGBLADED2: { pes->es_strName+=" Strong Bladed 2"; } break;
     case TWC_STRONGBLADED3: { pes->es_strName+=" Strong Bladed 3"; } break;
+    case TWC_SKINNEDBLADED: { pes->es_strName+=" Skinned Bladed"; } break;
     }
     return TRUE;
   }
@@ -237,7 +244,11 @@ functions:
   // damage anim
   INDEX AnimForDamage(FLOAT fDamage) {
     INDEX iAnim;
-    if(m_twChar == TWC_STRONGBLADED3)
+    if(m_twChar == TWC_SKINNEDBLADED)
+    {
+      iAnim = TWITCHERSKINNED_ANIM_WOUND;
+    }
+    else if(m_twChar == TWC_STRONGBLADED3)
     {
       iAnim = TWITCHERBLADED3_ANIM_WOUND;
     }
@@ -284,7 +295,15 @@ functions:
       GetHeadingDirection(0, vFront);
       FLOAT fDamageDir = m_vDamage%vFront;
 
-      if(m_twChar == TWC_STRONGBLADED3)
+      if(m_twChar == TWC_SKINNEDBLADED)
+      {
+        if (fDamageDir<0) {
+          iAnim = TWITCHERSKINNED_ANIM_DEATHFRONT;
+        } else {
+          iAnim = TWITCHERSKINNED_ANIM_DEATHBACK;
+        }
+      }
+      else if(m_twChar == TWC_STRONGBLADED3)
       {
         if (fDamageDir<0) {
           iAnim = TWITCHERBLADED3_ANIM_DEATHFRONT;
@@ -374,7 +393,15 @@ functions:
     eSound.penTarget = m_penEnemy;
     SendEventInRange(eSound, FLOATaabbox3D(GetPlacement().pl_PositionVector, 50.0f));
 
-    if(GetModelObject()->GetAnim()==TWITCHERBLADED3_ANIM_DEATHFRONT)
+    if(GetModelObject()->GetAnim()==TWITCHERSKINNED_ANIM_DEATHFRONT)
+    {
+      ChangeCollisionBoxIndexWhenPossible(TWITCHERSKINNED_COLLISION_BOX_FRONTDEATH_BOX);
+    }
+    else if(GetModelObject()->GetAnim()==TWITCHERSKINNED_ANIM_DEATHBACK)
+    {
+      ChangeCollisionBoxIndexWhenPossible(TWITCHERSKINNED_COLLISION_BOX_BACKDEATH_BOX);
+    }
+    else if(GetModelObject()->GetAnim()==TWITCHERBLADED3_ANIM_DEATHFRONT)
     {
       ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED3_COLLISION_BOX_FRONTDEATH_BOX);
     }
@@ -382,7 +409,7 @@ functions:
     {
       ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED3_COLLISION_BOX_BACKDEATH_BOX);
     }
-    if(GetModelObject()->GetAnim()==TWITCHERBLADED2_ANIM_DEATHFRONT)
+    else if(GetModelObject()->GetAnim()==TWITCHERBLADED2_ANIM_DEATHFRONT)
     {
       ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED2_COLLISION_BOX_FRONTDEATH_BOX);
     }
@@ -452,7 +479,11 @@ functions:
 
   // virtual anim functions
   void StandingAnim(void) {
-    if(m_twChar == TWC_STRONGBLADED3)
+    if(m_twChar == TWC_SKINNEDBLADED)
+    {
+      StartModelAnim(TWITCHERSKINNED_ANIM_STAND, AOF_LOOPING|AOF_NORESTART);
+    }
+    else if(m_twChar == TWC_STRONGBLADED3)
     {
       StartModelAnim(TWITCHERBLADED3_ANIM_STAND, AOF_LOOPING|AOF_NORESTART);
     }
@@ -491,7 +522,12 @@ functions:
   };
 
   void WalkingAnim(void) {
-    if(m_twChar == TWC_STRONGBLADED3)
+    
+    if(m_twChar == TWC_SKINNEDBLADED)
+    {
+      StartModelAnim(TWITCHERSKINNED_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+    }
+    else if(m_twChar == TWC_STRONGBLADED3)
     {
       StartModelAnim(TWITCHERBLADED3_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
     }
@@ -530,7 +566,11 @@ functions:
   };
 
   void RunningAnim(void) {
-    if(m_twChar == TWC_STRONGBLADED3)
+    if(m_twChar == TWC_SKINNEDBLADED)
+    {
+      StartModelAnim(TWITCHERSKINNED_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
+    }
+    else if(m_twChar == TWC_STRONGBLADED3)
     {
       StartModelAnim(TWITCHERBLADED3_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
     }
@@ -573,7 +613,11 @@ functions:
   };
 
   void BacksteppingAnim(void) {
-    if(m_twChar == TWC_STRONGBLADED3)
+    if(m_twChar == TWC_SKINNEDBLADED)
+    {
+      StartModelAnim(TWITCHERSKINNED_ANIM_BACKPEDAL, AOF_LOOPING|AOF_NORESTART);
+    }
+    else if(m_twChar == TWC_STRONGBLADED3)
     {
       StartModelAnim(TWITCHERBLADED3_ANIM_BACKPEDAL, AOF_LOOPING|AOF_NORESTART);
     }
@@ -596,6 +640,10 @@ functions:
     {
       StartModelAnim(TWITCHERBLADED3_ANIM_STRAFERIGHT, AOF_LOOPING|AOF_NORESTART);
     }
+    else if (m_twChar == TWC_SKINNEDBLADED)
+    {
+      StartModelAnim(TWITCHERSKINNED_ANIM_STRAFELEFT, AOF_LOOPING|AOF_NORESTART);
+    }
     else
     {
       RunningAnim();
@@ -607,6 +655,10 @@ functions:
     {
       StartModelAnim(TWITCHERBLADED3_ANIM_STRAFELEFT, AOF_LOOPING|AOF_NORESTART);
     }
+    else if (m_twChar == TWC_SKINNEDBLADED)
+    {
+      StartModelAnim(TWITCHERSKINNED_ANIM_STRAFERIGHT, AOF_LOOPING|AOF_NORESTART);
+    }
     else
     {
       RunningAnim();
@@ -614,7 +666,11 @@ functions:
   };
 
   void JumpingAnim(void) {
-    if(m_twChar == TWC_STRONGBLADED3)
+    if(m_twChar == TWC_SKINNEDBLADED)
+    {
+      StartModelAnim(TWITCHERSKINNED_ANIM_LEAP, AOF_LOOPING|AOF_NORESTART);
+    }
+    else if(m_twChar == TWC_STRONGBLADED3)
     {
       StartModelAnim(TWITCHERBLADED3_ANIM_LEAP, AOF_LOOPING|AOF_NORESTART);
     }
@@ -655,7 +711,7 @@ functions:
   // virtual sound functions
   void IdleSound(void) {
     if(m_twChar == TWC_STRONGPALE || m_twChar == TWC_STRONGBLADED || m_twChar == TWC_STRONGCORPSE || m_twChar == TWC_STRONGBLADED2
-    || m_twChar == TWC_STRONGBLADED3)
+    || m_twChar == TWC_STRONGBLADED3 || m_twChar == TWC_SKINNEDBLADED)
     {
       switch(IRnd()%2)
       {
@@ -686,7 +742,7 @@ functions:
 
   void SightSound(void) {
     if(m_twChar == TWC_STRONGPALE || m_twChar == TWC_STRONGBLADED || m_twChar == TWC_STRONGCORPSE || m_twChar == TWC_STRONGBLADED2
-    || m_twChar == TWC_STRONGBLADED3)
+    || m_twChar == TWC_STRONGBLADED3 || m_twChar == TWC_SKINNEDBLADED)
     {
       switch(IRnd()%2)
       {
@@ -717,7 +773,7 @@ functions:
 
   void WoundSound(void) {
     if(m_twChar == TWC_STRONGPALE || m_twChar == TWC_STRONGBLADED || m_twChar == TWC_STRONGCORPSE || m_twChar == TWC_STRONGBLADED2
-    || m_twChar == TWC_STRONGBLADED3)
+    || m_twChar == TWC_STRONGBLADED3 || m_twChar == TWC_SKINNEDBLADED)
     {
       switch(IRnd()%2)
       {
@@ -748,7 +804,7 @@ functions:
 
   void DeathSound(void) {
     if(m_twChar == TWC_STRONGPALE || m_twChar == TWC_STRONGBLADED || m_twChar == TWC_STRONGCORPSE || m_twChar == TWC_STRONGBLADED2
-    || m_twChar == TWC_STRONGBLADED3)
+    || m_twChar == TWC_STRONGBLADED3 || m_twChar == TWC_SKINNEDBLADED)
     {
       switch(IRnd()%2)
       {
@@ -782,7 +838,11 @@ functions:
 
 
   BlockEnemyMelee(EVoid) {
-    if(m_twChar == TWC_STRONGBLADED)
+    if(m_twChar == TWC_SKINNEDBLADED)
+    {
+      StartModelAnim(TWITCHERSKINNED_ANIM_BLOCK1, 0);
+    }
+    else if(m_twChar == TWC_STRONGBLADED)
     {
       StartModelAnim(TWITCHERBLADED_ANIM_BLOCK1, 0);
     }
@@ -842,8 +902,24 @@ functions:
   };
 
   SlashEnemySingle(EVoid) {
+
+    INDEX iRandomChoice = IRnd()%2;
+
+    if(iRandomChoice == 1)
+    {
+      if(m_twChar == TWC_STRONGBLADED || TWC_SKINNEDBLADED)
+      {
+        autocall BlockEnemyMelee() EReturn;
+        return EReturn();
+      }
+    }
+
     // close attack
-    if(m_twChar == TWC_STRONGBLADED3)
+    if(m_twChar == TWC_SKINNEDBLADED)
+    {
+      StartModelAnim(TWITCHERSKINNED_ANIM_MELEE1, 0);
+    }
+    else if(m_twChar == TWC_STRONGBLADED3)
     {
       StartModelAnim(TWITCHERBLADED3_ANIM_MELEE1, 0);
     }
@@ -890,7 +966,7 @@ functions:
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        if(m_twChar == TWC_STRONGBLADED2 || m_twChar == TWC_STRONGBLADED3)
+        if(m_twChar == TWC_STRONGBLADED2 || m_twChar == TWC_STRONGBLADED3 || m_twChar == TWC_SKINNEDBLADED)
         {
           InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
         }
@@ -910,17 +986,27 @@ functions:
     autowait(0.3f);
     MaybeSwitchToAnotherPlayer();
 
-    if(m_twChar == TWC_STRONGBLADED)
-    {
-      autocall BlockEnemyMelee() EReturn;
-    }
-
     return EReturn();
   }
 
   SlashEnemyDouble(EVoid) {
+    INDEX iRandomChoice = IRnd()%2;
+
+    if(iRandomChoice == 1)
+    {
+      if(m_twChar == TWC_STRONGBLADED || TWC_SKINNEDBLADED)
+      {
+        autocall BlockEnemyMelee() EReturn;
+        return EReturn();
+      }
+    }
+
     // close attack
-    if(m_twChar == TWC_STRONGBLADED3)
+    if(m_twChar == TWC_SKINNEDBLADED)
+    {
+      StartModelAnim(TWITCHERSKINNED_ANIM_MELEE2, 0);
+    }
+    else if(m_twChar == TWC_STRONGBLADED3)
     {
       StartModelAnim(TWITCHERBLADED3_ANIM_MELEE2, 0);
     }
@@ -967,7 +1053,7 @@ functions:
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        if(m_twChar == TWC_STRONGBLADED2 || m_twChar == TWC_STRONGBLADED3)
+        if(m_twChar == TWC_STRONGBLADED2 || m_twChar == TWC_STRONGBLADED3 || m_twChar == TWC_SKINNEDBLADED)
         {
           InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
         }
@@ -984,12 +1070,13 @@ functions:
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
     }
     
-    if(m_twChar == TWC_STRONGBLADED3)
+    if(m_twChar == TWC_STRONGBLADED3 || m_twChar == TWC_SKINNEDBLADED)
     {
       autowait(0.3f);
       MaybeSwitchToAnotherPlayer();
       return EReturn();
     }
+
     autowait(0.35f);
 
     m_bFistHit = FALSE;
@@ -1021,11 +1108,6 @@ functions:
 
     autowait(0.3f);
     MaybeSwitchToAnotherPlayer();
-
-    if(m_twChar == TWC_STRONGBLADED)
-    {
-      autocall BlockEnemyMelee() EReturn;
-    }
 
     return EReturn();
   }
@@ -1298,10 +1380,39 @@ functions:
         GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
       } break;
+      case TWC_SKINNEDBLADED:
+      {
+        SetHealth(350.0f);
+        m_fMaxHealth = 350.0f;
+        m_fDamageWounded = 170.0f;
+        m_iScore = 7500;
+        SetModel(MODEL_TWITCHERSKINNED);
+        SetModelMainTexture(TEXTURE_TWITCHERSKINNED);
+        GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        ModelChangeNotify();
+      } break;
     }
 
         // setup moving speed
-        if(m_bMoveFast || m_twChar == TWC_STRONGBLADED2 || m_twChar == TWC_STRONGBLADED3)
+        if(m_twChar == TWC_SKINNEDBLADED && m_bMoveFast)
+        {
+          m_fWalkSpeed = FRnd() + 4.5f;
+          m_aWalkRotateSpeed = AngleDeg(FRnd()*40.0f + 650.0f);
+          m_fAttackRunSpeed = FRnd() + 8.0f;
+          m_aAttackRotateSpeed = AngleDeg(FRnd()*65 + 325.0f);
+          m_fCloseRunSpeed = FRnd() + 8.0f;
+          m_aCloseRotateSpeed = AngleDeg(FRnd()*65 + 325.0f);
+        }
+        else if(m_twChar == TWC_SKINNEDBLADED && !m_bMoveFast)
+        {
+          m_fWalkSpeed = FRnd() + 4.0f;
+          m_aWalkRotateSpeed = AngleDeg(FRnd()*30.0f + 600.0f);
+          m_fAttackRunSpeed = FRnd() + 7.0f;
+          m_aAttackRotateSpeed = AngleDeg(FRnd()*60 + 300.0f);
+          m_fCloseRunSpeed = FRnd() + 7.0f;
+          m_aCloseRotateSpeed = AngleDeg(FRnd()*60 + 300.0f);
+        }
+        else if(m_bMoveFast || m_twChar == TWC_STRONGBLADED2 || m_twChar == TWC_STRONGBLADED3)
         {
           m_fWalkSpeed = FRnd() + 3.0f;
           m_aWalkRotateSpeed = AngleDeg(FRnd()*20.0f + 525.0f);

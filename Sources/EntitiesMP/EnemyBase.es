@@ -222,6 +222,8 @@ properties:
 231 FLOAT m_fJumpHeight "Jump Height" = 10.0f,
 
 232 BOOL m_bIsBlocking = FALSE,
+233 FLOAT m_fBlockAmount = 90.0f,
+234 FLOAT m_fBlockDirAmount = 0.5f,
 
 240 INDEX m_ulMovementFlags = 0,
 241 CEntityPointer m_penLastAttacker,
@@ -956,37 +958,6 @@ functions:
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
     FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
   {
-    FLOAT3D vProperDamageDir = (vDirection.ManhattanNorm() > 0.5f) ? vDirection : -en_vGravityDir;
-    vProperDamageDir = (vProperDamageDir - en_vGravityDir * 0.5f).Normalize();
-
-    if(m_bIsBlocking) {
-      if(IsOfClass(penInflictor, "Player") || IsDerivedFromClass(penInflictor, "Enemy Base")) {
-        if (GetPlaneFrustumAngle(vProperDamageDir) < Cos(90.0f)) {
-        switch(dmtType) {
-          case DMT_DROWNING:
-          case DMT_BURNING:
-          case DMT_FREEZING:
-          case DMT_ACID:
-          case DMT_TELEPORT:
-          case DMT_BRUSH:
-          case DMT_HEAT:
-          case DMT_ABYSS:
-          case DMT_SPIKESTAB:
-          case DMT_EXPLOSION:
-          case DMT_PROJECTILE:
-          case DMT_BULLET:
-          case DMT_PELLET:
-          case DMT_IMPACT:
-          return;
-          break;
-
-          default: break;
-        }
-        return;
-        }
-      }
-    }
-
     // if template
     if (m_bTemplate) {
       // do nothing
@@ -996,6 +967,28 @@ functions:
     // boss can't be telefragged
     if (m_bBoss && dmtType == DMT_TELEPORT) {
       return;
+    }
+
+    FLOAT3D vProperDamageDir = (vDirection.ManhattanNorm() > m_fBlockDirAmount) ? vDirection : -en_vGravityDir;
+    vProperDamageDir = (vProperDamageDir - en_vGravityDir * m_fBlockDirAmount).Normalize();
+
+    if(m_bIsBlocking) {
+      if(IsOfClass(penInflictor, "Player") || IsDerivedFromClass(penInflictor, "Enemy Base")) {
+        if (GetPlaneFrustumAngle(vProperDamageDir) < Cos(m_fBlockAmount)) {
+        switch(dmtType) {
+          case DMT_CLOSERANGE:
+          case DMT_AXE:
+          case DMT_BLUNT:
+          case DMT_SHARP:
+          return;
+          break;
+
+          default: 
+          m_bIsBlocking = FALSE;
+          break;
+        }
+        }
+      }
     }
 
     FLOAT fNewDamage = fDamageAmmount;

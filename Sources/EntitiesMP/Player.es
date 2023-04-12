@@ -1164,6 +1164,8 @@ properties:
  202 FLOAT m_fMessagePosY = 0.0f,
 
  203 BOOL m_bIsBlocking = FALSE,
+ 204 FLOAT m_fBlockAmount = 90.0f,
+ 205 FLOAT m_fBlockDirAmount = 0.5f,
 
 {
   ShellLaunchData ShellLaunchData_array;  // array of data describing flying empty shells
@@ -3078,33 +3080,24 @@ functions:
       return;
     }
 
-    FLOAT3D vProperDamageDir = (vDirection.ManhattanNorm() > 0.5f) ? vDirection : -en_vGravityDir;
-    vProperDamageDir = (vProperDamageDir - en_vGravityDir * 0.5f).Normalize();
+    FLOAT3D vProperDamageDir = (vDirection.ManhattanNorm() > m_fBlockDirAmount) ? vDirection : -en_vGravityDir;
+    vProperDamageDir = (vProperDamageDir - en_vGravityDir * m_fBlockDirAmount).Normalize();
 
     if(m_bIsBlocking) {
       if(IsOfClass(penInflictor, "Player") || IsDerivedFromClass(penInflictor, "Enemy Base")) {
-        if (GetPlaneFrustumAngle(vProperDamageDir) < Cos(90.0f)) {
+        if (GetPlaneFrustumAngle(vProperDamageDir) < Cos(m_fBlockAmount)) {
         switch(dmtType) {
-          case DMT_DROWNING:
-          case DMT_BURNING:
-          case DMT_FREEZING:
-          case DMT_ACID:
-          case DMT_TELEPORT:
-          case DMT_BRUSH:
-          case DMT_HEAT:
-          case DMT_ABYSS:
-          case DMT_SPIKESTAB:
-          case DMT_EXPLOSION:
-          case DMT_PROJECTILE:
-          case DMT_BULLET:
-          case DMT_PELLET:
-          case DMT_IMPACT:
+          case DMT_CLOSERANGE:
+          case DMT_AXE:
+          case DMT_BLUNT:
+          case DMT_SHARP:
           return;
           break;
 
-          default: break;
+          default: 
+          m_bIsBlocking = FALSE;
+          break;
         }
-        return;
         }
       }
     }
