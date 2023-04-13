@@ -2736,8 +2736,6 @@ procedures:
 
       PlayLightAnim(LIGHT_ANIM_NONE, 0);
       m_moWeapon.PlayAnim(SMGVIEWMODEL_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART);
-      // no ammo -> change weapon
-      if (m_iMediumBullets<=0) { SelectNewWeapon(); }
     } else {
       ASSERTALWAYS("SMG - Auto weapon change not working.");
       m_bFireWeapon = m_bHasAmmo = FALSE;
@@ -2854,6 +2852,9 @@ procedures:
 
   // ***************** PIPE ALTFIRE BLOCK *****************
   AltPipe() {
+    m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_BLOCKRAISE, 0);
+    autowait(m_moWeapon.GetAnimLength(METALPIPEVIEWMODEL_ANIM_BLOCKRAISE));
+    
     CPlayer &pl = (CPlayer&)*m_penPlayer;
     pl.m_bIsBlocking = TRUE;
 
@@ -2863,6 +2864,9 @@ procedures:
     {
       autowait(m_fAnimWaitTime);
     }
+
+    m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_BLOCKLOWER, 0);
+    autowait(m_moWeapon.GetAnimLength(METALPIPEVIEWMODEL_ANIM_BLOCKLOWER));
 
     m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_IDLE, 0);
 

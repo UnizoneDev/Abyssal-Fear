@@ -20,6 +20,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 uses "EntitiesMP/Debris";
 
+enum RollingStoneTextureType {
+  0 RST_STONE1    "Stone 1",
+  1 RST_STONE2    "Stone 2",
+  2 RST_STONE3    "Stone 3",
+  3 RST_STONE4    "Stone 4",
+  4 RST_STONE5    "Stone 5",
+};
+
 class CRollingStone: CMovableModelEntity {
 name      "RollingStone";
 thumbnail "Thumbnails\\RollingStone.tbn";
@@ -51,11 +59,15 @@ properties:
  42 FLOAT m_fASpeed = 0.0f,
  43 FLOAT3D m_vR = FLOAT3D(0,0,1),
 
+ 50 enum RollingStoneTextureType m_rsTexture "Texture" = RST_STONE1,      // texture
+
 components:
- 1 model   MODEL_ROLLINGSTONE      "Models\\Ages\\Egypt\\Traps\\RollingStone\\RollingStone.mdl",
- 2 model   MODEL_STONESPHERE       "Models\\Ages\\Egypt\\Traps\\RollingStone\\Stone.mdl",
- 3 texture TEXTURE_ROLLINGSTONE    "Models\\Ages\\Egypt\\Traps\\RollingStone\\Stone.tex",
- 5 texture TEXTURE_DETAIL          "Models\\Ages\\Egypt\\Traps\\RollingStone\\Detail.tex",
+  1 model   MODEL_ROLLINGSTONE     "Models\\Props\\Boulder1\\Boulder1.mdl",
+  2 texture TEXTURE_STONE1         "Models\\Props\\Boulder1\\clfstn2.tex",
+  3 texture TEXTURE_STONE2         "Models\\Props\\Boulder1\\clfstn2b.tex",
+  5 texture TEXTURE_STONE3         "Models\\Props\\Boulder1\\clfstn2c.tex",
+ 22 texture TEXTURE_STONE4         "Models\\Props\\Boulder1\\clfstn3.tex",
+ 23 texture TEXTURE_STONE5         "Models\\Props\\Boulder1\\clfstn3b.tex",
 // ************** STONE PARTS **************
  14 model     MODEL_STONE        "Models\\Effects\\Debris\\StoneDebris.mdl",
  15 texture   TEXTURE_STONE      "Models\\Effects\\Debris\\StoneDebris.tex",
@@ -111,8 +123,9 @@ functions:
     ANGLE3D vA;
     DecomposeRotationMatrixNoSnap(vA, mA);
 
-    CAttachmentModelObject *amo = GetModelObject()->GetAttachmentModel(0);
-    amo->amo_plRelative.pl_OrientationAngle = vA;
+    CPlacement3D pl = GetPlacement();
+
+    pl.pl_OrientationAngle = vA;
   }
 
   void AdjustSpeedOnOneAxis(FLOAT &fTraNow, FLOAT &aRotNow, BOOL bRolling)
@@ -261,8 +274,16 @@ procedures:
     SetPhysicsFlags(EPF_ONBLOCK_BOUNCE|EPF_PUSHABLE|EPF_MOVABLE|EPF_TRANSLATEDBYGRAVITY);
     SetCollisionFlags(ECF_MODEL);
     SetModel(MODEL_ROLLINGSTONE);
-    SetModelMainTexture(TEXTURE_ROLLINGSTONE);
-    AddAttachmentToModel(this, *GetModelObject(), 0, MODEL_STONESPHERE, TEXTURE_ROLLINGSTONE, 0, 0, TEXTURE_DETAIL);
+
+    switch(m_rsTexture)
+    {
+      default: SetModelMainTexture(TEXTURE_STONE1); break;
+      case RST_STONE1: SetModelMainTexture(TEXTURE_STONE1); break;
+      case RST_STONE2: SetModelMainTexture(TEXTURE_STONE2); break;
+      case RST_STONE3: SetModelMainTexture(TEXTURE_STONE3); break;
+      case RST_STONE4: SetModelMainTexture(TEXTURE_STONE4); break;
+      case RST_STONE5: SetModelMainTexture(TEXTURE_STONE5); break;
+    }
 
     GetModelObject()->StretchModel( FLOAT3D(m_fStretch, m_fStretch, m_fStretch));
     ModelChangeNotify();
