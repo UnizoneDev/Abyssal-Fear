@@ -744,8 +744,8 @@ extern void DrawHUD( const CPlayer *penPlayerCurrent, CDrawPort *pdpCurrent, BOO
   // draw complete weapon info if knife isn't current weapon
   if( ptoCurrentAmmo!=NULL && !GetSP()->sp_bInfiniteAmmo) {
     // determine ammo quantities
-    FLOAT fMaxValue = _penWeapons->GetMaxAmmo();
-    fValue = _penWeapons->GetAmmo();
+    FLOAT fMaxValue = _penWeapons->GetMaxInsertedAmmo();
+    fValue = _penWeapons->GetInsertedAmmo();
     fNormValue = fValue / fMaxValue;
     strValue.PrintF( "%d", (SLONG)ceil(fValue));
     PrepareColorTransitions( colMax, colTop, colMid, C_RED, 0.30f, 0.15f, FALSE);

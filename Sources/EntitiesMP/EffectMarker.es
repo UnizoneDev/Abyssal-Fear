@@ -65,7 +65,7 @@ properties:
   11 FLOAT m_fShakeFrequencyB        "Shake frequency B" = 7.2f,      // ShakeFrequencyB
   12 FLOAT m_fShakeIntensityZ        "Shake intensity Z" = 0.0f,      // ShakeIntensityZ
   13 FLOAT m_fShakeFrequencyZ        "Shake frequency Z" = 5.0f,      // ShakeFrequencyZ
-  20 enum BasicEffectType m_betType  "Basic effect type" 'P' = BET_ROCKET,    // type of basic effect
+  20 enum BasicEffectType m_betType  "Basic effect type" 'P' = BET_EXPLOSIVEBARREL,    // type of basic effect
   21 FLOAT m_fStretch                "Stretch" 'S' = 1.0f,
   22 COLOR m_colColor                "FX color" 'C' = COLOR(C_WHITE|CT_TRANSPARENT),
 

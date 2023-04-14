@@ -240,6 +240,10 @@ static void AnalyzeApplicationPath(void)
 // startup engine 
 ENGINE_API void SE_InitEngine(CTString strGameID)
 {
+  // Manually setup an unhandled exception handler
+  extern void SE_SetupExceptionHandler(void);
+  SE_SetupExceptionHandler();
+
   #pragma message(">> Remove this from SE_InitEngine : _bWorldEditorApp")
   if(strGameID=="SeriousEditor") {
     _bWorldEditorApp = TRUE;

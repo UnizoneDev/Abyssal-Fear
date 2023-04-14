@@ -35,80 +35,67 @@ uses "EntitiesMP/Light";
 
 enum BasicEffectType {
   0 BET_NONE                 "None",     // no effect (never spawned)
-  1 BET_ROCKET               "Rocket",     // rocket explosion
-  2 BET_ROCKET_PLANE         "Rocket plane",     // rocket explosion on plane
-  3 BET_GRENADE              "Grenade",     // grenade explosion
-  4 BET_GRENADE_PLANE        "Grenade plane",     // grenade explosion on plane
-  5 BET_EXPLOSIONSTAIN       "Explosionstain",     // explosion stain on brush
-  6 BET_SHOCKWAVE            "Shockwave",     // shock wave
-  7 BET_LASERWAVE            "Laserwave",     // laser wave
- 10 BET_BLOODSPILL           "Blood spill",     // blood spill from bullet exit wound
- 11 BET_BLOODSTAIN           "Blood stain",     // blood stain
- 19 BET_BLOODSTAINGROW       "Blood staingrow",     // blood stain which grows bigger
- 12 BET_BLOODEXPLODE         "Blood explode",     // blood explosion at bullet entry wound 
- 13 BET_CANNON               "Cannon",     // cannon explosion
- 14 BET_CANNON_PLANE         "Cannon plane",     // cannon explosion on plane
- 15 BET_CANNONEXPLOSIONSTAIN "Cannon explosion stain",     // cannon explosion stain on brush
- 16 BET_CANNONSHOCKWAVE      "Cannon shockwave",     // cannon shock wave
- 17 BET_TELEPORT             "Teleport",     // teleportation
- 18 BET_BOMB                 "Bomb",     // small bomb explosion
- 20 BET_BULLETTRAIL          "Bullet trail",     // white trail where bullet has passed
- 21 BET_GIZMO_SPLASH_FX      "Gizmo splash fx",     // gizmo splash fx
- 22 BET_GIZMOSTAIN           "Gizmo stain",     // gizmo stain
- 30 BET_BULLETSTAINSTONE     "Bullet stain stone",     // bullet stain with ricochet on stone
- 31 BET_BULLETSTAINSAND      "Bullet stain sand",     // bullet stain with ricochet on sand
- 32 BET_BULLETSTAINWATER     "Bullet stain water",     // bullet stain with ricochet on water surface
- 33 BET_BULLETSTAINUNDERWATER "Bullet stain underwater",    // bullet stain with ricochet on underwater surface
- 34 BET_BULLETSTAINSTONENOSOUND "Bullet stain stone nosound",  // bullet stain on stone with no sound
- 35 BET_BULLETSTAINSANDNOSOUND  "Bullet stain sand nosound",  // bullet stain on sand with no sound
- 36 BET_BULLETSTAINWATERNOSOUND "Bullet stain water nosound",  // bullet stain on water surface with no sound
- 37 BET_BULLETSTAINUNDERWATERNOSOUND "Bullet stain underwater no sound", // bullet stain on under water surface with no sound
- 38 BET_BULLETSTAINREDSAND      "Bullet stain red sand",     // bullet stain with ricochet on red sand
- 39 BET_BULLETSTAINREDSANDNOSOUND "Bullet stain red sand no sound",   // bullet stain with ricochet on red sand without sound
- 40 BET_LIGHT_CANNON            "Light cannon",     // cannon explosion with lo sound volume
- 41 BET_CANNON_NOLIGHT          "Cannon no light",     // cannon explosion without light witn lo sound volume
- 42 BET_BULLETSTAINGRASS        "Bullet stain grass",     // bullet stain with ricochet on grass
- 43 BET_BULLETSTAINWOOD         "Bullet stain wood",     // bullet stain with ricochet on wood
- 44 BET_BULLETSTAINGRASSNOSOUND "Bullet stain grass no sound",     // bullet stain on grass with no sound
- 45 BET_BULLETSTAINWOODNOSOUND  "Bullet stain wood no sound",     // bullet stain on wood with no sound
- 46 BET_EXPLOSION_DEBRIS        "Explosion debris",     // debrises flying out of explosion
- 47 BET_EXPLOSION_SMOKE         "Explosion smoke",     // smoke left behind explosion
- 48 BET_SUMMONERSTAREXPLOSION   "Summoner star explosion",     // magic explosion of starts for summoner
- 49 BET_COLLECT_ENERGY          "Collect energy",
- 50 BET_GROWING_SWIRL           "Growing swirl",
-// 51 BET_SNIPER_RESIDUE          "Sniper Residue",		// smoke left after firing sniper
- 52 BET_DISAPPEAR_DUST          "Disappear dust",
- 53 BET_DUST_FALL               "Dust fall",
- 54 BET_BULLETSTAINSNOW         "Bullet stain snow", 
- 55 BET_BULLETSTAINSNOWNOSOUND  "Bullet stain snow", 
- 56 BET_BULLETSTAINMETAL         "Bullet stain metal", 
- 57 BET_BULLETSTAINMETALNOSOUND  "Bullet stain metal no sound", 
- 58 BET_BULLETSTAINCARPET         "Bullet stain carpet", 
- 59 BET_BULLETSTAINCARPETNOSOUND  "Bullet stain carpet no sound", 
- 60 BET_BULLETSTAINBLOOD         "Bullet stain blood",     // bullet stain with ricochet on blood surface
- 61 BET_BULLETSTAINUNDERBLOOD    "Bullet stain underblood",    // bullet stain with ricochet on underblood surface
- 62 BET_BULLETSTAINBLOODNOSOUND      "Bullet stain blood nosound",  // bullet stain on blood surface with no sound
- 63 BET_BULLETSTAINUNDERBLOODNOSOUND "Bullet stain underblood no sound", // bullet stain on under blood surface with no sound
- 64 BET_BULLETSTAINGLASS         "Bullet stain glass", 
- 65 BET_BULLETSTAINGLASSNOSOUND  "Bullet stain glass no sound", 
- 66 BET_FIREBALL                 "Fireball explode",     // fireball explosion
- 67 BET_FIREBALL_PLANE           "Fireball plane",     // fireball explosion on plane
- 68 BET_BULLETSTAINDIRT         "Bullet stain dirt", 
- 69 BET_BULLETSTAINDIRTNOSOUND  "Bullet stain dirt no sound", 
- 70 BET_BULLETSTAINTILE         "Bullet stain tile", 
- 71 BET_BULLETSTAINTILENOSOUND  "Bullet stain tile no sound",
- 72 BET_BULLETSTAINCHAINLINK    "Bullet stain chainlink", 
- 73 BET_BULLETSTAINCHAINLINKNOSOUND  "Bullet stain chainlink no sound",
- 74 BET_EXPLOSIVEBARREL                 "Explosive barrel explode",     // explosive explosion
- 75 BET_EXPLOSIVEBARREL_PLANE           "Explosive barrel plane",     // explosive explosion on plane
- 76 BET_BULLETSTAINACID         "Bullet stain acid",     // bullet stain with ricochet on acid surface
- 77 BET_BULLETSTAINUNDERACID    "Bullet stain underacid",    // bullet stain with ricochet on underacid surface
- 78 BET_BULLETSTAINACIDNOSOUND      "Bullet stain acid nosound",  // bullet stain on acid surface with no sound
- 79 BET_BULLETSTAINUNDERACIDNOSOUND "Bullet stain underacid no sound", // bullet stain on under acid surface with no sound
- 80 BET_BULLETSTAINGRATE    "Bullet stain grate", 
- 81 BET_BULLETSTAINGRATENOSOUND  "Bullet stain grate no sound",
- 82 BET_BULLETSTAINMUD    "Bullet stain mud", 
- 83 BET_BULLETSTAINMUDNOSOUND  "Bullet stain mud no sound",
+  1 BET_EXPLOSIONSTAIN       "Explosionstain",     // explosion stain on brush
+  2 BET_SHOCKWAVE            "Shockwave",     // shock wave
+  3 BET_LASERWAVE            "Laserwave",     // laser wave
+  4 BET_BLOODSPILL           "Blood spill",     // blood spill from bullet exit wound
+  5 BET_BLOODSTAIN           "Blood stain",     // blood stain
+  6 BET_BLOODSTAINGROW       "Blood staingrow",     // blood stain which grows bigger
+  7 BET_BLOODEXPLODE         "Blood explode",     // blood explosion at bullet entry wound
+  8 BET_TELEPORT             "Teleport",     // teleportation
+  9 BET_BULLETTRAIL          "Bullet trail",     // white trail where bullet has passed
+ 10 BET_BULLETSTAINSTONE     "Bullet stain stone",     // bullet stain with ricochet on stone
+ 11 BET_BULLETSTAINSAND      "Bullet stain sand",     // bullet stain with ricochet on sand
+ 12 BET_BULLETSTAINWATER     "Bullet stain water",     // bullet stain with ricochet on water surface
+ 13 BET_BULLETSTAINUNDERWATER "Bullet stain underwater",    // bullet stain with ricochet on underwater surface
+ 14 BET_BULLETSTAINSTONENOSOUND "Bullet stain stone nosound",  // bullet stain on stone with no sound
+ 15 BET_BULLETSTAINSANDNOSOUND  "Bullet stain sand nosound",  // bullet stain on sand with no sound
+ 16 BET_BULLETSTAINWATERNOSOUND "Bullet stain water nosound",  // bullet stain on water surface with no sound
+ 17 BET_BULLETSTAINUNDERWATERNOSOUND "Bullet stain underwater no sound", // bullet stain on under water surface with no sound
+ 18 BET_BULLETSTAINREDSAND      "Bullet stain red sand",     // bullet stain with ricochet on red sand
+ 19 BET_BULLETSTAINREDSANDNOSOUND "Bullet stain red sand no sound",   // bullet stain with ricochet on red sand without sound
+ 20 BET_BULLETSTAINGRASS        "Bullet stain grass",     // bullet stain with ricochet on grass
+ 21 BET_BULLETSTAINWOOD         "Bullet stain wood",     // bullet stain with ricochet on wood
+ 22 BET_BULLETSTAINGRASSNOSOUND "Bullet stain grass no sound",     // bullet stain on grass with no sound
+ 23 BET_BULLETSTAINWOODNOSOUND  "Bullet stain wood no sound",     // bullet stain on wood with no sound
+ 24 BET_EXPLOSION_DEBRIS        "Explosion debris",     // debrises flying out of explosion
+ 25 BET_EXPLOSION_SMOKE         "Explosion smoke",     // smoke left behind explosion
+ 26 BET_SUMMONERSTAREXPLOSION   "Summoner star explosion",     // magic explosion of starts for summoner
+ 27 BET_COLLECT_ENERGY          "Collect energy",
+ 28 BET_GROWING_SWIRL           "Growing swirl",
+ 29 BET_DISAPPEAR_DUST          "Disappear dust",
+ 30 BET_DUST_FALL               "Dust fall",
+ 31 BET_BULLETSTAINSNOW         "Bullet stain snow", 
+ 32 BET_BULLETSTAINSNOWNOSOUND  "Bullet stain snow", 
+ 33 BET_BULLETSTAINMETAL         "Bullet stain metal", 
+ 34 BET_BULLETSTAINMETALNOSOUND  "Bullet stain metal no sound", 
+ 35 BET_BULLETSTAINCARPET         "Bullet stain carpet", 
+ 36 BET_BULLETSTAINCARPETNOSOUND  "Bullet stain carpet no sound", 
+ 37 BET_BULLETSTAINBLOOD         "Bullet stain blood",     // bullet stain with ricochet on blood surface
+ 38 BET_BULLETSTAINUNDERBLOOD    "Bullet stain underblood",    // bullet stain with ricochet on underblood surface
+ 39 BET_BULLETSTAINBLOODNOSOUND      "Bullet stain blood nosound",  // bullet stain on blood surface with no sound
+ 40 BET_BULLETSTAINUNDERBLOODNOSOUND "Bullet stain underblood no sound", // bullet stain on under blood surface with no sound
+ 41 BET_BULLETSTAINGLASS         "Bullet stain glass", 
+ 42 BET_BULLETSTAINGLASSNOSOUND  "Bullet stain glass no sound", 
+ 43 BET_FIREBALL                 "Fireball explode",     // fireball explosion
+ 44 BET_FIREBALL_PLANE           "Fireball plane",     // fireball explosion on plane
+ 45 BET_BULLETSTAINDIRT         "Bullet stain dirt", 
+ 46 BET_BULLETSTAINDIRTNOSOUND  "Bullet stain dirt no sound", 
+ 47 BET_BULLETSTAINTILE         "Bullet stain tile", 
+ 48 BET_BULLETSTAINTILENOSOUND  "Bullet stain tile no sound",
+ 49 BET_BULLETSTAINCHAINLINK    "Bullet stain chainlink", 
+ 50 BET_BULLETSTAINCHAINLINKNOSOUND  "Bullet stain chainlink no sound",
+ 51 BET_EXPLOSIVEBARREL                 "Explosive barrel explode",     // explosive explosion
+ 52 BET_EXPLOSIVEBARREL_PLANE           "Explosive barrel plane",     // explosive explosion on plane
+ 53 BET_BULLETSTAINACID         "Bullet stain acid",     // bullet stain with ricochet on acid surface
+ 54 BET_BULLETSTAINUNDERACID    "Bullet stain underacid",    // bullet stain with ricochet on underacid surface
+ 55 BET_BULLETSTAINACIDNOSOUND      "Bullet stain acid nosound",  // bullet stain on acid surface with no sound
+ 56 BET_BULLETSTAINUNDERACIDNOSOUND "Bullet stain underacid no sound", // bullet stain on under acid surface with no sound
+ 57 BET_BULLETSTAINGRATE    "Bullet stain grate", 
+ 58 BET_BULLETSTAINGRATENOSOUND  "Bullet stain grate no sound",
+ 59 BET_BULLETSTAINMUD    "Bullet stain mud", 
+ 60 BET_BULLETSTAINMUDNOSOUND  "Bullet stain mud no sound",
+ 61 BET_BOMB "Bomb",     // small bomb explosion
 };
 
 
@@ -125,51 +112,9 @@ event ESpawnEffect {
 void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser) 
 {
   switch ((BasicEffectType)iUser) {
-  case BET_ROCKET:
-  case BET_ROCKET_PLANE:
-    pdec->PrecacheSound(SOUND_EXPLOSION);
-    pdec->PrecacheModel(MDL_ROCKET_EXPLOSION);
-    pdec->PrecacheTexture(TXT_ROCKET_EXPLOSION);
-    pdec->PrecacheModel(MDL_PARTICLES_EXPLOSION);
-    pdec->PrecacheTexture(TXT_PARTICLES_EXPLOSION);
-    pdec->PrecacheModel(MDL_ROCKET3D_EXPLOSION);
-    pdec->PrecacheTexture(TXT_ROCKET_EXPLOSION);
-    pdec->PrecacheModel(MDL_PARTICLES3D_EXPLOSION);
-    pdec->PrecacheTexture(TXT_PARTICLES_EXPLOSION);
-    break;
-  case BET_BOMB:
-  case BET_GRENADE:
-  case BET_GRENADE_PLANE:
-    pdec->PrecacheSound(SOUND_EXPLOSION);
-    pdec->PrecacheModel(MDL_GRENADE_EXPLOSION);
-    pdec->PrecacheTexture(TXT_GRENADE_EXPLOSION);
-    pdec->PrecacheModel(MDL_PARTICLES_EXPLOSION);
-    pdec->PrecacheTexture(TXT_PARTICLES_EXPLOSION);
-    pdec->PrecacheModel(MDL_GRENADE3D_EXPLOSION);
-    pdec->PrecacheTexture(TXT_GRENADE_EXPLOSION);
-    pdec->PrecacheModel(MDL_PARTICLES3D_EXPLOSION);
-    pdec->PrecacheTexture(TXT_PARTICLES_EXPLOSION);
-    break;
-  case BET_CANNON:
-  case BET_CANNON_NOLIGHT:
-  case BET_LIGHT_CANNON:
-  case BET_CANNON_PLANE:
-  case BET_CANNONSHOCKWAVE:
-    pdec->PrecacheSound(SOUND_EXPLOSION);
-    pdec->PrecacheModel(MDL_CANNON_EXPLOSION);
-    pdec->PrecacheTexture(TXT_CANNON_EXPLOSION);
-    pdec->PrecacheModel(MDL_CANNON3D_EXPLOSION);
-    pdec->PrecacheTexture(TXT_CANNON_EXPLOSION);
-    pdec->PrecacheModel(MODEL_CANNONSHOCKWAVE);
-    pdec->PrecacheTexture(TEXTURE_CANNONSHOCKWAVE);
-    break;
   case BET_EXPLOSIONSTAIN:
     pdec->PrecacheModel(MODEL_EXPLOSION_STAIN);
     pdec->PrecacheTexture(TEXTURE_EXPLOSION_STAIN);
-    break;
-  case BET_CANNONEXPLOSIONSTAIN:
-    pdec->PrecacheModel(MODEL_CANNON_EXPLOSION_STAIN);
-    pdec->PrecacheTexture(TEXTURE_CANNON_EXPLOSION_STAIN);
     break;
   case BET_SHOCKWAVE:
     pdec->PrecacheModel(MODEL_SHOCKWAVE);
@@ -251,11 +196,6 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheModel(MODEL_BULLET_TRAIL);
     pdec->PrecacheTexture(TEXTURE_BULLET_TRAIL);
     break;
-  case BET_GIZMO_SPLASH_FX:
-    pdec->PrecacheModel(MODEL_BULLET_HIT);
-    pdec->PrecacheTexture(TEXTURE_BULLET_HIT);
-    pdec->PrecacheSound(SOUND_GIZMO_SPLASH);
-    break;
   case BET_BLOODEXPLODE:
     pdec->PrecacheModel(MODEL_BLOOD_EXPLODE);
     pdec->PrecacheTexture(TEXTURE_BLOOD_EXPLODE);
@@ -264,7 +204,6 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
   case BET_BLOODSTAIN:
   case BET_BLOODSTAINGROW:
   case BET_BLOODSPILL:
-  case BET_GIZMOSTAIN:
     pdec->PrecacheModel(MODEL_BLOOD_STAIN);
     pdec->PrecacheTexture(TEXTURE_BLOOD_STAIN1);
     pdec->PrecacheTexture(TEXTURE_BLOOD_STAIN2);
@@ -289,6 +228,7 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheModel(MDL_PARTICLES3D_EXPLOSION);
     pdec->PrecacheTexture(TXT_PARTICLES_EXPLOSION);
     break;
+  case BET_BOMB:
   case BET_EXPLOSIVEBARREL:
   case BET_EXPLOSIVEBARREL_PLANE:
     pdec->PrecacheSound(SOUND_EXPLOSION);
@@ -346,19 +286,13 @@ properties:
 components:
 
 // ********** PROJECTILE EXPLOSIONS **********
-  1 model   MDL_ROCKET_EXPLOSION      "Models\\Effects\\ExplosionRocket\\ExplosionRocket.mdl",
-  2 model   MDL_ROCKET3D_EXPLOSION    "Models\\Effects\\ExplosionRocket\\ExplosionRocket3D.mdl",
-  3 texture TXT_ROCKET_EXPLOSION      "Models\\Effects\\Explosionrocket\\Texture.tex",
-  4 model   MDL_GRENADE_EXPLOSION     "Models\\Effects\\ExplosionGrenade\\ExplosionGrenade.mdl",
-  5 model   MDL_GRENADE3D_EXPLOSION   "Models\\Effects\\ExplosionGrenade\\ExplosionGrenade3D.mdl",
-  6 texture TXT_GRENADE_EXPLOSION     "Models\\Effects\\ExplosionGrenade\\Texture.tex",
+  1 model   MDL_ROCKET_EXPLOSION      "Models\\Effects\\ExplosionFireball\\ExplosionFireball.mdl",
+  2 model   MDL_ROCKET3D_EXPLOSION    "Models\\Effects\\ExplosionFireball\\ExplosionFireball3D.mdl",
+  3 texture TXT_ROCKET_EXPLOSION      "Models\\Effects\\ExplosionBig\\ExplosionBig.tex",
   7 model   MDL_PARTICLES_EXPLOSION   "Models\\Effects\\ExplosionParticles\\Particles.mdl",
   8 model   MDL_PARTICLES3D_EXPLOSION "Models\\Effects\\ExplosionParticles\\Particles3D.mdl",
-  9 texture TXT_PARTICLES_EXPLOSION   "Models\\Effects\\ExplosionParticles\\Texture.tex",
+  9 texture TXT_PARTICLES_EXPLOSION   "Models\\Effects\\ExplosionParticles\\ExplosionParticles.tex",
  10 sound   SOUND_EXPLOSION           "Sounds\\Weapons\\Explosion1.wav",
- 11 model   MDL_CANNON_EXPLOSION     "Models\\Effects\\ExplosionGrenade\\ExplosionGrenade.mdl",
- 12 model   MDL_CANNON3D_EXPLOSION   "Models\\Effects\\ExplosionGrenade\\ExplosionGrenade3D.mdl",
- 13 texture TXT_CANNON_EXPLOSION     "Models\\Effects\\ExplosionGrenade\\Texture.tex",
 121 model   MDL_FIREBALL_EXPLOSION      "Models\\Effects\\ExplosionFireball\\ExplosionFireball.mdl",
 122 model   MDL_FIREBALL3D_EXPLOSION    "Models\\Effects\\ExplosionFireball\\ExplosionFireball3D.mdl",
 123 texture TXT_FIREBALL_EXPLOSION      "Models\\Effects\\ExplosionFireball\\ExplosionFireball.tex",
@@ -406,16 +340,10 @@ components:
 // ********** SHOCK WAVE **********
  40 model   MODEL_SHOCKWAVE       "Models\\Effects\\ShockWave\\ShockWave.mdl",
  41 texture TEXTURE_SHOCKWAVE     "Models\\Effects\\ShockWave\\ShockWave.tex",
- 
- 42 model   MODEL_CANNONSHOCKWAVE   "Models\\Effects\\ShockWave\\ShockWave.mdl",
- 43 texture TEXTURE_CANNONSHOCKWAVE "Models\\Effects\\ShockWave\\ShockWave.tex",
 
 // ********** EXPLOSION STAIN **********
  45 model   MODEL_EXPLOSION_STAIN     "Models\\Effects\\BurnedStainOnTheWall\\BurnedStainOnTheWall.mdl",
  46 texture TEXTURE_EXPLOSION_STAIN   "Models\\Effects\\BurnedStainOnTheWall\\BurnedStainOnTheWall.tex",
-
- 47 model   MODEL_CANNON_EXPLOSION_STAIN     "Models\\Effects\\BurnedStainOnTheWall\\BurnedStainOnTheWall.mdl",
- 48 texture TEXTURE_CANNON_EXPLOSION_STAIN   "Models\\Effects\\BurnedStainOnTheWall\\BurnedStainOnTheWall.tex",
 
 // ********** LASER WAVE **********
  50 model   MODEL_LASERWAVE       "Models\\Effects\\ShockWaveGreen\\ShockWaveGreen.mdl",
@@ -425,9 +353,6 @@ components:
  61 model   MODEL_TELEPORT_EFFECT        "Models\\Effects\\Teleport01\\Teleport.mdl",
  62 texture TEXTURE_TELEPORT_EFFECT      "Textures\\Effects\\Effect01\\Effect.tex",
  63 sound   SOUND_TELEPORT               "Sounds\\Misc\\Teleport.wav",
-
-// ********** GIZMO SPLASH FX **********
- 80 sound   SOUND_GIZMO_SPLASH           "Models\\Enemies\\Gizmo\\Sounds\\Death.wav",
 
 // ********** Water shockwave texture **********
  120 texture TEXTURE_WATER_WAVE          "Models\\Effects\\ShockWave\\WaterWave.tex",
@@ -484,37 +409,20 @@ functions:
     lsNew.ls_ulFlags = LSF_NONPERSISTENT|LSF_DYNAMIC;
     lsNew.ls_rHotSpot = 0.0f;
     switch (m_betType) {
-      case BET_ROCKET:
-        lsNew.ls_colColor = RGBToColor(100, 100, 100);
-        lsNew.ls_rHotSpot = 3.0f;
-        lsNew.ls_rFallOff = 12.5f;
-        lsNew.ls_plftLensFlare = NULL;
-        break;
-      case BET_GRENADE:
-        lsNew.ls_colColor = RGBToColor(200, 200, 200);
-        lsNew.ls_rFallOff = 12.5f;
-        lsNew.ls_plftLensFlare = NULL;
-        break;
-      case BET_CANNON:
-      case BET_LIGHT_CANNON:
-        lsNew.ls_colColor = RGBToColor(200, 200, 200);
-        lsNew.ls_rFallOff = 12.5f;
-        lsNew.ls_plftLensFlare = NULL;
-        break;
       case BET_LASERWAVE:
         lsNew.ls_colColor = RGBToColor(0, 64, 0);
         lsNew.ls_rFallOff = 1.5f;
-        lsNew.ls_plftLensFlare = NULL;
-        break;
-      case BET_BOMB:
-        lsNew.ls_colColor = RGBToColor(100, 100, 100);
-        lsNew.ls_rFallOff = 8.0f;
         lsNew.ls_plftLensFlare = NULL;
         break;
       case BET_FIREBALL:
         lsNew.ls_colColor = RGBToColor(100, 100, 100);
         lsNew.ls_rHotSpot = 3.0f;
         lsNew.ls_rFallOff = 12.5f;
+        lsNew.ls_plftLensFlare = NULL;
+        break;
+      case BET_BOMB:
+        lsNew.ls_colColor = RGBToColor(100, 100, 100);
+        lsNew.ls_rFallOff = 8.0f;
         lsNew.ls_plftLensFlare = NULL;
         break;
       default:
@@ -555,10 +463,6 @@ functions:
     {
       Particles_CollectEnergy(this, m_tmSpawn, m_tmSpawn+m_fWaitTime);
     }
-    /*if(m_betType==BET_SNIPER_RESIDUE)
-    {
-      Particles_SniperResidue(this, m_tmSpawn, m_tmSpawn+m_fWaitTime, m_vNormal, m_vDirection);
-    }*/
 	  if(m_betType==BET_EXPLOSION_SMOKE && _pTimer->GetLerpedCurrentTick()>(m_tmSpawn+m_fWaitTime) )
     {
       Particles_ExplosionSmoke(this, m_tmSpawn+m_fWaitTime, m_vStretch, m_colMultiplyColor);
@@ -808,8 +712,8 @@ functions:
   void BombExplosion(void) {
     SetPredictable(TRUE);
     Stretch();
-    SetModel(MDL_GRENADE_EXPLOSION);
-    SetModelMainTexture(TXT_GRENADE_EXPLOSION);
+    SetModel(MDL_ROCKET3D_EXPLOSION);
+    SetModelMainTexture(TXT_ROCKET_EXPLOSION);
     SetNonLoopingTexAnims();
     FLOAT fSizeFactor = m_vStretch.MaxNorm();
     m_soEffect.Set3DParameters(50.0f*fSizeFactor, 10.0f*fSizeFactor, 1.0f*fSizeFactor, 1.0f);
@@ -818,18 +722,6 @@ functions:
     m_fWaitTime = 0.95f;
     m_bLightSource = TRUE;
     m_iLightAnimation = 1;
-  };
-  
-  void GizmoSplashFX(void)
-  {
-    SetPredictable(TRUE);
-    SetModel(MODEL_BULLET_HIT);
-    SetModelMainTexture(TEXTURE_BULLET_HIT);
-    m_soEffect.Set3DParameters(50.0f, 10.0f, 1.0f, 1.0f);
-    PlaySound(m_soEffect, SOUND_GIZMO_SPLASH, SOF_3D);
-    m_fSoundTime = GetSoundLength(SOUND_GIZMO_SPLASH);
-    m_fWaitTime = 0.95f;
-    m_bLightSource = FALSE;
   };
 
   void ExplosionDebris(void)
@@ -877,17 +769,6 @@ functions:
     m_bLightSource = FALSE;
   }
 
-  void SniperResidue(void)
-  {
-	// NOTE: m_vNormal and m_vDirection here represent the starting and the
-	// ending point of this effect!!!
-    SetPredictable(TRUE);
-    SetModel(MODEL_BULLET_HIT);
-    SetModelMainTexture(TEXTURE_BULLET_HIT);
-    m_fWaitTime = 0.05f;
-    m_bLightSource = FALSE;
-  }
-
   void ExplosionSmoke(void)
   {
     SetPredictable(TRUE);
@@ -898,92 +779,9 @@ functions:
     m_bLightSource = FALSE;
   };
 
-  void GrenadeExplosion(void) {
-    SetPredictable(TRUE);
-    Stretch();
-    SetModel(MDL_GRENADE_EXPLOSION);
-    SetModelMainTexture(TXT_GRENADE_EXPLOSION);
-    AddAttachment(0, MDL_PARTICLES_EXPLOSION, TXT_PARTICLES_EXPLOSION);
-    RandomBanking();
-    SetNonLoopingTexAnims();
-    m_soEffect.Set3DParameters(150.0f, 3.0f, 1.0f, 1.0f);
-    PlaySound(m_soEffect, SOUND_EXPLOSION, SOF_3D);
-    m_fSoundTime = GetSoundLength(SOUND_EXPLOSION);
-    m_fWaitTime = 0.95f;
-    m_bLightSource = TRUE;
-    m_iLightAnimation = 1;
-  };
-
-  void GrenadePlaneExplosion(void) {
-    SetPredictable(TRUE);
-    Stretch();
-    SetModel(MDL_GRENADE3D_EXPLOSION);
-    SetModelMainTexture(TXT_GRENADE_EXPLOSION);
-    AddAttachment(0, MDL_PARTICLES3D_EXPLOSION, TXT_PARTICLES_EXPLOSION);
-    SetNonLoopingTexAnims();
-    SetNormalWithRandomBanking();
-    m_fWaitTime = 0.95f;
-    m_bLightSource = FALSE;
-  };
-
-  void CannonExplosion(BOOL bLoVolume, BOOL bNoLight) {
-    SetPredictable(TRUE);
-    Stretch();
-    SetModel(MDL_CANNON_EXPLOSION);
-    CModelObject &moExplosion = *GetModelObject();
-    SetModelMainTexture(TXT_CANNON_EXPLOSION);
-    moExplosion.mo_colBlendColor = m_colMultiplyColor;
-    moExplosion.mo_toTexture.PlayAnim(EXPLOSION_GRENADE_TEXTURE_ANIM_FAST, 0);
-    RandomBanking();
-    if( bLoVolume)
-    {
-      m_soEffect.Set3DParameters(150.0f, 3.0f, 0.5f, 1.0f);
-    }
-    else
-    {
-      m_soEffect.Set3DParameters(150.0f, 3.0f, 1.0f, 1.0f);
-    }
-
-    PlaySound(m_soEffect, SOUND_EXPLOSION, SOF_3D);
-    m_fSoundTime = GetSoundLength(SOUND_EXPLOSION);
-    m_fWaitTime = 0.8f;
-    if( bNoLight)
-    {
-      m_bLightSource = FALSE;
-    }
-    else
-    {
-      m_bLightSource = TRUE;
-      m_iLightAnimation = 1;
-    }
-  };
-
-  void CannonPlaneExplosion(void) {
-    SetPredictable(TRUE);
-    Stretch();
-    SetModel(MDL_CANNON3D_EXPLOSION);
-    CModelObject &moExplosion = *GetModelObject();
-    SetModelMainTexture(TXT_CANNON_EXPLOSION);
-    moExplosion.mo_toTexture.PlayAnim(EXPLOSION_GRENADE_TEXTURE_ANIM_FAST, 0);
-    SetNormalWithRandomBanking();
-    m_fWaitTime = 1.2f;
-    m_bLightSource = FALSE;
-  };
-
   void Stain(void) {
     SetModel(MODEL_EXPLOSION_STAIN);
     SetModelMainTexture(TEXTURE_EXPLOSION_STAIN);
-    SetNormalWithRandomBanking();
-    m_fWaitTime = 5.0f;
-    m_fFadeTime = 2.5f;
-    m_bLightSource = FALSE;
-    ParentToNearestPolygonAndStretch();
-  };
-
-  void CannonStain(void) {
-    Stretch();
-    SetModel(MODEL_CANNON_EXPLOSION_STAIN);
-    SetModelMainTexture(TEXTURE_CANNON_EXPLOSION_STAIN);
     SetNormalWithRandomBanking();
     m_fWaitTime = 5.0f;
     m_fFadeTime = 2.5f;
@@ -1035,20 +833,6 @@ functions:
     SetNonLoopingTexAnims();
     m_fWaitTime = 0.4f;
     m_fFadeTime = 0.1f;
-    m_bLightSource = FALSE;
-  };
-
-  void CannonShockWave(void) {
-    SetPredictable(TRUE);
-    Stretch();
-    SetModel(MODEL_CANNONSHOCKWAVE);
-    CModelObject &moShockwave = *GetModelObject();
-    moShockwave.PlayAnim(SHOCKWAVE_ANIM_SLOW, 0);
-    SetModelMainTexture(TEXTURE_CANNONSHOCKWAVE);
-    moShockwave.mo_toTexture.PlayAnim(SHOCKWAVE_TEXTURE_ANIM_SLOW, 0);
-    SetNormal();
-    m_fWaitTime = 1.25f;
-    m_fFadeTime = 0.25f;
     m_bLightSource = FALSE;
   };
 
@@ -1627,30 +1411,6 @@ functions:
   }
 
 
-  // gizmo stain on wall/floor
-  void GizmoStain(void)
-  {
-    // readout blood type
-    const INDEX iBloodType = GetSP()->sp_iBlood;
-    if( iBloodType<1) { return; }
-
-    Stretch();
-    SetModel(MODEL_BLOOD_STAIN);
-    SetModelColor( RGBAToColor( 0,250,0,255));
-    switch( IRnd()&2) {
-    case 1:  { SetModelMainTexture(TEXTURE_BLOOD_STAIN1);   break; }
-    case 2:  { SetModelMainTexture(TEXTURE_BLOOD_STAIN2);   break; }
-    default: { SetModelMainTexture(TEXTURE_BLOOD_STAIN3);   break; }
-    }
-    SetNormalAndDirection();
-    m_fWaitTime = 15.0f + FRnd()*2.0f;
-    m_fFadeTime = 2.0f;
-    m_bLightSource = FALSE;
-    m_fDepthSortOffset = -0.1f;
-    ParentToNearestPolygonAndStretch();
-  }
-
-
   // bullet exit wound blood on wall/floor
   void BloodSpill(COLOR colBloodSpillColor)
   {
@@ -1689,14 +1449,12 @@ procedures:
 
   Main(ESpawnEffect eSpawn)
   {
-    if(eSpawn.betType==BET_GIZMO_SPLASH_FX ||
-       eSpawn.betType==BET_EXPLOSION_DEBRIS ||
+    if(eSpawn.betType==BET_EXPLOSION_DEBRIS ||
        eSpawn.betType==BET_EXPLOSION_SMOKE ||
        eSpawn.betType==BET_SUMMONERSTAREXPLOSION  ||
        eSpawn.betType==BET_COLLECT_ENERGY ||
        eSpawn.betType==BET_GROWING_SWIRL||
        eSpawn.betType==BET_DISAPPEAR_DUST||
-	     /*eSpawn.betType==BET_SNIPER_RESIDUE ||*/
        eSpawn.betType==BET_DUST_FALL)
     {
       InitAsEditorModel();
@@ -1718,10 +1476,6 @@ procedures:
     m_colMultiplyColor = eSpawn.colMuliplier;
     
     switch (m_betType) {
-      case BET_ROCKET: ProjectileExplosion(); break;
-      case BET_ROCKET_PLANE: ProjectilePlaneExplosion(); break;
-      case BET_GRENADE: GrenadeExplosion(); break;
-      case BET_GRENADE_PLANE: GrenadePlaneExplosion(); break;
       case BET_EXPLOSIONSTAIN: Stain(); break;
       case BET_SHOCKWAVE: ShockWave(); break;
       case BET_LASERWAVE: LaserWave(); break;
@@ -1746,18 +1500,9 @@ procedures:
       case BET_BULLETSTAINUNDERACIDNOSOUND: BulletStainStone(FALSE, FALSE); break;
       case BET_BLOODSPILL: BloodSpill(m_colMultiplyColor); break;
       case BET_BLOODSTAIN: BloodStain(); break;
-      case BET_GIZMOSTAIN: GizmoStain(); break;
       case BET_BLOODSTAINGROW: BloodStainGrow(); break;
       case BET_BLOODEXPLODE: BloodExplode(); break;
-      case BET_CANNON: CannonExplosion(FALSE, FALSE); break;
-      case BET_CANNON_NOLIGHT: CannonExplosion(TRUE, TRUE); break;
-      case BET_LIGHT_CANNON: CannonExplosion(TRUE, FALSE); break;
-      case BET_CANNON_PLANE: CannonPlaneExplosion(); break;
-      case BET_CANNONEXPLOSIONSTAIN: CannonStain(); break;
-      case BET_CANNONSHOCKWAVE: CannonShockWave(); break;
       case BET_TELEPORT: TeleportEffect(); break;
-      case BET_BOMB: BombExplosion(); break;
-      case BET_GIZMO_SPLASH_FX: GizmoSplashFX(); break;
       case BET_BULLETSTAINGRASS: BulletStainGrass(TRUE); break;
       case BET_BULLETSTAINGRASSNOSOUND: BulletStainGrass(FALSE); break;
       case BET_BULLETSTAINWOOD: BulletStainWood(TRUE); break;
@@ -1792,6 +1537,7 @@ procedures:
       case BET_BULLETSTAINGRATENOSOUND: BulletStainGrate(FALSE); break;
       case BET_BULLETSTAINMUD: BulletStainMud(TRUE); break;
       case BET_BULLETSTAINMUDNOSOUND: BulletStainMud(FALSE); break;
+      case BET_BOMB: BombExplosion(); break;
       default:
         ASSERTALWAYS("Unknown effect type");
     }

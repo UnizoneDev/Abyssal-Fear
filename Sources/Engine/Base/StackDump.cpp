@@ -31,7 +31,7 @@ class MSJExceptionHandler
 {
       public:
 
-      MSJExceptionHandler( );
+      void SetExceptionHandler(void);
       ~MSJExceptionHandler( );
 
       void SetLogFileName(const char* pszLogFileName );
@@ -74,10 +74,15 @@ HANDLE MSJExceptionHandler::m_hReportFile;
 
 //============================== Class Methods =============================
 
+// Manually setup an unhandled exception handler
+void SE_SetupExceptionHandler(void) {
+    g_MSJExceptionHandler.SetExceptionHandler();
+};
+
 //=============
 // Constructor
 //=============
-MSJExceptionHandler::MSJExceptionHandler( )
+void MSJExceptionHandler::SetExceptionHandler(void)
 {
     // Install the unhandled exception filter function
     m_previousFilter = SetUnhandledExceptionFilter(MSJUnhandledExceptionFilter);
