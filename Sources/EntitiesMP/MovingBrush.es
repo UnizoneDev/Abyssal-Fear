@@ -277,14 +277,16 @@ functions:
     else if(m_bBlowupByAnything)
     {
       // react to weapon damage
-      if( (dmtType == DMT_EXPLOSION) ||
+      if( (dmtType == DMT_EXPLOSION)  ||
           (dmtType == DMT_PROJECTILE) ||
           (dmtType == DMT_CANNONBALL) ||
           (dmtType == DMT_CLOSERANGE) ||
           (dmtType == DMT_BULLET) ||
           (dmtType == DMT_IMPACT) ||
           (dmtType == DMT_PELLET) ||
-          (dmtType == DMT_AXE) )
+          (dmtType == DMT_AXE)    ||
+          (dmtType == DMT_BLUNT)  ||
+          (dmtType == DMT_SHARP)  )
       {
         CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
       }

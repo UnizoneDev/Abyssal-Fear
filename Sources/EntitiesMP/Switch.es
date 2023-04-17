@@ -19,6 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %}
 
 uses "EntitiesMP/ModelHolder2";
+uses "EntitiesMP/KeyItem";
+uses "EntitiesMP/Player";
 
 enum SwitchType {
   0 SWT_ONCE    "Once",
@@ -69,6 +71,12 @@ properties:
 122 CSoundObject m_soON,
 123 CSoundObject m_soOFF,
 
+ // for locked doors without a DoorController
+124 BOOL m_bSwitchLocked "Locked" = FALSE,
+125 CTStringTrans m_strLockedMessage "Locked message" = "",
+126 CEntityPointer m_penLockedTarget  "Locked target" COLOR(C_dMAGENTA|0xFF),   // target to trigger when locked
+127 enum KeyItemType m_kitKey  "Key" 'K' = KIT_CROSSWOODEN,  // key type (for locked door)
+
 
 components:
 
@@ -118,6 +126,7 @@ functions:
     SLONG slUsedMemory = sizeof(CSwitch) - sizeof(CModelHolder2) + CModelHolder2::GetUsedMemory();
     // add some more
     slUsedMemory += m_strMessage.Length();
+    slUsedMemory += m_strLockedMessage.Length();
     return slUsedMemory;
   }
 
@@ -240,11 +249,37 @@ procedures:
     wait() {
       // trigger event -> change switch
       on (ETrigger eTrigger) : {
-        if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
-          m_bUseable = FALSE;
-          m_penCaused = eTrigger.penCaused;
-          call SwitchON();
+        if (IsDerivedFromClass(eTrigger.penCaused, "Player")) {
+          CPlayer *penPlayer = (CPlayer*)&*eTrigger.penCaused;
+          if(m_bSwitchLocked) {
+            // if he has the key
+            ULONG ulKey = (1<<INDEX(m_kitKey));
+            if (penPlayer->m_ulKeys&ulKey) {
+              // use the key
+              penPlayer->m_ulKeys&=~ulKey;
+
+              if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
+                m_bUseable = FALSE;
+                m_penCaused = eTrigger.penCaused;
+                call SwitchON();
+              }
+            } else {
+              if (m_strLockedMessage!="") {
+                PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+              }
+              if (m_penLockedTarget!=NULL) {
+                SendToTarget(m_penLockedTarget, EET_TRIGGER, eTrigger.penCaused);
+              }
+            }
+          } else {
+            if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
+              m_bUseable = FALSE;
+              m_penCaused = eTrigger.penCaused;
+              call SwitchON();
+            }
+          }
         }
+        
       }
       // start -> switch ON
       on (EStart) : {
@@ -281,16 +316,47 @@ procedures:
     wait() {
       // trigger event -> change switch
       on (ETrigger eTrigger) : {
-        if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
-          m_bUseable = FALSE;
-          m_penCaused = eTrigger.penCaused;
+        if (IsDerivedFromClass(eTrigger.penCaused, "Player")) {
+          CPlayer *penPlayer = (CPlayer*)&*eTrigger.penCaused;
+          if(m_bSwitchLocked) {
+            // if he has the key
+            ULONG ulKey = (1<<INDEX(m_kitKey));
+            if (penPlayer->m_ulKeys&ulKey) {
+              // use the key
+              penPlayer->m_ulKeys&=~ulKey;
 
-          // if switch is ON make it OFF
-          if (m_bSwitchON) {
-            call SwitchOFF();
-          // else if switch is OFF make it ON
+              if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
+                m_bUseable = FALSE;
+                m_penCaused = eTrigger.penCaused;
+                // if switch is ON make it OFF
+                if (m_bSwitchON) {
+                  call SwitchOFF();
+                // else if switch is OFF make it ON
+                } else {
+                  call SwitchON();
+                }
+              }
+            } else {
+              if (m_strLockedMessage!="") {
+                PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+              }
+              if (m_penLockedTarget!=NULL) {
+                SendToTarget(m_penLockedTarget, EET_TRIGGER, eTrigger.penCaused);
+              }
+            }
           } else {
-            call SwitchON();
+            if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
+              m_bUseable = FALSE;
+              m_penCaused = eTrigger.penCaused;
+              
+              // if switch is ON make it OFF
+              if (m_bSwitchON) {
+                call SwitchOFF();
+              // else if switch is OFF make it ON
+              } else {
+                call SwitchON();
+              }
+            }
           }
         }
       }

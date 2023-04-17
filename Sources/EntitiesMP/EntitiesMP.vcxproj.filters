@@ -503,6 +503,9 @@
     <ClCompile Include="BeamEffector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="TextureSwitcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Flesh\Classes\Acid.ecl">
@@ -1345,6 +1348,9 @@
     <CustomBuild Include="BeamEffector.es">
       <Filter>Class Files\Effects</Filter>
     </CustomBuild>
+	<CustomBuild Include="TextureSwitcher.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Common.h">
@@ -2143,6 +2149,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BeamEffector_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="TextureSwitcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureSwitcher_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -140,7 +140,7 @@ procedures:
     
     wait() {
       on (EDeath) : {
-          InflictRangeDamage(this, DMT_EXPLOSION, 100.0f, GetPlacement().pl_PositionVector + FLOAT3D(0.0f, 1.0f, 0.0f), 4.0f, 10.0f);
+          InflictRangeDamage(this, DMT_EXPLOSION, 100.0f, GetPlacement().pl_PositionVector + FLOAT3D(0.0f, 1.0f, 0.0f), 4.0f, 8.0f);
           BarrelExplosion();
           SwitchToEditorModel();
           SetPhysicsFlags(EPF_MODEL_IMMATERIAL);

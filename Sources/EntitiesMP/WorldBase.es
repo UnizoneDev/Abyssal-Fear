@@ -818,14 +818,14 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_actContentTypes[7].ct_strName = "Acid";
   pwo->wo_actContentTypes[7].ct_fDensity = 1000.0f;
   pwo->wo_actContentTypes[7].ct_fFluidFriction     = 0.0f;
-  pwo->wo_actContentTypes[7].ct_fControlMultiplier = 1.75f;
+  pwo->wo_actContentTypes[7].ct_fControlMultiplier = 2.0f;
   pwo->wo_actContentTypes[7].ct_fSpeedMultiplier = 0.75f;
   pwo->wo_actContentTypes[7].ct_fDrowningDamageAmount = 0.0f;
   pwo->wo_actContentTypes[7].ct_tmDrowningDamageDelay = 1.0f;
   pwo->wo_actContentTypes[7].ct_iSwimDamageType = DMT_ACID;
   pwo->wo_actContentTypes[7].ct_fSwimDamageAmount = 10.0f;
   pwo->wo_actContentTypes[7].ct_tmSwimDamageFrequency = 0.5f;
-  pwo->wo_actContentTypes[7].ct_ulFlags = CTF_SWIMABLE|CTF_FADESPINNING;
+  pwo->wo_actContentTypes[7].ct_ulFlags = CTF_BREATHABLE_GILLS|CTF_SWIMABLE|CTF_FADESPINNING;
 
   // environments
   pwo->wo_aetEnvironmentTypes[ 0].et_strName = "Normal";
@@ -894,7 +894,7 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
 
   pwo->wo_aetEnvironmentTypes[16].et_strName = "Forest";
   pwo->wo_aetEnvironmentTypes[16].et_iType = EAX_ENVIRONMENT_FOREST;
-  pwo->wo_aetEnvironmentTypes[16].et_fSize = 6.3f;
+  pwo->wo_aetEnvironmentTypes[16].et_fSize = 4.3f;
 
   pwo->wo_aetEnvironmentTypes[17].et_strName = "Hallucination";
   pwo->wo_aetEnvironmentTypes[17].et_iType = EAX_ENVIRONMENT_DIZZY;
@@ -907,6 +907,18 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_aetEnvironmentTypes[19].et_strName = "Dream Extreme";
   pwo->wo_aetEnvironmentTypes[19].et_iType = EAX_ENVIRONMENT_DRUGGED;
   pwo->wo_aetEnvironmentTypes[19].et_fSize = 4.8f;
+
+  pwo->wo_aetEnvironmentTypes[20].et_strName = "Hallucination Extreme";
+  pwo->wo_aetEnvironmentTypes[20].et_iType = EAX_ENVIRONMENT_DIZZY;
+  pwo->wo_aetEnvironmentTypes[20].et_fSize = 2.1f;
+
+  pwo->wo_aetEnvironmentTypes[21].et_strName = "Sewers 2";
+  pwo->wo_aetEnvironmentTypes[21].et_iType = EAX_ENVIRONMENT_SEWERPIPE;
+  pwo->wo_aetEnvironmentTypes[21].et_fSize = 4.5f;
+
+  pwo->wo_aetEnvironmentTypes[22].et_strName = "Cave 2";
+  pwo->wo_aetEnvironmentTypes[22].et_iType = EAX_ENVIRONMENT_CAVE;
+  pwo->wo_aetEnvironmentTypes[22].et_fSize = 20.5f;
 
   // declare console variables
   _pShell->DeclareSymbol("user void MakeWorldStatistics(void);",  &MakeWorldStatistics);
@@ -941,6 +953,19 @@ void CWorldBase_OnWorldRender(CWorld *pwo)
   pwo->wo_attTextureTransformations[43].tt_mdTransformation.md_fVOffset=8192/1024.0f*tmNow;
   pwo->wo_attTextureTransformations[44].tt_mdTransformation.md_fVOffset=8192*2/1024.0f*tmNow;
   pwo->wo_attTextureTransformations[45].tt_mdTransformation.md_fVOffset=8192*4/1024.0f*tmNow;
+
+  // weird
+  pwo->wo_attTextureTransformations[46].tt_mdTransformation.md_fUOffset= 128/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[47].tt_mdTransformation.md_fUOffset=-128/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[48].tt_mdTransformation.md_fUOffset= 512/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[49].tt_mdTransformation.md_fUOffset=-512/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[50].tt_mdTransformation.md_fUOffset=1024/1024.0f*tmNow;
+
+  pwo->wo_attTextureTransformations[46].tt_mdTransformation.md_fVOffset= 128/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[47].tt_mdTransformation.md_fVOffset=-128/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[48].tt_mdTransformation.md_fVOffset= 512/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[49].tt_mdTransformation.md_fVOffset=-512/1024.0f*tmNow;
+  pwo->wo_attTextureTransformations[50].tt_mdTransformation.md_fVOffset=1024/1024.0f*tmNow;
 
   CMappingDefinitionUI mdui;
   mdui.mdui_fUStretch = 1.0f;

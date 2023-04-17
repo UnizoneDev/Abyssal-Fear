@@ -365,6 +365,7 @@
     <ClCompile Include="Teleport.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextFXHolder.cpp" />
+	<ClCompile Include="TextureSwitcher.cpp" />
     <ClCompile Include="TimeController.cpp" />
     <ClCompile Include="TouchField.cpp" />
     <ClCompile Include="Trigger.cpp" />
@@ -1029,6 +1030,8 @@
     <ClInclude Include="Terrain_tables.h" />
     <ClInclude Include="TextFXHolder.h" />
     <ClInclude Include="TextFXHolder_tables.h" />
+	<ClInclude Include="TextureSwitcher.h" />
+    <ClInclude Include="TextureSwitcher_tables.h" />
     <ClInclude Include="TimeController.h" />
     <ClInclude Include="TimeController_tables.h" />
     <ClInclude Include="TouchField.h" />
@@ -2501,6 +2504,19 @@ ecc EntitiesMP/%(Filename).es</Command>
 ecc EntitiesMP/%(Filename).es </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
 ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="TextureSwitcher.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>

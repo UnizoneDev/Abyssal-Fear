@@ -620,10 +620,7 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_WALK_MUD_L         );
   pdec->PrecacheSound(SOUND_WALK_MUD_R         );
 //pdec->PrecacheSound(SOUND_HIGHSCORE          );
-  pdec->PrecacheSound(SOUND_SNIPER_ZOOM        );
-  pdec->PrecacheSound(SOUND_SNIPER_QZOOM       );
   pdec->PrecacheSound(SOUND_SILENCE            );
-  pdec->PrecacheSound(SOUND_POWERUP_BEEP       );
 
   pdec->PrecacheSound(SOUND_F_WATER_ENTER        );
   pdec->PrecacheSound(SOUND_F_WATER_LEAVE        );
@@ -1312,12 +1309,9 @@ components:
 
 // gender-independent sounds
 214 sound SOUND_SILENCE         "Sounds\\Misc\\Silence.wav",
-215 sound SOUND_SNIPER_ZOOM     "ModelsMP\\Weapons\\Sniper\\Sounds\\Zoom.wav",
-216 sound SOUND_SNIPER_QZOOM    "ModelsMP\\Weapons\\Sniper\\Sounds\\QuickZoom.wav",
 217 sound SOUND_INFO            "Sounds\\Player\\Info.wav",
 218 sound SOUND_WATERAMBIENT    "Sounds\\Player\\Underwater.wav",
 219 sound SOUND_WATERBUBBLES    "Sounds\\Player\\Bubbles.wav",
-220 sound SOUND_POWERUP_BEEP    "SoundsMP\\Player\\PowerUpBeep.wav",
 221 sound SOUND_SECRET          "Sounds\\Player\\Secret.wav",
 
 // ************** FLESH PARTS **************
@@ -3862,7 +3856,7 @@ functions:
 
   void PlayPowerUpSound ( void ) {
     m_soPowerUpBeep.Set3DParameters(50.0f, 10.0f, 4.0f, 1.0f);
-    PlaySound(m_soPowerUpBeep, SOUND_POWERUP_BEEP, SOF_3D|SOF_VOLUMETRIC|SOF_LOCAL);
+    PlaySound(m_soPowerUpBeep, SOUND_SECRET, SOF_3D|SOF_VOLUMETRIC|SOF_LOCAL);
   }
 
   void ActiveActions(const CPlayerAction &paAction)

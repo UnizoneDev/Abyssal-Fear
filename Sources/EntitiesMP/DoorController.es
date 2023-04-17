@@ -274,7 +274,7 @@ procedures:
             if (penPlayer->m_ulKeys&ulKey) {
               // use the key
               penPlayer->m_ulKeys&=~ulKey;
-              // open the dook
+              // open the door
               TriggerDoor();
 
               /*
