@@ -58,6 +58,7 @@ functions:
   {
     if(m_penStartPos==NULL) { return; }
     if(m_penEndPos==NULL) { return; }
+    if(m_fnmBeamTexture=="") { return; }
 
     if(!m_bActive)
     {

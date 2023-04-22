@@ -631,6 +631,7 @@ void KickEntity(CEntity *penTarget, FLOAT3D vSpeed) {
 CLensFlareType _lftOrange;
 CLensFlareType _lftBlue;
 CLensFlareType _lftWhite;
+CLensFlareType _lftRed;
 static BOOL _bLensFlaresLoaded = FALSE;
 
 #define FLARE_CREATE(type,noof,tex,pos,rot,i,j,flags,amp,des,falloff)\
@@ -674,9 +675,13 @@ void InitLensFlares(void) {
   FLARE_CREATE(_lftBlue, 1, "Blue01\\BlueFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
   FLARE_GLARE(_lftBlue, 20.0f, 0.3f, 0.8f, 1.0f);
 
-  // Orange Flare 1
+  // White Flare 1
   FLARE_CREATE(_lftWhite, 1, "White01\\WhiteFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
   FLARE_GLARE(_lftWhite, 20.0f, 0.3f, 0.8f, 1.0f);
+
+  // Red Flare 1
+  FLARE_CREATE(_lftRed, 1, "Red01\\RedFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
+  FLARE_GLARE(_lftRed, 20.0f, 0.3f, 0.8f, 1.0f);
 
   _bLensFlaresLoaded = TRUE;
 };
@@ -686,6 +691,7 @@ void CloseLensFlares(void) {
   _lftOrange.lft_aolfFlares.Clear();
   _lftBlue.lft_aolfFlares.Clear();
   _lftWhite.lft_aolfFlares.Clear();
+  _lftRed.lft_aolfFlares.Clear();
   _bLensFlaresLoaded = FALSE;
 };
 

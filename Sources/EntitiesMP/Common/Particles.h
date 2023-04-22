@@ -74,6 +74,8 @@ void DECL_DLL Particles_PowerUpIndicator( CEntity *pen, enum ParticleTexture ptT
               FLOAT fScale, FLOAT fHeight, INDEX ctEllipses, INDEX iTrailCount);
 void DECL_DLL Particles_BloodSpray( enum SprayParticlesType sptType, FLOAT3D vPos, FLOAT3D vGDir, FLOAT fGA, FLOATaabbox3D boxOwner, FLOAT3D vSpilDirection,
                                    FLOAT tmStarted, FLOAT fDamagePower, COLOR colMultiply=C_WHITE|CT_OPAQUE);
+void DECL_DLL Particles_BloodDroplet(FLOAT3D vPos, FLOAT3D vGDir, FLOAT fGA, FLOATaabbox3D boxOwner, FLOAT3D vSpilDirection,
+                                   FLOAT tmStarted, FLOAT fDamagePower, COLOR colMultiply = C_WHITE | CT_OPAQUE, INDEX iAmount = 1);
 void DECL_DLL Particles_EmanatePlane(CEntity *pen, FLOAT fSizeX, FLOAT fSizeY, FLOAT fSizeZ, 
                             FLOAT fParticleSize, FLOAT fAway, FLOAT fSpeed, 
                             enum ParticleTexture ptTexture, INDEX ctParticles, FLOAT fMipFactorDisappear);

@@ -503,7 +503,13 @@
     <ClCompile Include="BeamEffector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="TextureSwitcher.cpp">
+    <ClCompile Include="TextureSwitcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BloodUni.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomFire.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1348,8 +1354,14 @@
     <CustomBuild Include="BeamEffector.es">
       <Filter>Class Files\Effects</Filter>
     </CustomBuild>
-	<CustomBuild Include="TextureSwitcher.es">
+    <CustomBuild Include="TextureSwitcher.es">
       <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BloodUni.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="CustomFire.es">
+      <Filter>Class Files\Effects</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -2151,10 +2163,22 @@
     <ClInclude Include="BeamEffector_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-	<ClInclude Include="TextureSwitcher.h">
+    <ClInclude Include="TextureSwitcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TextureSwitcher_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BloodUni.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BloodUni_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomFire.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomFire_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

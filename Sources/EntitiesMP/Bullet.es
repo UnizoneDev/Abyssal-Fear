@@ -194,8 +194,19 @@ functions:
             vHitNormal = -vHitNormal;
 
             bhtType=BHT_BRUSH_WATER;
-          }   
-          // if we hit stone under water
+          }  // if we hit blood surface
+          else if( iSurfaceType==SURFACE_BLOOD) 
+          {
+            vHitNormal = -vHitNormal;
+
+            bhtType=BHT_BRUSH_BLOOD;
+          }  // if we hit acid surface
+          else if( iSurfaceType==SURFACE_ACID) 
+          {
+            vHitNormal = -vHitNormal;
+
+            bhtType=BHT_BRUSH_ACID;
+          }  // if we hit stone under water
           else
           {
             bhtType=(BulletHitType) GetBulletHitTypeForSurface(iSurfaceType);
@@ -203,7 +214,7 @@ functions:
         }
         // spawn hit effect
         BOOL bPassable = pbpo->bpo_ulFlags & (BPOF_PASSABLE|BPOF_SHOOTTHRU);
-        if (!bPassable || iSurfaceType==SURFACE_WATER) {
+        if (!bPassable || iSurfaceType==SURFACE_WATER || iSurfaceType==SURFACE_BLOOD || iSurfaceType==SURFACE_ACID) {
           SpawnHitTypeEffect(this, bhtType, bSound, vHitNormal, crRay.cr_vHit, vHitDirection, FLOAT3D(0.0f, 0.0f, 0.0f));
         }
         if(!bPassable) {

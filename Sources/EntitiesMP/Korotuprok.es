@@ -167,10 +167,11 @@ functions:
 
   // melee attack enemy
   Hit(EVoid) : CEnemyBase::Hit {
-    switch(IRnd()%2)
+    switch(IRnd()%3)
     {
       case 0: jump SlashEnemySingle(); break;
       case 1: jump SlashEnemyHeadArm(); break;
+      case 2: jump SlashEnemySingle2(); break;
       default: ASSERTALWAYS("Twitcher unknown melee attack");
     }
 
@@ -180,6 +181,31 @@ functions:
   SlashEnemySingle(EVoid) {
     // close attack
     StartModelAnim(KOROTUPROK_ANIM_MELEE1, 0);
+    m_bFistHit = FALSE;
+    autowait(0.35f);
+    if (CalcDist(m_penEnemy) < 2.8f) {
+      m_bFistHit = TRUE;
+    }
+    
+    if (m_bFistHit) {
+      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
+      if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
+        vDirection.Normalize();
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
+      }
+    } else {
+      PlaySound(m_soSound, SOUND_SWING, SOF_3D);
+    }
+
+    autowait(0.3f);
+    MaybeSwitchToAnotherPlayer();
+    return EReturn();
+  }
+
+  SlashEnemySingle2(EVoid) {
+    // close attack
+    StartModelAnim(KOROTUPROK_ANIM_MELEE3, 0);
     m_bFistHit = FALSE;
     autowait(0.35f);
     if (CalcDist(m_penEnemy) < 2.8f) {
@@ -237,9 +263,9 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_LESSER;
-    SetHealth(300.0f);
-    m_fMaxHealth = 300.0f;
-    m_fDamageWounded = 175.0f;
+    SetHealth(250.0f);
+    m_fMaxHealth = 250.0f;
+    m_fDamageWounded = 160.0f;
     m_iScore = 7500;
     en_tmMaxHoldBreath = 30.0f;
     en_fDensity = 2000.0f;

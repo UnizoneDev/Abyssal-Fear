@@ -96,6 +96,7 @@ enum BasicEffectType {
  59 BET_BULLETSTAINMUD    "Bullet stain mud", 
  60 BET_BULLETSTAINMUDNOSOUND  "Bullet stain mud no sound",
  61 BET_BOMB "Bomb",     // small bomb explosion
+ 62 BET_FIRE_SMOKE         "Fire smoke",     // smoke emitted due to fire
 };
 
 
@@ -463,7 +464,11 @@ functions:
     {
       Particles_CollectEnergy(this, m_tmSpawn, m_tmSpawn+m_fWaitTime);
     }
-	  if(m_betType==BET_EXPLOSION_SMOKE && _pTimer->GetLerpedCurrentTick()>(m_tmSpawn+m_fWaitTime) )
+	if(m_betType==BET_EXPLOSION_SMOKE && _pTimer->GetLerpedCurrentTick()>(m_tmSpawn+m_fWaitTime) )
+    {
+      Particles_ExplosionSmoke(this, m_tmSpawn+m_fWaitTime, m_vStretch, m_colMultiplyColor);
+    }
+    if(m_betType==BET_FIRE_SMOKE && _pTimer->GetLerpedCurrentTick()>(m_tmSpawn+m_fWaitTime) )
     {
       Particles_ExplosionSmoke(this, m_tmSpawn+m_fWaitTime, m_vStretch, m_colMultiplyColor);
     }
@@ -770,6 +775,16 @@ functions:
   }
 
   void ExplosionSmoke(void)
+  {
+    SetPredictable(TRUE);
+    SetModel(MODEL_BULLET_HIT);
+    SetModelMainTexture(TEXTURE_BULLET_HIT);
+    m_fWaitTime=0.25f;
+    m_tmWaitAfterDeath=8.0f;
+    m_bLightSource = FALSE;
+  };
+
+  void FireSmoke(void)
   {
     SetPredictable(TRUE);
     SetModel(MODEL_BULLET_HIT);
@@ -1455,7 +1470,8 @@ procedures:
        eSpawn.betType==BET_COLLECT_ENERGY ||
        eSpawn.betType==BET_GROWING_SWIRL||
        eSpawn.betType==BET_DISAPPEAR_DUST||
-       eSpawn.betType==BET_DUST_FALL)
+       eSpawn.betType==BET_DUST_FALL ||
+       eSpawn.betType==BET_FIRE_SMOKE)
     {
       InitAsEditorModel();
     }
@@ -1538,6 +1554,7 @@ procedures:
       case BET_BULLETSTAINMUD: BulletStainMud(TRUE); break;
       case BET_BULLETSTAINMUDNOSOUND: BulletStainMud(FALSE); break;
       case BET_BOMB: BombExplosion(); break;
+      case BET_FIRE_SMOKE: FireSmoke(); break;
       default:
         ASSERTALWAYS("Unknown effect type");
     }

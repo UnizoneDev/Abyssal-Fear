@@ -34,6 +34,7 @@ enum LensFlareType {
   1  LFT_ORANGE_1                     "Orange 1",
   2  LFT_BLUE_1                       "Blue 1",
   3  LFT_WHITE_1                      "White 1",
+  4  LFT_RED_1                        "Red 1",
 };
 
 %{
@@ -264,6 +265,9 @@ functions:
         break;
       case LFT_WHITE_1:
         lsNew.ls_plftLensFlare = &_lftWhite;          
+        break;
+      case LFT_RED_1:
+        lsNew.ls_plftLensFlare = &_lftRed;          
         break;
     }
 

@@ -2858,7 +2858,7 @@ procedures:
     CPlayer &pl = (CPlayer&)*m_penPlayer;
     pl.m_bIsBlocking = TRUE;
 
-    m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_BLOCKIDLE, 0);
+    m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_BLOCKIDLE, AOF_LOOPING|AOF_NORESTART);
 
     while(m_bAltFireWeapon)
     {

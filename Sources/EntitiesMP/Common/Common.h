@@ -200,6 +200,7 @@ DECL_DLL void KickEntity(CEntity *penTarget, FLOAT3D vSpeed);
 extern CLensFlareType _lftOrange;
 extern CLensFlareType _lftBlue;
 extern CLensFlareType _lftWhite;
+extern CLensFlareType _lftRed;
 // init lens flare effects
 void InitLensFlares(void);
 // close lens flares effects

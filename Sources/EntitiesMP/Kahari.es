@@ -305,9 +305,9 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_GREATER;
-    SetHealth(600.0f);
-    m_fMaxHealth = 600.0f;
-    m_fDamageWounded = 240.0f;
+    SetHealth(500.0f);
+    m_fMaxHealth = 500.0f;
+    m_fDamageWounded = 220.0f;
     m_iScore = 10000;
     en_tmMaxHoldBreath = 30.0f;
     en_fDensity = 2000.0f;

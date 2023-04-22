@@ -260,12 +260,12 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_WILDLIFE;
-    SetHealth(150.0f);
-    m_fMaxHealth = 150.0f;
-    m_fDamageWounded = 60.0f;
+    SetHealth(100.0f);
+    m_fMaxHealth = 100.0f;
+    m_fDamageWounded = 40.0f;
     m_iScore = 2500;
     en_tmMaxHoldBreath = 30.0f;
-    en_fDensity = 2000.0f;
+    en_fDensity = 1750.0f;
     m_fBlowUpSize = 2.0f;
 
     // set your appearance and texture

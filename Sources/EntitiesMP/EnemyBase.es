@@ -33,6 +33,7 @@ uses "EntitiesMP/BloodSpray";
 
 uses "EntitiesMP/AmmoItem";
 uses "EntitiesMP/WeaponItem";
+uses "EntitiesMP/BloodUni";
 
 event ERestartAttack {
 };
@@ -257,6 +258,7 @@ components:
   6 class   CLASS_WEAPON          "Classes\\WeaponItem.ecl",
   7 class   CLASS_AMMO            "Classes\\AmmoItem.ecl",
   8 class   CLASS_KEY             "Classes\\KeyItem.ecl",
+  9 class   CLASS_BLOOD_UNI       "Classes\\BloodUni.ecl",
 
 // ************** FLESH PARTS **************
  10 model   MODEL_FLESH          "Models\\Effects\\Debris\\FleshDebris.mdl",
@@ -3410,18 +3412,9 @@ procedures:
           
           SetSpeedsToDesiredPosition(vPosDelta, fPosDistance, m_dtDestination==DT_PLAYERCURRENT);
           
-          if(m_bHideBehindCover)
-          {
-            m_vDesiredPosition = FLOAT3D(0.0f, 0.0f, 0.0f);
-            m_fMoveSpeed = 0.0f;
-            m_fJumpSpeed = 0.0f;
-          }
-          else
-          {
-            // adjust direction and speed
-            m_ulMovementFlags = SetDesiredMovement(); 
-            MovementAnimation(m_ulMovementFlags);
-          }
+          // adjust direction and speed
+          m_ulMovementFlags = SetDesiredMovement(); 
+          MovementAnimation(m_ulMovementFlags);
           
           resume;
         }

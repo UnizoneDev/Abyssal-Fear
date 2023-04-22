@@ -4653,6 +4653,87 @@ void Particles_BloodSpray(enum SprayParticlesType sptType, FLOAT3D vSource, FLOA
   Particle_Flush();
 }
 
+void Particles_BloodDroplet(FLOAT3D vSource, FLOAT3D vGDir, FLOAT fGA,
+    FLOATaabbox3D boxOwner, FLOAT3D vSpilDirection, FLOAT tmStarted, FLOAT fDamagePower,
+    COLOR colMultiply, INDEX iAmount)
+{
+    INDEX ctSprays = iAmount;
+    FLOAT fBoxSize = boxOwner.Size().Length() * 0.1f;
+    FLOAT fEnemySizeModifier = (fBoxSize - 0.2) / 1.0f + 1.0f;
+    FLOAT fRotation = 0.0f;
+
+    // readout blood type
+    const INDEX iBloodType = GetSP()->sp_iBlood;
+
+    // determine time difference
+    FLOAT fNow = _pTimer->GetLerpedCurrentTick();
+    FLOAT fSpeedModifier = 0;
+    FLOAT fT = (fNow - tmStarted);
+
+    // prepare texture
+    if (iBloodType < 1) return;
+    Particle_PrepareTexture(&_toBloodSprayTexture, PBT_BLEND);
+
+    for (INDEX iSpray = 0; iSpray < ctSprays; iSpray++)
+    {
+        INDEX iFrame = ((int(tmStarted * 100.0f)) % 8 + iSpray) % 8;
+        Particle_SetTexturePart(256, 256, iFrame, 0);
+
+        FLOAT fFade, fSize;
+        // apply fade
+        if (fT < BLOOD_SPRAY_FADE_IN_END)
+        {
+            fSize = fT / BLOOD_SPRAY_FADE_IN_END;
+            fFade = 1.0f;
+        }
+        else if (fT > BLOOD_SPRAY_FADE_OUT_START)
+        {
+            fSize = (-1 / (BLOOD_SPRAY_TOTAL_TIME - BLOOD_SPRAY_FADE_OUT_START)) * (fT - BLOOD_SPRAY_TOTAL_TIME);
+            fFade = fSize;
+        }
+        else if (fT > BLOOD_SPRAY_TOTAL_TIME)
+        {
+            fSize = 0.0f;
+            fFade = 0.0f;
+        }
+        else
+        {
+            fSize = 1.0f;
+            fFade = fSize;
+        }
+        FLOAT fMipFactor = Particle_GetMipFactor();
+        FLOAT fMipSizeAffector = Clamp(fMipFactor / 4.0f, 0.05f, 1.0f);
+        fSize *= fMipSizeAffector * fDamagePower * fEnemySizeModifier;
+
+        INDEX iRnd = (iSpray + INDEX(tmStarted * 123.456)) % CT_MAX_PARTICLES_TABLE;
+        FLOAT3D vRandomAngle = FLOAT3D(
+            GetParticleStarPos(iRnd, 0) * 1.75f,
+            (GetParticleStarPos(iRnd, 1) + 1.0f) * 1.0f,
+            GetParticleStarPos(iRnd, 2) * 1.75f);
+        FLOAT fSpilPower = vSpilDirection.Length();
+        vRandomAngle = vRandomAngle.Normalize() * fSpilPower;
+        fSpeedModifier += GetParticleStarPos(iSpray + ctSprays, 0) * 0.5f;
+
+        FLOAT fSpeed = BLOOD_SPRAY_SPEED_MIN + (BLOOD_SPRAY_TOTAL_TIME - fT) / BLOOD_SPRAY_TOTAL_TIME;
+        FLOAT3D vPos = vSource + (vSpilDirection + vRandomAngle) * (fT * (fSpeed + fSpeedModifier)) + vGDir * (fT * fT * fGA / 4.0f);
+
+        UBYTE ubAlpha = UBYTE(CT_OPAQUE * fFade);
+        FLOAT fSizeModifier = GetParticleStarPos(int(iSpray + tmStarted * 50) % CT_MAX_PARTICLES_TABLE, 1) * 0.5 + 1.0f;
+
+        COLOR col = C_WHITE | CT_OPAQUE;
+
+        // prepare texture
+        UBYTE ubRndCol = UBYTE(128 + GetParticleStarPos(int(iSpray + tmStarted * 10) % CT_MAX_PARTICLES_TABLE, 0) * 64);
+        if (iBloodType == 2) col = RGBAToColor(ubRndCol, 0, 0, ubAlpha);
+        if (iBloodType == 1) col = RGBAToColor(0, ubRndCol, 0, ubAlpha);
+
+        Particle_RenderSquare(vPos, 0.25f * fSize * fSizeModifier, fRotation, MulColors(col, colMultiply));
+    }
+
+    // all done
+    Particle_Flush();
+}
+
 // spray some stones along obelisk
 void Particles_DestroyingObelisk(CEntity *penSpray, FLOAT tmStarted)
 {

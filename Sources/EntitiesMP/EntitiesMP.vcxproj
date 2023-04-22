@@ -187,11 +187,13 @@
     <ClCompile Include="BeamEffector.cpp" />
     <ClCompile Include="BlackDog.cpp" />
     <ClCompile Include="BlackStickman.cpp" />
+    <ClCompile Include="BloodUni.cpp" />
     <ClCompile Include="Common\Common.cpp" />
     <ClCompile Include="Common\EmanatingParticles.cpp" />
     <ClCompile Include="Common\HUD.cpp" />
     <ClCompile Include="Common\Particles.cpp" />
     <ClCompile Include="Common\PathFinding.cpp" />
+    <ClCompile Include="CustomFire.cpp" />
     <ClCompile Include="DateChecker.cpp" />
     <ClCompile Include="DeadFace.cpp" />
     <ClCompile Include="DoomImp.cpp" />
@@ -365,7 +367,7 @@
     <ClCompile Include="Teleport.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TextFXHolder.cpp" />
-	<ClCompile Include="TextureSwitcher.cpp" />
+    <ClCompile Include="TextureSwitcher.cpp" />
     <ClCompile Include="TimeController.cpp" />
     <ClCompile Include="TouchField.cpp" />
     <ClCompile Include="Trigger.cpp" />
@@ -818,6 +820,8 @@
     <ClInclude Include="BlendController_tables.h" />
     <ClInclude Include="BloodSpray.h" />
     <ClInclude Include="BloodSpray_tables.h" />
+    <ClInclude Include="BloodUni.h" />
+    <ClInclude Include="BloodUni_tables.h" />
     <ClInclude Include="Bouncer.h" />
     <ClInclude Include="Bouncer_tables.h" />
     <ClInclude Include="Bullet.h" />
@@ -839,6 +843,8 @@
     <ClInclude Include="Counter_tables.h" />
     <ClInclude Include="CreditsHolder.h" />
     <ClInclude Include="CreditsHolder_tables.h" />
+    <ClInclude Include="CustomFire.h" />
+    <ClInclude Include="CustomFire_tables.h" />
     <ClInclude Include="Damager.h" />
     <ClInclude Include="Damager_tables.h" />
     <ClInclude Include="DateChecker.h" />
@@ -1030,7 +1036,7 @@
     <ClInclude Include="Terrain_tables.h" />
     <ClInclude Include="TextFXHolder.h" />
     <ClInclude Include="TextFXHolder_tables.h" />
-	<ClInclude Include="TextureSwitcher.h" />
+    <ClInclude Include="TextureSwitcher.h" />
     <ClInclude Include="TextureSwitcher_tables.h" />
     <ClInclude Include="TimeController.h" />
     <ClInclude Include="TimeController_tables.h" />
@@ -2517,6 +2523,32 @@ ecc EntitiesMP/%(Filename).es </Command>
 ecc EntitiesMP/%(Filename).es</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
 ecc EntitiesMP/%(Filename).es</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="BloodUni.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="CustomFire.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>

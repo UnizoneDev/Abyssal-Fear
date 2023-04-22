@@ -147,6 +147,7 @@ procedures:
   CheckLeaderDeath(EVoid) {
     if(IsLeaderDead())
     {
+
     }
 
     return EBegin();
@@ -176,6 +177,8 @@ procedures:
     {
       SendEventInRange(ELeaderDeath(), FLOATaabbox3D(GetPlacement().pl_PositionVector, 16.0f));
     }
+
+    RemoveSquadMember(this);
 
     jump CEnemyBase::Die(eDeath);
   };
