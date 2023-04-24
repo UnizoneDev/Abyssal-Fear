@@ -66,6 +66,12 @@ event EKilledEnemy { // sent to player when enemy is killed
 };
 event ESecretFound { // sent to player secret is found
 };
+event ELock {        // lock this object
+  CEntityPointer penCaused,
+}; 
+event EUnlock {      // unlock this object
+  CEntityPointer penCaused,
+}; 
 
 enum BoolEType {
   0 BET_TRUE      "True",   // true
@@ -89,6 +95,8 @@ enum EventEType {
  12 EET_TELEPORTMOVINGBRUSH "Teleport moving brush",    // moving brush teleporting event
  13 EET_STOPDORMANCY      "Stop dormancy event",        // enemy stop being dormant
  14 EET_STOPANOSMIA       "Stop anosmia event",         // enemy stop being anosmic
+ 15 EET_LOCK              "Lock event",                 // lock event
+ 16 EET_UNLOCK            "Unlock event",               // unlock event
 };
 
 

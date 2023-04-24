@@ -115,7 +115,7 @@ void RemoveSquadMember(CEnemySquad *penMember)
     return;
   }
 
-  if(m_cenMembers.Count() <= 0)
+  if(m_cenMembers.Count() > 0)
   {
     m_cenMembers.Remove(penMember);
     m_iSquadSlots--;

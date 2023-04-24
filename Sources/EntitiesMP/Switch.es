@@ -77,6 +77,14 @@ properties:
 126 CEntityPointer m_penLockedTarget  "Locked target" COLOR(C_dMAGENTA|0xFF),   // target to trigger when locked
 127 enum KeyItemType m_kitKey  "Key" 'K' = KIT_CROSSWOODEN,  // key type (for locked door)
 
+128 CEntityPointer m_penSoundLocked    "Sound Locked entity",     // sound locked entity
+129 CEntityPointer m_penSoundUnlocked  "Sound Unlocked entity",    // sound unlocked entity
+130 CSoundObject m_soLocked,
+131 CSoundObject m_soUnlocked,
+
+132 CTStringTrans m_strUnlockedMessage "Unlocked message" = "",
+133 CEntityPointer m_penUnlockedTarget  "Unlocked target" COLOR(C_dMAGENTA|0xFF),   // target to trigger when unlocked
+
 
 components:
 
@@ -148,6 +156,26 @@ functions:
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundOFF;
       m_soOFF.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
       PlaySound(m_soOFF, sh.m_fnSound, sh.m_iPlayType);
+    }
+  };
+
+  // play locked sound
+  void PlayLockedSound(void) {
+    // if sound entity exists
+    if (m_penSoundLocked!=NULL) {
+      CSoundHolder &sh = (CSoundHolder&)*m_penSoundLocked;
+      m_soLocked.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      PlaySound(m_soLocked, sh.m_fnSound, sh.m_iPlayType);
+    }
+  };
+
+  // play unlocked sound
+  void PlayUnlockedSound(void) {
+    // if sound entity exists
+    if (m_penSoundUnlocked!=NULL) {
+      CSoundHolder &sh = (CSoundHolder&)*m_penSoundUnlocked;
+      m_soUnlocked.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      PlaySound(m_soUnlocked, sh.m_fnSound, sh.m_iPlayType);
     }
   };
 
@@ -231,6 +259,7 @@ procedures:
     return EReturn();  // to notify that can be usable
   };
 
+
   MainLoop_Once() {
     m_bUseable = TRUE;
 
@@ -249,37 +278,27 @@ procedures:
     wait() {
       // trigger event -> change switch
       on (ETrigger eTrigger) : {
-        if (IsDerivedFromClass(eTrigger.penCaused, "Player")) {
-          CPlayer *penPlayer = (CPlayer*)&*eTrigger.penCaused;
-          if(m_bSwitchLocked) {
-            // if he has the key
-            ULONG ulKey = (1<<INDEX(m_kitKey));
-            if (penPlayer->m_ulKeys&ulKey) {
-              // use the key
-              penPlayer->m_ulKeys&=~ulKey;
-
-              if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
-                m_bUseable = FALSE;
-                m_penCaused = eTrigger.penCaused;
-                call SwitchON();
-              }
-            } else {
-              if (m_strLockedMessage!="") {
-                PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
-              }
-              if (m_penLockedTarget!=NULL) {
-                SendToTarget(m_penLockedTarget, EET_TRIGGER, eTrigger.penCaused);
+        if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
+          if (m_bSwitchLocked) {
+            if (IsDerivedFromClass(eTrigger.penCaused, "Player")) {
+              CPlayer *penPlayer = (CPlayer*)&*eTrigger.penCaused;
+              // if he has the key
+              ULONG ulKey = (1<<INDEX(m_kitKey));
+              if (penPlayer->m_ulKeys&ulKey) {
+                // use the key
+                penPlayer->m_ulKeys&=~ulKey;
+                SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
+              } else {
+                SendToTarget(this, EET_LOCK, eTrigger.penCaused);
               }
             }
-          } else {
-            if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
-              m_bUseable = FALSE;
-              m_penCaused = eTrigger.penCaused;
-              call SwitchON();
-            }
+            resume;
           }
+
+          m_bUseable = FALSE;
+          m_penCaused = eTrigger.penCaused;
+          call SwitchON();
         }
-        
       }
       // start -> switch ON
       on (EStart) : {
@@ -291,12 +310,43 @@ procedures:
         m_bUseable = FALSE;
         call SwitchOFF();
       }
+      on (ELock eLock) : {
+        m_bSwitchLocked = TRUE;
+        PlayLockedSound();
+
+        if (CanReactOnEntity(eLock.penCaused) && m_bUseable) {
+          if (m_strLockedMessage!="") {
+            PrintCenterMessage(this, eLock.penCaused, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+          }
+          if(m_penLockedTarget != NULL) {
+            SendToTarget(m_penLockedTarget, m_eetEvent, eLock.penCaused);
+          }
+        }
+
+        resume;
+      }
+      on (EUnlock eUnlock) : {
+        m_bSwitchLocked = FALSE;
+        PlayUnlockedSound();
+
+        if (CanReactOnEntity(eUnlock.penCaused) && m_bUseable) {
+          if (m_strUnlockedMessage!="") {
+            PrintCenterMessage(this, eUnlock.penCaused, TranslateConst(m_strUnlockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+          }
+          if(m_penUnlockedTarget != NULL) {
+            SendToTarget(m_penUnlockedTarget, m_eetEvent, eUnlock.penCaused);
+          }
+        }
+
+        resume;
+      }
       on (EReturn) : {
         m_bUseable = !m_bSwitchON;
         resume;
       }
     }
   };
+
 
   MainLoop_OnOff() {
     m_bUseable = TRUE;
@@ -316,47 +366,31 @@ procedures:
     wait() {
       // trigger event -> change switch
       on (ETrigger eTrigger) : {
-        if (IsDerivedFromClass(eTrigger.penCaused, "Player")) {
-          CPlayer *penPlayer = (CPlayer*)&*eTrigger.penCaused;
-          if(m_bSwitchLocked) {
-            // if he has the key
-            ULONG ulKey = (1<<INDEX(m_kitKey));
-            if (penPlayer->m_ulKeys&ulKey) {
-              // use the key
-              penPlayer->m_ulKeys&=~ulKey;
-
-              if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
-                m_bUseable = FALSE;
-                m_penCaused = eTrigger.penCaused;
-                // if switch is ON make it OFF
-                if (m_bSwitchON) {
-                  call SwitchOFF();
-                // else if switch is OFF make it ON
-                } else {
-                  call SwitchON();
-                }
-              }
-            } else {
-              if (m_strLockedMessage!="") {
-                PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
-              }
-              if (m_penLockedTarget!=NULL) {
-                SendToTarget(m_penLockedTarget, EET_TRIGGER, eTrigger.penCaused);
-              }
-            }
-          } else {
-            if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
-              m_bUseable = FALSE;
-              m_penCaused = eTrigger.penCaused;
-              
-              // if switch is ON make it OFF
-              if (m_bSwitchON) {
-                call SwitchOFF();
-              // else if switch is OFF make it ON
+        if (CanReactOnEntity(eTrigger.penCaused) && m_bUseable) {
+          if (m_bSwitchLocked) {
+            if (IsDerivedFromClass(eTrigger.penCaused, "Player")) {
+              CPlayer *penPlayer = (CPlayer*)&*eTrigger.penCaused;
+              // if he has the key
+              ULONG ulKey = (1<<INDEX(m_kitKey));
+              if (penPlayer->m_ulKeys&ulKey) {
+                // use the key
+                penPlayer->m_ulKeys&=~ulKey;
+                SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
               } else {
-                call SwitchON();
+                SendToTarget(this, EET_LOCK, eTrigger.penCaused);
               }
             }
+            resume;
+          }
+
+          m_bUseable = FALSE;
+          m_penCaused = eTrigger.penCaused;
+          // if switch is ON make it OFF
+          if (m_bSwitchON) {
+            call SwitchOFF();
+          // else if switch is OFF make it ON
+          } else {
+            call SwitchON();
           }
         }
       }
@@ -375,6 +409,36 @@ procedures:
         if (m_penDestruction!=NULL) {
           jump CModelHolder2::Die();
         }
+        resume;
+      }
+      on (ELock eLock) : {
+        m_bSwitchLocked = TRUE;
+        PlayLockedSound();
+
+        if (CanReactOnEntity(eLock.penCaused) && m_bUseable) {
+          if (m_strLockedMessage!="") {
+            PrintCenterMessage(this, eLock.penCaused, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+          }
+          if(m_penLockedTarget != NULL) {
+            SendToTarget(m_penLockedTarget, m_eetEvent, eLock.penCaused);
+          }
+        }
+
+        resume;
+      }
+      on (EUnlock eUnlock) : {
+        m_bSwitchLocked = FALSE;
+        PlayUnlockedSound();
+
+        if (CanReactOnEntity(eUnlock.penCaused) && m_bUseable) {
+          if (m_strUnlockedMessage!="") {
+            PrintCenterMessage(this, eUnlock.penCaused, TranslateConst(m_strUnlockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+          }
+          if(m_penUnlockedTarget != NULL) {
+            SendToTarget(m_penUnlockedTarget, m_eetEvent, eUnlock.penCaused);
+          }
+        }
+
         resume;
       }
       on (EReturn) : {

@@ -194,6 +194,16 @@ void SendToTarget(CEntity *penSendEvent, EventEType eetEventType, CEntity *penCa
       case EET_STOPANOSMIA:
           penSendEvent->SendEvent(EStopAnosmia());
           break;
+      case EET_LOCK: {
+          ELock eLock;
+          eLock.penCaused = penCaused;
+          penSendEvent->SendEvent(eLock);
+        } break;
+      case EET_UNLOCK: {
+          EUnlock eUnlock;
+          eUnlock.penCaused = penCaused;
+          penSendEvent->SendEvent(eUnlock);
+      } break;
     }
   }
 };
@@ -251,6 +261,12 @@ void SendInRange(CEntity *penSource, EventEType eetEventType, const FLOATaabbox3
       break;
     case EET_STOPANOSMIA:
       penSource->SendEventInRange(EStopAnosmia(), boxRange);
+      break;
+    case EET_LOCK:
+      penSource->SendEventInRange(ELock(), boxRange);
+      break;
+    case EET_UNLOCK:
+      penSource->SendEventInRange(EUnlock(), boxRange);
       break;
   }
 };

@@ -3103,9 +3103,14 @@ functions:
     }
     else {
       // damage and armor
-      fSubArmor  = fDamageAmmount*2.0f/3.0f;      // 2/3 on armor damage
-      fSubHealth = fDamageAmmount - fSubArmor;    // 1/3 on health damage
-      m_fArmor  -= fSubArmor;                     // decrease armor
+      fSubArmor  = fDamageAmmount;      // 2/3 on armor damage
+      fSubHealth = 0;                   // 1/3 on health damage
+
+      // make armor act as second health bar
+      if(fSubArmor>0) {
+        m_fArmor  -= fSubArmor;
+      }
+
       if( m_fArmor<0) {                          // armor below zero -> add difference to health damage
         fSubHealth -= m_fArmor;
         m_fArmor    = 0.0f;
@@ -3459,8 +3464,10 @@ functions:
     if (pen!=NULL) {
       // check switch/messageholder relaying by moving brush
       if (IsOfClass( pen, "Moving Brush")) {
-        if (((CMovingBrush&)*pen).m_penSwitch!=NULL) {
-          pen = ((CMovingBrush&)*pen).m_penSwitch;
+        CMovingBrush &enMovingBrush = (CMovingBrush&)*pen;
+
+        if (enMovingBrush.m_penSwitch!=NULL) {
+          pen = enMovingBrush.m_penSwitch;
         }
       }
 
