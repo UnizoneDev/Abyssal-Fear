@@ -1,3 +1,19 @@
+# Abyssal Fear
+
+New features and entities
+* Alt-Fire, holster, and reload functions
+* Improvements and changes to enemy AI
+* New editor entities (TextureSwitcher, SwitchChecker, DateChecker, Player Parenter, etc.)
+* Additions to existing entities (SoundHolder pitch and 3D properties, trigger types and console messages, etc.)
+* Player movement tweaks
+
+Upcoming features
+* Ladders and ropes
+* Physics (Ragdolls, ropes, brushes, models, joints, etc.)
+* Inventory system (Puzzle items, notes, dropping and combining, etc.)
+
+Resources: https://www.dropbox.com/s/eul4ftwzpcvshsf/AbyssalFearTestResources.zip?dl=0
+
 # Serious Engine
 
 [![Build status](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?retina=true)](https://ci.appveyor.com/project/SeriousAlexej/Serious-Engine)
