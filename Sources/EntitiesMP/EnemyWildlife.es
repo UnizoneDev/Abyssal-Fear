@@ -63,15 +63,10 @@ virtual void DrinkingSound(void) {};
 /////////////////////////
 
   // --------------------------------------------------------------------------------------
-  // Check if we maybe switch to some other food (for hungry beasts in coop).
+  // Check if we maybe switch to some other food (for hungry beasts not just in coop).
   // --------------------------------------------------------------------------------------
   void MaybeSwitchToAnotherFood(void)
   {
-    // If in single player then no need to check.
-    if (GetSP()->sp_bSinglePlayer) {
-      return;
-    }
-
     // If current player is inside threat distance then do not switch.
     if (CalcDist(m_penEnemy) < GetThreatDistance()) {
       return;
@@ -111,8 +106,8 @@ procedures:
     if (IsDerivedFromClass(m_penEnemy, "Wildlife Food") && !CheckIfFull())
     {
       if(!CheckIfFull()) {
-        EatingAnim();
         StopMoving();
+        EatingAnim();
         autowait(0.2f);
         EatingSound();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, GetPlacement().pl_PositionVector, -en_vGravityDir);
@@ -308,6 +303,22 @@ procedures:
 
         resume;
       }
+      // if you smell something
+      on (ESmell eSmell) :
+      {
+        // if deaf then ignore the sound
+        if (m_bAnosmic) {
+          resume;
+        }
+
+        // if the target can be set as new enemy
+        if (SetTargetSoft(eSmell.penTarget)) {
+          // react to it
+          call CEnemyBase::NewEnemySpotted();
+        }
+
+        resume;
+      }
       // on touch
       on (ETouch eTouch) : {
         // if dormant then ignore the touch
@@ -422,12 +433,6 @@ procedures:
 
         return;
       }
-
-      //on (EWatch eWatch) : {
-      //  if (m_penFriend != NULL) {
-      //      jump Active();
-      //  }
-      //}
     }
   };
 

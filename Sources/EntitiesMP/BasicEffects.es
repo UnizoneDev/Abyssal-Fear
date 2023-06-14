@@ -97,6 +97,13 @@ enum BasicEffectType {
  60 BET_BULLETSTAINMUDNOSOUND  "Bullet stain mud no sound",
  61 BET_BOMB "Bomb",     // small bomb explosion
  62 BET_FIRE_SMOKE         "Fire smoke",     // smoke emitted due to fire
+ 63 BET_BULLETSTAINVENT    "Bullet stain vent", 
+ 64 BET_BULLETSTAINVENTNOSOUND  "Bullet stain vent no sound",
+ 65 BET_BULLETSTAINCOMPUTER    "Bullet stain computer", 
+ 66 BET_BULLETSTAINCOMPUTERNOSOUND  "Bullet stain computer no sound",
+ 67 BET_BULLETSTAINFUSEBOX          "Bullet stain fusebox", 
+ 68 BET_BULLETSTAINFUSEBOXNOSOUND   "Bullet stain fusebox no sound",
+ 69 BET_SPARKS                      "Sparks",
 };
 
 
@@ -165,6 +172,12 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
   case BET_BULLETSTAINGRATENOSOUND:
   case BET_BULLETSTAINMUD:
   case BET_BULLETSTAINMUDNOSOUND:
+  case BET_BULLETSTAINVENT:
+  case BET_BULLETSTAINVENTNOSOUND:
+  case BET_BULLETSTAINCOMPUTER:
+  case BET_BULLETSTAINCOMPUTERNOSOUND:
+  case BET_BULLETSTAINFUSEBOX:
+  case BET_BULLETSTAINFUSEBOXNOSOUND:
     pdec->PrecacheModel(MODEL_BULLET_HIT);
     pdec->PrecacheTexture(TEXTURE_BULLET_HIT);
     pdec->PrecacheTexture(TEXTURE_BULLET_SAND);
@@ -192,6 +205,9 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheSound(SOUND_BULLET_ACID);
     pdec->PrecacheSound(SOUND_BULLET_GRATE);
     pdec->PrecacheSound(SOUND_BULLET_MUD);
+    pdec->PrecacheSound(SOUND_BULLET_VENT);
+    pdec->PrecacheSound(SOUND_BULLET_COMPUTER);
+    pdec->PrecacheSound(SOUND_BULLET_FUSEBOX);
     break;
   case BET_BULLETTRAIL:
     pdec->PrecacheModel(MODEL_BULLET_TRAIL);
@@ -241,6 +257,8 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheTexture(TXT_ROCKET_EXPLOSION);
     pdec->PrecacheModel(MDL_PARTICLES3D_EXPLOSION);
     pdec->PrecacheTexture(TXT_PARTICLES_EXPLOSION);
+    break;
+  case BET_SPARKS:
     break;
   default:
     ASSERT(FALSE);
@@ -327,6 +345,9 @@ components:
  128 sound  SOUND_BULLET_ACID     "Sounds\\Weapons\\BulletHitAcid.wav",
  129 sound  SOUND_BULLET_GRATE    "Sounds\\Weapons\\BulletHitGrate.wav",
  133 sound  SOUND_BULLET_MUD      "Sounds\\Weapons\\BulletHitMud.wav",
+ 134 sound  SOUND_BULLET_VENT     "Sounds\\Weapons\\BulletHitVent.wav",
+ 135 sound  SOUND_BULLET_COMPUTER "Sounds\\Weapons\\BulletHitComputer.wav",
+ 136 sound  SOUND_BULLET_FUSEBOX  "Sounds\\Weapons\\BulletHitFusebox.wav",
 
 // ********** BLOOD **********
  21 model   MODEL_BLOOD_EXPLODE   "Models\\Effects\\BloodCloud\\BloodCloud.mdl",
@@ -490,7 +511,13 @@ functions:
     if(m_betType==BET_DUST_FALL)
     {
       Particles_DustFall(this, m_tmSpawn, m_vStretch);
-    }    
+    } 
+    if(m_betType == BET_SPARKS)
+    {
+      FLOAT fStretch=0.3f;
+      Particles_Sparks(en_ulID, GetLerpedPlacement().pl_PositionVector, m_vGravity, 
+        m_tmSpawn, m_vStretch, fStretch);
+    }
   }
 
 
@@ -634,7 +661,7 @@ functions:
     if( (m_betType>=BET_BULLETSTAINSTONE && m_betType<=BET_BULLETSTAINREDSANDNOSOUND) ||
         (m_betType>=BET_BULLETSTAINGRASS && m_betType<=BET_BULLETSTAINWOODNOSOUND) ||
         (m_betType>=BET_BULLETSTAINSNOW  && m_betType<=BET_BULLETSTAINSNOWNOSOUND) ||
-        (m_betType>=BET_BULLETSTAINMETAL && m_betType<=BET_BULLETSTAINMUDNOSOUND) )
+        (m_betType>=BET_BULLETSTAINMETAL && m_betType<=BET_BULLETSTAINFUSEBOXNOSOUND) )
     {
       if( pbpoNearBrush != NULL)
       {
@@ -1206,7 +1233,7 @@ functions:
     CModelObject &moHole = *GetModelObject();
     moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
     ModelChangeNotify();
-    moHole.mo_colBlendColor = 0x999999FF;
+    moHole.mo_colBlendColor = 0xCCCCCCFF;
 
     SetNormalWithRandomBanking();
     m_fWaitTime = 2.0f;
@@ -1343,6 +1370,92 @@ functions:
     m_vStretch = vTemp;
   };
 
+  void BulletStainVent(BOOL bSound) {
+    if( bSound)
+    {
+      m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
+      PlaySound(m_soEffect, SOUND_BULLET_VENT, SOF_3D);
+      m_fSoundTime = GetSoundLength(SOUND_BULLET_VENT);
+    }
+    
+    SetModel(MODEL_BULLET_STAIN);
+    SetModelMainTexture(TEXTURE_BULLET_METAL);
+    CModelObject &moHole = *GetModelObject();
+    moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
+    ModelChangeNotify();
+    moHole.mo_colBlendColor = 0x7f7f7fFF;
+
+    SetNormalWithRandomBanking();
+    m_fWaitTime = 2.0f;
+    m_fFadeTime = 2.0f;
+    m_bLightSource = FALSE;
+    m_eptType = EPT_BULLET_VENT;
+    FLOAT3D vTemp = m_vStretch;
+    ParentToNearestPolygonAndStretch();
+    m_vStretch = vTemp;
+  };
+
+  void BulletStainComputer(BOOL bSound) {
+    if( bSound)
+    {
+      m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
+      PlaySound(m_soEffect, SOUND_BULLET_COMPUTER, SOF_3D);
+      m_fSoundTime = GetSoundLength(SOUND_BULLET_COMPUTER);
+    }
+    
+    SetModel(MODEL_BULLET_STAIN);
+    SetModelMainTexture(TEXTURE_BULLET_GLASS);
+    CModelObject &moHole = *GetModelObject();
+    moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
+    ModelChangeNotify();
+    moHole.mo_colBlendColor = 0xCCCCCCFF;
+
+    SetNormalWithRandomBanking();
+    m_fWaitTime = 2.0f;
+    m_fFadeTime = 2.0f;
+    m_bLightSource = FALSE;
+    m_eptType = EPT_BULLET_COMPUTER;
+    FLOAT3D vTemp = m_vStretch;
+    ParentToNearestPolygonAndStretch();
+    m_vStretch = vTemp;
+  };
+
+  void BulletStainFusebox(BOOL bSound) {
+    if( bSound)
+    {
+      m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
+      PlaySound(m_soEffect, SOUND_BULLET_FUSEBOX, SOF_3D);
+      m_fSoundTime = GetSoundLength(SOUND_BULLET_FUSEBOX);
+    }
+    
+    SetModel(MODEL_BULLET_STAIN);
+    SetModelMainTexture(TEXTURE_BULLET_METAL);
+    CModelObject &moHole = *GetModelObject();
+    moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
+    ModelChangeNotify();
+    moHole.mo_colBlendColor = 0x7f7f7fFF;
+
+    SetNormalWithRandomBanking();
+    m_fWaitTime = 2.0f;
+    m_fFadeTime = 2.0f;
+    m_bLightSource = FALSE;
+    m_eptType = EPT_BULLET_FUSEBOX;
+    FLOAT3D vTemp = m_vStretch;
+    ParentToNearestPolygonAndStretch();
+    m_vStretch = vTemp;
+  };
+
+  void Sparks() {
+    SetModel(MODEL_BULLET_STAIN);
+    SetModelMainTexture(TEXTURE_BULLET_METAL);
+
+    SetNormalWithRandomBanking();
+    m_fWaitTime = 0.5f;
+    m_fFadeTime = 0.5f;
+    m_bLightSource = FALSE;
+    m_eptType = EPT_BULLET_FUSEBOX;
+  };
+
 /************************************************************
  *                  BLOOD SPILL / STAIN                     *
  ************************************************************/
@@ -1471,7 +1584,8 @@ procedures:
        eSpawn.betType==BET_GROWING_SWIRL||
        eSpawn.betType==BET_DISAPPEAR_DUST||
        eSpawn.betType==BET_DUST_FALL ||
-       eSpawn.betType==BET_FIRE_SMOKE)
+       eSpawn.betType==BET_FIRE_SMOKE ||
+       eSpawn.betType==BET_SPARKS)
     {
       InitAsEditorModel();
     }
@@ -1555,6 +1669,13 @@ procedures:
       case BET_BULLETSTAINMUDNOSOUND: BulletStainMud(FALSE); break;
       case BET_BOMB: BombExplosion(); break;
       case BET_FIRE_SMOKE: FireSmoke(); break;
+      case BET_BULLETSTAINVENT: BulletStainVent(TRUE); break;
+      case BET_BULLETSTAINVENTNOSOUND: BulletStainVent(FALSE); break;
+      case BET_BULLETSTAINCOMPUTER: BulletStainComputer(TRUE); break;
+      case BET_BULLETSTAINCOMPUTERNOSOUND: BulletStainComputer(FALSE); break;
+      case BET_BULLETSTAINFUSEBOX: BulletStainFusebox(TRUE); break;
+      case BET_BULLETSTAINFUSEBOXNOSOUND: BulletStainFusebox(FALSE); break;
+      case BET_SPARKS: Sparks(); break;
       default:
         ASSERTALWAYS("Unknown effect type");
     }

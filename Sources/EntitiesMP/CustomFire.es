@@ -26,7 +26,7 @@ thumbnail "Thumbnails\\CustomFire.tbn";
 features "HasName", "IsTargetable";
 properties:
 
-  1 CTString m_strName            "Name" 'N' = "Beam Effector",
+  1 CTString m_strName            "Name" 'N' = "Custom Fire",
   2 CTString m_strDescription = "",
   3 CTFileName m_fnmFireTexture  "Fire Texture" 'T' = CTString(""),
   4 FLOAT m_fStretch "Stretch" = 1.0f,
@@ -42,6 +42,7 @@ properties:
  14 RANGE m_fDamageFalloff "Damage Falloff" = 8.0f,
  15 RANGE m_fDamageHotSpot "Damage HotSpot" = 4.0f,
  16 FLOAT m_fDamageWait "Damage Wait" = 0.25f,
+ 17 FLOAT m_fSmokeStretch "Smoke Stretch" = 0.5f,
 
   {
     CTextureObject m_toFire;
@@ -108,7 +109,7 @@ functions:
 
     // explosion smoke
     ese.betType = BET_FIRE_SMOKE;
-    ese.vStretch = FLOAT3D(0.5f, 0.5f, 0.5f);
+    ese.vStretch = FLOAT3D(m_fSmokeStretch, m_fSmokeStretch, m_fSmokeStretch);
     ese.colMuliplier = C_WHITE|CT_OPAQUE;
     ese.vDirection = FLOAT3D( 0, 0, 0);
     SpawnEffect(GetPlacement(), ese);

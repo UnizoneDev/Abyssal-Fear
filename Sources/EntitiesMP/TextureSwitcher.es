@@ -23,6 +23,8 @@ enum BlendModeType {
   1 BMT_SHADE      "Shade",
   2 BMT_BLEND      "Blend",
   3 BMT_ADD        "Add",
+  4 BMT_MULTIPLY   "Multiply",
+  5 BMT_INVERT     "Invert",
 };
 
 class CTextureSwitcher: CRationalEntity {
@@ -115,6 +117,14 @@ functions:
           case BMT_ADD:
           pbpo->bpo_abptTextures[0].s.bpt_ubBlend = BPT_BLEND_ADD;
           break;
+
+          case BMT_MULTIPLY:
+          pbpo->bpo_abptTextures[0].s.bpt_ubBlend = BPT_BLEND_MULTIPLY;
+          break;
+
+          case BMT_INVERT:
+          pbpo->bpo_abptTextures[0].s.bpt_ubBlend = BPT_BLEND_INVERT;
+          break;
         }
       }
       if(m_fnmNewTexture2 != "")
@@ -142,6 +152,14 @@ functions:
           case BMT_ADD:
           pbpo->bpo_abptTextures[1].s.bpt_ubBlend = BPT_BLEND_ADD;
           break;
+
+          case BMT_MULTIPLY:
+          pbpo->bpo_abptTextures[1].s.bpt_ubBlend = BPT_BLEND_MULTIPLY;
+          break;
+
+          case BMT_INVERT:
+          pbpo->bpo_abptTextures[1].s.bpt_ubBlend = BPT_BLEND_INVERT;
+          break;
         }
       }
       if(m_fnmNewTexture3 != "")
@@ -168,6 +186,14 @@ functions:
 
           case BMT_ADD:
           pbpo->bpo_abptTextures[2].s.bpt_ubBlend = BPT_BLEND_ADD;
+          break;
+
+          case BMT_MULTIPLY:
+          pbpo->bpo_abptTextures[2].s.bpt_ubBlend = BPT_BLEND_MULTIPLY;
+          break;
+
+          case BMT_INVERT:
+          pbpo->bpo_abptTextures[2].s.bpt_ubBlend = BPT_BLEND_INVERT;
           break;
         }
       }

@@ -256,10 +256,12 @@ public:
 #define BPTF_REFLECTION     (1U<<4)    // texture will be reflection-mapped
 
 // first few blending type must be these:
-#define BPT_BLEND_OPAQUE  0
-#define BPT_BLEND_SHADE   1
-#define BPT_BLEND_BLEND   2
-#define BPT_BLEND_ADD     3
+#define BPT_BLEND_OPAQUE    0
+#define BPT_BLEND_SHADE     1
+#define BPT_BLEND_BLEND     2
+#define BPT_BLEND_ADD       3
+#define BPT_BLEND_MULTIPLY  4
+#define BPT_BLEND_INVERT    5
 
 class ENGINE_API CBrushPolygonTexture {
 public:

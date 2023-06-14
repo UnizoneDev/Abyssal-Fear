@@ -23,8 +23,13 @@ uses "EntitiesMP/Item";
 
 // weapon type 
 enum PuzzleItemType {
-  0 PIT_LEVERHANDLE       "Lever Handle",
-  1 PIT_LEVERMOUNT        "Lever Mount",
+  0 PIT_LEVERHANDLE          "Lever Handle",
+  1 PIT_LEVERMOUNT           "Lever Mount",
+  2 PIT_SCREWDRIVER          "Red Screwdriver",
+  3 PIT_SCREWDRIVER_ORANGE   "Orange Screwdriver",
+  4 PIT_SCREWDRIVER_BLACK    "Black Screwdriver",
+  5 PIT_SCREWDRIVER_HELLISH  "Hellish Screwdriver",
+  6 PIT_HAMMER               "Hammer"
 };
 
 // event for sending through receive item
@@ -37,8 +42,13 @@ event EPuzzleItem {
 const char *GetPuzzleItemName(enum PuzzleItemType pit)
 {
   switch(pit) {
-  case PIT_LEVERHANDLE         :  return TRANS("Lever Handle"); break;
-  case PIT_LEVERMOUNT          :  return TRANS("Lever Mount"); break;
+  case PIT_LEVERHANDLE          :  return TRANS("Lever Handle"); break;
+  case PIT_LEVERMOUNT           :  return TRANS("Lever Mount"); break;
+  case PIT_SCREWDRIVER          :  return TRANS("Red Screwdriver"); break;
+  case PIT_SCREWDRIVER_ORANGE   :  return TRANS("Orange Screwdriver"); break;
+  case PIT_SCREWDRIVER_BLACK    :  return TRANS("Black Screwdriver"); break;
+  case PIT_SCREWDRIVER_HELLISH  :  return TRANS("Hellish Screwdriver"); break;
+  case PIT_HAMMER               :  return TRANS("Hammer"); break;
   default: return TRANS("unknown item"); break;
   };
 }
@@ -62,6 +72,17 @@ components:
   2 texture TEXTURE_LEVER              "Models\\Props\\Switch1\\Switch1.tex",
   3 model   MODEL_LEVERMOUNT           "Models\\Props\\Switch1Parts\\LeverMount.mdl",
 
+  // ********* SCREWDRIVERS *********
+ 10 model   MODEL_SCREWDRIVER             "Models\\Items\\Puzzle\\Tools\\Screwdriver.mdl",
+ 11 texture TEXTURE_SCREWDRIVER           "Models\\Items\\Puzzle\\Tools\\Screwdriver.tex",
+ 12 texture TEXTURE_SCREWDRIVER_ORANGE    "Models\\Items\\Puzzle\\Tools\\ScrewdriverOrange.tex",
+ 13 texture TEXTURE_SCREWDRIVER_BLACK     "Models\\Items\\Puzzle\\Tools\\ScrewdriverBlack.tex",
+ 14 texture TEXTURE_SCREWDRIVER_HELLISH   "Models\\Items\\Puzzle\\Tools\\ScrewdriverHellish.tex",
+
+  // ********* HAMMERS *********
+ 20 model   MODEL_HAMMER                  "Models\\Items\\Puzzle\\Tools\\Hammer.mdl",
+ 21 texture TEXTURE_HAMMER                "Models\\Items\\Puzzle\\Tools\\Hammer.tex",
+
   // ********* MISC *********
   250 texture TEXTURE_FLARE       "ModelsMP\\Items\\Flares\\Flare.tex",
   251 model   MODEL_FLARE         "ModelsMP\\Items\\Flares\\Flare.mdl",
@@ -71,7 +92,7 @@ components:
   255 texture TEX_SPEC_STRONG     "ModelsMP\\SpecularTextures\\Strong.tex",
 
   // ************** SOUNDS **************
-  300 sound   SOUND_KEY         "Sounds\\Items\\Key.wav",
+  300 sound   SOUND_KEY         "Sounds\\Items\\KeyPickup.wav",
 
 functions:
   void Precache(void) {
@@ -90,17 +111,7 @@ functions:
   
   // render particles
   void RenderParticles(void) {
-    // no particles when not existing
-    if (GetRenderType()!=CEntity::RT_MODEL || !ShowItemParticles()) {
-      return;
-    }
-    switch (m_pitType) {
-    case PIT_LEVERHANDLE:
-    case PIT_LEVERMOUNT:
-    default:
-      Particles_Stardust(this, 1.5f, 1.1f, PT_STAR08, 64);
-      break;    
-    }
+    return;
   }
 
   // set health properties depending on type
@@ -113,16 +124,42 @@ functions:
       case PIT_LEVERHANDLE:
         // set appearance
         AddItem(MODEL_LEVERHANDLE, TEXTURE_LEVER, 0, 0, 0);
-        // add flare
-        AddFlare(MODEL_FLARE, TEXTURE_FLARE, FLOAT3D(0,0.2f,0), FLOAT3D(1,1,0.3f) );
         StretchItem(FLOAT3D(1.0f, 1.0f, 1.0f));
         m_iSoundComponent = SOUND_KEY;
         break;
       case PIT_LEVERMOUNT:
         // set appearance
         AddItem(MODEL_LEVERMOUNT, TEXTURE_LEVER, 0, 0, 0);
-        // add flare
-        AddFlare(MODEL_FLARE, TEXTURE_FLARE, FLOAT3D(0,0.2f,0), FLOAT3D(1,1,0.3f) );
+        StretchItem(FLOAT3D(1.0f, 1.0f, 1.0f));
+        m_iSoundComponent = SOUND_KEY;
+        break;
+      case PIT_SCREWDRIVER:
+        // set appearance
+        AddItem(MODEL_SCREWDRIVER, TEXTURE_SCREWDRIVER, 0, 0, 0);
+        StretchItem(FLOAT3D(1.0f, 1.0f, 1.0f));
+        m_iSoundComponent = SOUND_KEY;
+        break;
+      case PIT_SCREWDRIVER_ORANGE:
+        // set appearance
+        AddItem(MODEL_SCREWDRIVER, TEXTURE_SCREWDRIVER_ORANGE, 0, 0, 0);
+        StretchItem(FLOAT3D(1.0f, 1.0f, 1.0f));
+        m_iSoundComponent = SOUND_KEY;
+        break;
+      case PIT_SCREWDRIVER_BLACK:
+        // set appearance
+        AddItem(MODEL_SCREWDRIVER, TEXTURE_SCREWDRIVER_BLACK, 0, 0, 0);
+        StretchItem(FLOAT3D(1.0f, 1.0f, 1.0f));
+        m_iSoundComponent = SOUND_KEY;
+        break;
+      case PIT_SCREWDRIVER_HELLISH:
+        // set appearance
+        AddItem(MODEL_SCREWDRIVER, TEXTURE_SCREWDRIVER_HELLISH, 0, 0, 0);
+        StretchItem(FLOAT3D(1.0f, 1.0f, 1.0f));
+        m_iSoundComponent = SOUND_KEY;
+        break;
+      case PIT_HAMMER:
+        // set appearance
+        AddItem(MODEL_HAMMER, TEXTURE_HAMMER, 0, 0, 0);
         StretchItem(FLOAT3D(1.0f, 1.0f, 1.0f));
         m_iSoundComponent = SOUND_KEY;
         break;
@@ -151,7 +188,7 @@ procedures:
 
   Main() {
     Initialize();     // initialize base class
-    StartModelAnim(ITEMHOLDER_ANIM_SMALLOSCILATION, AOF_LOOPING|AOF_NORESTART);
+    StartModelAnim(ITEMHOLDER_ANIM_DEFAULT_ANIMATION, AOF_LOOPING|AOF_NORESTART);
     ForceCollisionBoxIndexChange(ITEMHOLDER_COLLISION_BOX_BIG);
     SetProperties();  // set properties
 

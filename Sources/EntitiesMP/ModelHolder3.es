@@ -429,6 +429,9 @@ functions:
           colAmbient=MulColors(colAmbient, colShade);
         }*/
 
+        colLight   = m_colLight;
+        colAmbient = m_colAmbient;
+
         ANGLE3D aLight;
         DirectionVectorToAngles(vLightDirection, aLight);
 

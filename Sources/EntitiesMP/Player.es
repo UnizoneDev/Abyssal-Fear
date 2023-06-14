@@ -591,6 +591,9 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_LAND_CHAINLINK     );
   pdec->PrecacheSound(SOUND_LAND_GRATE         );
   pdec->PrecacheSound(SOUND_LAND_MUD           );
+  pdec->PrecacheSound(SOUND_LAND_VENT          );
+  pdec->PrecacheSound(SOUND_LAND_COMPUTER      );
+  pdec->PrecacheSound(SOUND_LAND_FUSEBOX       );
   pdec->PrecacheSound(SOUND_WATERAMBIENT       );
   pdec->PrecacheSound(SOUND_WATERBUBBLES       );
   pdec->PrecacheSound(SOUND_WATERWALK_L        );
@@ -619,59 +622,15 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_WALK_GRATE_R       );
   pdec->PrecacheSound(SOUND_WALK_MUD_L         );
   pdec->PrecacheSound(SOUND_WALK_MUD_R         );
+  pdec->PrecacheSound(SOUND_WALK_VENT_L        );
+  pdec->PrecacheSound(SOUND_WALK_VENT_R        );
+  pdec->PrecacheSound(SOUND_WALK_COMPUTER_L    );
+  pdec->PrecacheSound(SOUND_WALK_COMPUTER_R    );
+  pdec->PrecacheSound(SOUND_WALK_FUSEBOX_L     );
+  pdec->PrecacheSound(SOUND_WALK_FUSEBOX_R     );
 //pdec->PrecacheSound(SOUND_HIGHSCORE          );
   pdec->PrecacheSound(SOUND_SILENCE            );
-
-  pdec->PrecacheSound(SOUND_F_WATER_ENTER        );
-  pdec->PrecacheSound(SOUND_F_WATER_LEAVE        );
-  pdec->PrecacheSound(SOUND_F_WALK_L             );
-  pdec->PrecacheSound(SOUND_F_WALK_R             );
-  pdec->PrecacheSound(SOUND_F_WALK_SAND_L        );
-  pdec->PrecacheSound(SOUND_F_WALK_SAND_R        );
-  pdec->PrecacheSound(SOUND_F_SWIM_L             );
-  pdec->PrecacheSound(SOUND_F_SWIM_R             );
-  pdec->PrecacheSound(SOUND_F_DIVE_L             );
-  pdec->PrecacheSound(SOUND_F_DIVE_R             );
-  pdec->PrecacheSound(SOUND_F_JUMP               );
-  pdec->PrecacheSound(SOUND_F_LAND               );
-  pdec->PrecacheSound(SOUND_F_LAND_SAND          );
-  pdec->PrecacheSound(SOUND_F_LAND_GRASS         );
-  pdec->PrecacheSound(SOUND_F_LAND_WOOD          );
-  pdec->PrecacheSound(SOUND_F_LAND_SNOW          );
-  pdec->PrecacheSound(SOUND_F_LAND_METAL         );
-  pdec->PrecacheSound(SOUND_F_LAND_CARPET        );
-  pdec->PrecacheSound(SOUND_F_LAND_GLASS         );
-  pdec->PrecacheSound(SOUND_F_LAND_DIRT          );
-  pdec->PrecacheSound(SOUND_F_LAND_TILE          );
-  pdec->PrecacheSound(SOUND_F_LAND_CHAINLINK     );
-  pdec->PrecacheSound(SOUND_F_LAND_GRATE         );
-  pdec->PrecacheSound(SOUND_F_LAND_MUD           );
-  pdec->PrecacheSound(SOUND_F_WATERWALK_L        );
-  pdec->PrecacheSound(SOUND_F_WATERWALK_R        );
-  pdec->PrecacheSound(SOUND_F_WALK_GRASS_L       );
-  pdec->PrecacheSound(SOUND_F_WALK_GRASS_R       );
-  pdec->PrecacheSound(SOUND_F_WALK_WOOD_L        );
-  pdec->PrecacheSound(SOUND_F_WALK_WOOD_R        );
-  pdec->PrecacheSound(SOUND_F_WALK_SNOW_L        );
-  pdec->PrecacheSound(SOUND_F_WALK_SNOW_R        );
-  pdec->PrecacheSound(SOUND_F_WALK_METAL_L       );
-  pdec->PrecacheSound(SOUND_F_WALK_METAL_R       );
-  pdec->PrecacheSound(SOUND_F_WALK_CARPET_L      );
-  pdec->PrecacheSound(SOUND_F_WALK_CARPET_R      );
-  pdec->PrecacheSound(SOUND_F_WALK_GLASS_L       );
-  pdec->PrecacheSound(SOUND_F_WALK_GLASS_R       );
-  pdec->PrecacheSound(SOUND_F_WALK_DIRT_L        );
-  pdec->PrecacheSound(SOUND_F_WALK_DIRT_R        );
-  pdec->PrecacheSound(SOUND_F_WALK_TILE_L        );
-  pdec->PrecacheSound(SOUND_F_WALK_TILE_R        );
-  pdec->PrecacheSound(SOUND_F_WALK_CHAINLINK_L   );
-  pdec->PrecacheSound(SOUND_F_WALK_CHAINLINK_R   );
-  pdec->PrecacheSound(SOUND_F_WALK_GRATE_L       );
-  pdec->PrecacheSound(SOUND_F_WALK_GRATE_R       );
-  pdec->PrecacheSound(SOUND_F_WALK_MUD_L         );
-  pdec->PrecacheSound(SOUND_F_WALK_MUD_R         );
-//pdec->PrecacheSound(SOUND_F_HIGHSCORE          );
-  pdec->PrecacheSound(SOUND_BLOWUP               );
+  pdec->PrecacheSound(SOUND_BLOWUP             );
 
   pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_TELEPORT);
   pdec->PrecacheClass(CLASS_SERIOUSBOMB);
@@ -1163,6 +1122,9 @@ properties:
  203 BOOL m_bIsBlocking = FALSE,
  204 FLOAT m_fBlockAmount = 90.0f,
  205 FLOAT m_fBlockDirAmount = 0.5f,
+ 206 FLOAT m_fClimbDir = 0.0f,
+ 207 BOOL m_bIsStung = FALSE,
+ 208 FLOAT m_tmStungTime = 0.0f,            // when was last sting
 
 {
   ShellLaunchData ShellLaunchData_array;  // array of data describing flying empty shells
@@ -1242,6 +1204,12 @@ components:
 116 sound SOUND_WALK_GRATE_R    "Sounds\\Player\\WalkGrateR.wav",
 118 sound SOUND_WALK_MUD_L      "Sounds\\Player\\WalkMudL.wav",
 119 sound SOUND_WALK_MUD_R      "Sounds\\Player\\WalkMudR.wav",
+123 sound SOUND_WALK_VENT_L     "Sounds\\Player\\WalkVentL.wav",
+124 sound SOUND_WALK_VENT_R     "Sounds\\Player\\WalkVentR.wav",
+125 sound SOUND_WALK_COMPUTER_L "Sounds\\Player\\WalkComputerL.wav",
+126 sound SOUND_WALK_COMPUTER_R "Sounds\\Player\\WalkComputerR.wav",
+127 sound SOUND_WALK_FUSEBOX_L  "Sounds\\Player\\WalkFuseboxL.wav",
+128 sound SOUND_WALK_FUSEBOX_R  "Sounds\\Player\\WalkFuseboxR.wav",
 104 sound SOUND_LAND_SAND       "Sounds\\Player\\LandSand.wav",
 105 sound SOUND_LAND_GRASS      "Sounds\\Player\\LandGrass.wav",
 106 sound SOUND_LAND_WOOD       "Sounds\\Player\\LandWood.wav",
@@ -1254,58 +1222,10 @@ components:
 113 sound SOUND_LAND_CHAINLINK  "Sounds\\Player\\LandChainlink.wav",
 117 sound SOUND_LAND_GRATE      "Sounds\\Player\\LandGrate.wav",
 120 sound SOUND_LAND_MUD        "Sounds\\Player\\LandMud.wav",
+121 sound SOUND_LAND_VENT       "Sounds\\Player\\LandVent.wav",
+122 sound SOUND_LAND_COMPUTER   "Sounds\\Player\\LandComputer.wav",
+129 sound SOUND_LAND_FUSEBOX    "Sounds\\Player\\LandFusebox.wav",
 114 sound SOUND_BLOWUP          "Sounds\\Player\\BlowUp.wav",
- 
-
-150 sound SOUND_F_WATER_ENTER   "SoundsMP\\Player\\Female\\WaterEnter.wav",
-151 sound SOUND_F_WATER_LEAVE   "SoundsMP\\Player\\Female\\WaterLeave.wav",
-152 sound SOUND_F_WALK_L        "SoundsMP\\Player\\Female\\WalkL.wav",
-153 sound SOUND_F_WALK_R        "SoundsMP\\Player\\Female\\WalkR.wav",
-154 sound SOUND_F_SWIM_L        "SoundsMP\\Player\\Female\\SwimL.wav",
-155 sound SOUND_F_SWIM_R        "SoundsMP\\Player\\Female\\SwimR.wav",
-156 sound SOUND_F_DIVE_L        "SoundsMP\\Player\\Female\\Dive.wav",
-157 sound SOUND_F_DIVE_R        "SoundsMP\\Player\\Female\\Dive.wav",
-162 sound SOUND_F_JUMP          "SoundsMP\\Player\\Female\\Jump.wav",
-163 sound SOUND_F_LAND          "SoundsMP\\Player\\Female\\Land.wav",
-170 sound SOUND_F_WATERWALK_L   "SoundsMP\\Player\\Female\\WalkWaterL.wav",
-171 sound SOUND_F_WATERWALK_R   "SoundsMP\\Player\\Female\\WalkWaterR.wav",
-175 sound SOUND_F_WALK_SAND_L   "SoundsMP\\Player\\Female\\WalkSandL.wav",
-176 sound SOUND_F_WALK_SAND_R   "SoundsMP\\Player\\Female\\WalkSandR.wav",
-// 78 sound SOUND_F_HIGHSCORE     "SoundsMP\\Player\\Female\\HighScore.wav",
-186 sound SOUND_F_WALK_GRASS_L  "SoundsMP\\Player\\Female\\WalkGrassL.wav",
-187 sound SOUND_F_WALK_GRASS_R  "SoundsMP\\Player\\Female\\WalkGrassR.wav",
-188 sound SOUND_F_WALK_WOOD_L   "SoundsMP\\Player\\Female\\WalkWoodL.wav",
-189 sound SOUND_F_WALK_WOOD_R   "SoundsMP\\Player\\Female\\WalkWoodR.wav",
-190 sound SOUND_F_WALK_SNOW_L   "SoundsMP\\Player\\Female\\WalkSnowL.wav",
-191 sound SOUND_F_WALK_SNOW_R   "SoundsMP\\Player\\Female\\WalkSnowR.wav",
-192 sound SOUND_F_WALK_METAL_L   "SoundsMP\\Player\\Female\\WalkMetalL.wav",
-193 sound SOUND_F_WALK_METAL_R   "SoundsMP\\Player\\Female\\WalkMetalR.wav",
-194 sound SOUND_F_WALK_CARPET_L   "SoundsMP\\Player\\Female\\WalkCarpetL.wav",
-195 sound SOUND_F_WALK_CARPET_R   "SoundsMP\\Player\\Female\\WalkCarpetR.wav",
-196 sound SOUND_F_WALK_GLASS_L    "SoundsMP\\Player\\Female\\WalkGlassL.wav",
-197 sound SOUND_F_WALK_GLASS_R    "SoundsMP\\Player\\Female\\WalkGlassR.wav",
-198 sound SOUND_F_WALK_DIRT_L     "SoundsMP\\Player\\Female\\WalkDirtL.wav",
-199 sound SOUND_F_WALK_DIRT_R     "SoundsMP\\Player\\Female\\WalkDirtR.wav",
-200 sound SOUND_F_WALK_TILE_L     "SoundsMP\\Player\\Female\\WalkTileL.wav",
-201 sound SOUND_F_WALK_TILE_R     "SoundsMP\\Player\\Female\\WalkTileR.wav",
-202 sound SOUND_F_WALK_CHAINLINK_L "SoundsMP\\Player\\Female\\WalkChainlinkL.wav",
-203 sound SOUND_F_WALK_CHAINLINK_R "SoundsMP\\Player\\Female\\WalkChainlinkR.wav",
-222 sound SOUND_F_WALK_GRATE_L    "SoundsMP\\Player\\Female\\WalkGrateL.wav",
-223 sound SOUND_F_WALK_GRATE_R    "SoundsMP\\Player\\Female\\WalkGrateR.wav",
-225 sound SOUND_F_WALK_MUD_L      "SoundsMP\\Player\\Female\\WalkMudL.wav",
-226 sound SOUND_F_WALK_MUD_R      "SoundsMP\\Player\\Female\\WalkMudR.wav",
-204 sound SOUND_F_LAND_SAND       "SoundsMP\\Player\\Female\\LandSand.wav",
-205 sound SOUND_F_LAND_GRASS      "SoundsMP\\Player\\Female\\LandGrass.wav",
-206 sound SOUND_F_LAND_WOOD       "SoundsMP\\Player\\Female\\LandWood.wav",
-207 sound SOUND_F_LAND_SNOW       "SoundsMP\\Player\\Female\\LandSnow.wav",
-208 sound SOUND_F_LAND_METAL      "SoundsMP\\Player\\Female\\LandMetal.wav",
-209 sound SOUND_F_LAND_CARPET     "SoundsMP\\Player\\Female\\LandCarpet.wav",
-210 sound SOUND_F_LAND_GLASS      "SoundsMP\\Player\\Female\\LandGlass.wav",
-211 sound SOUND_F_LAND_DIRT       "SoundsMP\\Player\\Female\\LandDirt.wav",
-212 sound SOUND_F_LAND_TILE       "SoundsMP\\Player\\Female\\LandTile.wav",
-213 sound SOUND_F_LAND_CHAINLINK  "SoundsMP\\Player\\Female\\LandChainlink.wav",
-224 sound SOUND_F_LAND_GRATE      "SoundsMP\\Player\\Female\\LandGrate.wav",
-227 sound SOUND_F_LAND_MUD        "SoundsMP\\Player\\Female\\LandMud.wav",
 
 // gender-independent sounds
 214 sound SOUND_SILENCE         "Sounds\\Misc\\Silence.wav",
@@ -1322,6 +1242,10 @@ components:
 
 
 functions:
+
+  FLOAT GetClimbingDirection(void) {
+    return m_fClimbDir;
+  };
 
   INDEX GenderSound(INDEX iSound)
   {
@@ -3117,6 +3041,11 @@ functions:
       }
     }
 
+    if(dmtType == DMT_STING) {
+      m_bIsStung = TRUE;
+      m_tmStungTime = _pTimer->CurrentTick() + 5.0f;
+    }
+
     // if any damage
     if( fSubHealth>0) { 
       // if camera is active
@@ -3583,17 +3512,8 @@ functions:
     paAction.pa_vTranslation(2) = Clamp( paAction.pa_vTranslation(2), -plr_fSpeedUp,      plr_fSpeedUp);
     paAction.pa_vTranslation(3) = Clamp( paAction.pa_vTranslation(3), -plr_fSpeedForward, plr_fSpeedBackward);
 
-    // if speeds are like walking
-    if (Abs(paAction.pa_vTranslation(3))< plr_fSpeedForward/1.99f
-      &&Abs(paAction.pa_vTranslation(1))< plr_fSpeedSide/1.99f) {
-      // don't allow falling
-      en_fStepDnHeight = 1.5f;
-
-    // if speeds are like running
-    } else {
-      // allow falling
-      en_fStepDnHeight = -1;
-    }
+    // allow falling even when walking
+    en_fStepDnHeight = -1;
 
     // limit diagonal speed against abusing
     FLOAT3D &v = paAction.pa_vTranslation;
@@ -3747,6 +3667,12 @@ functions:
     } else {
       // reset damage ammount
       m_fDamageAmmount = 0.0f;
+    }
+
+    // if the sting time has passed
+    FLOAT tmSinceStinging = m_tmStungTime - _pTimer->CurrentTick();
+    if(tmSinceStinging<0.0f) {
+      m_bIsStung = FALSE;
     }
   }
 
@@ -4024,10 +3950,10 @@ functions:
 
         // if entered water
         if (bIsInWater && !bWasInWater) {
-          PlaySound(m_soBody, GenderSound(SOUND_WATER_ENTER), SOF_3D);
+          PlaySound(m_soBody, SOUND_WATER_ENTER, SOF_3D);
         // if left water
         } else if (!bIsInWater && bWasInWater) {
-          PlaySound(m_soBody, GenderSound(SOUND_WATER_LEAVE), SOF_3D);
+          PlaySound(m_soBody, SOUND_WATER_LEAVE, SOF_3D);
           m_tmOutOfWater = _pTimer->CurrentTick();
           //CPrintF("gotout ");
         // if in water
@@ -4085,11 +4011,22 @@ functions:
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
              iSoundLand = SOUND_LAND_MUD;
+          } else if (en_pbpoStandOn!=NULL && 
+            (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_VENT ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_VENT_NOIMPACT) ) {
+             iSoundLand = SOUND_LAND_VENT;
+          } else if (en_pbpoStandOn!=NULL && 
+            (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_COMPUTER ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_COMPUTER_NOIMPACT) ) {
+             iSoundLand = SOUND_LAND_COMPUTER;
+          } else if (en_pbpoStandOn!=NULL && 
+            (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_FUSEBOX ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_FUSEBOX_NOIMPACT) ) {
+             iSoundLand = SOUND_LAND_FUSEBOX;
           }
           else {
           }
 
-          iSoundLand+=m_iGender*GENDEROFFSET;
           PlaySound(m_soFootL, iSoundLand, SOF_3D);
           if(_pNetwork->IsPlayerLocal(this)) {IFeel_PlayEffect("Land");}
         }
@@ -4107,7 +4044,7 @@ functions:
           en_tmJumped<=_pTimer->CurrentTick() && en_penReference==NULL) {
         // play jump sound
         SetDefaultMouthPitch();
-        PlaySound(m_soMouth, GenderSound(SOUND_JUMP), SOF_3D);
+        PlaySound(m_soMouth, SOUND_JUMP, SOF_3D);
         if(_pNetwork->IsPlayerLocal(this)) {IFeel_PlayEffect("Jump");}
         // disallow jumping
         m_ulFlags&=~PLF_JUMPALLOWED;
@@ -4183,6 +4120,15 @@ functions:
       // disable consecutive jumps
       if (!(m_ulFlags&PLF_JUMPALLOWED) && vTranslation(2)>0) {
         vTranslation(2) = 0.0f;
+      }
+
+      // check for ladders
+      if(en_ulPhysicsFlags&EPF_ONLADDER) {
+        if(vTranslation(3)>0) {
+          m_fClimbDir = vTranslation(3) / plr_fSpeedForward;
+        } else if (vTranslation(3)<0) {
+          m_fClimbDir = vTranslation(3) / plr_fSpeedBackward;
+        }
       }
 
       // set translation
@@ -4304,11 +4250,24 @@ functions:
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
         iSoundWalkL = SOUND_WALK_MUD_L;
         iSoundWalkR = SOUND_WALK_MUD_R;
+      } else if (en_pbpoStandOn!=NULL && 
+        (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_VENT ||
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_VENT_NOIMPACT) ) {
+        iSoundWalkL = SOUND_WALK_VENT_L;
+        iSoundWalkR = SOUND_WALK_VENT_R;
+      } else if (en_pbpoStandOn!=NULL && 
+        (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_COMPUTER ||
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_COMPUTER_NOIMPACT) ) {
+        iSoundWalkL = SOUND_WALK_COMPUTER_L;
+        iSoundWalkR = SOUND_WALK_COMPUTER_R;
+      } else if (en_pbpoStandOn!=NULL && 
+        (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_FUSEBOX ||
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_FUSEBOX_NOIMPACT) ) {
+        iSoundWalkL = SOUND_WALK_FUSEBOX_L;
+        iSoundWalkR = SOUND_WALK_FUSEBOX_R;
       }
       else {
       }
-      iSoundWalkL+=m_iGender*GENDEROFFSET;
-      iSoundWalkR+=m_iGender*GENDEROFFSET;
       if (bRunning) {
         if (tmNow>m_tmMoveSound+plr_fRunSoundDelay) {
           m_tmMoveSound = tmNow;
@@ -4334,9 +4293,9 @@ functions:
           m_tmMoveSound = tmNow;
           m_bMoveSoundLeft = !m_bMoveSoundLeft;
           if (m_bMoveSoundLeft) {
-            PlaySound(m_soFootL, GenderSound(SOUND_DIVE_L), SOF_3D);
+            PlaySound(m_soFootL, SOUND_DIVE_L, SOF_3D);
           } else {
-            PlaySound(m_soFootR, GenderSound(SOUND_DIVE_R), SOF_3D);
+            PlaySound(m_soFootR, SOUND_DIVE_R, SOF_3D);
           }
         }
       } else if (bSwimming) {
@@ -4344,9 +4303,9 @@ functions:
           m_tmMoveSound = tmNow;
           m_bMoveSoundLeft = !m_bMoveSoundLeft;
           if (m_bMoveSoundLeft) {
-            PlaySound(m_soFootL, GenderSound(SOUND_SWIM_L), SOF_3D);
+            PlaySound(m_soFootL, SOUND_SWIM_L, SOF_3D);
           } else {
-            PlaySound(m_soFootR, GenderSound(SOUND_SWIM_R), SOF_3D);
+            PlaySound(m_soFootR, SOUND_SWIM_R, SOF_3D);
           }
         }
       }
@@ -4773,6 +4732,12 @@ functions:
     // do screen blending
     ULONG ulR=255, ulG=0, ulB=0; // red for wounding
     ULONG ulA = pen->m_fDamageAmmount*5.0f;
+
+    // if player got stung by an abomination
+    if(m_bIsStung) {
+      ulR=64, ulG=0, ulB=0; // dark red for stinging
+      ulA=112;
+    }
     
     // if less than few seconds elapsed since last damage
     FLOAT tmSinceWounding = _pTimer->CurrentTick() - pen->m_tmWoundedTime;
@@ -4919,7 +4884,8 @@ functions:
     m_tmInvisibility    = 0.0f, 
     m_tmInvulnerability = 0.0f, 
     m_tmSeriousDamage   = 0.0f, 
-    m_tmSeriousSpeed    = 0.0f, 
+    m_tmSeriousSpeed    = 0.0f,
+    m_tmStungTime       = 0.0f,
 
     // initialize animator
     ((CPlayerAnimator&)*m_penAnimator).Initialize();
@@ -6537,7 +6503,7 @@ procedures:
           JumpFromBouncer(this, eTouch.penOther);
           // play jump sound
           SetDefaultMouthPitch();
-          PlaySound(m_soMouth, GenderSound(SOUND_JUMP), SOF_3D);
+          PlaySound(m_soMouth, SOUND_JUMP, SOF_3D);
           if(_pNetwork->IsPlayerLocal(this)) {IFeel_PlayEffect("Jump");}
         }
         resume;

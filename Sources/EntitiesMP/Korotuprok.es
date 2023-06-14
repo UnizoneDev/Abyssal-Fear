@@ -183,7 +183,7 @@ functions:
     StartModelAnim(KOROTUPROK_ANIM_MELEE1, 0);
     m_bFistHit = FALSE;
     autowait(0.35f);
-    if (CalcDist(m_penEnemy) < 2.8f) {
+    if (CalcDist(m_penEnemy) < m_fCloseDistance) {
       m_bFistHit = TRUE;
     }
     
@@ -208,7 +208,7 @@ functions:
     StartModelAnim(KOROTUPROK_ANIM_MELEE3, 0);
     m_bFistHit = FALSE;
     autowait(0.35f);
-    if (CalcDist(m_penEnemy) < 2.8f) {
+    if (CalcDist(m_penEnemy) < m_fCloseDistance) {
       m_bFistHit = TRUE;
     }
     
@@ -233,7 +233,7 @@ functions:
     StartModelAnim(KOROTUPROK_ANIM_MELEE2, 0);
     m_bFistHit = FALSE;
     autowait(0.475f);
-    if (CalcDist(m_penEnemy) < 2.8f) {
+    if (CalcDist(m_penEnemy) < m_fCloseDistance) {
       m_bFistHit = TRUE;
     }
     

@@ -32,6 +32,9 @@ extern ENGINE_API void SetProgressHook(void (*pHook_t)(CProgressHookInfo *pgli))
 extern ENGINE_API void SetProgressDescription(const CTString &strDescription);
 extern ENGINE_API void CallProgressHook_t(FLOAT fCompleted);
 
+extern ENGINE_API CTextureObject *ptoLoadingBackdrop;
+extern ENGINE_API void SetLoadingBackdrop(CTFileName fnmTexture);
+extern ENGINE_API void ClearLoadingBackdrop(void);
 
 #endif  /* include-once check. */
 

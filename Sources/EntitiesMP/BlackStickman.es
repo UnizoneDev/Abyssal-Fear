@@ -347,7 +347,7 @@ functions:
     } else {
       m_fMoveFrequency = 0.0f;
       m_fMoveSpeed = 0.0f;
-      m_aRotateSpeed = 45.0f;
+      m_aRotateSpeed = 0.0f;
       FLOAT fSpeedX = 0.0f;
       FLOAT fSpeedY = 0.0f;
       FLOAT fSpeedZ = 0.0f;
@@ -358,12 +358,14 @@ functions:
     // ------------ While wandering, adjust directions and randomize
     while (TRUE)
     {
-      // adjust direction and speed
-      m_fMoveSpeed = 0.0f;
-      m_aRotateSpeed = FRnd()+40.0f-120.0f;
-      FLOAT3D vTranslation = GetDesiredTranslation();
-      SetDesiredMovement(); 
-      SetDesiredTranslation(vTranslation);
+      // adjust direction and speed only if moving
+      if(m_bsbtType != BSBT_STARE) {
+        m_fMoveSpeed = 0.0f;
+        m_aRotateSpeed = FRnd()+40.0f-120.0f;
+        FLOAT3D vTranslation = GetDesiredTranslation();
+        SetDesiredMovement(); 
+        SetDesiredTranslation(vTranslation);
+      }
 
       ANGLE aHeadingRotation;
       
@@ -406,7 +408,9 @@ functions:
         break;
       }
 
-      SetDesiredRotation(ANGLE3D(aHeadingRotation, 0, 0));
+      if(m_bsbtType != BSBT_STARE) {
+        SetDesiredRotation(ANGLE3D(aHeadingRotation, 0, 0));
+      }
 
       autowait(m_fCheckGeometryWait--);
 

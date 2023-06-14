@@ -44,7 +44,9 @@ properties:
   2 INDEX m_iSquadSlots = 0,			                          // How many members are in our team?
   3 CEntityPointer m_penSquadLeader "Squad Leader",	              // Who is the commander?
   4 INDEX m_iCommandIndex = 0,			                          // What command should I obey?
-  5 CTString m_strSquadName "Squad Name" = "Enemy Squad 1",      // Which squad do I belong to?
+  5 CTString m_strSquadName "Squad Name" = "Enemy Squad 1",       // Which squad do I belong to?
+  6 BOOL m_bRunAway = FALSE,			                          // Do I flee?
+  7 BOOL m_bMoveIn = FALSE,			                              // Do I rush to my enemy's position?
 
   {
     // array of squad members
@@ -153,6 +155,33 @@ procedures:
     return EBegin();
   };
 
+  SquadTakeCover(EVoid) {
+    if(m_bCanTakeCover)
+    {
+
+    }
+
+    return EBegin();
+  };
+
+  SquadMoveIn(EVoid) {
+    if(m_bMoveIn)
+    {
+
+    }
+
+    return EBegin();
+  };
+
+  SquadRunAway(EVoid) {
+    if(m_bRunAway)
+    {
+
+    }
+
+    return EBegin();
+  };
+
   ObeyLeaderCommands(ELeaderCommand eLeaderCommand) {
     switch(eLeaderCommand.iCommandType)
     {
@@ -202,6 +231,170 @@ procedures:
   // dummy main
   Main(EVoid) {
     return;
+  };
+
+  // --------------------------------------------------------------------------------------
+  // Move through markers.
+  // --------------------------------------------------------------------------------------
+  MoveThroughMarkers()  : CEnemyBase::MoveThroughMarkers
+  {
+    // start watching
+    GetWatcher()->SendEvent(EStart());
+  
+    // while there is a valid marker, take values from it
+    while (m_penMarker!=NULL && IsOfClass(m_penMarker, "Enemy Marker"))
+    {
+      CEnemyMarker *pem = (CEnemyMarker *)&*m_penMarker;
+
+      // the marker position is our new start position for attack range
+      m_vStartPosition = m_penMarker->GetPlacement().pl_PositionVector;
+      // make a random position to walk to at the marker
+      FLOAT fR = FRnd()*pem->m_fMarkerRange;
+      FLOAT fA = FRnd()*360.0f;
+      m_vDesiredPosition = m_vStartPosition+FLOAT3D(CosFast(fA)*fR, 0, SinFast(fA)*fR);
+      // if running 
+      if (pem->m_betRunToMarker==BET_TRUE) {
+        FLOAT fSpeedMultiplier = 1.0F;
+        
+        // use attack speeds
+        m_fMoveSpeed = GetProp(m_fAttackRunSpeed) * fSpeedMultiplier;
+        m_aRotateSpeed = GetProp(m_aAttackRotateSpeed);
+        // start running anim
+        RunningAnim();
+      // if not running
+      } else {
+        FLOAT fSpeedMultiplier = 1.0F;
+        
+        // use walk speeds
+        m_fMoveSpeed = GetProp(m_fWalkSpeed) * fSpeedMultiplier;
+        m_aRotateSpeed = GetProp(m_aWalkRotateSpeed);
+        // start walking anim
+        WalkingAnim();
+      }
+
+      if (m_bCanJump == TRUE)
+      {
+        // if enemy needs to jump
+        if (pem->m_betJump==BET_TRUE)
+        {
+            m_fJumpSpeed = m_fJumpHeight;
+        }
+        else
+        {
+            m_fJumpSpeed = 0.0f;
+        }
+      }
+
+      if (m_bCanTakeCover == TRUE)
+      {
+        // if enemy needs to hide behind cover
+        if (pem->m_betHideBehindCover==BET_TRUE)
+        {
+            m_bHideBehindCover = TRUE;
+        }
+        else
+        {
+            m_bHideBehindCover = FALSE;
+        }
+      }
+
+      if (m_bCanCrouch == TRUE)
+      {
+        // if enemy needs to crouch
+        if (pem->m_betCrouch==BET_TRUE)
+        {
+            m_bCrouch = TRUE;
+        }
+        else
+        {
+            m_bCrouch = FALSE;
+        }
+      }
+
+      if (m_bCanTakeCover == TRUE) {
+        if(pem->m_sctCommand == SCT_TAKECOVER) {
+            m_bHideBehindCover = TRUE;
+        } else {
+            m_bHideBehindCover = FALSE;
+        }
+      }
+
+      if(pem->m_sctCommand == SCT_MOVEIN) {
+          m_bMoveIn = TRUE;
+      } else {
+          m_bMoveIn = FALSE;
+      }
+
+      if(pem->m_sctCommand == SCT_RUNAWAY) {
+          m_bRunAway = TRUE;
+      } else {
+          m_bRunAway = FALSE;
+      }
+
+      // move to the new destination position
+      autocall CEnemyBase::MoveToDestination() EReturn;
+
+      // read new blind/deaf values
+      CEnemyMarker *pem = (CEnemyMarker *)&*m_penMarker;
+      SetBoolFromBoolEType(m_bBlind, pem->m_betBlind);
+      SetBoolFromBoolEType(m_bDeaf,  pem->m_betDeaf);
+      SetBoolFromBoolEType(m_bDormant,  pem->m_betDormant);
+      SetBoolFromBoolEType(m_bAnosmic,  pem->m_betAnosmic);
+
+      // if should start tactics
+      if (pem->m_bStartTactics){
+        // start to see/hear
+        m_bBlind = FALSE;
+        m_bDeaf = FALSE;
+        m_bDormant = FALSE;
+        m_bAnosmic = FALSE;
+        m_bHideBehindCover = FALSE;
+        // unconditional tactics start
+        StartTacticsNow();
+      }
+      
+      // if should patrol there
+      if (pem->m_fPatrolTime>0.0f) {
+        // spawn a reminder to notify us when the time is up
+        SpawnReminder(this, pem->m_fPatrolTime, 0);
+        // wait
+        wait() {
+          // initially
+          on (EBegin) : { 
+            // start patroling
+            call CEnemyBase::DoPatrolling(); 
+          }
+          // if time is up
+          on (EReminder) : {
+            // stop patroling
+            stop;
+          }
+        }
+      }
+
+      CEnemyMarker *pem = (CEnemyMarker *)&*m_penMarker;
+      // if should wait on the marker
+      if (pem->m_fWaitTime > 0.0f) {
+        // stop there
+        StopMoving();
+        StandingAnim();
+        // wait
+        autowait(pem->m_fWaitTime);
+      }
+
+      // wait a bit always (to prevent eventual busy-looping)
+      autowait(0.05f);
+
+      // take next marker in loop
+      m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget;
+    } // when no more markers
+
+    // stop where you are
+    StopMoving();
+    StandingAnim();
+
+    // return to called
+    return EReturn();
   };
 
   // --------------------------------------------------------------------------------------

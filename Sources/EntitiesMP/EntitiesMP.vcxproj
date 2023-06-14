@@ -209,6 +209,7 @@
     <ClCompile Include="Korotuprok.cpp" />
     <ClCompile Include="LadderBrush.cpp" />
     <ClCompile Include="LoopingTrigger.cpp" />
+	<ClCompile Include="MutantFreak.cpp" />									   
     <ClCompile Include="OverlayHolder.cpp" />
     <ClCompile Include="PlayerBarrierBrush.cpp" />
     <ClCompile Include="PlayerParenter.cpp" />
@@ -217,6 +218,8 @@
     <ClCompile Include="RandomSoundHolder.cpp" />
     <ClCompile Include="RedDeath.cpp" />
     <ClCompile Include="Satan.cpp" />
+	<ClCompile Include="Shambler.cpp" />
+	<ClCompile Include="SkaModelHeadTest.cpp" />											
     <ClCompile Include="StdH\StdH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StdH.h</PrecompiledHeaderFile>
@@ -959,6 +962,8 @@
     <ClInclude Include="MusicChanger_tables.h" />
     <ClInclude Include="MusicHolder.h" />
     <ClInclude Include="MusicHolder_tables.h" />
+	<ClInclude Include="MutantFreak.h" />
+    <ClInclude Include="MutantFreak_tables.h" />
     <ClInclude Include="NavigationMarker.h" />
     <ClInclude Include="NavigationMarker_tables.h" />
     <ClInclude Include="OverlayHolder.h" />
@@ -1017,6 +1022,10 @@
     <ClInclude Include="ShipMarker.h" />
     <ClInclude Include="ShipMarker_tables.h" />
     <ClInclude Include="Ship_tables.h" />
+	<ClInclude Include="SkaModelHeadTest.h" />
+    <ClInclude Include="SkaModelHeadTest_tables.h" />
+    <ClInclude Include="Shambler.h" />
+    <ClInclude Include="Shambler_tables.h" />	
     <ClInclude Include="SoundHolder.h" />
     <ClInclude Include="SoundHolder_tables.h" />
     <ClInclude Include="StdH\StdH.h" />
@@ -2544,6 +2553,45 @@ ecc EntitiesMP/%(Filename).es </Command>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="CustomFire.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+<ItemGroup>
+    <CustomBuild Include="MutantFreak.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="SkaModelHeadTest.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Shambler.es">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
 ecc EntitiesMP/%(Filename).es </Command>

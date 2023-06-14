@@ -91,7 +91,7 @@ BOOL CEditConsole::PreTranslateMessage(MSG* pMsg)
       achrToExecute[ ctLetters] = 0;
       CTString strToExecute = CStringA(achrToExecute);
       CPrintF( ">%s\n", strToExecute);
-      if( ((const char*)strToExecute)[strlen(strToExecute)-1] != ';')
+      if (((const char*)strToExecute)[strlen(strToExecute) - 1] != ';')
       {
         strToExecute += ";";
       }

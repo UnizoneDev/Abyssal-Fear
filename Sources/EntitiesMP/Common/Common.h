@@ -45,6 +45,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define SURFACE_GRATE_NOIMPACT 41
 #define SURFACE_MUD 42
 #define SURFACE_MUD_NOIMPACT 43
+#define SURFACE_VENT 44
+#define SURFACE_VENT_NOIMPACT 45
+#define SURFACE_COMPUTER 46
+#define SURFACE_COMPUTER_NOIMPACT 47
+#define SURFACE_FUSEBOX 48
+#define SURFACE_FUSEBOX_NOIMPACT 49
 
 // Max ammo
 #define MAX_BULLETS INDEX(100)

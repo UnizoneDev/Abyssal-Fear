@@ -57,6 +57,8 @@ properties:
  15 FLOAT m_fPitch         "Pitch" = 1.0F,
  19 INDEX m_iRandomCheck = 0,
  24 BOOL m_b3D             "3D" = TRUE,
+ 25 BOOL m_bPauseable      "Pauseable" = FALSE,
+ 26 FLOAT m_fFilterAmount  "Filter Amount" = 0.0f,
 
   {
     CAutoPrecacheSound m_aps;
@@ -169,6 +171,9 @@ procedures:
       on (EBegin) : {
         if (m_bAutoStart) {
             m_soSound.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+            if(m_fFilterAmount > 0) {
+              m_soSound.SetFilter(m_fFilterAmount, m_fFilterAmount);
+            }
             
           switch(m_iRandomCheck)
           {
@@ -219,7 +224,10 @@ procedures:
       // play sound
       on (EStart) : {
           m_soSound.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
-          
+          if(m_fFilterAmount > 0) {
+            m_soSound.SetFilter(m_fFilterAmount, m_fFilterAmount);
+          }
+
           switch(m_iRandomCheck)
           {
             default:
@@ -264,6 +272,28 @@ procedures:
             }
           }
 
+        resume;
+      }
+      on (ELock) : {
+        if(!m_bPauseable) {
+          resume;
+        }
+
+        if(m_soSound.IsPlaying()) {
+          m_soSound.Pause();
+        }
+        resume;
+      }
+      on (EUnlock) : {
+        if(!m_bPauseable) {
+          resume;
+        }
+
+        if(m_soSound.IsPlaying()) {
+          if (m_soSound.IsPaused()) {
+            m_soSound.Resume();
+          }
+        }
         resume;
       }
       // stop playing sound

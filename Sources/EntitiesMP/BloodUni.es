@@ -78,8 +78,13 @@ functions:
   // particles
   void RenderParticles(void)
   {
+    if(m_bGenerateStreams) {
+      Particles_BloodTrail(this);
+    }
+
     Particles_BloodDroplet(GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
         m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower, m_colBurnColor, m_iAmount);
+
   };
 
   void LeaveStain( BOOL bGrow)

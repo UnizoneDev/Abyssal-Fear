@@ -36,7 +36,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // scene texture flags
 #define STXF_CLAMPU         (0x01)    // clamp u coordinate in texture
 #define STXF_CLAMPV         (0x02)    // clamp v coordinate in texture
-#define STXF_REFLECTION     (0x04)    // clamp v coordinate in texture
+#define STXF_REFLECTION     (0x04)    // reflect texture
 #define STXF_AFTERSHADOW    (0x08)    // texture is to be applied after shadow
 
 #define STXF_BLEND_OPAQUE   (0x00)    // opaque texture (just put it on screen)

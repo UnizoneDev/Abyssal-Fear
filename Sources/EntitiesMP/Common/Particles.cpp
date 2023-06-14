@@ -102,6 +102,9 @@ static CTextureObject _toBulletChainlink;
 static CTextureObject _toBulletAcid;
 static CTextureObject _toBulletGrate;
 static CTextureObject _toBulletMud;
+static CTextureObject _toBulletVent;
+static CTextureObject _toBulletComputer;
+static CTextureObject _toBulletFusebox;
 static CTextureObject _toAirSprayTexture;
 static CTextureObject _toFlameThrowerGradient;
 static CTextureObject _toFlameThrowerStartGradient;
@@ -284,6 +287,9 @@ void InitParticles(void)
     _toBulletAcid.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayAcid.tex"));
     _toBulletGrate.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayGrate.tex"));
     _toBulletMud.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayMud.tex"));
+    _toBulletVent.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayVent.tex"));
+    _toBulletComputer.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayComputer.tex"));
+    _toBulletFusebox.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayFusebox.tex"));
     _toAirSprayTexture.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\AirSpray.tex"));
     _toFlameThrowerGradient.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\FlameThrowerGradient.tex"));
     _toFlameThrowerStartGradient.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\FlameThrowerStartGradient.tex"));
@@ -424,6 +430,9 @@ void CloseParticles(void)
   _toBulletAcid.SetData(NULL);
   _toBulletGrate.SetData(NULL);
   _toBulletMud.SetData(NULL);
+  _toBulletVent.SetData(NULL);
+  _toBulletComputer.SetData(NULL);
+  _toBulletFusebox.SetData(NULL);
   _toAirSprayTexture.SetData(NULL);
   _toFlameThrowerGradient.SetData(NULL);
   _toFlameThrowerStartGradient.SetData(NULL);
@@ -3727,6 +3736,30 @@ void Particles_BulletSpray(INDEX iRndBase, FLOAT3D vSource, FLOAT3D vGDir, enum 
         fSpeedStart = 1.75f;
         break;
     }
+    case EPT_BULLET_VENT:
+    {
+        colSmoke = 0xFFE8C000;
+        Particle_PrepareTexture(&_toBulletVent, PBT_BLEND);
+        fSizeStart = 0.15f;
+        fSpeedStart = 1.25f;
+        break;
+    }
+    case EPT_BULLET_COMPUTER:
+    {
+        colSmoke = 0xFFE8C000;
+        Particle_PrepareTexture(&_toBulletComputer, PBT_BLEND);
+        fSizeStart = 0.15f;
+        fSpeedStart = 1.25f;
+        break;
+    }
+    case EPT_BULLET_FUSEBOX:
+    {
+        colSmoke = 0xFFE8C000;
+        Particle_PrepareTexture(&_toBulletFusebox, PBT_BLEND);
+        fSizeStart = 0.15f;
+        fSpeedStart = 1.25f;
+        break;
+    }
     default:
     {
       colSmoke = C_WHITE;
@@ -6263,4 +6296,81 @@ void Particles_Fireworks01(CEmiter &em)
   }
   // all done
   Particle_Flush();
+}
+
+void Particles_Sparks(INDEX iRndBase, FLOAT3D vSource, FLOAT3D vGDir, FLOAT tmSpawn, FLOAT3D vDirection, FLOAT fStretch)
+{
+    FLOAT fFadeStart = BULLET_SPRAY_FADEOUT_START;
+    FLOAT fLifeTotal = BULLET_SPRAY_TOTAL_TIME;
+    FLOAT fFadeLen = fLifeTotal - fFadeStart;
+    COLOR colStones = C_WHITE;
+
+    FLOAT fMipFactor = Particle_GetMipFactor();
+    FLOAT fDisappear = 1.0f;
+    if (fMipFactor > 8.0f) return;
+    if (fMipFactor > 6.0f)
+    {
+        fDisappear = 1.0f - (fMipFactor - 6.0f) / 2.0f;
+    }
+
+    FLOAT fNow = _pTimer->GetLerpedCurrentTick();
+    FLOAT fT = (fNow - tmSpawn);
+    if (fT > fLifeTotal) return;
+    INDEX iRnd = INDEX((tmSpawn * 1000.0f) + iRndBase) & 63;
+    FLOAT fSizeStart;
+    FLOAT fSpeedStart;
+    FLOAT fConeMultiplier = 1.0f;
+
+    Particle_PrepareTexture(&_toBulletMetal, PBT_BLEND);
+    fSizeStart = 0.15f;
+    fSpeedStart = 1.75f;
+
+    FLOAT fGA = 10.0f;
+
+    // render particles
+    for (INDEX iSpray = 0; iSpray < 12 * fDisappear; iSpray++)
+    {
+        Particle_SetTexturePart(512, 512, iSpray & 3, 0);
+
+        FLOAT3D vRandomAngle = FLOAT3D(
+            GetParticleStarPos(iSpray + iRnd, 0) * 3.0f * fConeMultiplier,
+            (GetParticleStarPos(iSpray + iRnd, 1) + 1.0f) * 3.0f,
+            GetParticleStarPos(iSpray + iRnd, 2) * 3.0f * fConeMultiplier);
+        FLOAT fSpeedRnd = fSpeedStart + GetParticleStarPos(iSpray + iRnd * 2, 0);
+
+        FLOAT3D vPos = vSource + (vDirection + vRandomAngle) * (fT * fSpeedRnd) + vGDir * (fT * fT * fGA);
+
+        FLOAT fSize = (fSizeStart + GetParticleStarPos(iSpray * 2 + iRnd * 3, 0) / 20.0f) * fStretch;
+        FLOAT fRotation = fT * 500.0f;
+        FLOAT fColorFactor = 1.0f;
+        if (fT >= fFadeStart)
+        {
+            fColorFactor = 1 - fFadeLen * (fT - fFadeStart);
+        }
+        UBYTE ubColor = UBYTE(CT_OPAQUE * fColorFactor);
+        COLOR col = colStones | ubColor;
+        Particle_RenderSquare(vPos, fSize, fRotation, col);
+    }
+    Particle_Flush();
+
+    // render spark lines
+        Particle_PrepareTexture(&_toBulletSpark, PBT_ADD);
+        for (INDEX iSpark = 0; iSpark < 8 * fDisappear; iSpark++)
+        {
+            FLOAT3D vRandomAngle = FLOAT3D(
+                GetParticleStarPos(iSpark + iRnd, 0) * 0.75f,
+                GetParticleStarPos(iSpark + iRnd, 1) * 0.75f,
+                GetParticleStarPos(iSpark + iRnd, 2) * 0.75f);
+            FLOAT3D vPos0 = vSource + (vDirection + vRandomAngle) * (fT + 0.00f) * 12.0f;
+            FLOAT3D vPos1 = vSource + (vDirection + vRandomAngle) * (fT + 0.05f) * 12.0f;
+            FLOAT fColorFactor = 1.0f;
+            if (fT >= BULLET_SPARK_FADEOUT_START)
+            {
+                fColorFactor = 1 - BULLET_SPARK_FADEOUT_LEN * (fT - BULLET_SPARK_FADEOUT_START);
+            }
+            UBYTE ubColor = UBYTE(CT_OPAQUE * fColorFactor);
+            COLOR col = RGBToColor(ubColor, ubColor, ubColor) | CT_OPAQUE;
+            Particle_RenderLine(vPos0, vPos1, 0.05f, col);
+        }
+        Particle_Flush();
 }

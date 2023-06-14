@@ -45,7 +45,7 @@ properties:
  19 CEntityPointer m_pen9  "Bit 9" COLOR(C_RED|0x30),
 
 components:
- 0 sound   SOUND_TICK       "Sounds\\Menu\\Select.wav",
+ 0 sound   SOUND_TICK       "Sounds\\Menu\\ButtonSelect.wav",
  1 model   MODEL_MARKER     "Models\\Editor\\Axis.mdl",
  2 texture TEXTURE_MARKER   "Models\\Editor\\Vector.tex"
 

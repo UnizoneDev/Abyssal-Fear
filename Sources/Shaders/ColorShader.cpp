@@ -35,6 +35,9 @@ SHADER_MAIN(Color)
   BOOL bDoubleSided = shaGetFlags()&BASE_DOUBLE_SIDED;
   BOOL bFullBright  = shaGetFlags()&BASE_FULL_BRIGHT;
 
+  COLOR colModelColor = MulColors(shaGetModelColor(), shaGetCurrentColor());
+  BOOL bOpaque = (colModelColor & 0xFF) == 0xFF;
+
   if(bDoubleSided) {
     shaCullFace(GFX_NONE);
   } else {
@@ -43,6 +46,10 @@ SHADER_MAIN(Color)
 
   shaCalculateLight();
   shaRender();
+
+  if (bOpaque) {
+      shaDoFogPass();
+  }
 }
 
 SHADER_DESC(Color,ShaderDesc &shDesc)

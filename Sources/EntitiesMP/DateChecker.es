@@ -19,6 +19,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %}
 
 
+enum DateCheckerType {
+  0 DCT_MONTH        "Month only",
+  1 DCT_DAY          "Day only",
+  2 DCT_BOTH         "Month and day"
+};
+
 
 class CDateChecker: CRationalEntity {
 name      "DateChecker";
@@ -32,7 +38,8 @@ properties:
   3 INDEX m_iMonthToCheck           "Month to Check" 'M' = 1,                       // month
   4 CEntityPointer m_penTarget      "Target" 'T' COLOR(C_RED|0xFF),                 // send event to entity
   5 enum EventEType m_eetEvent      "Event type Target" 'G' = EET_TRIGGER,          // type of event to send
-  6 CEntityPointer m_penCaused,     // who touched it last time
+  6 CEntityPointer m_penCaused,                                                     // who touched it last time
+  7 enum DateCheckerType m_dctType  "Check Type" = DCT_BOTH,                        // date to check
 
 
 components:
@@ -63,10 +70,28 @@ procedures:
             GetSystemTime(&SysTime);
 
             m_penCaused = eTrigger.penCaused;
-            if(m_iDayToCheck == SysTime.wDay && m_iMonthToCheck == SysTime.wMonth)
+
+            switch(m_dctType) {
+                case DCT_MONTH: 
+                if(m_iMonthToCheck == SysTime.wMonth)
                     {
                       SendToTarget(m_penTarget, m_eetEvent, m_penCaused);
                     }
+                break;
+                case DCT_DAY: 
+                if(m_iDayToCheck == SysTime.wDay)
+                    {
+                      SendToTarget(m_penTarget, m_eetEvent, m_penCaused);
+                    }
+                break;
+                case DCT_BOTH: 
+                if(m_iDayToCheck == SysTime.wDay && m_iMonthToCheck == SysTime.wMonth)
+                    {
+                      SendToTarget(m_penTarget, m_eetEvent, m_penCaused);
+                    }
+                break;
+            }
+
             resume;
         }
     }

@@ -81,8 +81,8 @@ extern INDEX sam_iVideoSetup = 1;  // 0==speed, 1==normal, 2==quality, 3==custom
 // automatic adjustment of audio quality
 extern BOOL sam_bAutoAdjustAudio = TRUE;
 
-extern INDEX sam_bAutoPlayDemos = TRUE;
-static INDEX _bInAutoPlayLoop = TRUE;
+extern INDEX sam_bAutoPlayDemos = FALSE;
+static INDEX _bInAutoPlayLoop = FALSE;
 
 // menu calling
 extern INDEX sam_bMenuSave     = FALSE;
@@ -393,6 +393,12 @@ BOOL Init( HINSTANCE hInstance, int nCmdShow, CTString strCmdLine)
 {
   _hInstance = hInstance;
   ShowSplashScreen(hInstance);
+
+  if (GetFileAttributesA("HiddenEvil\\IPierceYourHeart.uzd") == INVALID_FILE_ATTRIBUTES)
+  {
+      MessageBoxA(NULL, "IPierceYourHeart.uzd not found.", "FATAL ERROR", MB_ICONERROR);
+      End();
+  }
 
   // Get screen resolution
   _vpixScreenRes = PIX2D(::GetSystemMetrics(SM_CXSCREEN),

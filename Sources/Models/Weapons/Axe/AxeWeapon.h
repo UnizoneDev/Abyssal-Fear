@@ -6,7 +6,7 @@
 // Patch names
 
 // Names of collision boxes
-#define AXEWEAPON_COLLISION_BOX_DEFAULT 0
+#define AXEWEAPON_COLLISION_BOX_PART_NAME 0
 
 // Attaching position names
 

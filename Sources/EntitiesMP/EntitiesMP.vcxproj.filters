@@ -512,6 +512,15 @@
     <ClCompile Include="CustomFire.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="MutantFreak.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+	<ClCompile Include="Shambler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SkaModelHeadTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Flesh\Classes\Acid.ecl">
@@ -1363,6 +1372,15 @@
     <CustomBuild Include="CustomFire.es">
       <Filter>Class Files\Effects</Filter>
     </CustomBuild>
+	<CustomBuild Include="MutantFreak.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SkaModelHeadTest.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+	<CustomBuild Include="Shambler.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Common.h">
@@ -2179,6 +2197,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CustomFire_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="MutantFreak.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MutantFreak_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkaModelHeadTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkaModelHeadTest_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="Shambler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shambler_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

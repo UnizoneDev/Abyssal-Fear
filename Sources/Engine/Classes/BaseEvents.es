@@ -86,6 +86,7 @@ enum DamageType {
   20 DMT_AXE        "Axe",          // caused by axe
   21 DMT_SHARP      "Sharp",        // caused by sharp blades
   22 DMT_BLUNT      "Blunt",        // caused by blunt weapons
+  23 DMT_STING      "Sting",        // caused by an abomination stinging their target
 9999 DMT_NONE       "no damage",    // internal
 };
 

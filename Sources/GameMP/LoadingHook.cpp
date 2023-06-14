@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "LCDDrawing.h"
 #include <locale.h>
 
-#define USECUSTOMTEXT 0
+#define USECUSTOMTEXT 1
 
 extern CGame *_pGame;
 

@@ -379,7 +379,7 @@ functions:
     StartModelAnim(GUNMAN_ANIM_KICK, 0);
     m_bFistHit = FALSE;
     autowait(0.30f);
-    if (CalcDist(m_penEnemy) < 3.5f) {
+    if (CalcDist(m_penEnemy) < m_fCloseDistance) {
       m_bFistHit = TRUE;
     }
     
@@ -409,7 +409,7 @@ functions:
     StartModelAnim(GUNMAN_ANIM_MELEESHOTGUN, 0);
     m_bFistHit = FALSE;
     autowait(0.30f);
-    if (CalcDist(m_penEnemy) < 3.5f) {
+    if (CalcDist(m_penEnemy) < m_fCloseDistance) {
       m_bFistHit = TRUE;
     }
     
@@ -418,7 +418,7 @@ functions:
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
       }
     } else {
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
@@ -478,6 +478,7 @@ functions:
     MaybeSwitchToAnotherPlayer();
 
     m_fLockOnEnemyTime = 1.0f;
+
     autocall CEnemyBase::StrafeLeft() EReturn;
     autocall CEnemyBase::StrafeRight() EReturn;
 
@@ -492,10 +493,10 @@ functions:
     autowait(0.25f + FRnd()/4);
 
     StartModelAnim(GUNMAN_ANIM_SHOOTSHOTGUN, 0);
-    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(-1.0f, 1.0f, 0.0f), ANGLE3D(-8.0f, 0, 0));
-    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(-0.5f, 1.0f, 0.0f), ANGLE3D(-4.0f, 0, 0));
-    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(0.5f, 1.0f, 0.0f), ANGLE3D(4.0f, 0, 0));
-    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(1.0f, 1.0f, 0.0f), ANGLE3D(8.0f, 0, 0));
+    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(-0.5f, 1.0f, 0.0f), ANGLE3D(4.0f, 0, 0));
+    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(-0.25f, 1.0f, 0.0f), ANGLE3D(2.0f, 0, 0));
+    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(0.25f, 1.0f, 0.0f), ANGLE3D(-2.0f, 0, 0));
+    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(0.5f, 1.0f, 0.0f), ANGLE3D(-4.0f, 0, 0));
     PlaySound(m_soSound, SOUND_FIRE_SHOTGUN, SOF_3D);
 
     autowait(0.5f + FRnd()/3);
@@ -520,6 +521,7 @@ functions:
     en_tmMaxHoldBreath = 30.0f;
     en_fDensity = 2000.0f;
     m_fBlowUpSize = 2.0f;
+    m_sptType = SPT_ELECTRICITY_SPARKS_NO_BLOOD;
 
     // set your appearance
     SetModel(MODEL_GUNMAN);
@@ -528,8 +530,8 @@ functions:
     switch(m_gmChar)
     {
       case GMC_SHOTGUN:
-        SetHealth(220.0f);
-        m_fMaxHealth = 220.0f;
+        SetHealth(175.0f);
+        m_fMaxHealth = 175.0f;
         SetModelMainTexture(TEXTURE_GUNMAN);
         AddAttachment(GUNMAN_ATTACHMENT_SHOTGUN, MODEL_SHOTGUN, TEXTURE_SHOTGUN);
         GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));

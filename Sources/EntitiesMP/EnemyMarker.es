@@ -20,6 +20,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 uses "EntitiesMP/Marker";
 
+enum SquadCommandType {
+  0 SCT_TAKECOVER "",
+  1 SCT_MOVEIN "",
+  2 SCT_RUNAWAY "",
+};
+
 class CEnemyMarker: CMarker {
 name      "Enemy Marker";
 thumbnail "Thumbnails\\EnemyMarker.tbn";
@@ -40,6 +46,7 @@ properties:
  22 enum BoolEType m_betHideBehindCover "Hide Behind Cover" = BET_IGNORE,
  23 enum BoolEType m_betCrouch "Crouch" = BET_IGNORE,
  24 enum BoolEType m_betAnosmic  "Anosmic" = BET_IGNORE,
+ 25 enum SquadCommandType m_sctCommand  "Command Type" = SCT_TAKECOVER,
 
  18 BOOL m_bStartTactics          "Start Tactics" = FALSE, 
 

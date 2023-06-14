@@ -145,6 +145,7 @@ public:
 #define EPF_ORIENTINGTOGRAVITY    (1UL<<14)// while beeing re-oriented by gravity
 #define EPF_FLOATING              (1UL<<15)// while bouyancy causes floating in fluid
 #define EPF_FORCEADDED            (1UL<<16)// set if force-added to movers
+#define EPF_ONLADDER              (1UL<<17) // set if entity is on a ladder
 
 // what to do when colliding
 #define EPF_ONBLOCK_MASK            (7UL<<29)

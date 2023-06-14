@@ -72,6 +72,9 @@
     <ClCompile Include="Translucent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="GlassShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">

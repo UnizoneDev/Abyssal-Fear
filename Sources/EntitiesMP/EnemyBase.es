@@ -1387,7 +1387,7 @@ functions:
         return FALSE;
       }
 
-      if((this->GetFaction() == FT_WILDLIFE || this->GetFaction() == FT_SHADOW) && (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_LESSER))
+      if((this->GetFaction() == FT_WILDLIFE || this->GetFaction() == FT_SHADOW) && (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_GREATER))
       {
         return FALSE;
       }
@@ -3909,25 +3909,6 @@ procedures:
     // stop making fuss
     RemoveFromFuss();
 
-    // tell our friends goodbye
-    //{FOREACHINDYNAMICCONTAINER(GetWorld()->wo_cenEntities, CEntity, iten) {
-    //  CEntity *pen = iten;
-    //
-    //  // Skip non enemies.
-    //  if (!IsDerivedFromClass(pen,"Enemy Base")) {
-    //    continue;
-    //  }
-    //
-    //  // Skip dead enemies.
-    //  if (!(pen->GetFlags()&ENF_ALIVE)) {
-    //    continue;
-    //  }
-    //
-    //  //if (&(*(((CEnemyBase*)pen)->m_penFriend)) == this) {
-    //  //  ((CEnemyBase*)pen)->m_penFriend = NULL; //pointers!! pointers!!! aaaaahh!
-    //  //} 
-    //}}
-
     // cease to exist
     Destroy();
 
@@ -4168,6 +4149,17 @@ procedures:
         if (m_bDeaf) {
           resume;
         }
+
+        // get first mip of a brush to check for sounds in nearby sectors
+        /*
+        CBrushMip *pbm = this->en_pbrBrush->GetFirstMip();
+        if(pbm != NULL) {
+          // for each sector in the mip
+          {FOREACHINDYNAMICARRAY(pbm->bm_abscSectors, CBrushSector, itbscNearby) {
+            CBrushSector &bscNearby = *itbscNearby;
+          }}
+        }
+        */
 
         // if the target is visible and can be set as new enemy
         if (IsVisible(eSound.penTarget) && SetTargetSoft(eSound.penTarget)) {

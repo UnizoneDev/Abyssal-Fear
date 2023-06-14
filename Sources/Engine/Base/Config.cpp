@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 void LoadConfigFile(const CTFileName &fnmFileName, CConfigPairs &aConfig)
 {
-    // Open enemy config file
+    // Open config file
     try {
         CTFileStream strm;
         strm.Open_t(fnmFileName);
@@ -79,6 +79,6 @@ void LoadConfigFile(const CTFileName &fnmFileName, CConfigPairs &aConfig)
 
     }
     catch (char* strError) {
-        CPrintF(TRANS("Cannot open enemy config file:\n%s\n"), strError);
+        CPrintF(TRANS("Cannot open config file:\n%s\n"), strError);
     }
 }

@@ -1,12 +1,12 @@
 // Animation names
-#define LEVERHANDLE_ANIM_DEFAULT 0
+#define SCREWDRIVER_ANIM_DEFAULT 0
 
 // Color names
 
 // Patch names
 
 // Names of collision boxes
-#define LEVERHANDLE_COLLISION_BOX_PART_NAME 0
+#define SCREWDRIVER_COLLISION_BOX_DEFAULT 0
 
 // Attaching position names
 

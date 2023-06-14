@@ -155,7 +155,7 @@ functions:
     StartModelAnim(DOOMIMP_ANIM_CLAW, 0);
     m_bFistHit = FALSE;
     autowait(0.4f);
-    if (CalcDist(m_penEnemy) < 3.5f) {
+    if (CalcDist(m_penEnemy) < m_fCloseDistance) {
       m_bFistHit = TRUE;
     }
 

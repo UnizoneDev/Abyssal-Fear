@@ -109,6 +109,7 @@ void DECL_DLL Particles_RocketMotorBurning(CEntity *pen, FLOAT tmSpawn, FLOAT3D 
 // [Uni] Custom particle types
 void DECL_DLL Particles_GenericBeam(CTextureObject *ptoCustomTexture, const FLOAT3D& vSrc, const FLOAT3D& vDst, INDEX ctRays, FLOAT fSize, FLOAT fPower = 1.0f,
     FLOAT fKneeDivider = 33.3333333f);
+void DECL_DLL Particles_Sparks(INDEX iRndBase, FLOAT3D vSource, FLOAT3D vGDir, FLOAT tmSpawn, FLOAT3D vDirection, FLOAT fStretch);
 
 //void DECL_DLL Particles_Growth(CEntity *pen, CTextureData *ptdGrowthMap, FLOATaabbox3D &boxGrowthMap, CEntity *penEPH);
 class CGrowth {

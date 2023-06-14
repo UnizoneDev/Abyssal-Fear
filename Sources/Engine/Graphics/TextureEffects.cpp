@@ -1220,6 +1220,7 @@ void AnimateFireSmoke(CTextureEffectSource *ptes)
 
 
 ///////////////// Fire Smoke 2
+#define SMOKE2_POINTS 25
 
 struct FireSmoke2 {
     FLOAT fpixU;
@@ -1244,10 +1245,10 @@ void InitializeFireSmoke2(CTextureEffectSource* ptes,
     else {
     }
     // initialize smoke points
-    ptes->tes_atepPixels.New(SMOKE_POINTS * 2);
-    for (INDEX iIndex = 0; iIndex < SMOKE_POINTS * 2; iIndex += 2) {
+    ptes->tes_atepPixels.New(SMOKE2_POINTS * 2);
+    for (INDEX iIndex = 0; iIndex < SMOKE2_POINTS * 2; iIndex += 2) {
         FireSmokePoint2& fsp = ((FireSmokePoint2&)ptes->tes_atepPixels[iIndex]);
-        fsp.fpixU = FLOAT(pixU0 + (iIndex - (SMOKE_POINTS)) / 8);
+        fsp.fpixU = FLOAT(pixU0 + (iIndex - (SMOKE2_POINTS)) / 8);
         fsp.fpixV = FLOAT(pixV0);
         fsp.fSpeedV = 0.0f;
     }
@@ -1262,7 +1263,7 @@ void AnimateFireSmoke2(CTextureEffectSource* ptes)
     FireSmoke2& fs =
         ((FireSmoke2&)ptes->tes_tespEffectSourceProperties.tesp_achDummy);
     // animate smoke points
-    for (INDEX iIndex = 0; iIndex < SMOKE_POINTS * 2; iIndex += 2) {
+    for (INDEX iIndex = 0; iIndex < SMOKE2_POINTS * 2; iIndex += 2) {
         FireSmokePoint2& fsp = ((FireSmokePoint2&)ptes->tes_atepPixels[iIndex]);
         pixU = RNDW % 9 - 1;
         pixV = RNDW % 9 - 1;

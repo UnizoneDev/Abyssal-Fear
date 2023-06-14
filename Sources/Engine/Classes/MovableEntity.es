@@ -1590,6 +1590,43 @@ out:;
     return TRUE;
   }
 
+  virtual FLOAT GetClimbingDirection(void) {
+    return 0.0f;
+  };
+
+  BOOL TryToClimbLadder(const FLOAT3D &vTranslationAbsolute, const CSurfaceType &stHit, CBrushPolygon* pbpoClimbable)
+  {
+    _pfPhysicsProfile.StartTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
+    _pfPhysicsProfile.IncrementTimerAveragingCounter(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
+
+    // get polygon plane
+    const FLOATplane3D &plPolygon = pbpoClimbable->bpo_pbplPlane->bpl_plAbsolute;
+
+    FLOAT3D vPolygonNormal = ((FLOAT3D&)plPolygon);
+    vPolygonNormal.Normalize();
+
+    FLOAT3D vClimbSpeed = vTranslationAbsolute;
+
+    // take stairs height
+    FLOAT fStairsHeight = 0;
+    if (stHit.st_fStairsHeight>0) {
+      fStairsHeight = Max(stHit.st_fStairsHeight, en_fStepUpHeight);
+    } else if (stHit.st_fStairsHeight<0) {
+      fStairsHeight = Min(stHit.st_fStairsHeight, en_fStepUpHeight);
+    }
+
+    vClimbSpeed(2) = GetClimbingDirection();
+
+    if (vClimbSpeed(2) != 0.0f) {
+      SetDesiredTranslation(vClimbSpeed);
+    }
+
+    // move is successful
+    _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
+    //CPrintF("done\n");
+    return TRUE;
+  }
+
   /* Try to translate the entity. Slide, climb or push others if needed. */
   BOOL TryToMove(CMovableEntity *penPusher, BOOL bTranslate, BOOL bRotate)
   {
@@ -1893,6 +1930,9 @@ out:;
                   return FALSE;
                 }
               }
+            }
+            if(en_ulPhysicsFlags&EPF_ONLADDER) {
+              TryToClimbLadder(en_vMoveTranslation, stHit, cmMove.cm_pbpoHit);
             }
           }
           // entity shouldn't really slide

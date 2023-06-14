@@ -189,10 +189,10 @@ functions:
   // melee attack enemy
   Hit(EVoid) : CEnemyBase::Hit {
     // hit
-    if (CalcDist(m_penEnemy) < 2.5f) {
+    if (CalcDist(m_penEnemy) < 2.75f) {
       jump BiteEnemy();
     // jump
-    } else if (CalcDist(m_penEnemy) < 10.0f) {
+    } else if (CalcDist(m_penEnemy) < 14.0f) {
       jump JumpOnEnemy();
     }
     return EReturn();
@@ -226,7 +226,7 @@ functions:
     StartModelAnim(BLACKDOG_ANIM_BITE, 0);
     m_bFistHit = FALSE;
     autowait(0.35f);
-    if (CalcDist(m_penEnemy) < 2.8f) {
+    if (CalcDist(m_penEnemy) < 2.75f) {
       m_bFistHit = TRUE;
     }
     

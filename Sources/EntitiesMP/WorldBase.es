@@ -739,6 +739,51 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[43].st_fClimbSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[43].st_ulFlags = STF_NOIMPACT;
 
+  ASSERT(44==SURFACE_VENT);
+  pwo->wo_astSurfaceTypes[44].st_strName = "Vent";
+  pwo->wo_astSurfaceTypes[44].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[44].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[44].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[44].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(45==SURFACE_VENT_NOIMPACT);
+  pwo->wo_astSurfaceTypes[45].st_strName = "Vent no impact";
+  pwo->wo_astSurfaceTypes[45].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[45].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[45].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[45].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[45].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(46==SURFACE_COMPUTER);
+  pwo->wo_astSurfaceTypes[46].st_strName = "Computer";
+  pwo->wo_astSurfaceTypes[46].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[46].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[46].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[46].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(47==SURFACE_COMPUTER_NOIMPACT);
+  pwo->wo_astSurfaceTypes[47].st_strName = "Computer no impact";
+  pwo->wo_astSurfaceTypes[47].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[47].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[47].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[47].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[47].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(48==SURFACE_FUSEBOX);
+  pwo->wo_astSurfaceTypes[48].st_strName = "Fusebox";
+  pwo->wo_astSurfaceTypes[48].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[48].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[48].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[48].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(49==SURFACE_FUSEBOX_NOIMPACT);
+  pwo->wo_astSurfaceTypes[49].st_strName = "Fusebox no impact";
+  pwo->wo_astSurfaceTypes[49].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[49].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[49].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[49].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[49].st_ulFlags = STF_NOIMPACT;
+
   // contents
   pwo->wo_actContentTypes[0].ct_strName = "Air";
   pwo->wo_actContentTypes[0].ct_fDensity = 0.0f;

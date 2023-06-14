@@ -184,7 +184,7 @@ void CGame::ConsoleRender(CDrawPort *pdp)
     CTString strCursor="_";
     FLOAT fTextScalingX = dpConsole.dp_fTextScaling * dpConsole.dp_fTextAspect;
     PIX pixCellSize = _pfdConsoleFont->fd_pixCharWidth * fTextScalingX + dpConsole.dp_pixTextCharSpacing;
-    PIX pixCursorX  = pixTextX + (iCursorPos+strlen(strPrompt))*pixCellSize;
+    PIX pixCursorX = pixTextX + (iCursorPos + strlen(strPrompt)) * pixCellSize;
     dpConsole.PutText( strCursor, pixCursorX, pixYLine+2, colDark);
   }
 
@@ -262,12 +262,12 @@ static void Key_ArrowUp(void)
     // determine previous line in history
     iCurrentHistoryLine++;
     const char *pchrHistoryStart = (const char*)strInputHistory;
-    const char *pchrHistoryEnd   = pchrHistoryStart +strlen( strInputHistory) -1;
+    const char* pchrHistoryEnd = pchrHistoryStart + strlen(strInputHistory) - 1;
     // we reach top of history, if line doesn't exist in history
     if( !GetLineCountBackward( pchrHistoryStart, pchrHistoryEnd, iCurrentHistoryLine, strHistoryLine)) return;
-  } while( strCurrentLine!="" &&
-           strnicmp( strHistoryLine,          strCurrentLine, Min(strlen(strHistoryLine), strlen(strCurrentLine)))!=0 &&
-           strnicmp( strHistoryLine, strSlash+strCurrentLine, Min(strlen(strHistoryLine), strlen(strCurrentLine)+1))!=0);
+  } while (strCurrentLine != "" &&
+      strnicmp(strHistoryLine, strCurrentLine, Min(strlen(strHistoryLine), strlen(strCurrentLine))) != 0 &&
+      strnicmp(strHistoryLine, strSlash + strCurrentLine, Min(strlen(strHistoryLine), strlen(strCurrentLine) + 1)) != 0);
   // set new editing line
   iHistoryLine   = iCurrentHistoryLine;
   strEditingLine = strHistoryLine;
@@ -284,14 +284,14 @@ static void Key_ArrowDown(void)
   while( iCurrentHistoryLine>1) {
     iCurrentHistoryLine--;
     const char *pchrHistoryStart = (const char *) strInputHistory;
-    const char *pchrHistoryEnd   = pchrHistoryStart +strlen(strInputHistory) -1;
+    const char* pchrHistoryEnd = pchrHistoryStart + strlen(strInputHistory) - 1;
     // line must exist in history
     BOOL bExists = GetLineCountBackward( pchrHistoryStart, pchrHistoryEnd, iCurrentHistoryLine, strHistoryLine);
     ASSERT( bExists);
     // set new editing line
-    if( strCurrentLine=="" ||
-        strnicmp( strHistoryLine,          strCurrentLine, Min(strlen(strHistoryLine), strlen(strCurrentLine)))  ==0 ||
-        strnicmp( strHistoryLine, strSlash+strCurrentLine, Min(strlen(strHistoryLine), strlen(strCurrentLine)+1))==0) {
+    if (strCurrentLine == "" ||
+        strnicmp(strHistoryLine, strCurrentLine, Min(strlen(strHistoryLine), strlen(strCurrentLine))) == 0 ||
+        strnicmp(strHistoryLine, strSlash + strCurrentLine, Min(strlen(strHistoryLine), strlen(strCurrentLine) + 1)) == 0) {
       iHistoryLine   = iCurrentHistoryLine;
       strEditingLine = strHistoryLine;
       iCursorPos = strlen(strEditingLine);
@@ -432,7 +432,7 @@ static void Key_Tab( BOOL bShift)
       if( !(itss->ss_ulFlags&SSF_USER)) continue;
       strSymbol = itss->GetCompletionString();
       // if this symbol can be expanded
-      if( strnicmp( strSymbol, strExpandStart, Min(strlen(strSymbol),strlen(strExpandStart))) == 0) {
+      if (strnicmp(strSymbol, strExpandStart, Min(strlen(strSymbol), strlen(strExpandStart))) == 0) {
         // can we print last found symbol ?
         if( strLastMatched!="") {
           if( !bFirstFound) CPrintF( "  -\n");
@@ -458,7 +458,7 @@ static void Key_Tab( BOOL bShift)
     strSymbol = itss->GetCompletionString();
 
     // if this symbol can be expanded
-    if( strnicmp( strSymbol, strExpandStart, Min(strlen(strSymbol),strlen(strExpandStart))) == 0)
+    if (strnicmp(strSymbol, strExpandStart, Min(strlen(strSymbol), strlen(strExpandStart))) == 0)
     {
       // at least one symbol is found, so tab will work
       bTabSymbolFound = TRUE;
@@ -536,8 +536,8 @@ void CGame::ConsoleKeyDown( MSG msg)
   case VK_NEXT:    Key_PgDn(bShift);  break;
   case VK_BACK:    Key_Backspace(bShift, FALSE);  break;
   case VK_DELETE:  Key_Backspace(bShift, TRUE);   break;
-  case VK_LEFT:    if( iCursorPos > 0)                      iCursorPos--;  break;
-  case VK_RIGHT:   if( iCursorPos < strlen(strEditingLine)) iCursorPos++;  break;
+  case VK_LEFT:    if (iCursorPos > 0)                      iCursorPos--;  break;
+  case VK_RIGHT:   if (iCursorPos < strlen(strEditingLine)) iCursorPos++;  break;
   case VK_HOME:    iCursorPos = 0;                       break;
   case VK_END:     iCursorPos = strlen(strEditingLine);  break;
   }

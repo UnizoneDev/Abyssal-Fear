@@ -42,6 +42,7 @@ enum ProjectileType {
   5 PRT_MUTANT_SPIT           "Mutant Spit",
   6 PRT_SHOOTER_FIREBALL      "Shooter Fireball",
   7 PRT_SHOOTER_SPIT          "Shooter Spit",
+  8 PRT_SHAMBLER_BLOOD_BUNDLE "Shambler Blood Bundle",
 };
 
 enum ProjectileMovingType {
@@ -120,6 +121,7 @@ void CProjectile_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     break;
   case PRT_MUTANT_SPIT:
   case PRT_SHOOTER_SPIT:
+  case PRT_SHAMBLER_BLOOD_BUNDLE:
     pdec->PrecacheModel(MODEL_BLOODSPIT);
     pdec->PrecacheTexture(TEX_BLOODSPIT);
     pdec->PrecacheClass(CLASS_BLOOD_SPRAY);
@@ -638,6 +640,30 @@ void ShooterBloodSpit(void) {
   SetModelMainTexture(TEX_BLOODSPIT);
   // start moving
   LaunchAsPropelledProjectile(FLOAT3D(0.0f, 0.0f, -15.0f), (CMovableEntity*)(CEntity*)m_penLauncher);
+  SetDesiredRotation(ANGLE3D(0, 0, 0));
+  m_fFlyTime = 5.0f;
+  m_fDamageAmount = 10.0f;
+  m_fSoundRange = 0.0f;
+  m_bExplode = FALSE;
+  m_bLightSource = FALSE;
+  m_bCanHitHimself = FALSE;
+  m_bCanBeDestroyed = FALSE;
+  m_fWaitAfterDeath = 0.0f;
+  m_pmtMove = PMT_FLYING;
+};
+
+/************************************************************
+ *                   SHAMBLER PROJECTILE                    *
+ ************************************************************/
+void ShamblerBloodBundle(void) {
+  // set appearance
+  InitAsModel();
+  SetPhysicsFlags(EPF_PROJECTILE_FLYING);
+  SetCollisionFlags(ECF_PROJECTILE_MAGIC);
+  SetModel(MODEL_BLOODSPIT);
+  SetModelMainTexture(TEX_BLOODSPIT);
+  // start moving
+  LaunchAsPropelledProjectile(FLOAT3D(0.0f, 0.0f, -20.0f), (CMovableEntity*)(CEntity*)m_penLauncher);
   SetDesiredRotation(ANGLE3D(0, 0, 0));
   m_fFlyTime = 5.0f;
   m_fDamageAmount = 10.0f;
@@ -1322,6 +1348,7 @@ procedures:
       case PRT_MUTANT_SPIT: MutantBloodSpit(); break;
       case PRT_SHOOTER_FIREBALL: ShooterFireball(); break;
       case PRT_SHOOTER_SPIT: ShooterBloodSpit(); break;
+      case PRT_SHAMBLER_BLOOD_BUNDLE: ShamblerBloodBundle(); break;
       default: ASSERTALWAYS("Unknown projectile type");
     }
 
@@ -1352,6 +1379,7 @@ procedures:
       FireballExplosion(); break;
       case PRT_MUTANT_SPIT:
       case PRT_SHOOTER_SPIT:
+      case PRT_SHAMBLER_BLOOD_BUNDLE:
       MutantBloodExplosion(); break;
     }
 

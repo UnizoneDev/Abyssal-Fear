@@ -189,6 +189,7 @@
     <ClCompile Include="ColorShader.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="DetailShader.cpp" />
+	<ClCompile Include="GlassShader.cpp" />
     <ClCompile Include="InvisibleShader.cpp" />
     <ClCompile Include="MultiLayerShader.cpp" />
     <ClCompile Include="Reflection.cpp" />

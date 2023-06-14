@@ -26,6 +26,8 @@ static CTimerValue tvLastUpdate;
 static BOOL  bTimeInitialized = FALSE;
 extern FLOAT net_fSendRetryWait;
 
+CTextureObject *ptoLoadingBackdrop;
+
 // set hook for loading/connecting
 void SetProgressHook(void (*pHook)(CProgressHookInfo *pgli))
 {
@@ -61,5 +63,16 @@ void CallProgressHook_t(FLOAT fCompleted)
     }    
 
   }
+}
+
+void SetLoadingBackdrop(CTFileName fnmTexture)
+{
+    ASSERT(fnmTexture != NULL);
+    ptoLoadingBackdrop->SetData_t(fnmTexture);
+}
+
+void ClearLoadingBackdrop(void)
+{
+    ptoLoadingBackdrop->SetData(NULL);
 }
 

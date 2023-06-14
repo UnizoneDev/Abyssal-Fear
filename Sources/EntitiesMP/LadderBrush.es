@@ -25,7 +25,7 @@ enum LadderSounds {
   3 LS_ROPE       "Rope",
 };
 
-class CLadderBrush: CRationalEntity {
+class CLadderBrush: CMovableBrushEntity {
 name      "Ladder Brush";
 thumbnail "Thumbnails\\LadderBrush.tbn";
 features "HasName", "IsTargetable";
@@ -33,33 +33,14 @@ features "HasName", "IsTargetable";
 properties:
 
   1 CTString m_strName            "Name" 'N' = "Ladder Brush",       // class name
-  2 BOOL m_bCanEnemiesUse         "Can Enemies Use" = FALSE,         // can field be used by NPCs
+  2 BOOL m_bCanEnemiesUse         "Can Enemies Use" = FALSE,         // can brush be used by NPCs
   3 enum LadderSounds m_elsLadderSounds "Ladder SFX Type" = LS_NONE,
-
-{
-  CFieldSettings m_fsField;
-}
+  4 BOOL m_bDynamicShadows        "Dynamic shadows" = FALSE,            // if has dynamic shadows
 
 components:
 
-  1 texture TEXTURE_LADDERBRUSH  "Models\\Editor\\LadderBrush.tex",
-
 
 functions:
-
-  void SetupBarrierSettings(void)
-  {
-    m_fsField.fs_toTexture.SetData(GetTextureDataForComponent(TEXTURE_LADDERBRUSH));
-    m_fsField.fs_colColor = C_WHITE|CT_OPAQUE;
-  }
-
-  CFieldSettings *GetFieldSettings(void) {
-    if (m_fsField.fs_toTexture.GetData()==NULL) {
-      SetupBarrierSettings();      
-    }
-    return &m_fsField;
-  };
-
 
   // returns bytes of memory used by this object
   SLONG GetUsedMemory(void)
@@ -71,6 +52,11 @@ functions:
     return slUsedMemory;
   }
 
+  void PostMoving()
+  {
+    CMovableBrushEntity::PostMoving();
+  };
+
 
 procedures:
 
@@ -79,11 +65,15 @@ procedures:
 
     wait() {
       on (EBegin) : { resume; }
-      on (EPass ePass) : { 
+      on (ETouch eTouch) : { 
 
         if(m_bCanEnemiesUse) {
-          if(IsDerivedFromClass(ePass.penOther, "Player") || IsDerivedFromClass(ePass.penOther, "Enemy Base"))
+          if(IsDerivedFromClass(eTouch.penOther, "Player") || IsDerivedFromClass(eTouch.penOther, "Enemy Base"))
           {
+            if (eTouch.penOther->GetPhysicsFlags()&EPF_MOVABLE)
+            {
+              eTouch.penOther->SetPhysicsFlags(eTouch.penOther->GetPhysicsFlags() | EPF_ONLADDER);
+            }
             resume;
           }
           else
@@ -92,8 +82,12 @@ procedures:
           }
         }
         else {
-          if(IsDerivedFromClass(ePass.penOther, "Player"))
+          if(IsDerivedFromClass(eTouch.penOther, "Player"))
           {
+            if (eTouch.penOther->GetPhysicsFlags()&EPF_MOVABLE)
+            {
+              eTouch.penOther->SetPhysicsFlags(eTouch.penOther->GetPhysicsFlags() | EPF_ONLADDER);
+            }
             resume;
           }
           else
@@ -108,10 +102,18 @@ procedures:
 
   // main initialization
   Main(EVoid) {
-    InitAsFieldBrush();
-    SetPhysicsFlags(EPF_BRUSH_FIXED);
+    InitAsBrush();
+    SetPhysicsFlags(EPF_BRUSH_MOVING);
+    SetCollisionFlags(ECF_BRUSH);
+    // non-zoning brush
+    SetFlags(GetFlags()&~ENF_ZONING);
 
-    SetCollisionFlags((ECBI_BRUSH)<<ECB_IS);
+    // set dynamic shadows as needed
+    if (m_bDynamicShadows) {
+      SetFlags(GetFlags()|ENF_DYNAMICSHADOWS);
+    } else {
+      SetFlags(GetFlags()&~ENF_DYNAMICSHADOWS);
+    }
 
     switch(m_elsLadderSounds)
     {

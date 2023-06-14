@@ -174,11 +174,12 @@ public:
   CObjectMaterial *opo_Material;                  // material of this polygon
   CMappingDefinition opo_amdMappings[4];          // mapping of textures on this polygon
   ULONG opo_ulFlags;                              // various flags
+  ULONG opo_ulFlags2;                             // second set of various flags
   COLOR opo_colorColor;                           // color of this polygon
   void *opo_pvOriginal;                           // used for format conversions
 
   /* Default constructor. */
-  inline CObjectPolygon(void) : opo_Material(NULL), opo_ulFlags(0), opo_pvOriginal(NULL)
+  inline CObjectPolygon(void) : opo_Material(NULL), opo_ulFlags(0), opo_ulFlags2(0), opo_pvOriginal(NULL)
     { memset(&opo_ubUserData, 0, sizeof(opo_ubUserData)); };
   /* Clear the object. */
   inline void Clear(void) { opo_PolygonEdges.Clear(); };
