@@ -31,15 +31,6 @@ void CMainMenu::Initialize_t(void)
   gm_mgVersionLabel.mg_bLabel = TRUE;
   gm_lhGadgets.AddTail(gm_mgVersionLabel.mg_lnNode);
 
-  extern CTString sam_strModName;
-  gm_mgModLabel.mg_strText = sam_strModName;
-  gm_mgModLabel.mg_boxOnScreen = BoxMediumRow(-2.0f);
-  gm_mgModLabel.mg_bfsFontSize = BFS_MEDIUM;
-  gm_mgModLabel.mg_iCenterI = 0;
-  gm_mgModLabel.mg_bEnabled = FALSE;
-  gm_mgModLabel.mg_bLabel = TRUE;
-  gm_lhGadgets.AddTail(gm_mgModLabel.mg_lnNode);
-
   gm_mgSingle.mg_strText = TRANS("DEMONSTRATION");
   gm_mgSingle.mg_bfsFontSize = BFS_LARGE;
   gm_mgSingle.mg_boxOnScreen = BoxBigRow(0.0f);

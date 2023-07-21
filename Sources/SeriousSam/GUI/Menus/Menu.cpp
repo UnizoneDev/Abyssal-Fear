@@ -83,7 +83,10 @@ CFontData _fdTitle;
 
 CSoundData *_psdSelect = NULL;
 CSoundData *_psdPress = NULL;
+CSoundData *_psdBringUp = NULL;
+CSoundData *_psdBringDown = NULL;
 CSoundObject *_psoMenuSound = NULL;
+CSoundObject *_psoButtonSound = NULL;
 
 static CTextureObject _toPointer;
 static CTextureObject _toLogoMenuA;
@@ -115,6 +118,13 @@ extern void PlayMenuSound(CSoundData *psd)
   if (_psoMenuSound!=NULL && !_psoMenuSound->IsPlaying()) {
     _psoMenuSound->Play(psd, SOF_NONGAME);
   }
+}
+
+extern void PlayMenuButtonSound(CSoundData *psd)
+{
+    if (_psoButtonSound != NULL && !_psoButtonSound->IsPlaying()) {
+        _psoButtonSound->Play(psd, SOF_NONGAME);
+    }
 }
 
 // translate all texts in array for one radio button
@@ -204,6 +214,10 @@ void StartMenus(char *str)
   }
   bMenuActive = TRUE;
   bMenuRendering = TRUE;
+
+  if (_gmRunningGameMode != GM_NONE) {
+      PlayMenuSound(_psdBringUp);
+  }
 }
 
 
@@ -220,6 +234,10 @@ void StopMenus( BOOL bGoToRoot /*=TRUE*/)
     } else {
     pgmCurrentMenu = &_pGUIM->gmInGameMenu;
     }
+  }
+
+  if (_gmRunningGameMode != GM_NONE) {
+      PlayMenuSound(_psdBringDown);
   }
 }
 
@@ -251,9 +269,12 @@ void InitializeMenus(void)
     _fdTitle.SetLineSpacing( 0);
 
     // load menu sounds
-    _psdSelect = _pSoundStock->Obtain_t( CTFILENAME("Sounds\\Menu\\Select.wav"));
-    _psdPress  = _pSoundStock->Obtain_t( CTFILENAME("Sounds\\Menu\\Press.wav"));
+    _psdSelect = _pSoundStock->Obtain_t( CTFILENAME("Sounds\\Menu\\ButtonSelect.wav"));
+    _psdPress  = _pSoundStock->Obtain_t( CTFILENAME("Sounds\\Menu\\ButtonPress.wav"));
+    _psdBringUp = _pSoundStock->Obtain_t(CTFILENAME("Sounds\\Menu\\MenuBringUp.wav"));
+    _psdBringDown = _pSoundStock->Obtain_t(CTFILENAME("Sounds\\Menu\\MenuBringDown.wav"));
     _psoMenuSound = new CSoundObject;
+    _psoButtonSound = new CSoundObject;
 
     // initialize and load menu textures
     _toPointer.SetData_t( CTFILENAME( "Textures\\General\\Pointer.tex"));
@@ -449,10 +470,16 @@ void DestroyMenus( void)
   pgmCurrentMenu = NULL;
   _pSoundStock->Release(_psdSelect);
   _pSoundStock->Release(_psdPress);
+  _pSoundStock->Release(_psdBringUp);
+  _pSoundStock->Release(_psdBringDown);
   delete _psoMenuSound;
+  delete _psoButtonSound;
   _psdSelect = NULL;
   _psdPress = NULL;
+  _psdBringUp = NULL;
+  _psdBringDown = NULL;
   _psoMenuSound = NULL;
+  _psoButtonSound = NULL;
 }
 
 // go to parent menu if possible
@@ -712,7 +739,7 @@ BOOL DoMenu( CDrawPort *pdp)
     {
         FLOAT fResize = Min(dpMenu.GetWidth()/640.0f, dpMenu.GetHeight()/480.0f);
         PIX pixSizeI = 256*fResize;
-        PIX pixSizeJ = 64*fResize;
+        PIX pixSizeJ = 128*fResize;
         PIX pixCenterI = dpMenu.GetWidth()/2;
         PIX pixHeightJ = 10*fResize;
         dpMenu.PutTexture(&_toLogoMenuA, PIXaabbox2D( 

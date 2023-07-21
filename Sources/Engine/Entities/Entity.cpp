@@ -88,6 +88,13 @@ BOOL IsOfClass(CEntity *pen, const char *pstrClassName)
     return FALSE;
   }
 }
+
+// Check if entity is of given class by pointer.
+BOOL ENGINE_API IsOfClass(CEntity* pen, class CDLLEntityClass* pdec)
+{
+    return pen != NULL && pen->en_pecClass->ec_pdecDLLClass == pdec;
+};
+
 BOOL IsOfSameClass(CEntity *pen1, CEntity *pen2)
 {
   if (pen1==NULL || pen2==NULL) {
@@ -106,6 +113,7 @@ BOOL IsDerivedFromClass(CEntity *pen, const char *pstrClassName)
   if (pen==NULL || pstrClassName==NULL) {
     return FALSE;
   }
+
   // for all classes in hierarchy of the entity
   for(CDLLEntityClass *pdecDLLClass = pen->GetClass()->ec_pdecDLLClass;
       pdecDLLClass!=NULL;
@@ -116,8 +124,31 @@ BOOL IsDerivedFromClass(CEntity *pen, const char *pstrClassName)
       return TRUE;
     }
   }
+
   // otherwise, it is not derived
   return FALSE;
+}
+
+// Check if entity is of given class or derived from
+BOOL IsDerivedFromClass(CEntity* pen, class CDLLEntityClass* pdec)
+{
+    if (pen == NULL) {
+        return FALSE;
+    }
+
+    // For all classes in hierarchy of the entity
+    for (CDLLEntityClass* pdecDLLClass = pen->GetClass()->ec_pdecDLLClass;
+        pdecDLLClass != NULL;
+        pdecDLLClass = pdecDLLClass->dec_pdecBase)
+    {
+        // if it is the wanted class then it is derived
+        if (pdecDLLClass == pdec) {
+            return TRUE;
+        }
+    }
+
+    // Otherwise, it is not derived
+    return FALSE;
 }
 
 /////////////////////////////////////////////////////////////////////

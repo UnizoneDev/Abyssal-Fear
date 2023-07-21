@@ -208,6 +208,29 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheSound(SOUND_BULLET_VENT);
     pdec->PrecacheSound(SOUND_BULLET_COMPUTER);
     pdec->PrecacheSound(SOUND_BULLET_FUSEBOX);
+
+    pdec->PrecacheSound(SOUND_METAL_BULLET1);
+    pdec->PrecacheSound(SOUND_METAL_BULLET2);
+    pdec->PrecacheSound(SOUND_METAL_BULLET3);
+    pdec->PrecacheSound(SOUND_METAL_BULLET4);
+    pdec->PrecacheSound(SOUND_METAL_BULLET5);
+
+    pdec->PrecacheSound(SOUND_GLASS_BULLET1);
+    pdec->PrecacheSound(SOUND_GLASS_BULLET2);
+    pdec->PrecacheSound(SOUND_GLASS_BULLET3);
+    pdec->PrecacheSound(SOUND_GLASS_BULLET4);
+    pdec->PrecacheSound(SOUND_GLASS_BULLET5);
+
+    pdec->PrecacheSound(SOUND_WOOD_BULLET1);
+    pdec->PrecacheSound(SOUND_WOOD_BULLET2);
+    pdec->PrecacheSound(SOUND_WOOD_BULLET3);
+    pdec->PrecacheSound(SOUND_WOOD_BULLET4);
+    pdec->PrecacheSound(SOUND_WOOD_BULLET5);
+
+    pdec->PrecacheSound(SOUND_CONCRETE_BULLET1);
+    pdec->PrecacheSound(SOUND_CONCRETE_BULLET2);
+    pdec->PrecacheSound(SOUND_CONCRETE_BULLET3);
+    pdec->PrecacheSound(SOUND_CONCRETE_BULLET4);
     break;
   case BET_BULLETTRAIL:
     pdec->PrecacheModel(MODEL_BULLET_TRAIL);
@@ -380,6 +403,30 @@ components:
  120 texture TEXTURE_WATER_WAVE          "Models\\Effects\\ShockWave\\WaterWave.tex",
  130 texture TEXTURE_BLOOD_WAVE          "Models\\Effects\\ShockWave\\BloodWave.tex",
  132 texture TEXTURE_ACID_WAVE           "Models\\Effects\\ShockWave\\AcidWave.tex",
+
+// ********** BULLET RICOCHETS **********
+ 140 sound   SOUND_METAL_BULLET1    "Sounds\\Materials\\Metal\\BulletMetal1.wav",
+ 141 sound   SOUND_METAL_BULLET2    "Sounds\\Materials\\Metal\\BulletMetal2.wav",
+ 142 sound   SOUND_METAL_BULLET3    "Sounds\\Materials\\Metal\\BulletMetal3.wav",
+ 143 sound   SOUND_METAL_BULLET4    "Sounds\\Materials\\Metal\\BulletMetal4.wav",
+ 144 sound   SOUND_METAL_BULLET5    "Sounds\\Materials\\Metal\\BulletMetal5.wav",
+
+ 145 sound   SOUND_GLASS_BULLET1    "Sounds\\Materials\\Glass\\BulletGlass1.wav",
+ 146 sound   SOUND_GLASS_BULLET2    "Sounds\\Materials\\Glass\\BulletGlass2.wav",
+ 147 sound   SOUND_GLASS_BULLET3    "Sounds\\Materials\\Glass\\BulletGlass3.wav",
+ 148 sound   SOUND_GLASS_BULLET4    "Sounds\\Materials\\Glass\\BulletGlass4.wav",
+ 149 sound   SOUND_GLASS_BULLET5    "Sounds\\Materials\\Glass\\BulletGlass5.wav",
+
+ 150 sound   SOUND_WOOD_BULLET1    "Sounds\\Materials\\Wood\\BulletWood1.wav",
+ 151 sound   SOUND_WOOD_BULLET2    "Sounds\\Materials\\Wood\\BulletWood2.wav",
+ 152 sound   SOUND_WOOD_BULLET3    "Sounds\\Materials\\Wood\\BulletWood3.wav",
+ 153 sound   SOUND_WOOD_BULLET4    "Sounds\\Materials\\Wood\\BulletWood4.wav",
+ 154 sound   SOUND_WOOD_BULLET5    "Sounds\\Materials\\Wood\\BulletWood5.wav",
+
+ 155 sound   SOUND_CONCRETE_BULLET1    "Sounds\\Materials\\Concrete\\BulletConcrete1.wav",
+ 156 sound   SOUND_CONCRETE_BULLET2    "Sounds\\Materials\\Concrete\\BulletConcrete2.wav",
+ 157 sound   SOUND_CONCRETE_BULLET3    "Sounds\\Materials\\Concrete\\BulletConcrete3.wav",
+ 158 sound   SOUND_CONCRETE_BULLET4    "Sounds\\Materials\\Concrete\\BulletConcrete4.wav",
 
 functions:
 
@@ -987,8 +1034,26 @@ functions:
     if( bSound)
     {
       m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
-      PlaySound(m_soEffect, SOUND_BULLET_STONE, SOF_3D);
-      m_fSoundTime = GetSoundLength(SOUND_BULLET_STONE);
+
+      switch(IRnd()%4) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET4);
+        } break;
+        default: break;
+      }
     }
     SetModel(MODEL_BULLET_STAIN);
     SetModelMainTexture(TEXTURE_BULLET_STAIN);
@@ -1124,8 +1189,30 @@ functions:
     if( bSound)
     {
       m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
-      PlaySound(m_soEffect, SOUND_BULLET_WOOD, SOF_3D);
-      m_fSoundTime = GetSoundLength(SOUND_BULLET_WOOD);
+
+      switch(IRnd()%5) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_WOOD_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_WOOD_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_WOOD_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_WOOD_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_WOOD_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_WOOD_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_WOOD_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_WOOD_BULLET4);
+        } break;
+        case 4: {
+          PlaySound(m_soEffect, SOUND_WOOD_BULLET5, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_WOOD_BULLET5);
+        } break;
+        default: break;
+      }
     }
     
     SetModel(MODEL_BULLET_STAIN);
@@ -1174,8 +1261,30 @@ functions:
     if( bSound)
     {
       m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
-      PlaySound(m_soEffect, SOUND_BULLET_METAL, SOF_3D);
-      m_fSoundTime = GetSoundLength(SOUND_BULLET_METAL);
+
+      switch(IRnd()%5) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_METAL_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_METAL_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_METAL_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_METAL_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_METAL_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_METAL_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_METAL_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_METAL_BULLET4);
+        } break;
+        case 4: {
+          PlaySound(m_soEffect, SOUND_METAL_BULLET5, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_METAL_BULLET5);
+        } break;
+        default: break;
+      }
     }
     
     SetModel(MODEL_BULLET_STAIN);
@@ -1224,8 +1333,30 @@ functions:
     if( bSound)
     {
       m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
-      PlaySound(m_soEffect, SOUND_BULLET_GLASS, SOF_3D);
-      m_fSoundTime = GetSoundLength(SOUND_BULLET_GLASS);
+
+      switch(IRnd()%5) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_GLASS_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_GLASS_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_GLASS_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_GLASS_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_GLASS_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_GLASS_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_GLASS_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_GLASS_BULLET4);
+        } break;
+        case 4: {
+          PlaySound(m_soEffect, SOUND_GLASS_BULLET5, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_GLASS_BULLET5);
+        } break;
+        default: break;
+      }
     }
     
     SetModel(MODEL_BULLET_STAIN);

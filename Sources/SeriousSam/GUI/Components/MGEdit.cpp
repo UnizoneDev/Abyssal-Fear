@@ -44,10 +44,10 @@ void CMGEdit::OnActivate(void)
     return;
   }
   ASSERT(mg_pstrToChange != NULL);
-  PlayMenuSound(_psdPress);
+  PlayMenuButtonSound(_psdPress);
   IFeel_PlayEffect("Menu_press");
   SetText(mg_strText);
-  mg_iCursorPos = strlen(mg_strText);
+  mg_iCursorPos = mg_strText.Length();
   mg_bEditing = TRUE;
   _bEditingString = TRUE;
 }

@@ -135,6 +135,7 @@ functions:
     // add some more
     slUsedMemory += m_strMessage.Length();
     slUsedMemory += m_strLockedMessage.Length();
+    slUsedMemory += m_strUnlockedMessage.Length();
     return slUsedMemory;
   }
 
@@ -144,7 +145,7 @@ functions:
     // if sound entity exists
     if (m_penSoundON!=NULL) {
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundON;
-      m_soON.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      m_soON.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
       PlaySound(m_soON, sh.m_fnSound, sh.m_iPlayType);
     }
   };
@@ -154,7 +155,7 @@ functions:
     // if sound entity exists
     if (m_penSoundOFF!=NULL) {
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundOFF;
-      m_soOFF.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      m_soOFF.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
       PlaySound(m_soOFF, sh.m_fnSound, sh.m_iPlayType);
     }
   };
@@ -164,7 +165,7 @@ functions:
     // if sound entity exists
     if (m_penSoundLocked!=NULL) {
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundLocked;
-      m_soLocked.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      m_soLocked.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
       PlaySound(m_soLocked, sh.m_fnSound, sh.m_iPlayType);
     }
   };
@@ -174,7 +175,7 @@ functions:
     // if sound entity exists
     if (m_penSoundUnlocked!=NULL) {
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundUnlocked;
-      m_soUnlocked.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      m_soUnlocked.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
       PlaySound(m_soUnlocked, sh.m_fnSound, sh.m_iPlayType);
     }
   };

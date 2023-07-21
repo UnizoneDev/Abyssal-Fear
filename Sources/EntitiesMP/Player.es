@@ -56,6 +56,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/CreditsHolder.h"
 #include "EntitiesMP/HudPicHolder.h"
 #include "EntitiesMP/OverlayHolder.h"
+#include "EntitiesMP/ControllableTurret.h"
 
 extern void JumpFromBouncer(CEntity *penToBounce, CEntity *penBouncer);
 // from game
@@ -631,6 +632,19 @@ void CPlayer_Precache(void)
 //pdec->PrecacheSound(SOUND_HIGHSCORE          );
   pdec->PrecacheSound(SOUND_SILENCE            );
   pdec->PrecacheSound(SOUND_BLOWUP             );
+  pdec->PrecacheSound(SOUND_EFFECT_STING       );
+
+  pdec->PrecacheSound(SOUND_CONCRETE_STEP1     );
+  pdec->PrecacheSound(SOUND_CONCRETE_STEP2     );
+  pdec->PrecacheSound(SOUND_CONCRETE_STEP3     );
+  pdec->PrecacheSound(SOUND_CONCRETE_STEP4     );
+  pdec->PrecacheSound(SOUND_CONCRETE_LAND      );
+
+  pdec->PrecacheSound(SOUND_METAL_STEP1        );
+  pdec->PrecacheSound(SOUND_METAL_STEP2        );
+  pdec->PrecacheSound(SOUND_METAL_STEP3        );
+  pdec->PrecacheSound(SOUND_METAL_STEP4        );
+  pdec->PrecacheSound(SOUND_METAL_LAND         );
 
   pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_TELEPORT);
   pdec->PrecacheClass(CLASS_SERIOUSBOMB);
@@ -1125,6 +1139,9 @@ properties:
  206 FLOAT m_fClimbDir = 0.0f,
  207 BOOL m_bIsStung = FALSE,
  208 FLOAT m_tmStungTime = 0.0f,            // when was last sting
+ 209 CSoundObject m_soEffect,               // local ambient that occurs due to special damage types
+ 210 BOOL m_bIsOnTurret = FALSE,            // if true, then the player can only aim
+ 211 CEntityPointer m_penTurret,            // player weapons
 
 {
   ShellLaunchData ShellLaunchData_array;  // array of data describing flying empty shells
@@ -1233,12 +1250,26 @@ components:
 218 sound SOUND_WATERAMBIENT    "Sounds\\Player\\Underwater.wav",
 219 sound SOUND_WATERBUBBLES    "Sounds\\Player\\Bubbles.wav",
 221 sound SOUND_SECRET          "Sounds\\Player\\Secret.wav",
+222 sound SOUND_EFFECT_STING    "Sounds\\Player\\EffectAbominationSting.wav",
 
 // ************** FLESH PARTS **************
 230 model   MODEL_FLESH          "Models\\Effects\\Debris\\FleshDebris.mdl",
 
 231 texture TEXTURE_FLESH_RED    "Models\\Effects\\Debris\\FleshDebrisRed.tex",
 232 texture TEXTURE_FLESH_GREEN  "Models\\Effects\\Debris\\FleshDebrisGreen.tex",
+
+// ************** MATERIAL TYPES **************
+240 sound SOUND_CONCRETE_STEP1      "Sounds\\Materials\\Concrete\\StepConcrete1.wav",
+241 sound SOUND_CONCRETE_STEP2      "Sounds\\Materials\\Concrete\\StepConcrete2.wav",
+242 sound SOUND_CONCRETE_STEP3      "Sounds\\Materials\\Concrete\\StepConcrete3.wav",
+243 sound SOUND_CONCRETE_STEP4      "Sounds\\Materials\\Concrete\\StepConcrete4.wav",
+244 sound SOUND_CONCRETE_LAND       "Sounds\\Materials\\Concrete\\LandConcrete.wav",
+
+245 sound SOUND_METAL_STEP1      "Sounds\\Materials\\Metal\\StepMetal1.wav",
+246 sound SOUND_METAL_STEP2      "Sounds\\Materials\\Metal\\StepMetal2.wav",
+247 sound SOUND_METAL_STEP3      "Sounds\\Materials\\Metal\\StepMetal3.wav",
+248 sound SOUND_METAL_STEP4      "Sounds\\Materials\\Metal\\StepMetal4.wav",
+249 sound SOUND_METAL_LAND       "Sounds\\Materials\\Metal\\LandMetal.wav",
 
 
 functions:
@@ -2790,7 +2821,7 @@ functions:
     {
       fKickDamage*=1.5;
     }
-    if (dmtType==DMT_DROWNING || dmtType==DMT_CLOSERANGE || dmtType==DMT_AXE) {
+    if (dmtType==DMT_DROWNING || dmtType==DMT_CLOSERANGE || dmtType==DMT_AXE || dmtType==DMT_BLUNT || dmtType==DMT_STING) {
       fKickDamage /= 10;
     }
     if (dmtType==DMT_CHAINSAW)
@@ -2840,6 +2871,7 @@ functions:
     case DMT_AXE:
     case DMT_SHARP:
     case DMT_BLUNT:
+    case DMT_STING:
       // do nothing
       break;
     default:
@@ -3020,6 +3052,13 @@ functions:
       }
     }
 
+    if(dmtType == DMT_STING) {
+      m_bIsStung = TRUE;
+      PlaySound( m_soEffect, SOUND_EFFECT_STING, SOF_3D|SOF_VOLUMETRIC|SOF_LOCAL);
+      m_soEffect.Set3DParameters( 25.0f, 5.0f, 2.0f, 1.0f);
+      m_tmStungTime = _pTimer->CurrentTick() + 5.0f;
+    }
+
     FLOAT fSubHealth, fSubArmor;
     if( dmtType == DMT_DROWNING) {
       // drowning
@@ -3027,23 +3066,13 @@ functions:
     }
     else {
       // damage and armor
-      fSubArmor  = fDamageAmmount;      // 2/3 on armor damage
-      fSubHealth = 0;                   // 1/3 on health damage
-
-      // make armor act as second health bar
-      if(fSubArmor>0) {
-        m_fArmor  -= fSubArmor;
-      }
-
+      fSubArmor  = fDamageAmmount*2.0f/3.0f;      // 2/3 on armor damage
+      fSubHealth = fDamageAmmount - fSubArmor;    // 1/3 on health damage
+      m_fArmor  -= fSubArmor;                     // decrease armor
       if( m_fArmor<0) {                          // armor below zero -> add difference to health damage
         fSubHealth -= m_fArmor;
         m_fArmor    = 0.0f;
       }
-    }
-
-    if(dmtType == DMT_STING) {
-      m_bIsStung = TRUE;
-      m_tmStungTime = _pTimer->CurrentTick() + 5.0f;
     }
 
     // if any damage
@@ -3410,6 +3439,17 @@ functions:
           bSomethingToUse = TRUE;
         }
       }
+
+      // if switch and near enough
+      if (IsOfClass( pen, "ControllableTurret")) {
+        CControllableTurret &enTurret = (CControllableTurret&)*pen;
+        // if turret is useable
+        if (penWeapons->m_fRayHitDistance < enTurret.GetDistance() && enTurret.m_bUseable) {
+          // send it a trigger event
+          SendToTarget(pen, EET_TRIGGER, this);
+          bSomethingToUse = TRUE;
+        }
+      }
     }
     
     if (!bSomethingToUse)
@@ -3652,6 +3692,37 @@ functions:
         // stop camera
         m_penCamera=NULL;
       }
+    } else if (m_bIsOnTurret) {
+      // ignore keyboard/mouse/joystick commands
+      paAction.pa_vTranslation  = FLOAT3D(0,0,0);
+
+      ((CPlayerWeapons&)*m_penWeapons).SendEvent(EReleaseWeapon());
+
+      // if use is pressed
+      if (ulNewButtons&(PLACT_USE)) {
+        // stop being on turret
+        m_bIsOnTurret = FALSE;
+      }
+
+      if(ulNewButtons&(PLACT_FIRE)) {
+        ((CControllableTurret&)*m_penTurret).SendEvent(EFireTurret());
+      }
+
+      if(ulReleasedButtons&(PLACT_FIRE)) {
+        ((CControllableTurret&)*m_penTurret).SendEvent(EReleaseTurret());
+      }
+
+      // if 3rd person view is pressed
+      if (ulNewButtons&PLACT_3RD_PERSON_VIEW) {
+        ChangePlayerView();
+      }
+
+      // apply center view
+      if( ulButtonsNow&PLACT_CENTER_VIEW) {
+        // center view with speed of 45 degrees per 1/20 seconds
+        paAction.pa_aRotation(2) += Clamp( -en_plViewpoint.pl_OrientationAngle(2)/_pTimer->TickQuantum, -900.0f, +900.0f);
+      }
+
     } else {
       ButtonsActions(paAction);
     }
@@ -3961,7 +4032,7 @@ functions:
 
         // if just fell to ground
         if (pstOld==PST_FALL && (m_pstState==PST_STAND||m_pstState==PST_CROUCH)) {
-          INDEX iSoundLand = SOUND_LAND;
+          INDEX iSoundLand = SOUND_CONCRETE_LAND;
           if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND_NOIMPACT)) {
@@ -3982,7 +4053,7 @@ functions:
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT)) {
-             iSoundLand = SOUND_LAND_METAL;
+             iSoundLand = SOUND_METAL_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET_NOIMPACT)) {
@@ -4124,9 +4195,9 @@ functions:
 
       // check for ladders
       if(en_ulPhysicsFlags&EPF_ONLADDER) {
-        if(vTranslation(3)>0) {
+        if(vTranslation(3)<0) {
           m_fClimbDir = vTranslation(3) / plr_fSpeedForward;
-        } else if (vTranslation(3)<0) {
+        } else if (vTranslation(3)>0) {
           m_fClimbDir = vTranslation(3) / plr_fSpeedBackward;
         }
       }
@@ -4179,8 +4250,10 @@ functions:
       BOOL bSwimming = (m_pstState == PST_SWIM) && fWantSpeed>2.0f && fGoesSpeed>2.0f;
       BOOL bDiving = (m_pstState == PST_DIVE) && fWantSpeed>2.0f && fGoesSpeed>2.0f;
       TIME tmNow = _pTimer->CurrentTick();
-      INDEX iSoundWalkL = SOUND_WALK_L;
-      INDEX iSoundWalkR = SOUND_WALK_R;
+      INDEX iSoundWalkL  = SOUND_CONCRETE_STEP1;
+      INDEX iSoundWalkL2 = SOUND_CONCRETE_STEP2;
+      INDEX iSoundWalkR  = SOUND_CONCRETE_STEP3;
+      INDEX iSoundWalkR2 = SOUND_CONCRETE_STEP4;
       if ((ctDn.ct_ulFlags&CTF_SWIMABLE) && en_fImmersionFactor>=0.1f) {
         iSoundWalkL = SOUND_WATERWALK_L;
         iSoundWalkR = SOUND_WATERWALK_R;
@@ -4213,8 +4286,10 @@ functions:
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT) ) {
-        iSoundWalkL = SOUND_WALK_METAL_L;
-        iSoundWalkR = SOUND_WALK_METAL_R;
+        iSoundWalkL  = SOUND_METAL_STEP1;
+        iSoundWalkL2 = SOUND_METAL_STEP2;
+        iSoundWalkR  = SOUND_METAL_STEP3;
+        iSoundWalkR2 = SOUND_METAL_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET_NOIMPACT) ) {
@@ -4273,9 +4348,33 @@ functions:
           m_tmMoveSound = tmNow;
           m_bMoveSoundLeft = !m_bMoveSoundLeft;
           if (m_bMoveSoundLeft) {
-            PlaySound(m_soFootL, iSoundWalkL, SOF_3D);
+            if(en_pbpoStandOn!=NULL && 
+              (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT) ) {
+                 switch(IRnd()%2) {
+                   case 0: PlaySound(m_soFootL, iSoundWalkL, SOF_3D); break;
+                   case 1: PlaySound(m_soFootL, iSoundWalkL2, SOF_3D); break;
+                   default: break;
+                 }
+               } else {
+                 PlaySound(m_soFootL, iSoundWalkL, SOF_3D);
+               }
           } else {
-            PlaySound(m_soFootR, iSoundWalkR, SOF_3D);
+            if(en_pbpoStandOn!=NULL && 
+              (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT) ) {
+                 switch(IRnd()%2) {
+                   case 0: PlaySound(m_soFootL, iSoundWalkR, SOF_3D); break;
+                   case 1: PlaySound(m_soFootL, iSoundWalkR2, SOF_3D); break;
+                   default: break;
+                 }
+               } else {
+                 PlaySound(m_soFootL, iSoundWalkR, SOF_3D);
+               }
           }
         }
       } else if (bWalking) {
@@ -4283,9 +4382,33 @@ functions:
           m_tmMoveSound = tmNow;
           m_bMoveSoundLeft = !m_bMoveSoundLeft;
           if (m_bMoveSoundLeft) {
-            PlaySound(m_soFootL, iSoundWalkL, SOF_3D);
+            if(en_pbpoStandOn!=NULL && 
+              (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT) ) {
+                 switch(IRnd()%2) {
+                   case 0: PlaySound(m_soFootL, iSoundWalkL, SOF_3D); break;
+                   case 1: PlaySound(m_soFootL, iSoundWalkL2, SOF_3D); break;
+                   default: break;
+                 }
+               } else {
+                 PlaySound(m_soFootL, iSoundWalkL, SOF_3D);
+               }
           } else {
-            PlaySound(m_soFootR, iSoundWalkR, SOF_3D);
+            if(en_pbpoStandOn!=NULL && 
+              (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT) ) {
+                 switch(IRnd()%2) {
+                   case 0: PlaySound(m_soFootL, iSoundWalkR, SOF_3D); break;
+                   case 1: PlaySound(m_soFootL, iSoundWalkR2, SOF_3D); break;
+                   default: break;
+                 }
+               } else {
+                 PlaySound(m_soFootL, iSoundWalkR, SOF_3D);
+               }
           }
         }
       } else if (bDiving) {
@@ -4403,6 +4526,8 @@ functions:
   // Buttons actions
   void ButtonsActions( CPlayerAction &paAction)
   {
+    ((CControllableTurret&)*m_penTurret).SendEvent(EReleaseTurret());
+
     // if selecting a new weapon select it
     if((ulNewButtons&PLACT_SELECT_WEAPON_MASK)!=0) {
       ESelectWeapon eSelect;
@@ -4694,7 +4819,7 @@ functions:
     // render weapon models if needed
     // do not render weapon if sniping
     BOOL bRenderModels = _pShell->GetINDEX("gfx_bRenderModels");
-    if( hud_bShowWeapon && bRenderModels) {
+    if( (hud_bShowWeapon && bRenderModels) && !m_bIsOnTurret) {
       // render weapons only if view is from player eyes
       ((CPlayerWeapons&)*m_penWeapons).RenderWeaponModel(prProjection, pdp, 
        vViewerLightDirection, colViewerLight, colViewerAmbient, bRenderWeapon, iEye);
@@ -4886,6 +5011,9 @@ functions:
     m_tmSeriousDamage   = 0.0f, 
     m_tmSeriousSpeed    = 0.0f,
     m_tmStungTime       = 0.0f,
+    m_bIsStung          = FALSE,
+    m_bIsBlocking       = FALSE,
+    m_bIsOnTurret       = FALSE,
 
     // initialize animator
     ((CPlayerAnimator&)*m_penAnimator).Initialize();
@@ -5409,6 +5537,7 @@ procedures:
   {
     // stop firing when dead
     ((CPlayerWeapons&)*m_penWeapons).SendEvent(EReleaseWeapon());
+    ((CControllableTurret&)*m_penTurret).SendEvent(EReleaseTurret());
     // stop all looping ifeel effects
     if(_pNetwork->IsPlayerLocal(this))
     {
@@ -5671,6 +5800,8 @@ procedures:
 
     // stop firing when end
     ((CPlayerWeapons&)*m_penWeapons).SendEvent(EReleaseWeapon());
+    ((CControllableTurret&)*m_penTurret).SendEvent(EReleaseTurret());
+    m_bIsOnTurret = FALSE;
 
     // mark player as dead
     SetFlags(GetFlags()&~ENF_ALIVE);
@@ -6431,6 +6562,7 @@ procedures:
         }
         // stop firing
         ((CPlayerWeapons&)*m_penWeapons).SendEvent(EReleaseWeapon());
+        ((CControllableTurret&)*m_penTurret).SendEvent(EReleaseTurret());
         resume;
       }
       on (ECameraStop eCameraStop) : {
@@ -6564,6 +6696,7 @@ procedures:
     if (m_pen3rdPersonView!=NULL) {
       m_pen3rdPersonView->Destroy();
     }
+
     Destroy();
     return;
   };

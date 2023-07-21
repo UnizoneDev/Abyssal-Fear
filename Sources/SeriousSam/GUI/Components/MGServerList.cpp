@@ -419,7 +419,7 @@ BOOL CMGServerList::OnKeyDown(int iVKey)
       break;
     }
   case VK_RETURN:
-    PlayMenuSound(_psdPress);
+    PlayMenuButtonSound(_psdPress);
     IFeel_PlayEffect("Menu_press");
     {INDEX i = 0;
     FOREACHINLIST(CNetworkSession, ns_lnNode, _lhServers, itns) {

@@ -78,6 +78,7 @@ procedures:
           }
           else
           {
+            eTouch.penOther->SetPhysicsFlags(eTouch.penOther->GetPhysicsFlags() & ~EPF_ONLADDER);
             resume;
           }
         }
@@ -92,6 +93,7 @@ procedures:
           }
           else
           {
+            eTouch.penOther->SetPhysicsFlags(eTouch.penOther->GetPhysicsFlags() & ~EPF_ONLADDER);
             resume;
           }
         }

@@ -24,7 +24,7 @@ extern CSoundData* _psdPress;
 
 void CMGAchievementButton::OnActivate(void)
 {
-	PlayMenuSound(_psdPress);
+	PlayMenuButtonSound(_psdPress);
 	IFeel_PlayEffect("Menu_press");
 }
 

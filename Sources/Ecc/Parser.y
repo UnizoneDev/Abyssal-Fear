@@ -902,10 +902,10 @@ component_identifier : identifier { _strCurrentComponentIdentifier = $1.strStrin
 component_filename : c_string { _strCurrentComponentFileName = $1.strString; };
 
 component_type
-  : k_model   { _strCurrentComponentType = "ECT_MODEL"; }
-  | k_texture { _strCurrentComponentType = "ECT_TEXTURE"; }
-  | k_sound   { _strCurrentComponentType = "ECT_SOUND"; }
-  | k_class   { _strCurrentComponentType = "ECT_CLASS"; }
+  : k_model     { _strCurrentComponentType = "ECT_MODEL"; }
+  | k_texture   { _strCurrentComponentType = "ECT_TEXTURE"; }
+  | k_sound     { _strCurrentComponentType = "ECT_SOUND"; }
+  | k_class     { _strCurrentComponentType = "ECT_CLASS"; }
   ;
 
 /*/////////////////////////////////////////////////////////

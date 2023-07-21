@@ -38,21 +38,21 @@ enum BrushDebrisType {
   0 BDT_STONE1       "Stone 1",
   1 BDT_STONE2       "Stone 2",
   2 BDT_STONE3       "Stone 3",
-  3 BDT_WOOD1        "Wood 1",
-  4 BDT_WOOD2        "Wood 2",
-  5 BDT_WOOD3        "Wood 3",
-  6 BDT_WOOD4        "Wood 4",
-  7 BDT_METAL1       "Metal 1",
-  8 BDT_METAL2       "Metal 2",
-  9 BDT_METAL3       "Metal 3",
- 10 BDT_METAL4       "Metal 4",
+  3 BDT_WOOD1        "Tan Wood",
+  4 BDT_WOOD2        "Brown Wood",
+  5 BDT_WOOD3        "White Wood",
+  6 BDT_WOOD4        "Grey Wood",
+  7 BDT_METAL1       "Grey Metal",
+  8 BDT_METAL2       "Grey Metal 2",
+  9 BDT_METAL3       "Grey Metal 3",
+ 10 BDT_METAL4       "Grey Metal 4",
  11 BDT_GLASS1       "White Glass",
  12 BDT_GLASS2       "Turquoise Glass",
- 13 BDT_CRETE1       "Concrete 1",
- 14 BDT_CRETE2       "Concrete 2",
- 15 BDT_CRETE3       "Concrete 3",
- 16 BDT_CRETE4       "Concrete 4",
- 17 BDT_CRETE5       "Concrete 5",
+ 13 BDT_CRETE1       "Grey Concrete",
+ 14 BDT_CRETE2       "Tan Concrete",
+ 15 BDT_CRETE3       "Green Concrete",
+ 16 BDT_CRETE4       "Grey Concrete 2",
+ 17 BDT_CRETE5       "Brown Concrete",
 };
 
 enum TouchOrDamageEvent {
@@ -568,7 +568,7 @@ functions:
     // if sound entity exists
     if (m_penSoundStart!=NULL) {
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundStart;
-      m_soStart.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      m_soStart.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
       PlaySound(m_soStart, sh.m_fnSound, sh.m_iPlayType);
     }
   };
@@ -578,7 +578,7 @@ functions:
     // if sound entity exists
     if (m_penSoundStop!=NULL) {
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundStop;
-      m_soStop.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      m_soStop.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
       PlaySound(m_soStop, sh.m_fnSound, sh.m_iPlayType);
     }
   };
@@ -588,7 +588,7 @@ functions:
     // if sound entity exists
     if (m_penSoundFollow!=NULL) {
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundFollow;
-      m_soFollow.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      m_soFollow.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
       PlaySound(m_soFollow, sh.m_fnSound, sh.m_iPlayType);
     }
   };

@@ -55,7 +55,7 @@ name      "Gunman";
 thumbnail "Thumbnails\\Gunman.tbn";
 
 properties:
-  1 FLOAT3D m_vStrafeCheckPosition = FLOAT3D(0,0,0),         // check strafe position
+  1 BOOL m_bShootStrafe = FALSE,
   2 BOOL m_bFistHit = FALSE,
   3 enum GunmanType m_gmChar "Character" 'C' = GMC_PISTOL,   // character
   4 enum KeyItemType m_kitType "Key Type" 'K' = KIT_CROSSWOODEN, // key type
@@ -305,7 +305,7 @@ functions:
   };
 
   void JumpingAnim(void) {
-    RunningAnim();
+    StartModelAnim(GUNMAN_ANIM_JUMP, AOF_LOOPING|AOF_NORESTART);
   };
 
   void BacksteppingAnim(void) {
@@ -358,7 +358,13 @@ functions:
     }
     else if (m_gmChar == GMC_LEADER)
     {
-      autocall GunmanLeaderPistolAttack() EEnd;
+      switch(IRnd()%3)
+      {
+        case 0: jump GunmanLeaderPistolAttack(); break;
+        case 1: jump StrafeLeftPistol(); break;
+        case 2: jump StrafeRightPistol(); break;
+        default: ASSERTALWAYS("Gunman Leader unknown ranged attack");
+      }
       return EReturn();
     } 
     else if (m_gmChar == GMC_KEY)
@@ -451,6 +457,78 @@ functions:
     return EEnd();
   };
 
+  // --------------------------------------------------------------------------------------
+  // Call this to make the enemy strafe to the left
+  // --------------------------------------------------------------------------------------
+  StrafeLeftPistol(EVoid) 
+  {
+    // stop moving
+    StopMoving();
+    // play animation for locking
+    StartModelAnim(GUNMAN_ANIM_STRAFELEFTPISTOL, AOF_LOOPING|AOF_NORESTART);
+    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(0.0f, 1.0f, 0.0f), ANGLE3D(0, 0, 0));
+    PlaySound(m_soSound, SOUND_FIRE, SOF_3D);
+    // wait charge time
+    m_fLockStartTime = _pTimer->CurrentTick();
+    while (m_fLockStartTime+GetProp(m_fLockOnEnemyTime) > _pTimer->CurrentTick()) {
+      // each tick
+      m_fMoveFrequency = 0.05f;
+      wait (m_fMoveFrequency) {
+        on (ETimer) : { stop; }
+        on (EBegin) : {
+          FLOAT fSpeedMultiplier = 1.0f;
+          m_fMoveSpeed = GetProp(m_fWalkSpeed) * fSpeedMultiplier;
+          m_aRotateSpeed = 0.0f;
+          m_vDesiredPosition = FLOAT3D(-m_fMoveSpeed, 0.0f, 0.0f);
+          // start moving
+          SetDesiredTranslation(m_vDesiredPosition);
+          resume;
+        }
+      }
+    }
+    // stop rotating
+    StopRotating();
+
+    // return to caller
+    return EReturn();
+  };
+
+  // --------------------------------------------------------------------------------------
+  // Call this to make the enemy strafe to the right
+  // --------------------------------------------------------------------------------------
+  StrafeRightPistol(EVoid) 
+  {
+    // stop moving
+    StopMoving();
+    // play animation for locking
+    StartModelAnim(GUNMAN_ANIM_STRAFERIGHTPISTOL, AOF_LOOPING|AOF_NORESTART);
+    ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(0.0f, 1.0f, 0.0f), ANGLE3D(0, 0, 0));
+    PlaySound(m_soSound, SOUND_FIRE, SOF_3D);
+    // wait charge time
+    m_fLockStartTime = _pTimer->CurrentTick();
+    while (m_fLockStartTime+GetProp(m_fLockOnEnemyTime) > _pTimer->CurrentTick()) {
+      // each tick
+      m_fMoveFrequency = 0.05f;
+      wait (m_fMoveFrequency) {
+        on (ETimer) : { stop; }
+        on (EBegin) : {
+          FLOAT fSpeedMultiplier = 1.0f;
+          m_fMoveSpeed = GetProp(m_fWalkSpeed) * fSpeedMultiplier;
+          m_aRotateSpeed = 0.0f;
+          m_vDesiredPosition = FLOAT3D(+m_fMoveSpeed, 0.0f, 0.0f);
+          // start moving
+          SetDesiredTranslation(m_vDesiredPosition);
+          resume;
+        }
+      }
+    }
+    // stop rotating
+    StopRotating();
+
+    // return to caller
+    return EReturn();
+  };
+
   // Gunman pistol attack
   GunmanLeaderPistolAttack(EVoid) {
     m_fLockOnEnemyTime = 0.5f;
@@ -458,19 +536,19 @@ functions:
     StandingAnim();
     autowait(0.2f + FRnd()/4);
 
-    StartModelAnim(GUNMAN_ANIM_SHOOTPISTOL, 0);
+    StartModelAnim(GUNMAN_ANIM_LEADERSHOOTPISTOL, 0);
     ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(0.0f, 1.0f, 0.0f), ANGLE3D(0, 0, 0));
     PlaySound(m_soSound, SOUND_FIRE, SOF_3D);
 
     autowait(0.2f + FRnd()/4);
 
-    StartModelAnim(GUNMAN_ANIM_SHOOTPISTOL, 0);
+    StartModelAnim(GUNMAN_ANIM_LEADERSHOOTPISTOL, 0);
     ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(0.0f, 1.0f, 0.0f), ANGLE3D(0, 0, 0));
     PlaySound(m_soSound, SOUND_FIRE, SOF_3D);
 
     autowait(0.2f + FRnd()/4);
 
-    StartModelAnim(GUNMAN_ANIM_SHOOTPISTOL, 0);
+    StartModelAnim(GUNMAN_ANIM_LEADERSHOOTPISTOL, 0);
     ShootProjectile(PRT_GUNMAN_BULLET, FLOAT3D(0.0f, 1.0f, 0.0f), ANGLE3D(0, 0, 0));
     PlaySound(m_soSound, SOUND_FIRE, SOF_3D);
 
@@ -479,10 +557,7 @@ functions:
 
     m_fLockOnEnemyTime = 1.0f;
 
-    autocall CEnemyBase::StrafeLeft() EReturn;
-    autocall CEnemyBase::StrafeRight() EReturn;
-
-    return EEnd();
+    return EReturn();
   };
 
   // Gunman shotgun attack
@@ -522,6 +597,7 @@ functions:
     en_fDensity = 2000.0f;
     m_fBlowUpSize = 2.0f;
     m_sptType = SPT_ELECTRICITY_SPARKS_NO_BLOOD;
+    m_bShootStrafe = FALSE;
 
     // set your appearance
     SetModel(MODEL_GUNMAN);

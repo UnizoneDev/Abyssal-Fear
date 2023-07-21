@@ -1605,20 +1605,21 @@ out:;
     FLOAT3D vPolygonNormal = ((FLOAT3D&)plPolygon);
     vPolygonNormal.Normalize();
 
-    FLOAT3D vClimbSpeed = vTranslationAbsolute;
-
-    // take stairs height
-    FLOAT fStairsHeight = 0;
-    if (stHit.st_fStairsHeight>0) {
-      fStairsHeight = Max(stHit.st_fStairsHeight, en_fStepUpHeight);
-    } else if (stHit.st_fStairsHeight<0) {
-      fStairsHeight = Min(stHit.st_fStairsHeight, en_fStepUpHeight);
+    // if polygon is too steep or too flat
+    if(vPolygonNormal(2) > -0.80f || vPolygonNormal(2) < 0.80f) {
+      // it cannot be climbed
+      //CPrintF("vPolygonNormal(%f)\n", vPolygonNormal(2));
+      _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
+      return FALSE;
     }
 
-    vClimbSpeed(2) = GetClimbingDirection();
+    // use components of the movement for ladders
+    FLOAT3D vLadderTranslation = vTranslationAbsolute;
 
-    if (vClimbSpeed(2) != 0.0f) {
-      SetDesiredTranslation(vClimbSpeed);
+    vLadderTranslation(2) = GetClimbingDirection();
+
+    if(vLadderTranslation(2) != 0.0f) {
+      SetDesiredTranslation(vLadderTranslation);
     }
 
     // move is successful

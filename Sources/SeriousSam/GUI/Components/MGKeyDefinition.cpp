@@ -32,7 +32,7 @@ CMGKeyDefinition::CMGKeyDefinition(void)
 
 void CMGKeyDefinition::OnActivate(void)
 {
-  PlayMenuSound(_psdPress);
+  PlayMenuButtonSound(_psdPress);
   IFeel_PlayEffect("Menu_press");
   SetBindingNames(/*bDefining=*/TRUE);
   mg_iState = RELEASE_RETURN_WAITING;

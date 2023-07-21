@@ -39,7 +39,7 @@ static EntityInfo eiAbomination = {
 // info structure
 static EntityInfo eiAbominationGlutton = {
   EIBT_FLESH, 500.0f,
-  0.0f, 1.75f, 0.0f,     // source (eyes)
+  0.0f, 2.5f, 0.0f,     // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };
 
@@ -53,7 +53,8 @@ thumbnail "Thumbnails\\Abomination.tbn";
 properties:
   1 enum AbominationType m_abChar "Character" 'C' = ABC_STANDARD,      // character
   2 BOOL m_bFistHit = FALSE,
-
+  3 BOOL m_bMoveFast "Move Fast" = FALSE,
+  4 BOOL m_bCanCharge "Can Charge" = FALSE,
   
 components:
   1 class   CLASS_BASE            "Classes\\EnemyBase.ecl",
@@ -144,7 +145,7 @@ functions:
   // damage anim
   INDEX AnimForDamage(FLOAT fDamage) {
     INDEX iAnim;
-    iAnim = ABOMINATION_ANIM_MELEE;
+    iAnim = ABOMINATION_ANIM_WOUND;
     StartModelAnim(iAnim, 0);
     return iAnim;
   };
@@ -178,7 +179,11 @@ functions:
   };
 
   void RunningAnim(void) {
-      StartModelAnim(ABOMINATION_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+      if (m_bMoveFast) {
+        StartModelAnim(ABOMINATION_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
+      } else {
+        StartModelAnim(ABOMINATION_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+      }
   };
 
   void RotatingAnim(void) {
@@ -187,6 +192,14 @@ functions:
 
   void JumpingAnim(void) {
       StartModelAnim(ABOMINATION_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+  };
+
+  void CrouchingAnim(void) {
+      StartModelAnim(ABOMINATION_ANIM_CROUCH, AOF_LOOPING|AOF_NORESTART);
+  };
+
+  void CrawlingAnim(void) {
+      StartModelAnim(ABOMINATION_ANIM_CRAWL, AOF_LOOPING|AOF_NORESTART);
   };
 
   // virtual sound functions
@@ -221,10 +234,13 @@ functions:
 
   // melee attack enemy
   Hit(EVoid) : CEnemyBase::Hit {
-    jump PunchEnemy();
+    if (CalcDist(m_penEnemy) < 2.75f) {
+      jump PunchEnemy();
+    } else if (CalcDist(m_penEnemy) < 16.0f && m_bCanCharge) {
+      jump JumpOnEnemy();
+    }
     return EReturn();
   };
-
 
   PunchEnemy(EVoid) {
     // close attack
@@ -254,6 +270,28 @@ functions:
     MaybeSwitchToAnotherPlayer();
     return EReturn();
   }
+
+  // jump on enemy
+  JumpOnEnemy(EVoid) {
+    StartModelAnim(ABOMINATION_ANIM_CHARGE, 0);
+
+    // charge without jumping
+    FLOAT3D vDir = (m_penEnemy->GetPlacement().pl_PositionVector -
+                    GetPlacement().pl_PositionVector).Normalize();
+    vDir *= !GetRotationMatrix();
+    vDir *= m_fCloseRunSpeed*2.0f;
+    SetDesiredTranslation(vDir);
+
+    // animation - IGNORE DAMAGE WOUND -
+    SpawnReminder(this, 0.5f, 0);
+    m_iChargeHitAnimation = ABOMINATION_ANIM_CHARGE;
+    m_fChargeHitDamage = 35.0f;
+    m_fChargeHitAngle = 0.0f;
+    m_fChargeHitSpeed = 8.0f;
+    autocall CEnemyBase::ChargeHitEnemy() EReturn;
+    autowait(0.35f);
+    return EReturn();
+  };
 
 
   Fire(EVoid) : CEnemyBase::Fire
@@ -295,7 +333,7 @@ functions:
       // damage/explode properties
       m_fBlowUpAmount = 130.0f;
       m_fBodyParts = 8;
-      m_fBlowUpSize = 4.0f;
+      m_fBlowUpSize = 3.0f;
       m_fDamageWounded = 300.0f;
       en_fDensity = 4000.0f;
     } else {
@@ -304,7 +342,7 @@ functions:
       // damage/explode properties
       m_fBlowUpAmount = 100.0f;
       m_fBodyParts = 8;
-      m_fBlowUpSize = 4.0f;
+      m_fBlowUpSize = 3.0f;
       m_fDamageWounded = 190.0f;
       en_fDensity = 3000.0f;
     }
@@ -330,10 +368,20 @@ functions:
         m_aAttackRotateSpeed = AngleDeg(FRnd()*50 + 250.0f);
         m_fCloseRunSpeed = FRnd() + 4.0f;
         m_aCloseRotateSpeed = AngleDeg(FRnd()*50 + 250.0f);
+
+        if (m_bMoveFast) {
+          m_fWalkSpeed = FRnd() + 3.0f;
+          m_aWalkRotateSpeed = AngleDeg(FRnd()*25.0f + 600.0f);
+          m_fAttackRunSpeed = FRnd() + 6.0f;
+          m_aAttackRotateSpeed = AngleDeg(FRnd()*60 + 300.0f);
+          m_fCloseRunSpeed = FRnd() + 6.0f;
+          m_aCloseRotateSpeed = AngleDeg(FRnd()*60 + 300.0f);
+        }
+
         // setup attack distances
         if (m_abChar==ABC_GLUTTON) {
           m_fAttackDistance = 300.0f;
-          m_fCloseDistance = 2.75f;
+          m_fCloseDistance = 25.0f;
           m_fStopDistance = 2.5f;
           m_fAttackFireTime = 1.5f;
           m_fCloseFireTime = 1.5f;
@@ -341,7 +389,7 @@ functions:
         }
         else {
           m_fAttackDistance = 100.0f;
-          m_fCloseDistance = 2.75f;
+          m_fCloseDistance = 25.0f;
           m_fStopDistance = 2.5f;
           m_fAttackFireTime = 1.5f;
           m_fCloseFireTime = 1.5f;

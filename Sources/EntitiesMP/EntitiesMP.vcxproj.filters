@@ -521,6 +521,15 @@
     <ClCompile Include="SkaModelHeadTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="ScriptedSequencer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HungCorpse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllableTurret.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Flesh\Classes\Acid.ecl">
@@ -1381,6 +1390,15 @@
 	<CustomBuild Include="Shambler.es">
       <Filter>Class Files\Enemies</Filter>
     </CustomBuild>
+	<CustomBuild Include="ScriptedSequencer.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="HungCorpse.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ControllableTurret.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Common.h">
@@ -2215,6 +2233,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shambler_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="ScriptedSequencer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptedSequencer_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HungCorpse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HungCorpse_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllableTurret.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllableTurret_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

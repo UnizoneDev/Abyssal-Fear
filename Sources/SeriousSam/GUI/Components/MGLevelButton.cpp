@@ -24,7 +24,7 @@ extern CSoundData *_psdPress;
 
 void CMGLevelButton::OnActivate(void)
 {
-  PlayMenuSound(_psdPress);
+  PlayMenuButtonSound(_psdPress);
   IFeel_PlayEffect("Menu_press");
   _pGame->gam_strCustomLevel = mg_fnmLevel;
   extern void(*_pAfterLevelChosen)(void);

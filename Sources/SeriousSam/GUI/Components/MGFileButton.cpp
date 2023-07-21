@@ -109,7 +109,7 @@ void CMGFileButton::OnActivate(void)
     return;
   }
 
-  PlayMenuSound(_psdPress);
+  PlayMenuButtonSound(_psdPress);
   IFeel_PlayEffect("Menu_press");
 
   // if loading

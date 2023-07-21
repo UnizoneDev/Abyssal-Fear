@@ -95,7 +95,8 @@ procedures:
     // spawn in world editor
     autowait(0.1f);
     
-    wait() {
+    while (TRUE) {
+    wait(0.25f) {
       on (EBegin) : {
           resume;
       }
@@ -106,8 +107,15 @@ procedures:
           Destroy();
           stop;
       }
-      on (ETimer) : { stop; }
+      on (ETimer) : {
+        ESmell eSmell;
+        eSmell.EsmltSmell = SMLT_FOOD;
+        eSmell.penTarget = this;
+        SendEventInRange(eSmell, FLOATaabbox3D(GetPlacement().pl_PositionVector, 40.0f)); 
+        stop;
+      }
       otherwise() : { resume; }
+      }
     }
 
     // cease to exist

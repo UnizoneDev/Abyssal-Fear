@@ -34,6 +34,7 @@ uses "EntitiesMP/BloodSpray";
 uses "EntitiesMP/AmmoItem";
 uses "EntitiesMP/WeaponItem";
 uses "EntitiesMP/BloodUni";
+uses "EntitiesMP/ScriptedSequencer";
 
 event ERestartAttack {
 };
@@ -233,6 +234,7 @@ properties:
 244 BOOL m_bCanClimb  "Can Climb" = FALSE,
 245 BOOL m_bCanTakeCover  "Can Take Cover" = FALSE,
 246 BOOL m_bCheckForPits  "Check For Pits" = FALSE,
+247 CEntityPointer m_penSequencer "Sequencer" COLOR(C_GREEN|0xFF),       // enemy sequencer pointer
 
 250 BOOL m_bCoward   "Coward" = FALSE,
 251 BOOL m_bDormant  "Dormant" = FALSE,
@@ -1570,7 +1572,11 @@ functions:
       }
     } else if (ulFlags&MF_MOVEZ) {
       if(m_bCrouch == TRUE) {
-        CrawlingAnim();
+        if(m_fMoveSpeed < 0.0f) {
+          CrouchBacksteppingAnim();
+        } else {
+          CrouchWalkingAnim();
+        }
       } else {
         if(m_fMoveSpeed < 0.0f) {
           BacksteppingAnim();
@@ -3104,6 +3110,9 @@ procedures:
       SetBoolFromBoolEType(m_bDormant,  pem->m_betDormant);
       SetBoolFromBoolEType(m_bAnosmic,  pem->m_betAnosmic);
 
+      // when reaching the marker
+      SendToTarget(pem->m_penReachTarget, pem->m_eetReachType, this); // Send an event to death target.
+
       // if should start tactics
       if (pem->m_bStartTactics){
         // start to see/hear
@@ -3796,6 +3805,7 @@ procedures:
   // --------------------------------------------------------------------------------------
   BeWounded(EDamage eDamage)
   { 
+    m_bIsBlocking = FALSE;
     StopMoving();
     // determine damage anim and play the wounding
     autowait(GetAnimLength(AnimForDamage(eDamage.fAmount)));
@@ -3921,6 +3931,7 @@ procedures:
   // --------------------------------------------------------------------------------------
   Death(EVoid) 
   {
+    m_bIsBlocking = FALSE;
     StopMoving();     // stop moving
     DeathSound();     // death sound
     LeaveStain(FALSE);
@@ -4214,6 +4225,20 @@ procedures:
         //CPrintF("%s: StopAttack event is obsolete!\n", GetName());
         resume;
       }
+
+      // utilize Half-Life 1 scripted events for enemies/NPCs
+      on (EChangeSequence eChangeSequence) : {
+        // get the sequencer
+        CScriptedSequencer *pss = (CScriptedSequencer *)&*m_penSequencer;
+
+        INDEX iAnim = eChangeSequence.iModelAnim;
+        INDEX iBox = eChangeSequence.iModelCollisionBox;
+        m_penMarker = eChangeSequence.penEnemyMarker;
+
+        StartModelAnim(iAnim, 0);
+        ForceCollisionBoxIndexChange(iBox);
+        resume;
+      }
     }
   };
 
@@ -4282,6 +4307,20 @@ procedures:
         }
 
         return;
+      }
+
+      // utilize Half-Life 1 scripted events for enemies/NPCs
+      on (EChangeSequence eChangeSequence) : {
+        // get the sequencer
+        CScriptedSequencer *pss = (CScriptedSequencer *)&*m_penSequencer;
+
+        INDEX iAnim = eChangeSequence.iModelAnim;
+        INDEX iBox = eChangeSequence.iModelCollisionBox;
+        m_penMarker = eChangeSequence.penEnemyMarker;
+
+        StartModelAnim(iAnim, 0);
+        ForceCollisionBoxIndexChange(iBox);
+        resume;
       }
 
       //on (EWatch eWatch) : {

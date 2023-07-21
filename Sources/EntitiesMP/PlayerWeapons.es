@@ -46,6 +46,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/MovingBrush.h"
 #include "EntitiesMP/MessageHolder.h"
 #include "EntitiesMP/EnemyBase.h"
+#include "EntitiesMP/ControllableTurret.h"
 extern INDEX hud_bShowWeapon;
 
 extern const INDEX aiWeaponsRemap[8] = { 0,  1,  2,  3,  7,  4,  5,  6 };
@@ -750,6 +751,18 @@ functions:
           if ((m_fRayHitDistance < enSwitch.GetDistance()) && enSwitch.m_bUseable) {
             // show switch message
             if( enSwitch.m_strMessage!="") { m_strLastTarget = enSwitch.m_strMessage; }
+            else { m_strLastTarget = TRANS("Use"); }
+            m_tmLastTarget = tmNow+0.5f;
+          }
+        }
+        // if controllable turret and near enough
+        if( IsOfClass( pen, "ControllableTurret")) {
+          CControllableTurret &enTurret = (CControllableTurret&)*pen;
+
+          // if switch is useable
+          if ((m_fRayHitDistance < enTurret.GetDistance()) && enTurret.m_bUseable) {
+            // show turret message
+            if( enTurret.m_strMessage!="") { m_strLastTarget = enTurret.m_strMessage; }
             else { m_strLastTarget = TRANS("Use"); }
             m_tmLastTarget = tmNow+0.5f;
           }
@@ -1568,7 +1581,7 @@ functions:
         break;
       // error
       default:
-      ASSERTALWAYS("Uknown weapon type");
+      ASSERTALWAYS("Unknown weapon type");
         break;
     }
 
@@ -1635,10 +1648,10 @@ functions:
       case WIT_SMG: Ewi.iWeapon = WEAPON_SMG; break;
       case WIT_PIPE: Ewi.iWeapon = WEAPON_PIPE; break;
       default:
-        ASSERTALWAYS("Uknown weapon type");
+        ASSERTALWAYS("Unknown weapon type");
     }
 
-    if((m_ulMeleeWeapons != 0) && (m_ulSmallGuns != 0) && (m_ulBigGuns != 0))
+    if((m_ulMeleeWeapons != 0x00) && (m_ulSmallGuns != 0x00) && (m_ulBigGuns != 0x00))
     {
       return FALSE;
     }
@@ -1687,7 +1700,7 @@ functions:
         fnmMsg = CTFILENAME("Data\\Messages\\Weapons\\Pipe.txt"); 
         break;
       default:
-        ASSERTALWAYS("Uknown weapon type");
+        ASSERTALWAYS("Unknown weapon type");
     }
     // send computer message
     if (GetSP()->sp_bCooperative) {
@@ -1765,7 +1778,7 @@ functions:
         AddManaToPlayer(Eai.iQuantity*AV_MEDIUM_BULLETS*MANA_AMMO);
         break;
       default:
-        ASSERTALWAYS("Uknown ammo type");
+        ASSERTALWAYS("Unknown ammo type");
     }
     // make sure we don't have more ammo than maximum
     ClampAllAmmo();
@@ -1793,8 +1806,7 @@ functions:
       case WEAPON_HOLSTERED: return 0;
       case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PIPE: return 1;
       case WEAPON_PISTOL: return 2;
-      case WEAPON_SHOTGUN: return 3;
-      case WEAPON_SMG: return 4;
+      case WEAPON_SHOTGUN: case WEAPON_SMG: return 3;
     }
     return 0;
   };

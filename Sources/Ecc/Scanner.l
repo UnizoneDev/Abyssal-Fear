@@ -65,9 +65,9 @@ EXP_FLT (({DIGIT}+("."({DIGIT}*)?)?)("E"|"e")("+"|"-")?{DIGIT}+)
 "uses"      {RETURN(k_uses);}
 "export"    {RETURN(k_export);}
 
-"texture" {RETURN(k_texture);}
-"sound"   {RETURN(k_sound);}
-"model"   {RETURN(k_model);}
+"texture"   {RETURN(k_texture);}
+"sound"     {RETURN(k_sound);}
+"model"     {RETURN(k_model);}
 
 "properties"  {RETURN(k_properties);}
 "components"  {RETURN(k_components);}

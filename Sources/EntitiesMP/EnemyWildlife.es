@@ -33,6 +33,7 @@ thumbnail "";
 
 properties:
   1 INDEX m_iFullFromHunger = 0,			            // Did I eat enough food?
+  2 BOOL m_bWantsFood = FALSE,
 
 components:
   1 class   CLASS_BASE    "Classes\\EnemyBase.ecl",
@@ -47,6 +48,7 @@ functions:
 BOOL CheckIfFull(void)
 {
   if(m_iFullFromHunger > 5) {
+    m_bWantsFood = FALSE;
     return TRUE;
   } else {
     return FALSE;
@@ -80,6 +82,75 @@ virtual void DrinkingSound(void) {};
     }
   }
 
+  // --------------------------------------------------------------------------------------
+  // Check if an entity is valid for being your new enemy.
+  // --------------------------------------------------------------------------------------
+  BOOL IsValidForEnemy(CEntity *penNewTarget)
+  {
+    // nothing is not allowed
+    if (penNewTarget == NULL)
+    {
+      return FALSE;
+    }
+
+    // don't target the dead
+    if (!(penNewTarget->GetFlags()&ENF_ALIVE))
+    {
+      return FALSE;
+    }
+
+    if (IsOfClass(penNewTarget, "Player"))
+    {
+      if((this->GetFaction() == FT_ALLY) || (this->GetFaction() == FT_VICTIM))
+      {
+        return FALSE;
+      }
+
+      return TRUE;
+    }
+
+    if (IsDerivedFromClass(penNewTarget, "Enemy Base")) {
+      CEnemyBase &enEB = (CEnemyBase&)*penNewTarget;
+
+      // don't target templates
+      if (enEB.m_bTemplate) {
+        return FALSE;
+      }
+
+      // don't target if the faction is not valid
+      if(!enEB.IsFactionValid())
+      {
+        return FALSE;
+      }
+
+      // don't target your allies
+      if(enEB.GetFaction() == this->GetFaction())
+      {
+        return FALSE;
+      }
+
+      // make exceptions for targets
+      if((enEB.GetFaction() == FT_SHADOW) || (enEB.GetFaction() == FT_WILDLIFE))
+      {
+        return FALSE;
+      }
+
+      if((this->GetFaction() == FT_WILDLIFE || this->GetFaction() == FT_SHADOW) && (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_GREATER))
+      {
+        return FALSE;
+      }
+
+      return TRUE;
+    }
+
+    if (IsOfClass(penNewTarget, "Wildlife Food")  && !CheckIfFull())
+    {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
 procedures:
 
 /************************************************************
@@ -103,7 +174,7 @@ procedures:
   EatFood(EVoid)
   {
     // if we touched food and are hungry
-    if (IsDerivedFromClass(m_penEnemy, "Wildlife Food") && !CheckIfFull())
+    if (IsOfClass(m_penEnemy, "Wildlife Food") && !CheckIfFull())
     {
       if(!CheckIfFull()) {
         StopMoving();
@@ -119,13 +190,12 @@ procedures:
 
   FindFood(EVoid)
   {
-    if(!IsDerivedFromClass(m_penEnemy, "Wildlife Food")) {
+    if(!IsOfClass(m_penEnemy, "Wildlife Food")) {
       return EReturn();
     }
 
-    // if the food not eaten or deleted
+    // if the food is dead or deleted
     if (!(m_penEnemy->GetFlags()&ENF_ALIVE) || m_penEnemy->GetFlags()&ENF_DELETED) {
-        SetTargetNone();
       return EReturn();
     }
 
@@ -184,11 +254,15 @@ procedures:
       on (EReconsiderBehavior) : {
         // if we have an enemy
         if (m_penEnemy != NULL) {
-          // attack it
-          call CEnemyBase::AttackEnemy();
+          if(m_bWantsFood) {
+            call FindFood();
+          } else {
+            // attack it
+            call CEnemyBase::AttackEnemy();
+          }
         // if we have food to eat
-        } else if (m_penEnemy != NULL && IsDerivedFromClass(m_penEnemy, "Wildlife Food")) {
-          call FindFood();
+        } else if (m_penEnemy != NULL && IsOfClass(m_penEnemy, "Wildlife Food")) {
+          m_bWantsFood = TRUE;
         // if we have a marker to walk to
         } else if (m_penMarker != NULL) {
           // go to the marker
@@ -232,17 +306,7 @@ procedures:
             // react to it
             call CEnemyBase::NewEnemySpotted();
           }
-        } /*else {
-            if (m_penFriend != NULL && !m_bRunningToFriend) { 
-                if (CalcDist(m_penFriend) > GetProp(m_fCloseDistance)) {
-                  call Friendship();
-                }  else { 
-                    StopMoving();
-                    StandingAnim();
-                    m_bRunningToFriend = FALSE;
-                }
-            }
-        }*/
+        }
         resume;
       }
 

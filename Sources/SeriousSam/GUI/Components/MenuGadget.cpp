@@ -74,7 +74,7 @@ void CMenuGadget::OnSetFocus(void)
   mg_bFocused = TRUE;
   if (!IsSeparator())
   {
-    PlayMenuSound(_psdSelect);
+    PlayMenuButtonSound(_psdSelect);
     IFeel_PlayEffect("Menu_select");
   }
 }

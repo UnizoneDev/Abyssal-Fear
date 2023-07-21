@@ -36,6 +36,7 @@ void StopMenus(BOOL bGoToRoot =TRUE);
 BOOL IsMenusInRoot(void);
 void ChangeToMenu( class CGameMenu *pgmNew);
 extern void PlayMenuSound(CSoundData *psd);
+extern void PlayMenuButtonSound(CSoundData *psd);
 
 #define KEYS_ON_SCREEN 14
 #define LEVELS_ON_SCREEN 16

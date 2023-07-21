@@ -70,7 +70,7 @@ extern FLOAT snd_fDFilter  = 3.0f;   // filter for down
 ENGINE_API extern INDEX snd_iFormat = 3;
 extern INDEX snd_bMono = FALSE;
 static INDEX snd_iDevice = -1;
-static INDEX snd_iInterface = 2;   // 0=WaveOut, 1=DirectSound, 2=EAX
+static INDEX snd_iInterface = 2;   // 0=WaveOut, 1=DirectSound, 2=EAX, 3=OpenAL
 static INDEX snd_iMaxOpenRetries = 3;
 static INDEX snd_iMaxExtraChannels = 32;
 static FLOAT snd_tmOpenFailDelay = 0.5f;
@@ -743,6 +743,7 @@ static void SetFormat_internal( CSoundLibrary &sl, CSoundLibrary::SoundFormat Es
   snd_iInterface = Clamp( snd_iInterface, 0L, 2L);
 
   BOOL bSoundOK = FALSE;
+
 
   if( snd_iInterface==2) {
     // if wanted, 1st try to set EAX

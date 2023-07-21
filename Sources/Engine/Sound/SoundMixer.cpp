@@ -79,54 +79,36 @@ void ResetMixer(const SLONG* pslBuffer, const SLONG slBufferSize)
     slMixerBufferSampleRate = _pSound->sl_SwfeFormat.nSamplesPerSec;
 
     // wipe destination mixer buffer
-    __asm {
-        cld
-        xor eax, eax
-        mov     edi, D[pvMixerBuffer]
-        mov     ecx, D[slMixerBufferSize]
-        shl     ecx, 1 // *2 because of 32-bit src format
-        rep     stosd
-    }
+    memset(pvMixerBuffer, 0, slMixerBufferSize * 8);
 }
 
 
 // copy mixer buffer to the output buffer(s)
-void CopyMixerBuffer_stereo(const SLONG slSrcOffset, const void* pDstBuffer, const SLONG slBytes)
+void CopyMixerBuffer_stereo(const SLONG slSrcOffset, void* pDstBuffer, const SLONG slBytes)
 {
     ASSERT(pDstBuffer != NULL);
     ASSERT(slBytes % 4 == 0);
     if (slBytes < 4) return;
-    __asm {
-        cld
-        mov     esi, D[slSrcOffset]
-        add     esi, D[pvMixerBuffer]
-        mov     edi, D[pDstBuffer]
-        mov     ecx, D[slBytes]
-        shr     ecx, 2   // bytes to samples per channel
-        rep     movsd
-    }
+    memcpy(pDstBuffer, ((const char*)pvMixerBuffer) + slSrcOffset, slBytes);
 }
 
 
 // copy one channel from mixer buffer to the output buffer(s)
-void CopyMixerBuffer_mono(const SLONG slSrcOffset, const void* pDstBuffer, const SLONG slBytes)
+void CopyMixerBuffer_mono(const SLONG slSrcOffset, void* pDstBuffer, const SLONG slBytes)
 {
     ASSERT(pDstBuffer != NULL);
     ASSERT(slBytes % 2 == 0);
     if (slBytes < 4) return;
-    __asm {
-        mov     esi, D[slSrcOffset]
-        add     esi, D[pvMixerBuffer]
-        mov     edi, D[pDstBuffer]
-        mov     ecx, D[slBytes]
-        shr     ecx, 2   // bytes to samples
-        copyLoop:
-        movzx   eax, W[esi]
-            mov     W[edi], ax
-            add     esi, 4
-            add     edi, 2
-            dec     ecx
-            jnz     copyLoop
+    WORD* dst = (WORD*)pDstBuffer;
+    WORD* src = (WORD*)(((UINT8*)pvMixerBuffer) + slSrcOffset);
+
+    SLONG max = slBytes / 4;
+
+    for (SLONG i = 0; i < max; i++)
+    {
+        *dst = *src;
+        dst += 1; // Move 16 bits
+        src += 2; // Move 32 bits
     }
 }
 
@@ -136,21 +118,20 @@ static void ConvertMixerBuffer(const SLONG slBytes)
 {
     ASSERT(slBytes % 4 == 0);
     if (slBytes < 4) return;
-    __asm {
-        cld
-        mov     esi, D[pvMixerBuffer]
-        mov     edi, D[pvMixerBuffer]
-        mov     ecx, D[slBytes]
-        shr     ecx, 2 // bytes to samples (2 channels)
-        copyLoop:
-        movq    mm0, Q[esi]
-            packssdw mm0, mm0
-            movd    D[edi], mm0
-            add     esi, 8
-            add     edi, 4
-            dec     ecx
-            jnz     copyLoop
-            emms
+    WORD* dst = (WORD*)pvMixerBuffer;
+    DWORD* src = (DWORD*)pvMixerBuffer;
+    SLONG max = slBytes / 2;
+
+    int tmp;
+    for (SLONG i = 0; i < max; i++)
+    {
+        tmp = *src;
+        tmp = Clamp(tmp, -32767, 32767);
+
+        *dst = tmp;
+
+        dst++;
+        src++;
     }
 }
 
@@ -207,217 +188,83 @@ void NormalizeMixerBuffer(const FLOAT fNormStrength, const SLONG slBytes, FLOAT&
 inline void MixMono(CSoundObject* pso)
 {
     _pfSoundProfile.StartTimer(CSoundProfile::PTI_RAWMIXER);
-
-#if ASMOPT == 1
-
-    __asm {
-        // convert from floats to fixints 32:16
-        fld     D[fLeftOfs]
-        fmul    D[f65536]
-        fld     D[fRightOfs]
-        fmul    D[f65536]
-        fld     D[fLeftStep]
-        fmul    D[f65536]
-        fld     D[fRightStep]
-        fmul    D[f4G]
-        fistp   Q[mmRightStep] // fixint 32:32
-        fistp   Q[mmLeftStep]  // fixint 32:16
-        fistp   Q[fixRightOfs] // fixint 32:16
-        fistp   Q[fixLeftOfs]  // fixint 32:16
-
-        // get last played sample (for filtering purposes)
-        movzx   eax, W[slLastRightSample]
-        movzx   edx, W[slLastLeftSample]
-        shl     eax, 16
-        or eax, edx
-        movd    mm6, eax                       // MM6 = 0 | 0 || lastRightSample | lastLeftSample
-
-        // get volume
-        movd    mm5, D[slRightVolume]
-        movd    mm0, D[slLeftVolume]
-        psllq   mm5, 32
-        por     mm5, mm0                       // MM5 = rightVolume || leftVolume
-
-        // get filter
-        mov     eax, D[slRightFilter]
-        mov     edx, D[slLeftFilter]
-        shl     eax, 16
-        or eax, edx
-        movd    mm7, eax                       // MM7 = 0 | 0 || rightFilter | leftFilter
-
-        // get offset of each channel inside sound and loop thru destination buffer
-        mov     W[mmRightStep], 0
-        movzx   eax, W[fixLeftOfs]
-        movzx   edx, W[fixRightOfs]
-        shl     edx, 16
-        or eax, edx                       // EAX = right ofs frac | left ofs frac
-        mov     ebx, D[fixLeftOfs + 2]          // EBX = left ofs int
-        mov     edx, D[fixRightOfs + 2]         // EDX = right ofs int
-        mov     esi, D[pswSrcBuffer]          // ESI = source sound buffer start ptr
-        mov     edi, D[pvMixerBuffer]         // EDI = mixer buffer ptr
-        mov     ecx, D[slMixerBufferSize]     // ECX = samples counter
-
-        sampleLoop:
-        // check if source offsets came to the end of source sound buffer
-        cmp     ebx, D[slSoundBufferSize]
-            jl      lNotEnd
-            sub     ebx, D[slSoundBufferSize]
-            push    D[bNotLoop]
-            pop     D[bEndOfSound]
-            lNotEnd:
-        // same for right channel
-        cmp     edx, D[slSoundBufferSize]
-            jl      rNotEnd
-            sub     edx, D[slSoundBufferSize]
-            push    D[bNotLoop]
-            pop     D[bEndOfSound]
-            rNotEnd:
-
-        // check end of sample
-        cmp     ecx, 0
-            jle     loopEnd
-            cmp     D[bEndOfSound], TRUE
-            je      loopEnd
-
-            // get sound samples
-            movd    mm1, D[esi + ebx * 2]    // MM1 = 0 | 0 || nextLeftSample  | leftSample
-            movd    mm2, D[esi + edx * 2]    // MM2 = 0 | 0 || nextRightSample | RightSample
-            psllq   mm2, 32
-            por     mm1, mm2   // MM1 = nextRightSample | rightSample || nextLeftSample | leftSample
-
-            // calc linear interpolation factor (strength)
-            movd    mm3, eax   // MM3 = 0 | 0 || right frac | left frac
-            punpcklwd mm3, mm3
-            psrlw   mm3, 1     // MM3 = rightFrac | rightFrac || leftFrac | leftFrac
-            pxor    mm3, Q[mmInvFactor] // MM3 = rightFrac | 1-rightFrac || leftFrac | 1-leftFrac
-            // apply linear interpolation
-            pmaddwd mm1, mm3
-            psrad   mm1, 15
-            packssdw mm1, mm1  // MM1 = ? | ? || linearRightSample | linearLeftSample
-
-            // apply filter
-            psubsw  mm1, mm6
-            pmulhw  mm1, mm7
-            psllw   mm1, 1
-            paddsw  mm1, mm6
-            movq    mm6, mm1
-
-            // apply volume adjustment
-            movq    mm0, mm5
-            psrad   mm0, 16
-            packssdw mm0, mm0
-            pmulhw  mm1, mm0
-            psllw   mm1, 1
-            pxor    mm1, Q[mmSurroundFactor]
-            paddd   mm5, Q[mmVolumeGain]   // modify volume
-
-            // unpack to 32bit and mix it into destination buffer
-            punpcklwd mm1, mm1
-            psrad   mm1, 16              // MM1 = finalRightSample || finalLeftSample
-            paddd   mm1, Q[edi]
-            movq    Q[edi], mm1
-
-            // advance to next samples in source sound
-            add     eax, D[mmRightStep + 0]
-            adc     edx, D[mmRightStep + 4]
-            add      ax, W[mmLeftStep + 0]
-            adc     ebx, D[mmLeftStep + 2]
-            add     edi, 8
-            dec     ecx
-            jmp     sampleLoop
-
-            loopEnd :
-        // store modified asm local vars
-        mov     D[fixLeftOfs + 0], eax
-            shr     eax, 16
-            mov     D[fixRightOfs + 0], eax
-            mov     D[fixLeftOfs + 2], ebx
-            mov     D[fixRightOfs + 2], edx
-            movd    eax, mm6
-            mov     edx, eax
-            and eax, 0x0000FFFF
-            shr     edx, 16
-            mov     D[slLastLeftSample], eax
-            mov     D[slLastRightSample], edx
-            emms
-    }
-
-#else
-
-    // initialize some local vars
+    // Initialize some local vars
     SLONG slLeftSample, slRightSample, slNextSample;
     SLONG* pslDstBuffer = (SLONG*)pvMixerBuffer;
-    fixLeftOfs = (__int64)(fLeftOfs * 65536.0);
-    fixRightOfs = (__int64)(fRightOfs * 65536.0);
-    __int64 fixLeftStep = (__int64)(fLeftStep * 65536.0);
-    __int64 fixRightStep = (__int64)(fRightStep * 65536.0);
+    fixLeftOfs = (__int64)(fLeftOfs * 65536.0f);
+    fixRightOfs = (__int64)(fRightOfs * 65536.0f);
+    __int64 fixLeftStep = (__int64)(fLeftStep * 65536.0f);
+    __int64 fixRightStep = (__int64)(fRightStep * 65536.0f);
     __int64 fixSoundBufferSize = ((__int64)slSoundBufferSize) << 16;
     mmSurroundFactor = (__int64)(SWORD)mmSurroundFactor;
 
-    // loop thru source buffer
+    SLONG slLeftVolTmp = slLeftVolume >> 16;
+    SLONG slRightVolTmp = slRightVolume >> 16;
+
+    // Loop through source buffer
     INDEX iCt = slMixerBufferSize;
     FOREVER
     {
-        // if left channel source sample came to end of sample buffer
+        // If left channel source sample came to end of sample buffer
         if (fixLeftOfs >= fixSoundBufferSize) {
           fixLeftOfs -= fixSoundBufferSize;
-          // if has no loop, end it
+          // If has no loop, end it
           bEndOfSound = bNotLoop;
         }
-    // if right channel source sample came to end of sample buffer
+
+    // If right channel source sample came to end of sample buffer
     if (fixRightOfs >= fixSoundBufferSize) {
       fixRightOfs -= fixSoundBufferSize;
-      // if has no loop, end it
+      // If has no loop, end it
       bEndOfSound = bNotLoop;
     }
-    // end of buffer?
+
+    // End of buffer
     if (iCt <= 0 || bEndOfSound) break;
 
-    // fetch one lineary interpolated sample on left channel
+    // Fetch one lineary interpolated sample on left channel
     slLeftSample = pswSrcBuffer[(fixLeftOfs >> 16) + 0];
     slNextSample = pswSrcBuffer[(fixLeftOfs >> 16) + 1];
-    slLeftSample = (slLeftSample * (65535 - (fixLeftOfs & 65535)) + slNextSample * (fixLeftOfs & 65535)) >> 16;
-    // fetch one lineary interpolated sample on right channel
+    slLeftSample = (slLeftSample * (0xFFFF - (fixLeftOfs & 0xFFFF)) + slNextSample * (fixLeftOfs & 0xFFFF)) >> 16;
+
+    // Fetch one lineary interpolated sample on right channel
     slRightSample = pswSrcBuffer[(fixRightOfs >> 16) + 0];
     slNextSample = pswSrcBuffer[(fixRightOfs >> 16) + 1];
-    slRightSample = (slRightSample * (65535 - (fixRightOfs & 65535)) + slNextSample * (fixRightOfs & 65535)) >> 16;
+    slRightSample = (slRightSample * (0xFFFF - (fixRightOfs & 0xFFFF)) + slNextSample * (fixRightOfs & 0xFFFF)) >> 16;
 
-    // filter samples
+    // Filter samples
     slLastLeftSample += ((slLeftSample - slLastLeftSample) * slLeftFilter) >> 15;
     slLastRightSample += ((slRightSample - slLastRightSample) * slRightFilter) >> 15;
 
-    // apply stereo volume to current sample
-    slLeftSample = (slLastLeftSample * slLeftVolume) >> 15;
-    slRightSample = (slLastRightSample * slRightVolume) >> 15;
+    // Apply stereo volume to current sample
+    slLeftSample = (slLastLeftSample * slLeftVolTmp) >> 15;
+    slRightSample = (slLastRightSample * slRightVolTmp) >> 15;
 
-    slRightSample = slRightSample ^ mmSurroundFactor;
+    slLeftSample ^= (SLONG)((mmSurroundFactor >> 0) & 0xFFFFFFFF);
+    slRightSample ^= (SLONG)((mmSurroundFactor >> 32) & 0xFFFFFFFF);
 
-    // mix in current sample
+    // Mix in current sample
     slLeftSample += pslDstBuffer[0];
     slRightSample += pslDstBuffer[1];
-    // upper clamp
-    if (slLeftSample > MAX_SWORD) slLeftSample = MAX_SWORD;
-    if (slRightSample > MAX_SWORD) slRightSample = MAX_SWORD;
-    // lower clamp
-    if (slLeftSample < MIN_SWORD) slLeftSample = MIN_SWORD;
-    if (slRightSample < MIN_SWORD) slRightSample = MIN_SWORD;
 
-    // store samples (both channels)
+    // [Cecil] Faster clamping
+    slLeftSample = Clamp(slLeftSample, (SLONG)MIN_SWORD, (SLONG)MAX_SWORD);
+    slRightSample = Clamp(slRightSample, (SLONG)MIN_SWORD, (SLONG)MAX_SWORD);
+
+    // Store samples (both channels)
     pslDstBuffer[0] = slLeftSample;
     pslDstBuffer[1] = slRightSample;
 
-    // modify volume  `
+    // Modify volume
     slLeftVolume += (SWORD)((mmVolumeGain >> 0) & 0xFFFF);
     slRightVolume += (SWORD)((mmVolumeGain >> 16) & 0xFFFF);
 
-    // advance to next sample
+    // Advance to the next sample
     fixLeftOfs += fixLeftStep;
     fixRightOfs += fixRightStep;
-    pslDstBuffer += 4;
+    pslDstBuffer += 2;
     iCt--;
     }
-
-#endif
 
     _pfSoundProfile.StopTimer(CSoundProfile::PTI_RAWMIXER);
 }
@@ -428,143 +275,93 @@ inline void MixStereo(CSoundObject* pso)
 {
     _pfSoundProfile.StartTimer(CSoundProfile::PTI_RAWMIXER);
 
-#if ASMOPT == 1
+    // Initialize some local vars
+    SLONG slLeftSample, slRightSample;
+    SLONG slNextLeftSample, slNextRightSample; // [Cecil]
+    SLONG* pslDstBuffer = (SLONG*)pvMixerBuffer;
+    fixLeftOfs = (__int64)(fLeftOfs * 65536.0f);
+    fixRightOfs = (__int64)(fRightOfs * 65536.0f);
+    __int64 fixLeftStep = (__int64)(fLeftStep * 65536.0f);
+    __int64 fixRightStep = (__int64)(fRightStep * 65536.0f);
+    __int64 fixSoundBufferSize = ((__int64)slSoundBufferSize) << 16;
+    mmSurroundFactor = (__int64)(SWORD)mmSurroundFactor;
 
-    __asm {
-        // convert from floats to fixints 32:16
-        fld     D[fLeftOfs]
-        fmul    D[f65536]
-        fld     D[fRightOfs]
-        fmul    D[f65536]
-        fld     D[fLeftStep]
-        fmul    D[f65536]
-        fld     D[fRightStep]
-        fmul    D[f4G]
-        fistp   Q[mmRightStep] // fixint 32:32
-        fistp   Q[mmLeftStep]  // fixint 32:16
-        fistp   Q[fixRightOfs] // fixint 32:16
-        fistp   Q[fixLeftOfs]  // fixint 32:16
+    SLONG slLeftVolTmp = slLeftVolume >> 16;
+    SLONG slRightVolTmp = slRightVolume >> 16;
 
-        // get last played sample (for filtering purposes)
-        movzx   eax, W[slLastRightSample]
-        movzx   edx, W[slLastLeftSample]
-        shl     eax, 16
-        or eax, edx
-        movd    mm6, eax                       // MM6 = 0 | 0 || lastRightSample | lastLeftSample
+    // Loop through source buffer
+    INDEX iCt = slMixerBufferSize;
+    FOREVER
+    {
+        // If left channel source sample came to end of sample buffer
+        if (fixLeftOfs >= fixSoundBufferSize) {
+          fixLeftOfs -= fixSoundBufferSize;
+          // If has no loop, end it
+          bEndOfSound = bNotLoop;
+        }
 
-        // get volume
-        movd    mm5, D[slRightVolume]
-        movd    mm0, D[slLeftVolume]
-        psllq   mm5, 32
-        por     mm5, mm0                       // MM5 = rightVolume || leftVolume
-
-        // get filter
-        mov     eax, D[slRightFilter]
-        mov     edx, D[slLeftFilter]
-        shl     eax, 16
-        or eax, edx
-        movd    mm7, eax                       // MM7 = 0 | 0 || rightFilter | leftFilter
-
-        // get offset of each channel inside sound and loop thru destination buffer
-        mov     W[mmRightStep], 0
-        movzx   eax, W[fixLeftOfs]
-        movzx   edx, W[fixRightOfs]
-        shl     edx, 16
-        or eax, edx                       // EAX = right ofs frac | left ofs frac
-        mov     ebx, D[fixLeftOfs + 2]          // EBX = left ofs int
-        mov     edx, D[fixRightOfs + 2]         // EDX = right ofs int
-        mov     esi, D[pswSrcBuffer]          // ESI = source sound buffer start ptr
-        mov     edi, D[pvMixerBuffer]         // EDI = mixer buffer ptr
-        mov     ecx, D[slMixerBufferSize]     // ECX = samples counter
-
-        sampleLoop:
-        // check if source offsets came to the end of source sound buffer
-        cmp     ebx, D[slSoundBufferSize]
-            jl      lNotEnd
-            sub     ebx, D[slSoundBufferSize]
-            push    D[bNotLoop]
-            pop     D[bEndOfSound]
-            lNotEnd:
-        // same for right channel
-        cmp     edx, D[slSoundBufferSize]
-            jl      rNotEnd
-            sub     edx, D[slSoundBufferSize]
-            push    D[bNotLoop]
-            pop     D[bEndOfSound]
-            rNotEnd:
-
-        // check end of sample
-        cmp     ecx, 0
-            jle     loopEnd
-            cmp     D[bEndOfSound], TRUE
-            je      loopEnd
-
-            // get sound samples
-            movq    mm1, Q[esi + ebx * 4]
-            movq    mm2, Q[esi + edx * 4]
-            pslld   mm1, 16
-            psrad   mm1, 16              // MM1 = 0 | nextLeftSample  || 0 | leftSample
-            psrad   mm2, 16              // MM2 = 0 | nextRightSample || 0 | rightSample
-            packssdw mm1, mm2  // MM1 = nextRightSample | rightSample || nextLeftSample | leftSample
-
-            // calc linear interpolation factor (strength)
-            movd    mm3, eax   // MM3 = 0 | 0 || right frac | left frac
-            punpcklwd mm3, mm3
-            psrlw   mm3, 1     // MM3 = rightFrac | rightFrac || leftFrac | leftFrac
-            pxor    mm3, Q[mmInvFactor] // MM3 = rightFrac | 1-rightFrac || leftFrac | 1-leftFrac
-            // apply linear interpolation
-            pmaddwd mm1, mm3
-            psrad   mm1, 15
-            packssdw mm1, mm1  // MM1 = ? | ? || linearRightSample | linearLeftSample
-
-            // apply filter
-            psubsw  mm1, mm6
-            pmulhw  mm1, mm7
-            psllw   mm1, 1
-            paddsw  mm1, mm6
-            movq    mm6, mm1
-
-            // apply volume adjustment
-            movq    mm0, mm5
-            psrad   mm0, 16
-            packssdw mm0, mm0
-            pmulhw  mm1, mm0
-            psllw   mm1, 1
-            pxor    mm1, Q[mmSurroundFactor]
-            paddd   mm5, Q[mmVolumeGain]   // modify volume
-
-            // unpack to 32bit and mix it into destination buffer
-            punpcklwd mm1, mm1
-            psrad   mm1, 16              // MM1 = finalRightSample || finalLeftSample
-            paddd   mm1, Q[edi]
-            movq    Q[edi], mm1
-
-            // advance to next samples in source sound
-            add     eax, D[mmRightStep + 0]
-            adc     edx, D[mmRightStep + 4]
-            add      ax, W[mmLeftStep + 0]
-            adc     ebx, D[mmLeftStep + 2]
-            add     edi, 8
-            dec     ecx
-            jmp     sampleLoop
-
-            loopEnd :
-        // store modified asm local vars
-        mov     D[fixLeftOfs + 0], eax
-            shr     eax, 16
-            mov     D[fixRightOfs + 0], eax
-            mov     D[fixLeftOfs + 2], ebx
-            mov     D[fixRightOfs + 2], edx
-            movd    eax, mm6
-            mov     edx, eax
-            and eax, 0x0000FFFF
-            shr     edx, 16
-            mov     D[slLastLeftSample], eax
-            mov     D[slLastRightSample], edx
-            emms
+    // If right channel source sample came to end of sample buffer
+    if (fixRightOfs >= fixSoundBufferSize) {
+      fixRightOfs -= fixSoundBufferSize;
+      // If has no loop, end it
+      bEndOfSound = bNotLoop;
     }
 
-#endif
+    // End of buffer
+    if (iCt <= 0 || bEndOfSound) break;
+
+    // [Cecil] These nullify the lowest bit and fix distortion during doppler
+    const __int64 fixLeftShift = (fixLeftOfs >> 16) << 1;
+    const __int64 fixRightShift = (fixRightOfs >> 16) << 1;
+
+    // Fetch one lineary interpolated sample on left channel
+    slLeftSample = pswSrcBuffer[fixLeftShift + 0];
+    slNextLeftSample = pswSrcBuffer[fixLeftShift + 2];
+
+    // Fetch one lineary interpolated sample on right channel
+    slRightSample = pswSrcBuffer[fixRightShift + 1];
+    slNextRightSample = pswSrcBuffer[fixRightShift + 3];
+
+    // [Cecil] Shortcuts
+    const SWORD swLOffset = fixLeftOfs & 0xFFFF;
+    const SWORD swROffset = fixRightOfs & 0xFFFF;
+
+    slLeftSample = (slLeftSample * (0xFFFF - swLOffset) + slNextLeftSample * swLOffset) >> 16;
+    slRightSample = (slRightSample * (0xFFFF - swROffset) + slNextRightSample * swROffset) >> 16;
+
+    // Filter samples
+    slLastLeftSample += ((slLeftSample - slLastLeftSample) * slLeftFilter) >> 15;
+    slLastRightSample += ((slRightSample - slLastRightSample) * slRightFilter) >> 15;
+
+    // Apply stereo volume to current sample
+    slLeftSample = (slLastLeftSample * slLeftVolTmp) >> 15;
+    slRightSample = (slLastRightSample * slRightVolTmp) >> 15;
+
+    slLeftSample ^= (SLONG)((mmSurroundFactor >> 0) & 0xFFFFFFFF);
+    slRightSample ^= (SLONG)((mmSurroundFactor >> 32) & 0xFFFFFFFF);
+
+    // Mix in current sample
+    slLeftSample += pslDstBuffer[0];
+    slRightSample += pslDstBuffer[1];
+
+    // [Cecil] Faster clamping
+    slLeftSample = Clamp(slLeftSample, (SLONG)MIN_SWORD, (SLONG)MAX_SWORD);
+    slRightSample = Clamp(slRightSample, (SLONG)MIN_SWORD, (SLONG)MAX_SWORD);
+
+    // Store samples (both channels)
+    pslDstBuffer[0] = slLeftSample;
+    pslDstBuffer[1] = slRightSample;
+
+    // Modify volume
+    slLeftVolume += (SWORD)((mmVolumeGain >> 0) & 0xFFFF);
+    slRightVolume += (SWORD)((mmVolumeGain >> 16) & 0xFFFF);
+
+    // Advance to the next sample
+    fixLeftOfs += fixLeftStep;
+    fixRightOfs += fixRightStep;
+    pslDstBuffer += 2;
+    iCt--;
+    }
 
     _pfSoundProfile.StopTimer(CSoundProfile::PTI_RAWMIXER);
 }
