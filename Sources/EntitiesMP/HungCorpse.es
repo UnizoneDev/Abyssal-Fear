@@ -88,11 +88,11 @@ functions:
 
   /* Receive damage */
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
     // hung corpse can't harm hung corpse
     if (!IsOfClass(penInflictor, "HungCorpse")) {
-      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       // if died of chainsaw
       if (dmtType==DMT_CHAINSAW && GetHealth()<=0) {
         // must always blowup
@@ -103,7 +103,7 @@ functions:
 
 
   // damage anim
-  INDEX AnimForDamage(FLOAT fDamage) {
+  INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     INDEX iAnim;
     iAnim = HUNGCORPSE_ANIM_IDLE;
     StartModelAnim(iAnim, 0);

@@ -104,11 +104,11 @@ functions:
 
   /* Receive damage */
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
     // twitcher can't harm twitcher
     if (!IsOfClass(penInflictor, "Shambler")) {
-      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       // if died of chainsaw
       if (dmtType==DMT_CHAINSAW && GetHealth()<=0) {
         // must always blowup
@@ -119,7 +119,7 @@ functions:
 
 
   // damage anim
-  INDEX AnimForDamage(FLOAT fDamage) {
+  INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     INDEX iAnim;
     iAnim = SHAMBLER1_ANIM_WOUND;
     StartModelAnim(iAnim, 0);
@@ -287,7 +287,7 @@ functions:
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 8.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 8.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
       }
     } else {
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
@@ -312,7 +312,7 @@ functions:
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 8.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 8.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
       }
     } else {
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);

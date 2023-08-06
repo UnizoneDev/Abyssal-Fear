@@ -98,7 +98,7 @@ functions:
         if (penEnemy->m_bBoss==TRUE || DistanceTo(this, penEnemy)>250.0f) {
           continue;
         }
-        this->InflictDirectDamage(pen, this, DMT_EXPLOSION, penEnemy->GetHealth()+100.0f, pen->GetPlacement().pl_PositionVector, FLOAT3D(0,1,0));
+        this->InflictDirectDamage(pen, this, DMT_EXPLOSION, penEnemy->GetHealth()+100.0f, pen->GetPlacement().pl_PositionVector, FLOAT3D(0,1,0), DBPT_GENERIC);
       }
     }}
   }

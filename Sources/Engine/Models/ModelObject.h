@@ -103,6 +103,11 @@ public:
   CTString GetColorName( INDEX iColor);           // retrieves name of color with given index
   void SetColorName( INDEX iColor, CTString &strNewName); // sets new color name
 
+  FLOAT3D GetHitBoxMin(INDEX iHitBox);
+  FLOAT3D GetHitBoxMax(INDEX iHitBox);
+  // returns HEIGHT_EQ_WIDTH, LENGTH_EQ_WIDTH or LENGTH_EQ_HEIGHT
+  INDEX GetHitBoxDimensionEquality(INDEX iHitBox);
+
   ULONG GetPatchesMask(); // this function returns current value of patches mask
   void  SetPatchesMask( ULONG new_patches_mask);	  	// use this function to set new patches combination
 

@@ -181,7 +181,7 @@ procedures:
         EatingAnim();
         autowait(0.2f);
         EatingSound();
-        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, GetPlacement().pl_PositionVector, -en_vGravityDir);
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, GetPlacement().pl_PositionVector, -en_vGravityDir, DBPT_GENERIC);
         autowait(0.4f);
         m_iFullFromHunger++;
       }

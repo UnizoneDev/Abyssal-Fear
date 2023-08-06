@@ -36,7 +36,7 @@ public:
   void CustomSetActivePage( CPropertyPage *pppToActivate);
 
 	CDlgInfoPgNone m_PgInfoNone;
-  CDlgInfoPgRendering m_PgInfoRendering;
+    CDlgInfoPgRendering m_PgInfoRendering;
 	CDlgInfoPgGlobal m_PgInfoGlobal;
 	CDlgInfoPgMip m_PgInfoMip;
 	CDlgInfoPgPos m_PgInfoPos;
@@ -44,6 +44,7 @@ public:
 	CDlgPgCollision m_PgInfoCollision;
 	CDlgPgInfoAttachingPlacement m_PgAttachingPlacement;
 	CDlgPgInfoAttachingSound m_PgAttachingSound;
+	CDlgPgHitboxes m_PgInfoHitboxes;
 	CDlgInfoSheet(UINT nIDCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
 	CDlgInfoSheet(LPCTSTR pszCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
 

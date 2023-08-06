@@ -28,7 +28,8 @@ uses "EntitiesMP/Item";
 enum AmmoItemType {
   1 AIT_BULLETS         "Bullets",
   2 AIT_SHELLS          "Shells",
-  3 AIT_MEDIUM_BULLETS  "Medium Bullets"
+  3 AIT_MEDIUM_BULLETS  "Medium Bullets",
+  4 AIT_STRONG_BULLETS  "Strong Bullets"
 };
 
 // event for sending through receive item
@@ -118,6 +119,10 @@ functions:
         pes->es_strName = "Medium Bullets"; 
         pes->es_fValue = m_fValue*AV_MEDIUM_BULLETS;
         break;
+      case AIT_STRONG_BULLETS:
+        pes->es_strName = "Strong Bullets"; 
+        pes->es_fValue = m_fValue*AV_STRONG_BULLETS;
+        break;
     }
     pes->es_iScore = 0;//m_iScore;
     return TRUE;
@@ -148,6 +153,14 @@ functions:
         m_fValue = 30.0f;
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 30.0f; 
         m_strDescription.PrintF("Medium Bullets: %d", (int) m_fValue);
+        // set appearance
+        AddItem(MODEL_MEDIUM_BULLETS, TEXTURE_MEDIUM_BULLETS, 0, 0, 0);
+        StretchItem(FLOAT3D(4.5f, 4.5f, 4.5f));
+        break;
+      case AIT_STRONG_BULLETS:
+        m_fValue = 7.0f;
+        m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 30.0f; 
+        m_strDescription.PrintF("Strong Bullets: %d", (int) m_fValue);
         // set appearance
         AddItem(MODEL_MEDIUM_BULLETS, TEXTURE_MEDIUM_BULLETS, 0, 0, 0);
         StretchItem(FLOAT3D(4.5f, 4.5f, 4.5f));

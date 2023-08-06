@@ -82,6 +82,7 @@ public:
   BOOL m_bFrameRate;
   BOOL m_LightModeOn;
   BOOL m_bCollisionMode;
+  BOOL m_bHitboxMode;
   BOOL m_bMappingMode;
   BOOL m_ShowAllSurfaces;
 	BOOL m_FloorOn;
@@ -360,6 +361,8 @@ public:
 	afx_msg void OnFirstFrame();
 	afx_msg void OnLastFrame();
 	afx_msg void OnAlternativeMovingMode();
+	afx_msg void OnUpdateHitBox(CCmdUI* pCmdUI);
+	afx_msg void OnHitBox();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

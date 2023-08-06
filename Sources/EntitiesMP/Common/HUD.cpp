@@ -70,7 +70,7 @@ enum BarOrientations {
   BO_DOWN  = 4,
 };
 
-extern const INDEX aiWeaponsRemap[8];
+extern const INDEX aiWeaponsRemap[9];
 
 // maximal mana for master status
 #define MANA_MASTER 10000
@@ -110,9 +110,11 @@ static CTextureObject _toArmor;
 static CTextureObject _toABullets;
 static CTextureObject _toAShells;
 static CTextureObject _toAMediumBullets;
+static CTextureObject _toAStrongBullets;
 static CTextureObject _toAInsertedBullets;
 static CTextureObject _toAInsertedShells;
 static CTextureObject _toAInsertedSMGBullets;
+static CTextureObject _toAInsertedStrongBullets;
 
 // weapon textures
 static CTextureObject _toWHolstered;
@@ -122,6 +124,7 @@ static CTextureObject _toWPistol;
 static CTextureObject _toWShotgun;
 static CTextureObject _toWSMG;
 static CTextureObject _toWPipe;
+static CTextureObject _toWStrongPistol;
 
 // powerup textures (ORDER IS THE SAME AS IN PLAYER.ES!)
 #define MAX_POWERUPS 4
@@ -163,21 +166,23 @@ struct WeaponInfo {
   BOOL wi_bHasWeapon;
 };
 
-extern struct WeaponInfo _awiWeapons[8];
-static struct AmmoInfo _aaiAmmo[3] = {
+extern struct WeaponInfo _awiWeapons[9];
+static struct AmmoInfo _aaiAmmo[4] = {
     { &_toABullets,       &_awiWeapons[4],  NULL,  0, 0, 0, -9, FALSE }, //  0
     { &_toAShells,        &_awiWeapons[5],  NULL,  0, 0, 0, -9, FALSE }, //  1
     { &_toAMediumBullets, &_awiWeapons[6],  NULL,  0, 0, 0, -9, FALSE }, //  2
+    { &_toAStrongBullets, &_awiWeapons[8],  NULL,  0, 0, 0, -9, FALSE }, //  0
 };
-static struct AmmoInfo _aaiInsertedAmmo[3] = {
+static struct AmmoInfo _aaiInsertedAmmo[4] = {
     { &_toAInsertedBullets,       &_awiWeapons[4],  NULL,  0, 0, 0, -9, FALSE }, //  0
     { &_toAInsertedShells,        &_awiWeapons[5],  NULL,  0, 0, 0, -9, FALSE }, //  1
     { &_toAInsertedSMGBullets,    &_awiWeapons[6],  NULL,  0, 0, 0, -9, FALSE }, //  2
+    { &_toAInsertedStrongBullets, &_awiWeapons[8],  NULL,  0, 0, 0, -9, FALSE }, //  2
 };
-static const INDEX aiAmmoRemap[3] = { 0,  1,  2 };
-static const INDEX aiInsertedAmmoRemap[3] = { 0,  1,  2 };
+static const INDEX aiAmmoRemap[4] = { 0,  1,  2,  3 };
+static const INDEX aiInsertedAmmoRemap[4] = { 0,  1,  2,  3 };
 
-struct WeaponInfo _awiWeapons[8] = {
+struct WeaponInfo _awiWeapons[9] = {
   { WEAPON_NONE,            NULL,                 NULL,         NULL,         FALSE },   //  0
   { WEAPON_HOLSTERED,       &_toWHolstered,       NULL,         NULL,         FALSE },   //  1
   { WEAPON_KNIFE,           &_toWKnife,           NULL,         NULL,         FALSE },   //  2
@@ -186,6 +191,7 @@ struct WeaponInfo _awiWeapons[8] = {
   { WEAPON_SHOTGUN,         &_toWShotgun,         &_aaiAmmo[1], &_aaiInsertedAmmo[1], FALSE },   //  5
   { WEAPON_SMG,             &_toWSMG,             &_aaiAmmo[2], &_aaiInsertedAmmo[2], FALSE },   //  6
   { WEAPON_PIPE,            &_toWPipe,            NULL,         NULL,         FALSE },   //  7
+  { WEAPON_STRONGPISTOL,    &_toWStrongPistol,    &_aaiAmmo[3], &_aaiInsertedAmmo[3], FALSE },   //  8
 };
 
 
@@ -556,17 +562,21 @@ static void FillWeaponAmmoTables(void)
     _aaiAmmo[1].ai_iMaxAmmoAmmount = _penWeapons->m_iMaxShells;
     _aaiAmmo[2].ai_iAmmoAmmount = _penWeapons->m_iMediumBullets;
     _aaiAmmo[2].ai_iMaxAmmoAmmount = _penWeapons->m_iMaxMediumBullets;
+    _aaiAmmo[3].ai_iAmmoAmmount = _penWeapons->m_iStrongBullets;
+    _aaiAmmo[3].ai_iMaxAmmoAmmount = _penWeapons->m_iMaxStrongBullets;
     _aaiInsertedAmmo[0].ai_iAmmoAmmount = _penWeapons->m_iPistolBullets;
     _aaiInsertedAmmo[0].ai_iMaxAmmoAmmount = _penWeapons->m_iMaxPistolBullets;
     _aaiInsertedAmmo[1].ai_iAmmoAmmount = _penWeapons->m_iShotgunShells;
     _aaiInsertedAmmo[1].ai_iMaxAmmoAmmount = _penWeapons->m_iMaxShotgunShells;
     _aaiInsertedAmmo[2].ai_iAmmoAmmount = _penWeapons->m_iSMGBullets;
     _aaiInsertedAmmo[2].ai_iMaxAmmoAmmount = _penWeapons->m_iMaxSMGBullets;
+    _aaiInsertedAmmo[3].ai_iAmmoAmmount = _penWeapons->m_iStrongPistolBullets;
+    _aaiInsertedAmmo[3].ai_iMaxAmmoAmmount = _penWeapons->m_iMaxStrongPistolBullets;
 
   // prepare ammo table for weapon possesion
   INDEX i, iAvailableWeapons = _penWeapons->m_iAvailableWeapons;
-  for( i=0; i<3; i++) _aaiAmmo[i].ai_bHasWeapon = FALSE;
-  for (i=0; i<3; i++) _aaiInsertedAmmo[i].ai_bHasWeapon = FALSE;
+  for( i=0; i<4; i++) _aaiAmmo[i].ai_bHasWeapon = FALSE;
+  for (i=0; i<4; i++) _aaiInsertedAmmo[i].ai_bHasWeapon = FALSE;
   // weapon possesion
   for( i=WEAPON_NONE+1; i<WEAPON_LAST; i++)
   {
@@ -792,7 +802,7 @@ extern void DrawHUD( const CPlayer *penPlayerCurrent, CDrawPort *pdpCurrent, BOO
 
   // loop thru all ammo types
   if (!GetSP()->sp_bInfiniteAmmo) {
-    for( INDEX ii=2; ii>=0; ii--) {
+    for( INDEX ii=3; ii>=0; ii--) {
       i = aiAmmoRemap[ii];
       j = aiInsertedAmmoRemap[ii];
       // if no ammo and hasn't got that weapon - just skip this ammo
@@ -1174,9 +1184,11 @@ extern void InitHUD(void)
     _toABullets.SetData_t(CTFILENAME("Textures\\Interface\\ABullets.tex"));
     _toAShells.SetData_t(CTFILENAME("Textures\\Interface\\AShells.tex"));
     _toAMediumBullets.SetData_t(CTFILENAME("Textures\\Interface\\AMediumBullets.tex"));
+    _toAStrongBullets.SetData_t(CTFILENAME("Textures\\Interface\\AStrongBullets.tex"));
     _toAInsertedBullets.SetData_t(CTFILENAME("Textures\\Interface\\ABullets.tex"));
     _toAInsertedShells.SetData_t(CTFILENAME("Textures\\Interface\\AShells.tex"));
     _toAInsertedSMGBullets.SetData_t(CTFILENAME("Textures\\Interface\\AMediumBullets.tex"));
+    _toAInsertedStrongBullets.SetData_t(CTFILENAME("Textures\\Interface\\AStrongBullets.tex"));
 
     // initialize weapon textures
     _toWHolstered.SetData_t(       CTFILENAME("Textures\\Interface\\WHolstered.tex"));
@@ -1186,6 +1198,7 @@ extern void InitHUD(void)
     _toWShotgun.SetData_t(         CTFILENAME("Textures\\Interface\\WShotgun.tex"));
     _toWSMG.SetData_t(             CTFILENAME("Textures\\Interface\\WSMG.tex"));
     _toWPipe.SetData_t(            CTFILENAME("Textures\\Interface\\WPipe.tex"));
+    _toWStrongPistol.SetData_t(    CTFILENAME("Textures\\Interface\\WStrongPistol.tex"));
         
     // initialize powerup textures (DO NOT CHANGE ORDER!)
     _atoPowerups[0].SetData_t( CTFILENAME("TexturesMP\\Interface\\PInvisibility.tex"));
@@ -1212,9 +1225,11 @@ extern void InitHUD(void)
     ((CTextureData*)_toABullets.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toAShells.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toAMediumBullets.GetData())->Force(TEX_CONSTANT);
+    ((CTextureData*)_toAStrongBullets.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toAInsertedBullets.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toAInsertedShells.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toAInsertedSMGBullets.GetData())->Force(TEX_CONSTANT);
+    ((CTextureData*)_toAInsertedStrongBullets.GetData())->Force(TEX_CONSTANT);
 
     ((CTextureData*)_toWHolstered.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toWKnife.GetData())->Force(TEX_CONSTANT);
@@ -1223,6 +1238,7 @@ extern void InitHUD(void)
     ((CTextureData*)_toWShotgun.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toWSMG.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toWPipe.GetData())->Force(TEX_CONSTANT);
+    ((CTextureData*)_toWStrongPistol.GetData())->Force(TEX_CONSTANT);
     
     ((CTextureData*)_atoPowerups[0].GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_atoPowerups[1].GetData())->Force(TEX_CONSTANT);

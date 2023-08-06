@@ -168,7 +168,7 @@ functions:
       // apply damage
       const FLOAT fDamageMul = GetSeriousDamageMultiplier(m_penOwner);
       InflictDirectDamage(crRay.cr_penHit, m_penOwner, m_EdtDamage, m_fDamage*fDamageMul,
-                            crRay.cr_vHit, vHitDirection);
+                            crRay.cr_vHit, vHitDirection, DBPT_GENERIC);
 
       m_vHitPoint = crRay.cr_vHit;
 

@@ -100,6 +100,8 @@ public:
   // array of collision boxes for this model
   CDynamicArray<CModelCollisionBox> md_acbCollisionBox;
   BOOL md_bCollideAsCube;                         // if model colide as stretched cube
+  // array of hit boxes for this model
+  CDynamicArray<CModelHitBox> md_acbHitBox;
   CDynamicArray<CAttachedModelPosition> md_aampAttachedPosition;
   BOOL md_bIsEdited;  // set if model is part of CEditModel object
   COLOR md_colDiffuse;
@@ -129,6 +131,11 @@ public:
 	void Clear(void);
   // check if this kind of objects is auto-freed
   virtual BOOL IsAutoFreed(void);
+
+  FLOAT3D GetHitBoxMin(INDEX iHitBox);
+  FLOAT3D GetHitBoxMax(INDEX iHitBox);
+  // returns HEIGHT_EQ_WIDTH, LENGTH_EQ_WIDTH or LENGTH_EQ_HEIGHT
+  INDEX GetHitBoxDimensionEquality(INDEX iHitBox);
 
   // get amount of memory used by this object
   SLONG GetUsedMemory(void);

@@ -30,7 +30,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define MODEL_VERSION_WITHOUT_16_BIT_COMPRESSION "V007"
 #define MODEL_VERSION_WITHOUT_REFLECTION_AND_SPECULARITY "V008"
 #define MODEL_VERSION_WITHOUT_DIFFUSE_COLOR "V009"
-#define MODEL_VERSION "V010"
+#define MODEL_VERSION_WITHOUT_MUTLIPLE_HIT_BOXES "V010"
+#define MODEL_VERSION "V011"
 
 
 // surface shading types
@@ -178,9 +179,9 @@ struct ENGINE_API MappingSurface
   COLOR   ms_colColor;														// color of this surface
   FLOAT3D ms_vSurfaceCenterOffset;                // vector of surface center offseting
 
-  COLOR ms_colDiffuse;														// difuse color of this surface
-  COLOR ms_colReflections;												// reflections color of this surface
-  COLOR ms_colSpecular;														// specular color of this surface
+  COLOR ms_colDiffuse;														  // difuse color of this surface
+  COLOR ms_colReflections;												      // reflections color of this surface
+  COLOR ms_colSpecular;														  // specular color of this surface
   COLOR ms_colBump;															  // bump color of this surface
 
   ULONG ms_ulOnColor;                             // on and off colors for surface
@@ -240,6 +241,21 @@ public:
   void Write_t(CTStream *ostrFile);
   /* Clear the object. */
   inline void Clear(void) {};
+};
+
+class ENGINE_API CModelHitBox {
+public:
+	FLOAT3D mcb_vHitBoxMin;                   // min vector of hit box
+	FLOAT3D mcb_vHitBoxMax;                   // max vector of hit box
+	ULONG mcb_iHitBoxDimensionEquality;       // HEIGHT_EQ_WIDTH or LENGTH_EQ_WIDTH or LENGTH_EQ_HEIGHT
+	CTString mcb_strName;                     // name of hit box (exported as define)
+  // functions
+	CModelHitBox(void);
+	void Read_t(CTStream* istrFile);
+	void ReadName_t(CTStream* istrFile);
+	void Write_t(CTStream* ostrFile);
+	/* Clear the object. */
+	inline void Clear(void) {};
 };
 
 class ENGINE_API CAttachedModelPosition {

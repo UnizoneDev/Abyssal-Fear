@@ -97,10 +97,10 @@ functions:
 
   /* Receive damage */
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
       if(dmtType != DMT_FREEZING && dmtType != DMT_DROWNING) { return; }
-      CMovableModelEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+      CMovableModelEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
   };
 
   void CreateSmoke(void)
@@ -165,7 +165,7 @@ procedures:
 
         on (ETimer) : {
           if(m_bCauseDamage) {
-            InflictRangeDamage(this, DMT_BURNING, m_fDamageAmount, GetPlacement().pl_PositionVector+FLOAT3D(0.0f, 0.5f, 0.0f), m_fDamageHotSpot, m_fDamageFalloff);
+            InflictRangeDamage(this, DMT_BURNING, m_fDamageAmount, GetPlacement().pl_PositionVector+FLOAT3D(0.0f, 0.5f, 0.0f), m_fDamageHotSpot, m_fDamageFalloff, DBPT_GENERIC);
           }
           stop;
         }

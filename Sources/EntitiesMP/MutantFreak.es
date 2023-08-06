@@ -101,11 +101,11 @@ functions:
 
   /* Receive damage */
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
     // twitcher can't harm twitcher
     if (!IsOfClass(penInflictor, "Mutant Freak")) {
-      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       // if died of chainsaw
       if (dmtType==DMT_CHAINSAW && GetHealth()<=0) {
         // must always blowup
@@ -115,7 +115,7 @@ functions:
   };
 
   // damage anim
-  INDEX AnimForDamage(FLOAT fDamage) {
+  INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     INDEX iAnim;
     if(m_mfChar == MFC_MUTANT1)
     {
@@ -259,7 +259,7 @@ procedures:
         vDirection.Normalize();
         if(m_mfChar == MFC_MUTANT1)
         {
-          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
+          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {
@@ -292,7 +292,7 @@ procedures:
         vDirection.Normalize();
         if(m_mfChar == MFC_MUTANT1)
         {
-          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 20.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
+          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 20.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {
@@ -325,7 +325,7 @@ procedures:
         vDirection.Normalize();
         if(m_mfChar == MFC_MUTANT1)
         {
-          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 30.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
+          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 30.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {

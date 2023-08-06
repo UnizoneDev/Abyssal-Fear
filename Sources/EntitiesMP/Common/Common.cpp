@@ -346,6 +346,12 @@ EffectParticlesType GetParticleEffectTypeForSurface(INDEX iSurfaceType)
     case SURFACE_FUSEBOX:
     case SURFACE_FUSEBOX_NOIMPACT:
     {eptType = EPT_BULLET_FUSEBOX; break; }
+    case SURFACE_GRAVEL:
+    case SURFACE_GRAVEL_NOIMPACT:
+    {eptType = EPT_BULLET_GRAVEL; break; }
+    case SURFACE_GLITCH:
+    case SURFACE_GLITCH_NOIMPACT:
+    {eptType = EPT_BULLET_GLITCH; break; }
   }
   return eptType;
 }
@@ -407,6 +413,12 @@ BulletHitType GetBulletHitTypeForSurface(INDEX iSurfaceType)
     case SURFACE_FUSEBOX:
     case SURFACE_FUSEBOX_NOIMPACT:
     {bhtType = BHT_BRUSH_FUSEBOX; break; }
+    case SURFACE_GRAVEL:
+    case SURFACE_GRAVEL_NOIMPACT:
+    {bhtType = BHT_BRUSH_GRAVEL; break; }
+    case SURFACE_GLITCH:
+    case SURFACE_GLITCH_NOIMPACT:
+    {bhtType = BHT_BRUSH_GLITCH; break; }
   }
   return bhtType;
 }
@@ -439,6 +451,8 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
     case BHT_BRUSH_VENT:
     case BHT_BRUSH_COMPUTER:
     case BHT_BRUSH_FUSEBOX:
+    case BHT_BRUSH_GRAVEL:
+    case BHT_BRUSH_GLITCH:
     {
       // bullet stain
       ESpawnEffect ese;
@@ -467,6 +481,8 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if (bhtType == BHT_BRUSH_VENT)          { ese.betType = BET_BULLETSTAINVENT; };
         if (bhtType == BHT_BRUSH_COMPUTER)      { ese.betType = BET_BULLETSTAINCOMPUTER; };
         if (bhtType == BHT_BRUSH_FUSEBOX)       { ese.betType = BET_BULLETSTAINFUSEBOX; };
+        if (bhtType == BHT_BRUSH_GRAVEL)        { ese.betType = BET_BULLETSTAINGRAVEL; };
+        if (bhtType == BHT_BRUSH_GLITCH)        { ese.betType = BET_BULLETSTAINGLITCH; };
       }
       else
       {
@@ -493,6 +509,8 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if (bhtType == BHT_BRUSH_VENT)          { ese.betType = BET_BULLETSTAINVENTNOSOUND; };
         if (bhtType == BHT_BRUSH_COMPUTER)      { ese.betType = BET_BULLETSTAINCOMPUTERNOSOUND; };
         if (bhtType == BHT_BRUSH_FUSEBOX)       { ese.betType = BET_BULLETSTAINFUSEBOXNOSOUND; };
+        if (bhtType == BHT_BRUSH_GRAVEL)        { ese.betType = BET_BULLETSTAINGRAVELNOSOUND; };
+        if (bhtType == BHT_BRUSH_GLITCH)        { ese.betType = BET_BULLETSTAINGLITCHNOSOUND; };
       }
 
       ese.vNormal = vHitNormal;

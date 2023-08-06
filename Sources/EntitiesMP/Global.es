@@ -139,6 +139,16 @@ enum ParticleTexture {
   15  PT_LAVAFLOW "Lava flow",
 };
 
+enum SightType {
+  0 SIGT_NONE         "",     // internal
+  1 SIGT_PLAYER       "",     // the enemy is the player
+  2 SIGT_ALLY         "",     // enemy from same faction
+  3 SIGT_ENEMY        "",     // enemy from different faction
+  4 SIGT_BULLET       "",     // taking hostile fire!
+  5 SIGT_GRENADE      "",     // I've gotta go fast to escape the big boom!
+  6 SIGT_FLASHBANG    "",     // I've been blinded and I can't see!
+};
+
 enum SoundType {
   0 SNDT_NONE         "",     // internal
   1 SNDT_SHOUT        "",     // enemy shout when see player
@@ -152,6 +162,7 @@ enum SmellType {
   1 SMLT_FOOD         "",     // I'm very hungry. GIVE ME THE SALT!!
   2 SMLT_MEAT         "",     // FRESH MEAT?!!?
   3 SMLT_GARBAGE      "",     // take the trash out!
+  4 SMLT_BLOOD        "",     // the fear of blood tends to create fear for the flesh
 };
 
 // hit enum
@@ -182,6 +193,8 @@ enum BulletHitType {
  23 BHT_BRUSH_VENT          "",     // brush vent
  24 BHT_BRUSH_COMPUTER      "",     // brush computer
  25 BHT_BRUSH_FUSEBOX       "",     // brush fusebox
+ 26 BHT_BRUSH_GRAVEL        "",     // brush gravel
+ 27 BHT_BRUSH_GLITCH        "",     // brush glitch
 };
 
 enum EffectParticlesType {
@@ -209,6 +222,8 @@ enum EffectParticlesType {
  21 EPT_BULLET_VENT           "",    // bullet particles on vent
  22 EPT_BULLET_COMPUTER       "",    // bullet particles on computer
  23 EPT_BULLET_FUSEBOX        "",    // bullet particles on fusebox
+ 24 EPT_BULLET_GRAVEL         "",    // bullet particles on gravel
+ 25 EPT_BULLET_GLITCH         "",    // bullet particles on glitch
 };
 
 enum SprayParticlesType {
@@ -241,7 +256,7 @@ enum WeaponBits {
   4 WB_04   "Shotgun",
   5 WB_05   "SMG",
   6 WB_06   "Pipe",
-  7 WB_07   "",
+  7 WB_07   "Strong Pistol",
   8 WB_08   "",
   9 WB_09   "",
  10 WB_10   "",

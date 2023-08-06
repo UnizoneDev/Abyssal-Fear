@@ -166,6 +166,8 @@ CModelerApp::CModelerApp()
   m_pFloorModelData = NULL;
   m_pCollisionBoxModelData = NULL;
   m_ptdCollisionBoxTexture = NULL;
+  m_pHitBoxModelData = NULL;
+  m_ptdHitBoxTexture = NULL;
   m_ptdLamp = NULL;
   m_ptdFloorTexture = NULL;
   m_pfntFont = NULL;
@@ -202,6 +204,13 @@ CModelerApp::~CModelerApp()
     m_pFloorModelObject = NULL;
   }
   
+  if (m_pHitBoxModelData != NULL)
+  {
+      _pModelStock->Release(m_pHitBoxModelData);
+      delete m_pHitBoxModelObject;
+      m_pHitBoxModelObject = NULL;
+  }
+  
   if( m_ptdCollisionBoxTexture != NULL)
   {
     _pTextureStock->Release( m_ptdCollisionBoxTexture);
@@ -218,6 +227,12 @@ CModelerApp::~CModelerApp()
   {
     _pTextureStock->Release( m_ptdFloorTexture);
     m_ptdFloorTexture = NULL;
+  }
+  
+  if (m_ptdHitBoxTexture != NULL)
+  {
+      _pTextureStock->Release(m_ptdHitBoxTexture);
+      m_ptdHitBoxTexture = NULL;
   }
   
 
@@ -398,6 +413,17 @@ BOOL CModelerApp::SubInitInstance()
     DECLARE_CTFILENAME( fnFloorTex, "Models\\Editor\\Floor.tex");
     m_ptdFloorTexture = _pTextureStock->Obtain_t( fnFloorTex);
     m_pFloorModelObject->mo_toTexture.SetData( m_ptdFloorTexture); 
+	
+	// load hit box model
+    DECLARE_CTFILENAME(fnHitBox, "Models\\Editor\\HitBox.mdl");
+    m_pHitBoxModelData = _pModelStock->Obtain_t(fnHitBox);
+    m_pHitBoxModelObject = new CModelObject;
+    m_pHitBoxModelObject->SetData(m_pHitBoxModelData);
+    m_pHitBoxModelObject->SetAnim(0);
+    // load hit box's texture
+    DECLARE_CTFILENAME(fnHitBoxTex, "Models\\Editor\\HitBox.tex");
+    m_ptdHitBoxTexture = _pTextureStock->Obtain_t(fnHitBoxTex);
+    m_pHitBoxModelObject->mo_toTexture.SetData(m_ptdHitBoxTexture);
 
     DECLARE_CTFILENAME( fnShadowTex, "Textures\\Effects\\Shadow\\SimpleModelShadow.tex");
     // setup simple model shadow texture
@@ -438,6 +464,19 @@ BOOL CModelerApp::SubInitInstance()
       // release it and
       _pTextureStock->Release( m_ptdFloorTexture);
       m_ptdFloorTexture = NULL;
+    }
+	
+	// if we allocated model object for hit box
+    if (m_pHitBoxModelObject != NULL) {
+        // delete it
+        delete m_pHitBoxModelObject;
+        m_pHitBoxModelObject = NULL;
+    }
+    // if we loaded hit box's texture
+    if (m_ptdHitBoxTexture != NULL) {
+        // release it and
+        _pTextureStock->Release(m_ptdHitBoxTexture);
+        m_ptdHitBoxTexture = NULL;
     }
   }
 

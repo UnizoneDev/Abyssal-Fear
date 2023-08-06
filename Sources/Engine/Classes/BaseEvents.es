@@ -76,7 +76,7 @@ enum DamageType {
   10 DMT_TELEPORT   "Teleport",     // applied to entities in teleport destination
   11 DMT_FREEZING   "Freezing",     // caused by freezing in cold water
   12 DMT_CANNONBALL "Cannon ball",  // caused by cannon ball
-  13 DMT_CANNONBALL_EXPLOSION "Cannon ball explosion",   // when cannonball explodes
+  13 DMT_CANNONBALL_EXPLOSION "Cannon ball explosion",    // when cannonball explodes
   14 DMT_SPIKESTAB  "Spike stab",   // stabbed by spikes (usually content type)
   15 DMT_ABYSS      "Abyss",        // when someone falls off a high ledge into the void
   16 DMT_HEAT       "Heat",         // walking under open sun too long
@@ -87,15 +87,31 @@ enum DamageType {
   21 DMT_SHARP      "Sharp",        // caused by sharp blades
   22 DMT_BLUNT      "Blunt",        // caused by blunt weapons
   23 DMT_STING      "Sting",        // caused by an abomination stinging their target
+  24 DMT_RIFLE      "Rifle Bullets",    // caused by stronger bullets from rifles
 9999 DMT_NONE       "no damage",    // internal
 };
 
+enum DamageBodyPartType {
+  0 DBPT_GENERIC      "",     // damn that stings
+  1 DBPT_HEAD         "",     // HEADSHOT!
+  2 DBPT_NECK         "",     // how to properly shut up
+  3 DBPT_GUT          "",     // belly rubs won't help in this case
+  4 DBPT_GROIN        "",     // SOMEONE KICKED ME IN MENARDS!
+  5 DBPT_FOOT         "",     // dance enemy dance!
+  6 DBPT_LEG          "",     // limping around
+  7 DBPT_HAND         "",     // drop the gun, or I'll disarm you!
+  8 DBPT_ARM          "",     // OUCH
+  9 DBPT_BUTT         "",     // I lied about liking big butts and paid the price
+ 10 DBPT_CHEST        "",     // HELP I CAN'T BREATHE!!!
+};
+
 event EDamage {  // entity has been damaged
-  CEntityPointer penInflictor,    // entity that inflicted the damage
-  FLOAT3D vDirection,             // where the damage came from (in absolute space)
-  FLOAT3D vHitPoint,              // where the damage hit the entity (in absolute space)
-  FLOAT fAmount,                  // amount of damage done
-  enum DamageType dmtType,        // type of damage
+  CEntityPointer penInflictor,       // entity that inflicted the damage
+  FLOAT3D vDirection,                // where the damage came from (in absolute space)
+  FLOAT3D vHitPoint,                 // where the damage hit the entity (in absolute space)
+  FLOAT fAmount,                     // amount of damage done
+  enum DamageType dmtType,           // type of damage
+  enum DamageBodyPartType dbptType,  // only for models, not brushes
 };
 
 event EDeath { // when this entity dies (health reaches zero)

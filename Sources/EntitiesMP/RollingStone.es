@@ -322,7 +322,7 @@ procedures:
           FLOAT fAppliedDamage = fDamageFactor*m_fDamage;
           // inflict damage
           InflictDirectDamage( eTouch.penOther, this, DMT_CANNONBALL, fAppliedDamage,
-                     eTouch.penOther->GetPlacement().pl_PositionVector, eTouch.plCollision);
+                     eTouch.penOther->GetPlacement().pl_PositionVector, eTouch.plCollision, DBPT_GENERIC);
         }
         else
         {
@@ -330,7 +330,7 @@ procedures:
           {
             // inflict damage
             InflictDirectDamage( eTouch.penOther, this, DMT_CANNONBALL, m_fDamage,
-                       eTouch.penOther->GetPlacement().pl_PositionVector, eTouch.plCollision);
+                       eTouch.penOther->GetPlacement().pl_PositionVector, eTouch.plCollision, DBPT_GENERIC);
           }
         }
     
@@ -349,7 +349,7 @@ procedures:
           {
             // receive artificial impact damage
             ReceiveDamage(eTouch.penOther, DMT_IMPACT, m_fHealth*2.0f,
-              FLOAT3D(0,0,0), FLOAT3D(0,0,0));
+              FLOAT3D(0,0,0), FLOAT3D(0,0,0), DBPT_GENERIC);
           }
         }
         resume;

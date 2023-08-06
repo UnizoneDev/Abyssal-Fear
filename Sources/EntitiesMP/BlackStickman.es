@@ -163,7 +163,7 @@ functions:
 
   /* Receive damage */
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
     // black stickman cannot be telefragged
     if(dmtType==DMT_TELEPORT)
@@ -189,13 +189,13 @@ functions:
 
     // black stickmen can't harm black stickmen
     if (!IsOfClass(penInflictor, "BlackStickman")) {
-      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
     }
   };
 
 
   // damage anim
-  INDEX AnimForDamage(FLOAT fDamage) {
+  INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     return 0;
   };
 

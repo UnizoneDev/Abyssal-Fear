@@ -91,6 +91,7 @@ CEditModel::CEditModel()
 {
   edm_md.md_bIsEdited = TRUE; // this model data is edited
   edm_iActiveCollisionBox = 0;
+  edm_iActiveHitBox = 0;
 }
 
 CEditModel::~CEditModel()
@@ -475,6 +476,21 @@ void CEditModel::SaveIncludeFile_t( CTFileName fnFileName, CTString strDefinePre
     strmHFile.Write_t( line, strlen( line));
   }
   edm_md.md_acbCollisionBox.Unlock();
+
+  // save hit box names
+  sprintf(line, "\n// Names of hit boxes\n");
+  strmHFile.Write_t(line, strlen(line));
+
+  edm_md.md_acbHitBox.Lock();
+  // save all hit boxes
+  for (INDEX iHitBox = 0; iHitBox < edm_md.md_acbHitBox.Count(); iHitBox++)
+  {
+      // prepare hit box name as define
+      sprintf(line, "#define %s_HIT_BOX_%s %d\n", strDefinePrefix, GetHitBoxName(iHitBox),
+          iHitBox);
+      strmHFile.Write_t(line, strlen(line));
+  }
+  edm_md.md_acbHitBox.Unlock();
 
   // save all attaching positions
   sprintf( line, "\n// Attaching position names\n");
@@ -1112,6 +1128,8 @@ void CEditModel::LoadFromScript_t(CTFileName &fnScriptName) // throw char *
 			LoadModelAnimationData_t( &File, mStretch);	// loads and sets model's animation data
       // add one collision box
       edm_md.md_acbCollisionBox.New();
+      // add one hit box
+      edm_md.md_acbHitBox.New();
       // reset attaching sounds
       CreateEmptyAttachingSounds();
 			bAnimationsFound = TRUE;				// mark that we found animations section in script-file
@@ -2279,6 +2297,19 @@ void CEditModel::SaveMapping_t( CTFileName fnFileName, INDEX iMip /*=-1*/)
     itcb->Write_t( &strmMappingFile);
   }
 
+  // save hit boxes
+  INDEX ctHitBoxes = edm_md.md_acbHitBox.Count();
+  ASSERT(ctHitBoxes > 0);
+  if (ctHitBoxes == 0)
+  {
+      WarningMessage("Trying to save 0 hit boxes into mapping file.");
+  }
+  strmMappingFile << ctHitBoxes;
+  FOREACHINDYNAMICARRAY(edm_md.md_acbHitBox, CModelHitBox, itcb)
+  {
+      itcb->Write_t(&strmMappingFile);
+  }
+
   // save patches
   for( INDEX iPatch=0; iPatch<MAX_TEXTUREPATCHES; iPatch++)
   {
@@ -2298,6 +2329,7 @@ void CEditModel::LoadMapping_t( CTFileName fnFileName, INDEX iMip /*=-1*/)
   BOOL bReadCollision = FALSE;
   BOOL bReadPatches = FALSE;
   BOOL bReadSurfaceColors = FALSE;
+  BOOL bReadHitboxes = FALSE;
   // open binary file
   strmMappingFile.Open_t( fnFileName);
   // recognize file ID
@@ -2330,13 +2362,22 @@ void CEditModel::LoadMapping_t( CTFileName fnFileName, INDEX iMip /*=-1*/)
     bReadCollision = TRUE;
     bReadPatches = TRUE;
   }
-  else if( cidVersion == CChunkID( MAPPING_VERSION))
+  else if( cidVersion == CChunkID( MAPPING_WITHOUT_HITBOXES))
   {
     bReadPolygonsPerSurface = TRUE;
     bReadSoundsAndAttachments = TRUE;
     bReadCollision = TRUE;
     bReadPatches = TRUE;
     bReadSurfaceColors = TRUE;
+  }
+  else if (cidVersion == CChunkID(MAPPING_VERSION))
+  {
+      bReadPolygonsPerSurface = TRUE;
+      bReadSoundsAndAttachments = TRUE;
+      bReadCollision = TRUE;
+      bReadPatches = TRUE;
+      bReadSurfaceColors = TRUE;
+      bReadHitboxes = TRUE;
   }
   else
   {
@@ -2460,6 +2501,29 @@ void CEditModel::LoadMapping_t( CTFileName fnFileName, INDEX iMip /*=-1*/)
       edm_md.md_mpPatches[ iPatch].Read_t( &strmMappingFile);
     }
     CalculatePatchesPerPolygon();
+  }
+
+  if (bReadHitboxes)
+  {
+      // read hit boxes
+      edm_md.md_acbHitBox.Clear();
+      INDEX ctHitBoxes;
+      strmMappingFile >> ctHitBoxes;
+      ASSERT(ctHitBoxes > 0);
+      if (ctHitBoxes > 0)
+      {
+          edm_md.md_acbHitBox.New(ctHitBoxes);
+          FOREACHINDYNAMICARRAY(edm_md.md_acbHitBox, CModelHitBox, itcb)
+          {
+              itcb->Read_t(&strmMappingFile);
+              itcb->ReadName_t(&strmMappingFile);
+          }
+      }
+      else
+      {
+          edm_md.md_acbHitBox.New(1);
+          throw("Trying to load 0 hit boxes from mapping file.");
+      }
   }
 }
 
@@ -2659,7 +2723,199 @@ void CEditModel::SetCollisionBoxDimensionEquality( INDEX iNewDimEqType)
 };
 
 
+void CEditModel::AddHitBox(void)
+{
+    // add one collision box
+    edm_md.md_acbHitBox.New();
+    // select newly added collision box
+    edm_iActiveHitBox = edm_md.md_acbHitBox.Count() - 1;
+}
 
+void CEditModel::DeleteCurrentHitBox(void)
+{
+    INDEX ctHitBoxes = edm_md.md_acbHitBox.Count();
+    // if we have more than 1 collision box
+    if (ctHitBoxes != 1)
+    {
+        edm_md.md_acbHitBox.Lock();
+        edm_md.md_acbHitBox.Delete(&edm_md.md_acbHitBox[edm_iActiveHitBox]);
+        edm_md.md_acbHitBox.Unlock();
+        // if this was last collision box
+        if (edm_iActiveHitBox == (ctHitBoxes - 1))
+        {
+            // select last collision box
+            edm_iActiveHitBox = ctHitBoxes - 2;
+        }
+    }
+}
+
+void CEditModel::ActivatePreviousHitBox(void)
+{
+    // get count of hit boxes
+    INDEX ctHitBoxes = edm_md.md_acbHitBox.Count();
+    if (edm_iActiveHitBox != 0)
+    {
+        edm_iActiveHitBox -= 1;
+    }
+}
+
+void CEditModel::ActivateNextHitBox(void)
+{
+    // get count of hit boxes
+    INDEX ctHitBoxes = edm_md.md_acbHitBox.Count();
+    if (edm_iActiveHitBox != (ctHitBoxes - 1))
+    {
+        edm_iActiveHitBox += 1;
+    }
+}
+
+void CEditModel::SetHitBox(FLOAT3D vMin, FLOAT3D vMax)
+{
+    edm_md.md_acbHitBox.Lock();
+    edm_md.md_acbHitBox[edm_iActiveHitBox].mcb_vHitBoxMin = vMin;
+    edm_md.md_acbHitBox[edm_iActiveHitBox].mcb_vHitBoxMax = vMax;
+    edm_md.md_acbHitBox.Unlock();
+    CorrectHitBoxSize();
+}
+
+CTString CEditModel::GetHitBoxName(INDEX iHitBox)
+{
+    // get count of hit boxes
+    INDEX ctHitBoxes = edm_md.md_acbHitBox.Count();
+    ASSERT(iHitBox < ctHitBoxes);
+    if (iHitBox >= ctHitBoxes)
+    {
+        iHitBox = ctHitBoxes - 1;
+    }
+    CTString strHitBoxName;
+    edm_md.md_acbHitBox.Lock();
+    strHitBoxName = edm_md.md_acbHitBox[iHitBox].mcb_strName;
+    edm_md.md_acbHitBox.Unlock();
+    return strHitBoxName;
+}
+
+CTString CEditModel::GetHitBoxName(void)
+{
+    CTString strHitBoxName;
+    edm_md.md_acbHitBox.Lock();
+    strHitBoxName = edm_md.md_acbHitBox[edm_iActiveHitBox].mcb_strName;
+    edm_md.md_acbHitBox.Unlock();
+    return strHitBoxName;
+}
+
+void CEditModel::SetHitBoxName(CTString strNewName)
+{
+    edm_md.md_acbHitBox.Lock();
+    edm_md.md_acbHitBox[edm_iActiveHitBox].mcb_strName = strNewName;
+    edm_md.md_acbHitBox.Unlock();
+}
+
+void CEditModel::CorrectHitBoxSize(void)
+{
+    edm_md.md_acbHitBox.Lock();
+    // get equality radio initial value
+    INDEX iEqualityType = GetHitBoxDimensionEquality();
+    // get min and max vectors of currently active hit box
+    FLOAT3D vMin = edm_md.md_acbHitBox[edm_iActiveHitBox].mcb_vHitBoxMin;
+    FLOAT3D vMax = edm_md.md_acbHitBox[edm_iActiveHitBox].mcb_vHitBoxMax;
+    FLOAT3D vOldCenter;
+
+    vOldCenter(1) = (vMax(1) + vMin(1)) / 2.0f;
+    vOldCenter(3) = (vMax(3) + vMin(3)) / 2.0f;
+
+    // calculate vector of hit box diagonale
+    FLOAT3D vCorrectedDiagonale = vMax - vMin;
+    // apply minimal hit box conditions
+    if (vCorrectedDiagonale(1) < 0.1f) vCorrectedDiagonale(1) = 0.01f;
+    if (vCorrectedDiagonale(2) < 0.1f) vCorrectedDiagonale(2) = 0.01f;
+    if (vCorrectedDiagonale(3) < 0.1f) vCorrectedDiagonale(3) = 0.01f;
+    // according to equality type flag (which dimensions are same)
+    switch (iEqualityType)
+    {
+    case HEIGHT_EQ_WIDTH:
+    {
+        // don't allow that unlocked dimension is smaller than locked ones
+        if (vCorrectedDiagonale(3) < vCorrectedDiagonale(1))
+        {
+            vCorrectedDiagonale(3) = vCorrectedDiagonale(1);
+        }
+        // height = width
+        vCorrectedDiagonale(2) = vCorrectedDiagonale(1);
+        break;
+    }
+    case LENGTH_EQ_WIDTH:
+    {
+        // don't allow that unlocked dimension is smaller than locked ones
+        if (vCorrectedDiagonale(2) < vCorrectedDiagonale(1))
+        {
+            vCorrectedDiagonale(2) = vCorrectedDiagonale(1);
+        }
+        // lenght = width
+        vCorrectedDiagonale(3) = vCorrectedDiagonale(1);
+        break;
+    }
+    case LENGTH_EQ_HEIGHT:
+    {
+        // don't allow that unlocked dimension is smaller than locked ones
+        if (vCorrectedDiagonale(1) < vCorrectedDiagonale(2))
+        {
+            vCorrectedDiagonale(1) = vCorrectedDiagonale(2);
+        }
+        // lenght = height
+        vCorrectedDiagonale(3) = vCorrectedDiagonale(2);
+        break;
+    }
+    default:
+    {
+        ASSERTALWAYS("Invalid hit box dimension equality value found.");
+    }
+}
+    // set new, corrected max vector
+    FLOAT3D vNewMin, vNewMax;
+    vNewMin(1) = vOldCenter(1) - vCorrectedDiagonale(1) / 2.0f;
+    vNewMin(2) = vMin(2);
+    vNewMin(3) = vOldCenter(3) - vCorrectedDiagonale(3) / 2.0f;
+
+    vNewMax(1) = vOldCenter(1) + vCorrectedDiagonale(1) / 2.0f;
+    vNewMax(2) = vMin(2) + vCorrectedDiagonale(2);
+    vNewMax(3) = vOldCenter(3) + vCorrectedDiagonale(3) / 2.0f;
+
+    edm_md.md_acbHitBox[edm_iActiveHitBox].mcb_vHitBoxMin = vNewMin;
+    edm_md.md_acbHitBox[edm_iActiveHitBox].mcb_vHitBoxMax = vNewMax;
+    edm_md.md_acbHitBox.Unlock();
+}
+//---------------------------------------------------------------------------------------------
+// hit box handling functions
+FLOAT3D& CEditModel::GetHitBoxMin(void)
+{
+    edm_md.md_acbHitBox.Lock();
+    FLOAT3D& vMin = edm_md.md_acbHitBox[edm_iActiveHitBox].mcb_vHitBoxMin;
+    edm_md.md_acbHitBox.Unlock();
+    return vMin;
+};
+FLOAT3D& CEditModel::GetHitBoxMax(void)
+{
+    edm_md.md_acbHitBox.Lock();
+    FLOAT3D& vMax = edm_md.md_acbHitBox[edm_iActiveHitBox].mcb_vHitBoxMax;
+    edm_md.md_acbHitBox.Unlock();
+    return vMax;
+};
+
+// returns HEIGHT_EQ_WIDTH, LENGHT_EQ_WIDTH or LENGHT_EQ_HEIGHT
+INDEX CEditModel::GetHitBoxDimensionEquality()
+{
+    return edm_md.GetHitBoxDimensionEquality(edm_iActiveHitBox);
+};
+
+// set new hit box equality value
+void CEditModel::SetHitBoxDimensionEquality(INDEX iNewDimEqType)
+{
+    edm_md.md_acbHitBox.Lock();
+    edm_md.md_acbHitBox[edm_iActiveHitBox].mcb_iHitBoxDimensionEquality =
+        iNewDimEqType;
+    edm_md.md_acbHitBox.Unlock();
+    CorrectHitBoxSize();
+};
 
 
 #if 0

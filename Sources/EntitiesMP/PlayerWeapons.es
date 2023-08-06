@@ -35,6 +35,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "Models/Weapons/SMG/SMGItem.h"
 #include "Models/Weapons/MetalPipe/MetalPipeViewmodel.h"
 #include "Models/Weapons/MetalPipe/PipeWeapon.h"
+#include "Models/Weapons/StrongPistol/StrongPistolItem.h"
+#include "Models/Weapons/StrongPistol/StrongPistolViewmodel.h"
 
 // Mission Pack player body instead of the old one
 #include "Models/Player/Uni/Body.h"
@@ -49,7 +51,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/ControllableTurret.h"
 extern INDEX hud_bShowWeapon;
 
-extern const INDEX aiWeaponsRemap[8] = { 0,  1,  2,  3,  7,  4,  5,  6 };
+extern const INDEX aiWeaponsRemap[9] = { 0,  1,  2,  3,  7,  4,  8,  5,  6 };
 
 %}
 
@@ -105,12 +107,13 @@ enum WeaponType {
   5 WEAPON_SHOTGUN            "",
   6 WEAPON_SMG                "",
   7 WEAPON_PIPE               "",
-  8 WEAPON_LAST               "",
-}; // see 'WEAPONS_ALLAVAILABLEMASK' -> (1111111111111 == 0x1FFFFFFF)
+  8 WEAPON_STRONGPISTOL       "",
+  9 WEAPON_LAST               "",
+}; // see 'WEAPONS_ALLAVAILABLEMASK' -> (11111111 == 0x3FFFFF)
 
 %{
 // AVAILABLE WEAPON MASK
-#define WEAPONS_ALLAVAILABLEMASK 0x1FFFFFFF
+#define WEAPONS_ALLAVAILABLEMASK 0x3FFFFF
 
 /*
 #if BUILD_TEST
@@ -263,6 +266,14 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
     pdec->PrecacheSound(SOUND_PIPE_BANG          );
   }
 
+  if ( ulAvailable&(1<<(WEAPON_STRONGPISTOL-1)) ) {
+    pdec->PrecacheModel(MODEL_STRONGPISTOL         );
+    pdec->PrecacheModel(MODEL_STRONGPISTOLITEM     );
+    pdec->PrecacheTexture(TEXTURE_STRONGPISTOLITEM );
+    pdec->PrecacheSound(SOUND_STRONGPISTOL_FIRE    );
+    pdec->PrecacheSound(SOUND_PISTOL_RELOAD        );
+  }
+
   // precache animator too
   extern void CPlayerAnimator_Precache(ULONG ulAvailable);
   CPlayerAnimator_Precache(ulAvailable);
@@ -348,6 +359,8 @@ properties:
  43 INDEX m_iMaxShells               = MAX_SHELLS,
  44 INDEX m_iMediumBullets           = 0,
  45 INDEX m_iMaxMediumBullets        = MAX_MEDIUM_BULLETS,
+ 46 INDEX m_iStrongBullets           = 0,
+ 47 INDEX m_iMaxStrongBullets        = MAX_STRONG_BULLETS,
 
 215 INDEX m_iPistolBullets = 0,
 216 INDEX m_iMaxPistolBullets = MAX_PISTOL_BULLETS,
@@ -355,6 +368,8 @@ properties:
 218 INDEX m_iMaxShotgunShells = MAX_SHOTGUN_SHELLS,
 219 INDEX m_iSMGBullets = 0,
 220 INDEX m_iMaxSMGBullets = MAX_SMG_BULLETS,
+221 INDEX m_iStrongPistolBullets = 0,
+222 INDEX m_iMaxStrongPistolBullets = MAX_STRONG_PISTOL_BULLETS,
 // lerped bullets fire
 230 FLOAT3D m_iLastBulletPosition = FLOAT3D(32000.0f, 32000.0f, 32000.0f),
 // fire flare
@@ -436,6 +451,12 @@ components:
  76 sound   SOUND_PIPE_BANG            "Sounds\\Weapons\\MetalPipeBang.wav",
  77 sound   SOUND_PIPE_HIT4            "Sounds\\Weapons\\Punch4.wav",
 
+// ************** STRONG PISTOL **************
+ 80 model   MODEL_STRONGPISTOL                "Models\\Weapons\\StrongPistol\\StrongPistolViewmodel.mdl",
+ 81 model   MODEL_STRONGPISTOLITEM            "Models\\Weapons\\StrongPistol\\StrongPistolItem.mdl",
+ 82 texture TEXTURE_STRONGPISTOLITEM          "Models\\Weapons\\StrongPistol\\StrongPistol.tex",
+ 83 sound   SOUND_STRONGPISTOL_FIRE           "Models\\NPCs\\Gunman\\Sounds\\StrongPistolAttack.wav",
+
 // ************** REFLECTIONS **************
 200 texture TEX_REFL_BWRIPLES01         "Models\\ReflectionTextures\\BWRiples01.tex",
 201 texture TEX_REFL_BWRIPLES02         "Models\\ReflectionTextures\\BWRiples02.tex",
@@ -450,7 +471,7 @@ components:
 212 texture TEX_SPEC_STRONG             "Models\\SpecularTextures\\Strong.tex",
 
 // ************** FLARES **************
-250 model   MODEL_FLARE01               "Models\\Effects\\Weapons\\Flare01\\Flare.mdl",
+250 model   MODEL_FLARE01               "Models\\Effects\\Weapons\\Flare01\\FlareMuzzle.mdl",
 251 texture TEXTURE_FLARE01             "Models\\Effects\\Weapons\\Flare01\\Flare.tex",
 
 280 sound   SOUND_SILENCE               "Sounds\\Misc\\Silence.wav",
@@ -981,6 +1002,9 @@ functions:
         case WEAPON_SMG:
           ShowFlare(m_moWeapon, SMGVIEWMODEL_ATTACHMENT_THESMG, SMGITEM_ATTACHMENT_FLARE_MUZZLE, 0.5f);
           break;
+        case WEAPON_STRONGPISTOL:
+          ShowFlare(m_moWeapon, STRONGPISTOLVIEWMODEL_ATTACHMENT_THEPISTOL, STRONGPISTOLITEM_ATTACHMENT_FLARE_MUZZLE, 0.75f);
+          break;
       }
     // remove
     } else if (pen->m_iFlare==FLARE_REMOVE) {
@@ -993,6 +1017,9 @@ functions:
           break;
         case WEAPON_SMG:
           HideFlare(m_moWeapon, SMGVIEWMODEL_ATTACHMENT_THESMG, SMGITEM_ATTACHMENT_FLARE_MUZZLE);
+          break;
+        case WEAPON_STRONGPISTOL:
+          HideFlare(m_moWeapon, STRONGPISTOLVIEWMODEL_ATTACHMENT_THEPISTOL, STRONGPISTOLITEM_ATTACHMENT_FLARE_MUZZLE);
           break;
       }
     } else {
@@ -1062,6 +1089,15 @@ functions:
         AddAttachmentToModel(this, m_moWeapon, METALPIPEVIEWMODEL_ATTACHMENT_THEPIPE, MODEL_PIPEITEM, 
                              TEXTURE_PIPEITEM, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
         m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_IDLE, 0);
+        break; }
+      // strong pistol
+      case WEAPON_STRONGPISTOL: {
+        SetComponents(this, m_moWeapon, MODEL_STRONGPISTOL, TEXTURE_HAND, 0, 0, 0);
+        AddAttachmentToModel(this, m_moWeapon, STRONGPISTOLVIEWMODEL_ATTACHMENT_THEPISTOL, MODEL_STRONGPISTOLITEM, 
+                             TEXTURE_STRONGPISTOLITEM, 0, 0, 0);
+        CModelObject &mo = m_moWeapon.GetAttachmentModel(STRONGPISTOLVIEWMODEL_ATTACHMENT_THEPISTOL)->amo_moModelObject;
+        AddAttachmentToModel(this, mo, STRONGPISTOLITEM_ATTACHMENT_FLARE_MUZZLE, MODEL_FLARE01, TEXTURE_FLARE01, 0, 0, 0);
+        m_moWeapon.PlayAnim(STRONGPISTOLVIEWMODEL_ANIM_IDLE, 0);
         break; }
     }
   };
@@ -1292,7 +1328,7 @@ functions:
         }
       }
       const FLOAT fDamageMul = GetSeriousDamageMultiplier(m_penPlayer);
-      InflictDirectDamage(penClosest, m_penPlayer, dmtType, fDamage*fDamageMul, vHit, vDir);
+      InflictDirectDamage(penClosest, m_penPlayer, dmtType, fDamage*fDamageMul, vHit, vDir, DBPT_GENERIC);
       return TRUE;
     }
     return FALSE;
@@ -1379,9 +1415,11 @@ functions:
     m_iPistolBullets = 0;
     m_iShotgunShells = 0;
     m_iSMGBullets = 0;
+    m_iStrongPistolBullets = 0;
     m_iBullets = 0;
     m_iShells = 0;
     m_iMediumBullets = 0;
+    m_iStrongBullets = 0;
   };
 
   void ResetWeaponMovingOffset(void)
@@ -1412,12 +1450,14 @@ functions:
     }
 
     // take away ammo
-    if( iTakeAmmo & (1<<AMMO_BULLETS))           {m_iBullets    = 0;}
-    if( iTakeAmmo & (1<<AMMO_SHELLS))            {m_iShells     = 0;}
-    if( iTakeAmmo & (1<<AMMO_MEDIUM_BULLETS))    {m_iMediumBullets    = 0;}
-    if( iTakeAmmo & (1<<AMMO_PISTOL_BULLETS))    {m_iPistolBullets    = 0;}
-    if( iTakeAmmo & (1<<AMMO_SHOTGUN_SHELLS))    {m_iShotgunShells     = 0;}
-    if( iTakeAmmo & (1<<AMMO_SMG_BULLETS))       {m_iSMGBullets    = 0;}
+    if( iTakeAmmo & (1<<AMMO_BULLETS))                {m_iBullets    = 0;}
+    if( iTakeAmmo & (1<<AMMO_SHELLS))                 {m_iShells     = 0;}
+    if( iTakeAmmo & (1<<AMMO_MEDIUM_BULLETS))         {m_iMediumBullets    = 0;}
+    if( iTakeAmmo & (1<<AMMO_STRONG_BULLETS))         {m_iStrongBullets    = 0;}
+    if( iTakeAmmo & (1<<AMMO_PISTOL_BULLETS))         {m_iPistolBullets    = 0;}
+    if( iTakeAmmo & (1<<AMMO_SHOTGUN_SHELLS))         {m_iShotgunShells     = 0;}
+    if( iTakeAmmo & (1<<AMMO_SMG_BULLETS))            {m_iSMGBullets    = 0;}
+    if( iTakeAmmo & (1<<AMMO_STRONG_PISTOL_BULLETS))  {m_iStrongPistolBullets    = 0;}
 
     // precache eventual new weapons
     Precache();
@@ -1447,6 +1487,7 @@ functions:
       case WEAPON_SHOTGUN:         return m_iShells;
       case WEAPON_SMG:             return m_iMediumBullets;
       case WEAPON_PIPE:            return 0;
+      case WEAPON_STRONGPISTOL:    return m_iStrongBullets;
     }
     return 0;
   };
@@ -1461,6 +1502,7 @@ functions:
       case WEAPON_SHOTGUN:         return m_iShotgunShells;
       case WEAPON_SMG:             return m_iSMGBullets;
       case WEAPON_PIPE:            return 0;
+      case WEAPON_STRONGPISTOL:    return m_iStrongPistolBullets;
     }
     return 0;
   };
@@ -1476,6 +1518,7 @@ functions:
       case WEAPON_SHOTGUN:         return m_iMaxShells;
       case WEAPON_SMG:             return m_iMaxMediumBullets;
       case WEAPON_PIPE:            return 0;
+      case WEAPON_STRONGPISTOL:    return m_iMaxStrongBullets;
     }
     return 0;
   };
@@ -1490,6 +1533,7 @@ functions:
       case WEAPON_SHOTGUN:         return m_iMaxShotgunShells;
       case WEAPON_SMG:             return m_iMaxSMGBullets;
       case WEAPON_PIPE:            return 0;
+      case WEAPON_STRONGPISTOL:    return m_iMaxStrongPistolBullets;
     }
     return 0;
   };
@@ -1507,15 +1551,17 @@ functions:
     m_iAvailableWeapons = WEAPONS_ALLAVAILABLEMASK;
     // m_iAvailableWeapons &= ~WEAPONS_DISABLEDMASK;
     m_ulMeleeWeapons = (1 << WEAPON_KNIFE|WEAPON_AXE|WEAPON_PIPE);
-    m_ulSmallGuns = (1 << WEAPON_PISTOL);
+    m_ulSmallGuns = (1 << WEAPON_PISTOL|WEAPON_STRONGPISTOL);
     m_ulBigGuns = (1 << WEAPON_SHOTGUN|WEAPON_SMG);
     // ammo for all weapons
     m_iBullets = m_iMaxBullets;
     m_iShells = m_iMaxShells;
     m_iMediumBullets = m_iMaxMediumBullets;
+    m_iStrongBullets = m_iMaxStrongBullets;
     m_iPistolBullets = m_iMaxPistolBullets;
     m_iShotgunShells = m_iMaxShotgunShells;
     m_iSMGBullets = m_iMaxSMGBullets;
+    m_iStrongBullets = m_iMaxStrongPistolBullets;
     Precache();
   };
 
@@ -1537,9 +1583,11 @@ functions:
     m_iBullets       = ClampUp(m_iBullets,       m_iMaxBullets);
     m_iShells        = ClampUp(m_iShells,        m_iMaxShells);
     m_iMediumBullets = ClampUp(m_iMediumBullets, m_iMaxMediumBullets);
+    m_iStrongBullets = ClampUp(m_iStrongBullets, m_iMaxStrongBullets);
     m_iPistolBullets = ClampUp(m_iPistolBullets, m_iMaxPistolBullets);
     m_iShotgunShells = ClampUp(m_iShotgunShells, m_iMaxShotgunShells);
     m_iSMGBullets    = ClampUp(m_iSMGBullets,    m_iMaxSMGBullets);
+    m_iStrongPistolBullets = ClampUp(m_iMaxPistolBullets, m_iMaxStrongPistolBullets);
   }
 
   // add default ammount of ammunition when receiving a weapon
@@ -1579,6 +1627,14 @@ functions:
         AddManaToPlayer( iAmmoPicked*50.0f*MANA_AMMO);
         AddManaToPlayer( iInsertedAmmoPicked*50.0f*MANA_AMMO);
         break;
+      case WEAPON_STRONGPISTOL:
+        iAmmoPicked = Max(7.0f, m_iMaxStrongBullets*fMaxAmmoRatio);
+        iInsertedAmmoPicked = Max(7.0f, m_iMaxStrongPistolBullets*fMaxAmmoRatio);
+        m_iStrongBullets += iAmmoPicked;
+        m_iStrongPistolBullets += iInsertedAmmoPicked;
+        AddManaToPlayer( iAmmoPicked*50.0f*MANA_AMMO);
+        AddManaToPlayer( iInsertedAmmoPicked*50.0f*MANA_AMMO);
+        break;
       // error
       default:
       ASSERTALWAYS("Unknown weapon type");
@@ -1610,6 +1666,7 @@ functions:
       case WEAPON_SHOTGUN: wit = WIT_SHOTGUN; break;
       case WEAPON_SMG: wit = WIT_SMG; break;
       case WEAPON_PIPE: wit = WIT_PIPE; break;
+      case WEAPON_STRONGPISTOL: wit = WIT_STRONGPISTOL; break;
     }
 
     switch(wit) {
@@ -1621,6 +1678,7 @@ functions:
       case WIT_SHOTGUN: m_ulBigGuns &= ~(1 << WEAPON_SHOTGUN); break;
       case WIT_SMG: m_ulBigGuns &= ~(1 << WEAPON_SMG); break;
       case WIT_PIPE: m_ulMeleeWeapons &= ~(1 << WEAPON_PIPE); break;
+      case WIT_STRONGPISTOL: m_ulSmallGuns &= ~(1 << WEAPON_STRONGPISTOL); break;
     }
 
 
@@ -1647,6 +1705,7 @@ functions:
       case WIT_SHOTGUN: Ewi.iWeapon = WEAPON_SHOTGUN; break;
       case WIT_SMG: Ewi.iWeapon = WEAPON_SMG; break;
       case WIT_PIPE: Ewi.iWeapon = WEAPON_PIPE; break;
+      case WIT_STRONGPISTOL: Ewi.iWeapon = WEAPON_STRONGPISTOL; break;
       default:
         ASSERTALWAYS("Unknown weapon type");
     }
@@ -1665,6 +1724,7 @@ functions:
       case WIT_SHOTGUN: m_ulBigGuns |= (1 << WEAPON_SHOTGUN); break;
       case WIT_SMG: m_ulBigGuns |= (1 << WEAPON_SMG); break;
       case WIT_PIPE: m_ulMeleeWeapons |= (1 << WEAPON_PIPE); break;
+      case WIT_STRONGPISTOL: m_ulSmallGuns |= (1 << WEAPON_STRONGPISTOL); break;
     }
 
     ULONG ulOldWeapons = m_iAvailableWeapons;
@@ -1698,6 +1758,10 @@ functions:
       case WIT_PIPE:            
         ((CPlayer&)*m_penPlayer).ItemPicked(TRANS("Metal Pipe"), 0);
         fnmMsg = CTFILENAME("Data\\Messages\\Weapons\\Pipe.txt"); 
+        break;
+      case WIT_STRONGPISTOL:            
+        ((CPlayer&)*m_penPlayer).ItemPicked(TRANS("High-Caliber Pistol"), 0);
+        fnmMsg = CTFILENAME("Data\\Messages\\Weapons\\StrongPistol.txt"); 
         break;
       default:
         ASSERTALWAYS("Unknown weapon type");
@@ -1777,6 +1841,12 @@ functions:
         ((CPlayer&)*m_penPlayer).ItemPicked(TRANS("Medium Bullets"), Eai.iQuantity);
         AddManaToPlayer(Eai.iQuantity*AV_MEDIUM_BULLETS*MANA_AMMO);
         break;
+      case AIT_STRONG_BULLETS:
+        if (m_iStrongBullets>=m_iMaxStrongBullets) { m_iStrongBullets = m_iMaxStrongBullets; return FALSE; }
+        m_iStrongBullets += Eai.iQuantity;
+        ((CPlayer&)*m_penPlayer).ItemPicked(TRANS("Strong Bullets"), Eai.iQuantity);
+        AddManaToPlayer(Eai.iQuantity*AV_STRONG_BULLETS*MANA_AMMO);
+        break;
       default:
         ASSERTALWAYS("Unknown ammo type");
     }
@@ -1793,9 +1863,8 @@ functions:
     switch(iWeapon) {
       case 0: return WEAPON_HOLSTERED;
       case 1: return WEAPON_AXE;
-      case 2: return WEAPON_PISTOL;
+      case 2: return WEAPON_STRONGPISTOL;
       case 3: return WEAPON_SHOTGUN;
-      case 4: return WEAPON_SMG;
     }
     return WEAPON_NONE;
   };
@@ -1805,7 +1874,7 @@ functions:
     switch(EwtSelectedWeapon) {
       case WEAPON_HOLSTERED: return 0;
       case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PIPE: return 1;
-      case WEAPON_PISTOL: return 2;
+      case WEAPON_PISTOL: case WEAPON_STRONGPISTOL: return 2;
       case WEAPON_SHOTGUN: case WEAPON_SMG: return 3;
     }
     return 0;
@@ -1817,10 +1886,11 @@ functions:
       case WEAPON_HOLSTERED: return WEAPON_HOLSTERED;
       case WEAPON_KNIFE: return WEAPON_AXE;
       case WEAPON_AXE: return WEAPON_KNIFE;
-      case WEAPON_PISTOL: return WEAPON_PISTOL;
-      case WEAPON_SHOTGUN: return WEAPON_SHOTGUN;
-      case WEAPON_SMG: return WEAPON_SMG;
+      case WEAPON_PISTOL: return WEAPON_STRONGPISTOL;
+      case WEAPON_SHOTGUN: return WEAPON_SMG;
+      case WEAPON_SMG: return WEAPON_SHOTGUN;
       case WEAPON_PIPE: return WEAPON_PIPE;
+      case WEAPON_STRONGPISTOL: return WEAPON_PISTOL;
     }
     return WEAPON_NONE;
   };
@@ -1851,7 +1921,8 @@ functions:
   {
     switch (m_iCurrentWeapon) {
       case WEAPON_NONE: 
-      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_SHOTGUN: case WEAPON_SMG: case WEAPON_PIPE:
+      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_SHOTGUN: case WEAPON_SMG: case WEAPON_PIPE: case WEAPON_STRONGPISTOL:
+        WeaponSelectOk(WEAPON_STRONGPISTOL)||
         WeaponSelectOk(WEAPON_PIPE)||
         WeaponSelectOk(WEAPON_SMG)||
         WeaponSelectOk(WEAPON_SHOTGUN)||
@@ -1873,6 +1944,7 @@ functions:
       case WEAPON_PISTOL: return (m_iBullets>0);
       case WEAPON_SHOTGUN: return (m_iShells>0);
       case WEAPON_SMG: return (m_iMediumBullets>0);
+      case WEAPON_STRONGPISTOL: return (m_iStrongBullets>0);
     }
     return FALSE;
   };
@@ -1884,6 +1956,7 @@ functions:
       case WEAPON_PISTOL: return (m_iPistolBullets>0);
       case WEAPON_SHOTGUN: return (m_iShotgunShells>0);
       case WEAPON_SMG: return (m_iSMGBullets>0);
+      case WEAPON_STRONGPISTOL: return (m_iStrongPistolBullets>0);
     }
     return FALSE;
   };
@@ -1912,6 +1985,9 @@ functions:
         break;
       case WEAPON_PIPE:
         m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART|AOF_SMOOTHCHANGE);
+        break;
+      case WEAPON_STRONGPISTOL:
+        m_moWeapon.PlayAnim(STRONGPISTOLVIEWMODEL_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART|AOF_SMOOTHCHANGE);
         break;
       default:
         ASSERTALWAYS("Unknown weapon.");
@@ -1964,10 +2040,17 @@ functions:
     return m_moWeapon.GetAnimLength(iAnim);
   };
 
+  FLOAT StrongPistolBoring(void) {
+    // play boring anim
+    INDEX iAnim = STRONGPISTOLVIEWMODEL_ANIM_IDLE;
+    m_moWeapon.PlayAnim(iAnim, AOF_SMOOTHCHANGE);
+    return m_moWeapon.GetAnimLength(iAnim);
+  };
+
   // find the weapon position in the remap array
   WeaponType FindRemapedPos(WeaponType wt)
   {
-    for (INDEX i=0; i<8; i++)
+    for (INDEX i=0; i<9; i++)
     {
       if (aiWeaponsRemap[i]==wt) {
         return (WeaponType)i;
@@ -1982,6 +2065,10 @@ functions:
   {
     if (wt==WEAPON_AXE) {
       return WEAPON_KNIFE;
+    } else if (wt==WEAPON_STRONGPISTOL) {
+      return WEAPON_PISTOL;
+    } else if (wt==WEAPON_SMG) {
+      return WEAPON_SHOTGUN;
     } else {
       return wt;
     }
@@ -1991,6 +2078,10 @@ functions:
   {
     if (wt==WEAPON_KNIFE) {
       return WEAPON_AXE;
+    } else if (wt==WEAPON_PISTOL) {
+      return WEAPON_STRONGPISTOL;
+    } else if (wt==WEAPON_SHOTGUN) {
+      return WEAPON_SMG;
     } else {
       return wt;
     }
@@ -2007,9 +2098,9 @@ functions:
     FOREVER {
       (INDEX&)wti += iDir;
       if (wti<WEAPON_NONE + 1) {
-        wti = WEAPON_PIPE;
+        wti = WEAPON_STRONGPISTOL;
       }
-      if (wti>7) {
+      if (wti>8) {
         wti = WEAPON_HOLSTERED;
       }
       if (wti==wtOrg) {
@@ -2131,6 +2222,9 @@ procedures:
       case WEAPON_PIPE:
         m_iAnim = METALPIPEVIEWMODEL_ANIM_LOWER;
         break;
+      case WEAPON_STRONGPISTOL:
+        m_iAnim = STRONGPISTOLVIEWMODEL_ANIM_LOWER;
+        break;
       default: ASSERTALWAYS("Unknown weapon.");
     }
     // start animator
@@ -2172,6 +2266,9 @@ procedures:
         break;
       case WEAPON_PIPE:
         m_iAnim = METALPIPEVIEWMODEL_ANIM_RAISE;
+        break;
+      case WEAPON_STRONGPISTOL:
+        m_iAnim = STRONGPISTOLVIEWMODEL_ANIM_RAISE;
         break;
       case WEAPON_NONE:
         break;
@@ -2223,6 +2320,7 @@ procedures:
             case WEAPON_SHOTGUN: call FireShotgun(); break;
             case WEAPON_SMG: call FireSMG(); break;
             case WEAPON_PIPE:  call SwingPipe(); break;
+            case WEAPON_STRONGPISTOL: call FireStrongPistol(); break;
             default: ASSERTALWAYS("Unknown weapon.");
           }
           resume;
@@ -2268,6 +2366,7 @@ procedures:
             case WEAPON_SHOTGUN: call AltShotgun(); break;
             case WEAPON_SMG:     call AltSMG(); break;
             case WEAPON_PIPE:    call AltPipe(); break;
+            case WEAPON_STRONGPISTOL:  call AltStrongPistol(); break;
             default: ASSERTALWAYS("Unknown weapon.");
           }
           resume;
@@ -2517,7 +2616,7 @@ procedures:
     {
       // sound
       CPlayer &pl = (CPlayer&)*m_penPlayer;
-      PlaySound(pl.m_soWeapon1, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
+      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
       autowait(0.35f);
       return EEnd();
     }
@@ -2525,7 +2624,7 @@ procedures:
     {
       // sound
       CPlayer &pl = (CPlayer&)*m_penPlayer;
-      PlaySound(pl.m_soWeapon1, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
+      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
       autowait(0.35f);
       return EEnd();
     }
@@ -2608,7 +2707,7 @@ procedures:
     {
       // sound
       CPlayer &pl = (CPlayer&)*m_penPlayer;
-      PlaySound(pl.m_soWeapon1, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
+      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
       autowait(0.35f);
       return EEnd();
     }
@@ -2616,7 +2715,7 @@ procedures:
     {
       // sound
       CPlayer &pl = (CPlayer&)*m_penPlayer;
-      PlaySound(pl.m_soWeapon1, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
+      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
       autowait(0.35f);
       return EEnd();
     }
@@ -2715,7 +2814,7 @@ procedures:
     {
       // sound
       CPlayer &pl = (CPlayer&)*m_penPlayer;
-      PlaySound(pl.m_soWeapon1, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
+      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
       autowait(0.35f);
       return EEnd();
     }
@@ -2723,7 +2822,7 @@ procedures:
     {
       // sound
       CPlayer &pl = (CPlayer&)*m_penPlayer;
-      PlaySound(pl.m_soWeapon1, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
+      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
       autowait(0.35f);
       return EEnd();
     }
@@ -2888,6 +2987,97 @@ procedures:
     return EEnd();
   };
 
+  // ***************** FIRE STRONG PISTOL *****************
+  FireStrongPistol() {
+    if (m_iStrongPistolBullets <= 0 && m_iStrongBullets <= 0)
+    {
+      // sound
+      CPlayer &pl = (CPlayer&)*m_penPlayer;
+      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
+      autowait(0.35f);
+      return EEnd();
+    }
+    else if (m_iStrongPistolBullets <= 0)
+    {
+      // sound
+      CPlayer &pl = (CPlayer&)*m_penPlayer;
+      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
+      autowait(0.35f);
+      return EEnd();
+    }
+
+    if (m_iStrongPistolBullets>0) {
+    GetAnimator()->FireAnimation(BODY_ANIM_COLT_FIRERIGHT, 0);
+
+    // fire bullet
+    FireOneBullet(wpn_fFX[WEAPON_STRONGPISTOL], wpn_fFY[WEAPON_STRONGPISTOL], 500.0f,
+    ((GetSP()->sp_bCooperative) ? 60.0f : 80.0f), DMT_BULLET);
+
+    if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("StrongPistol_fire");}
+    DoRecoil();
+    SpawnRangeSound(40.0f);
+    DecAmmo(m_iStrongPistolBullets, 1);
+    SetFlare(0, FLARE_ADD);
+    PlayLightAnim(LIGHT_ANIM_COLT_SHOTGUN, 0);
+
+    // sound
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    PlaySound(pl.m_soWeapon0, SOUND_STRONGPISTOL_FIRE, SOF_3D|SOF_VOLUMETRIC);
+
+    // pistol fire
+    INDEX iAnim = STRONGPISTOLVIEWMODEL_ANIM_FIRE;
+    m_moWeapon.PlayAnim(iAnim, 0);
+    autowait(m_moWeapon.GetAnimLength(iAnim));
+    m_bFireWeapon = FALSE;
+    m_moWeapon.PlayAnim(STRONGPISTOLVIEWMODEL_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART|AOF_SMOOTHCHANGE);
+    }
+
+    return EEnd();
+  };
+
+  // reload strong pistol
+  ReloadStrongPistol() {
+    if (m_iStrongPistolBullets>=7) {
+      return EEnd();
+    }
+
+    if(m_iStrongBullets <= 0) {
+      return EEnd();
+    }
+
+    // sound
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    PlaySound(pl.m_soWeapon1, SOUND_PISTOL_RELOAD, SOF_3D|SOF_VOLUMETRIC);
+    m_moWeapon.PlayAnim(STRONGPISTOLVIEWMODEL_ANIM_LOWER, 0);
+    autowait(m_moWeapon.GetAnimLength(STRONGPISTOLVIEWMODEL_ANIM_LOWER)+0.125f);
+    if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("StrongPistol_reload");}
+
+    while(m_iStrongPistolBullets < 7)
+    {
+      if(m_iStrongBullets <= 0)
+      {
+        m_moWeapon.PlayAnim(STRONGPISTOLVIEWMODEL_ANIM_RAISE, 0);
+        autowait(m_moWeapon.GetAnimLength(STRONGPISTOLVIEWMODEL_ANIM_RAISE));
+
+        return EEnd();
+      }
+
+      DecAmmo(m_iStrongBullets, 1);
+      m_iStrongPistolBullets++;
+    }
+
+    m_moWeapon.PlayAnim(STRONGPISTOLVIEWMODEL_ANIM_RAISE, 0);
+    autowait(m_moWeapon.GetAnimLength(STRONGPISTOLVIEWMODEL_ANIM_RAISE));
+
+    return EEnd();
+  };
+
+  // ***************** PISTOL ALTFIRE DUMMY *****************
+  AltStrongPistol() {
+    autowait(0.25);
+    return EEnd();
+  };
+
   Reload() {
     m_bReloadWeapon = FALSE;
 
@@ -2898,7 +3088,9 @@ procedures:
       autocall ReloadShotgun() EEnd;
     } else if (m_iCurrentWeapon == WEAPON_SMG) {
       autocall ReloadSMG() EEnd;
-    }
+    } else if (m_iCurrentWeapon == WEAPON_STRONGPISTOL) {
+      autocall ReloadStrongPistol() EEnd;
+    } 
 
     jump Idle();
   };
@@ -2917,6 +3109,7 @@ procedures:
       case WEAPON_SHOTGUN: fWait = ShotgunBoring(); break;
       case WEAPON_SMG: fWait = SMGBoring(); break;
       case WEAPON_PIPE: fWait = PipeBoring(); break;
+      case WEAPON_STRONGPISTOL: fWait = StrongPistolBoring(); break;
       default: ASSERTALWAYS("Unknown weapon.");
     }
     if (fWait > 0.0f) { autowait(fWait); }

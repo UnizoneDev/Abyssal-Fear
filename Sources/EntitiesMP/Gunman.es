@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %{
 #include "StdH.h"
 #include "Models/NPCs/Gunman/Gunman.h"
+#include "Models/NPCs/GunmanBladed/GunmanBladed.h"
 #include "Models/Items/ItemHolder/ItemHolder.h"
 #include "Models/Items/Ammo/PistolClip/PistolClip.h"
 #include "Models/Items/Ammo/SMGClip/SMGAmmo.h"
@@ -36,6 +37,7 @@ enum GunmanType {
   1 GMC_KEY      "Security",        // key dropping variant
   2 GMC_LEADER   "Squad Leader",    // variant that can give out commands to his members
   3 GMC_SHOTGUN  "Shotgunner",      // shotgun variant
+  4 GMC_BLADED   "Bladed",          // melee only variant
 };
 
 %{
@@ -74,11 +76,13 @@ components:
  15 texture TEXTURE_GUNMAN_LEADER      "Models\\NPCs\\Gunman\\GunmanLeader.tex",
  16 model   MODEL_SHOTGUN              "Models\\Weapons\\Shotgun\\ShotgunItem.mdl",
  17 texture TEXTURE_SHOTGUN            "Models\\Weapons\\Shotgun\\Shotgun.tex",
+ 18 model   MODEL_GUNMAN_BLADED        "Models\\NPCs\\GunmanBladed\\GunmanBladed.mdl",
 
  20 sound   SOUND_FIRE                 "Models\\NPCs\\Gunman\\Sounds\\PistolAttack.wav",
  21 sound   SOUND_HIT                  "Models\\NPCs\\Gunman\\Sounds\\Kick.wav",
  22 sound   SOUND_SWING                "Models\\Weapons\\Knife\\Sounds\\Swing.wav", 
  23 sound   SOUND_FIRE_SHOTGUN         "Models\\NPCs\\Gunman\\Sounds\\ShotgunAttack.wav",
+ 24 sound   SOUND_SLICE                "Models\\NPCs\\Twitcher\\Sounds\\Slice.wav",
 
  50 model   MODEL_ITEM            "Models\\Items\\ItemHolder\\ItemHolder.mdl",
  51 model   MODEL_BULLETS         "Models\\Items\\Ammo\\PistolClip\\PistolClip.mdl",
@@ -123,12 +127,14 @@ functions:
     static DECLARE_CTFILENAME(fnmGunmanLeader, "Data\\Messages\\NPCs\\GunmanLeader.txt");
     static DECLARE_CTFILENAME(fnmGunmanSecurity, "Data\\Messages\\NPCs\\GunmanSecurity.txt");
     static DECLARE_CTFILENAME(fnmGunman, "Data\\Messages\\NPCs\\Gunman.txt");
+    static DECLARE_CTFILENAME(fnmGunmanBladed, "Data\\Messages\\NPCs\\GunmanBladed.txt");
     switch(m_gmChar) {
     default: ASSERT(FALSE);
     case GMC_SHOTGUN : return fnmGunmanShotgunner;
     case GMC_LEADER: return fnmGunmanLeader;
     case GMC_KEY: return fnmGunmanSecurity;
     case GMC_PISTOL : return fnmGunman;
+    case GMC_BLADED : return fnmGunmanBladed;
     }
   };
 
@@ -153,6 +159,7 @@ functions:
     PrecacheSound(SOUND_FIRE);
     PrecacheSound(SOUND_HIT);
     PrecacheSound(SOUND_SWING);
+    PrecacheSound(SOUND_SLICE);
     PrecacheSound(SOUND_FIRE_SHOTGUN);
     PrecacheClass(CLASS_PROJECTILE, PRT_GUNMAN_BULLET);
     PrecacheClass(CLASS_AMMO, AIT_BULLETS);
@@ -189,17 +196,18 @@ functions:
     case GMC_LEADER: { pes->es_strName+=" Leader"; } break;
     case GMC_KEY: { pes->es_strName+=" Security"; } break;
     case GMC_PISTOL : { pes->es_strName+=" Officer"; } break;
+    case GMC_BLADED : { pes->es_strName+=" Bladed"; }
     }
     return TRUE;
   }
 
   /* Receive damage */
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
     // gunman can't harm gunman
     if (!IsOfClass(penInflictor, "Gunman")) {
-      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       // if died of chainsaw
       if (dmtType==DMT_CHAINSAW && GetHealth()<=0) {
         // must always blowup
@@ -210,9 +218,13 @@ functions:
 
 
   // damage anim
-  INDEX AnimForDamage(FLOAT fDamage) {
+  INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     INDEX iAnim;
-    if (m_gmChar == GMC_SHOTGUN)
+    if (m_gmChar == GMC_BLADED)
+    {
+      iAnim = GUNMANBLADED_ANIM_WOUND;
+    }
+    else if (m_gmChar == GMC_SHOTGUN)
     {
       iAnim = GUNMAN_ANIM_WOUNDSHOTGUN;
     }
@@ -227,7 +239,19 @@ functions:
   // death
   INDEX AnimForDeath(void) {
     INDEX iAnim;
-    iAnim = GUNMAN_ANIM_DEATH;
+    FLOAT3D vFront;
+    GetHeadingDirection(0, vFront);
+    FLOAT fDamageDir = m_vDamage%vFront;
+
+    if (m_gmChar == GMC_BLADED) {
+      if (fDamageDir<0) {
+          iAnim = GUNMANBLADED_ANIM_DEATHFRONT;
+        } else {
+          iAnim = GUNMANBLADED_ANIM_DEATHBACK;
+        }
+    } else {
+      iAnim = GUNMAN_ANIM_DEATH;
+    }
 
     StartModelAnim(iAnim, 0);
     return iAnim;
@@ -246,7 +270,11 @@ functions:
 
   // virtual anim functions
   void StandingAnim(void) {
-    if (m_gmChar == GMC_SHOTGUN)
+    if (m_gmChar == GMC_BLADED)
+    {
+      StartModelAnim(GUNMANBLADED_ANIM_STAND, AOF_LOOPING|AOF_NORESTART);
+    }
+    else if (m_gmChar == GMC_SHOTGUN)
     {
       StartModelAnim(GUNMAN_ANIM_STANDSHOTGUN, AOF_LOOPING|AOF_NORESTART);
     }
@@ -257,7 +285,11 @@ functions:
   };
 
   void WalkingAnim(void) {
-    if (m_gmChar == GMC_SHOTGUN)
+    if (m_gmChar == GMC_BLADED)
+    {
+      StartModelAnim(GUNMANBLADED_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+    }
+    else if (m_gmChar == GMC_SHOTGUN)
     {
       StartModelAnim(GUNMAN_ANIM_WALKSHOTGUN, AOF_LOOPING|AOF_NORESTART);
     }
@@ -268,7 +300,11 @@ functions:
   };
 
   void RunningAnim(void) {
-    if (m_gmChar == GMC_SHOTGUN)
+    if (m_gmChar == GMC_BLADED)
+    {
+      StartModelAnim(GUNMANBLADED_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
+    }
+    else if (m_gmChar == GMC_SHOTGUN)
     {
       StartModelAnim(GUNMAN_ANIM_RUNSHOTGUN, AOF_LOOPING|AOF_NORESTART);
     }
@@ -305,7 +341,14 @@ functions:
   };
 
   void JumpingAnim(void) {
-    StartModelAnim(GUNMAN_ANIM_JUMP, AOF_LOOPING|AOF_NORESTART);
+    if (m_gmChar == GMC_BLADED)
+    {
+      StartModelAnim(GUNMANBLADED_ANIM_JUMP, AOF_LOOPING|AOF_NORESTART);
+    }
+    else
+    {
+      StartModelAnim(GUNMAN_ANIM_JUMP, AOF_LOOPING|AOF_NORESTART);
+    }
   };
 
   void BacksteppingAnim(void) {
@@ -326,22 +369,27 @@ functions:
   // melee attack enemy
   Hit(EVoid) : CEnemyBase::Hit
   {
-    if (m_gmChar == GMC_SHOTGUN)
+    if (m_gmChar == GMC_BLADED)
+    {
+      autocall GunmanBladedAttack() EEnd;
+      return EReturn();
+    }
+    else if (m_gmChar == GMC_SHOTGUN)
     {
       autocall GunmanShotgunMeleeAttack() EEnd;
       return EReturn();
     }
-    else if (GMC_LEADER)
+    else if (m_gmChar == GMC_LEADER)
     {
       autocall GunmanKickAttack() EEnd;
       return EReturn();
     }
-    else if (GMC_KEY)
+    else if (m_gmChar == GMC_KEY)
     {
       autocall GunmanKickAttack() EEnd;
       return EReturn();
     }
-    else if (GMC_PISTOL)
+    else if (m_gmChar == GMC_PISTOL)
     {
       autocall GunmanKickAttack() EEnd;
       return EReturn();
@@ -351,7 +399,11 @@ functions:
 
   Fire(EVoid) : CEnemyBase::Fire
   {
-    if (m_gmChar == GMC_SHOTGUN)
+    if (m_gmChar == GMC_BLADED)
+    {
+      return EReturn();
+    }
+    else if (m_gmChar == GMC_SHOTGUN)
     {
       autocall GunmanShotgunAttack() EEnd;
       return EReturn();
@@ -394,7 +446,7 @@ functions:
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 6.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
       }
     } else {
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
@@ -424,7 +476,7 @@ functions:
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 9.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
       }
     } else {
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
@@ -435,6 +487,38 @@ functions:
 
     m_fLockOnEnemyTime = 1.0f;
     autocall CEnemyBase::StepBackwards() EReturn;
+
+    return EReturn();
+  };
+
+  GunmanBladedAttack(EVoid) {
+    // close attack
+    switch(IRnd()%2)
+    {
+        case 0: StartModelAnim(GUNMANBLADED_ANIM_MELEE1, 0); break;
+        case 1: StartModelAnim(GUNMANBLADED_ANIM_MELEE2, 0); break;
+        default: ASSERTALWAYS("Gunman bladed unknown animation");
+    }
+
+    m_bFistHit = FALSE;
+    autowait(0.30f);
+    if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+      m_bFistHit = TRUE;
+    }
+    
+    if (m_bFistHit) {
+      PlaySound(m_soSound, SOUND_SLICE, SOF_3D);
+      if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
+        vDirection.Normalize();
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 12.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+      }
+    } else {
+      PlaySound(m_soSound, SOUND_SWING, SOF_3D);
+    }
+
+    autowait(0.3f);
+    MaybeSwitchToAnotherPlayer();
 
     return EReturn();
   };
@@ -605,6 +689,16 @@ functions:
 
     switch(m_gmChar)
     {
+      case GMC_BLADED:
+        SetHealth(175.0f);
+        m_fMaxHealth = 175.0f;
+        SetModel(MODEL_GUNMAN_BLADED);
+        SetModelMainTexture(TEXTURE_GUNMAN);
+        GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        ModelChangeNotify();
+        m_iScore = 1500;
+      break;
+
       case GMC_SHOTGUN:
         SetHealth(175.0f);
         m_fMaxHealth = 175.0f;
@@ -644,12 +738,22 @@ functions:
     }
         
         // setup moving speed
-        m_fWalkSpeed = FRnd() + 2.5f;
-        m_aWalkRotateSpeed = AngleDeg(FRnd()*10.0f + 500.0f);
-        m_fAttackRunSpeed = FRnd() + 5.0f;
-        m_aAttackRotateSpeed = AngleDeg(FRnd()*50 + 245.0f);
-        m_fCloseRunSpeed = FRnd() + 5.0f;
-        m_aCloseRotateSpeed = AngleDeg(FRnd()*50 + 245.0f);
+        if(m_gmChar == GMC_BLADED) {
+          // setup moving speed
+          m_fWalkSpeed = FRnd() + 3.5f;
+          m_aWalkRotateSpeed = AngleDeg(FRnd()*10.0f + 500.0f);
+          m_fAttackRunSpeed = FRnd() + 7.0f;
+          m_aAttackRotateSpeed = AngleDeg(FRnd()*70 + 275.0f);
+          m_fCloseRunSpeed = FRnd() + 7.0f;
+          m_aCloseRotateSpeed = AngleDeg(FRnd()*70 + 275.0f);
+        } else {
+          m_fWalkSpeed = FRnd() + 2.5f;
+          m_aWalkRotateSpeed = AngleDeg(FRnd()*10.0f + 500.0f);
+          m_fAttackRunSpeed = FRnd() + 5.0f;
+          m_aAttackRotateSpeed = AngleDeg(FRnd()*50 + 245.0f);
+          m_fCloseRunSpeed = FRnd() + 5.0f;
+          m_aCloseRotateSpeed = AngleDeg(FRnd()*50 + 245.0f);
+        }
         // setup attack distances
         m_fAttackDistance = 100.0f;
         m_fCloseDistance = 2.5f;

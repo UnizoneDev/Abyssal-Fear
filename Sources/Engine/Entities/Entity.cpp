@@ -523,6 +523,28 @@ void CEntity::GetCollisionBoxParameters(INDEX iBox, FLOATaabbox3D &box, INDEX &i
   }
 }
 
+/* Get current hitboxes for this entity. */
+ULONG CEntity::GetHitBoxes(void)
+{
+    // by default, use only box 0
+    return 0x1;
+}
+
+/* Get current hit box - override for custom hit boxes. */
+void CEntity::GetHitBoxParameters(INDEX iBox, FLOATaabbox3D& box, INDEX& iEquality)
+{
+    // if this is ska model
+    if (en_RenderType == RT_SKAMODEL || en_RenderType == RT_SKAEDITORMODEL) {
+        NOTHING;
+    }
+    else {
+        box.minvect = en_pmoModelObject->GetHitBoxMin(iBox);
+        box.maxvect = en_pmoModelObject->GetHitBoxMax(iBox);
+        box.StretchByVector(en_pmoModelObject->mo_Stretch);
+        iEquality = en_pmoModelObject->GetHitBoxDimensionEquality(iBox);
+    }
+}
+
 /* Render game view */
 void CEntity::RenderGameView(CDrawPort *pdp, void *pvUserData)
 {
@@ -883,7 +905,7 @@ void CEntity::Teleport(const CPlacement3D &plNew, BOOL bTelefrag /*=TRUE*/)
     box |= FLOATaabbox3D(vPos+ms1.ms_vCenter*mRot, ms1.ms_fR);
 
     // first inflict huge damage there in the entities box
-    InflictBoxDamage(this, DMT_TELEPORT, 100000.0f, box);
+    InflictBoxDamage(this, DMT_TELEPORT, 100000.0f, box, DBPT_GENERIC);
   }
 
   // remember original orientation matrix
@@ -3014,7 +3036,7 @@ void CEntity::PlaySound(CSoundObject &so, const CTFileName &fnmSound, SLONG slPl
  * Apply some damage directly to one entity.
  */
 void CEntity::InflictDirectDamage(CEntity *penToDamage, CEntity *penInflictor, enum DamageType dmtType,
-  FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection)
+  FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType)
 {
   ASSERT(GetFPUPrecision()==FPT_24BIT);
 
@@ -3028,7 +3050,7 @@ void CEntity::InflictDirectDamage(CEntity *penToDamage, CEntity *penInflictor, e
 
   // if significant damage
   if (fDamageAmmount>0) {
-    penToDamage->ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+    penToDamage->ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
   }
 }
 
@@ -3124,7 +3146,8 @@ static BOOL CheckBrushRangeDamage(
 
 /* Apply some damage to all entities in some range. */
 void CEntity::InflictRangeDamage(CEntity *penInflictor, enum DamageType dmtType,
-  FLOAT fDamageAmmount, const FLOAT3D &vCenter, FLOAT fHotSpotRange, FLOAT fFallOffRange)
+  FLOAT fDamageAmmount, const FLOAT3D &vCenter, FLOAT fHotSpotRange, FLOAT fFallOffRange,
+    enum DamageBodyPartType dbptType)
 {
   ASSERT(GetFPUPrecision()==FPT_24BIT);
 
@@ -3164,7 +3187,7 @@ void CEntity::InflictRangeDamage(CEntity *penInflictor, enum DamageType dmtType,
       // if significant
       if (fAmmount>0) {
         // inflict damage to it
-        en.ReceiveDamage(penInflictor, dmtType, fAmmount, vHitPos, (vHitPos-vCenter).Normalize());
+        en.ReceiveDamage(penInflictor, dmtType, fAmmount, vHitPos, (vHitPos-vCenter).Normalize(), dbptType);
       }
     }
   }
@@ -3172,7 +3195,7 @@ void CEntity::InflictRangeDamage(CEntity *penInflictor, enum DamageType dmtType,
 
 /* Apply some damage to all entities in a box (this doesn't test for obstacles). */
 void CEntity::InflictBoxDamage(CEntity *penInflictor, enum DamageType dmtType,
-  FLOAT fDamageAmmount, const FLOATaabbox3D &box)
+  FLOAT fDamageAmmount, const FLOATaabbox3D &box, enum DamageBodyPartType dbptType)
 {
   ASSERT(GetFPUPrecision()==FPT_24BIT);
 
@@ -3206,7 +3229,7 @@ void CEntity::InflictBoxDamage(CEntity *penInflictor, enum DamageType dmtType,
       // inflict damage to it
       en.ReceiveDamage(penInflictor, dmtType,
         fDamageAmmount, box.Center(), 
-        (box.Center()-en.GetPlacement().pl_PositionVector).Normalize());
+        (box.Center()-en.GetPlacement().pl_PositionVector).Normalize(), dbptType);
     }
   }
 }
@@ -3281,7 +3304,8 @@ void CEntity::NotifyCollisionChanged(void)
 
 // apply some damage to the entity (see event EDamage for more info)
 void CEntity::ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-  FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection)
+  FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection,
+  enum DamageBodyPartType dbptType)
 {
   CEntityPointer penThis = this;  // keep this entity alive during this function
   // just throw an event that you are damaged (base entities don't really have health)
@@ -3291,6 +3315,7 @@ void CEntity::ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
   eDamage.vHitPoint    = vHitPoint;
   eDamage.fAmount      = fDamageAmmount;
   eDamage.dmtType      = dmtType;
+  eDamage.dbptType     = dbptType;
   SendEvent(eDamage);
 }
 
@@ -3718,7 +3743,7 @@ void CLiveEntity::Write_t( CTStream *ostr) // throw char *
 
 // apply some damage to the entity (see event EDamage for more info)
 void CLiveEntity::ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-  FLOAT fDamage, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection)
+  FLOAT fDamage, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType)
 {
   CEntityPointer penThis = this;  // keep this entity alive during this function
 
@@ -3732,6 +3757,7 @@ void CLiveEntity::ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
   eDamage.vHitPoint    = vHitPoint;
   eDamage.fAmount      = fDamage;
   eDamage.dmtType      = dmtType;
+  eDamage.dbptType     = dbptType;
   SendEvent(eDamage);
 
   // if health reached zero

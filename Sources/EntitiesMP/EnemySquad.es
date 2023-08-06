@@ -149,49 +149,67 @@ procedures:
   CheckLeaderDeath(EVoid) {
     if(IsLeaderDead())
     {
-
+      jump SquadRunAway();
     }
 
-    return EBegin();
+    return EReturn();
   };
 
   SquadTakeCover(EVoid) {
-    if(m_bCanTakeCover)
-    {
+    // stop moving
+    StopMoving();
 
-    }
-
-    return EBegin();
+    return EReturn();
   };
 
   SquadMoveIn(EVoid) {
-    if(m_bMoveIn)
-    {
+    // stop moving
+    StopMoving();
+    RunningAnim();
 
+    m_fLockOnEnemyTime = 1.0f;
+    m_fLockStartTime = _pTimer->CurrentTick();
+    while (m_fLockStartTime+GetProp(m_fLockOnEnemyTime) > _pTimer->CurrentTick()) {
+      m_fMoveFrequency = 0.1f;
+      wait (m_fMoveFrequency) {
+        on (EBegin) : {
+          FLOAT fSpeedMultiplier = 1.0f;
+          m_fMoveSpeed = GetProp(m_fCloseRunSpeed) * fSpeedMultiplier;
+          m_vDesiredPosition = FLOAT3D(0.0f, 0.0f, -m_fMoveSpeed);
+          // start moving
+          m_ulMovementFlags = SetDesiredMovement(); 
+          MovementAnimation(m_ulMovementFlags);
+          resume; 
+        }
+        on (ETimer) : { stop; }
+      }
     }
 
-    return EBegin();
+    return EReturn();
   };
 
   SquadRunAway(EVoid) {
-    if(m_bRunAway)
-    {
+    // stop moving
+    StopMoving();
 
-    }
-
-    return EBegin();
+    return EReturn();
   };
 
   ObeyLeaderCommands(ELeaderCommand eLeaderCommand) {
+    if(this->CheckIfLeader())
+    {
+      return EBegin();
+    }
+    
     switch(eLeaderCommand.iCommandType)
     {
       // case 1 is to take cover
       // case 2 is to move in
       // case 3 is to run away
       default: ASSERT(FALSE);
-      case 1: break;
-      case 2: break;
-      case 3: break;
+      case 1: jump SquadTakeCover(); break;
+      case 2: jump SquadMoveIn(); break;
+      case 3: jump SquadRunAway(); break;
     }
 
     return EBegin();

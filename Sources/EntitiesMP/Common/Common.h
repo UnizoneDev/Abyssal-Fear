@@ -51,24 +51,32 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define SURFACE_COMPUTER_NOIMPACT 47
 #define SURFACE_FUSEBOX 48
 #define SURFACE_FUSEBOX_NOIMPACT 49
+#define SURFACE_GRAVEL 50
+#define SURFACE_GRAVEL_NOIMPACT 51
+#define SURFACE_GLITCH 52
+#define SURFACE_GLITCH_NOIMPACT 53
 
 // Max ammo
 #define MAX_BULLETS INDEX(100)
 #define MAX_SHELLS INDEX(50)
 #define MAX_MEDIUM_BULLETS INDEX(200)
+#define MAX_STRONG_BULLETS INDEX(40)
 #define MAX_PISTOL_BULLETS INDEX(17)
 #define MAX_SHOTGUN_SHELLS INDEX(8)
 #define MAX_SMG_BULLETS INDEX(30)
+#define MAX_STRONG_PISTOL_BULLETS INDEX(7)
 
 // Bit shifters for ammo
 #define AMMO_BULLETS 0
 #define AMMO_SHELLS 1
 #define AMMO_MEDIUM_BULLETS 2
+#define AMMO_STRONG_BULLETS 3
 
 // Bit shifters for inserted ammo
 #define AMMO_PISTOL_BULLETS 0
 #define AMMO_SHOTGUN_SHELLS 1
 #define AMMO_SMG_BULLETS 2
+#define AMMO_STRONG_PISTOL_BULLETS 3
 
 #define BLOOD_SPILL_RED RGBAToColor(250,20,20,255)
 #define BLOOD_SPILL_GREEN RGBAToColor(0,250,0,255)
@@ -77,6 +85,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define AV_BULLETS        INDEX(10)
 #define AV_SHELLS         INDEX(8)
 #define AV_MEDIUM_BULLETS INDEX(30)
+#define AV_STRONG_BULLETS INDEX(7)
 
 // used for invisibility powerup
 #define INVISIBILITY_ALPHA_LOCAL  0x55

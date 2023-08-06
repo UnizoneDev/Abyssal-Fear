@@ -208,7 +208,9 @@ BEGIN_MESSAGE_MAP(CModelerView, CView)
 	ON_UPDATE_COMMAND_UI(ID_TOGGLE_MEASURE_VTX, OnUpdateToggleMeasureVtx)
 	ON_COMMAND(ID_FIRST_FRAME, OnFirstFrame)
 	ON_COMMAND(ID_LAST_FRAME, OnLastFrame)
-  ON_COMMAND(ID_ALTERNATIVE_MOVING_MODE, OnAlternativeMovingMode)
+    ON_COMMAND(ID_ALTERNATIVE_MOVING_MODE, OnAlternativeMovingMode)
+    ON_UPDATE_COMMAND_UI(ID_HIT_BOX, OnUpdateHitBox)
+    ON_COMMAND(ID_HIT_BOX, OnHitBox)
 	//}}AFX_MSG_MAP
 	// Standard printing commands
 	//ON_COMMAND(ID_FILE_PRINT, CView::OnFilePrint)
@@ -258,6 +260,7 @@ CModelerView::CModelerView()
     m_LightModeOn = pModelerView->m_LightModeOn;
     m_bMappingMode = pModelerView->m_bMappingMode;
     m_bCollisionMode = pModelerView->m_bCollisionMode;
+	m_bHitboxMode = pModelerView->m_bHitboxMode;
     m_IsMappingBcgTexture = pModelerView->m_IsMappingBcgTexture;
     m_fCurrentMipFactor = pModelerView->m_fCurrentMipFactor;
     m_iCurrentFrame = pModelerView->m_iCurrentFrame;
@@ -298,6 +301,7 @@ CModelerView::CModelerView()
     m_LightModeOn = FALSE;
     m_bMappingMode = FALSE;
     m_bCollisionMode = FALSE;
+	m_bHitboxMode = FALSE;
     m_IsMappingBcgTexture = TRUE;
     m_fCurrentMipFactor = 0.0f;
     m_iCurrentFrame = 0;
@@ -870,6 +874,51 @@ void CModelerView::RenderView( CDrawPort *pDrawPort)
       theApp.m_pCollisionBoxModelObject->SetupModelRendering(rmRenderModel);
       theApp.m_pCollisionBoxModelObject->RenderModel(rmRenderModel);
       EndModelRenderingView();
+    }
+	
+	// test if we are in hitbox mode
+    if (m_bHitboxMode)
+    {
+        // hit box model and its texture must be valid
+        ASSERT(theApp.m_pHitBoxModelObject != NULL);
+        ASSERT(theApp.m_ptdHitBoxTexture != NULL);
+
+        // initialize projection
+        SetProjectionData(prPerspectiveProjection, pDrawPort);
+        FLOAT3D vMin = pDoc->m_emEditModel.GetHitBoxMin();
+        FLOAT3D vMax = pDoc->m_emEditModel.GetHitBoxMax();
+        // get hit bounding box
+        FLOATaabbox3D bbHit(vMin, vMax);
+        // set hit box's stretch factor
+        theApp.m_pHitBoxModelObject->mo_Stretch = bbHit.Size();
+        // set wire and hiden lines along with texture rendering mode and shiny shading
+        _mrpModelRenderPrefs.SetRenderType(
+            RT_WIRE_ON | RT_HIDDEN_LINES | RT_TEXTURE | RT_SHADING_PHONG);
+        // render hit box
+
+        // obtain hit box offset vector
+        CPlacement3D plRotatedHitBoxOffset =
+            CPlacement3D(bbHit.Center(), ANGLE3D(0, 0, 0));
+        // convert hit box center into model coordinate system
+        plRotatedHitBoxOffset.RelativeToAbsolute(m_plModelPlacement);
+
+        // prepare render model structure
+        CRenderModel rmRenderModel;
+        // set converted hit box's placement
+        rmRenderModel.SetObjectPlacement(plRotatedHitBoxOffset);
+        CAnyProjection3D apr;
+        apr = prPerspectiveProjection;
+        BeginModelRenderingView(apr, pDrawPort);
+        // set placement of shading light
+        rmRenderModel.rm_vLightDirection =
+            m_plModelPlacement.pl_PositionVector - plLightPlacement.pl_PositionVector;
+        // set color of shading light
+        rmRenderModel.rm_colLight = m_LightColor;
+        rmRenderModel.rm_colAmbient = m_colAmbientColor;
+        // render hit box model
+        theApp.m_pHitBoxModelObject->SetupModelRendering(rmRenderModel);
+        theApp.m_pHitBoxModelObject->RenderModel(rmRenderModel);
+        EndModelRenderingView();
     }
 
     if( m_bViewMeasureVertex)
@@ -3173,13 +3222,16 @@ void CModelerView::SaveThumbnail()
     {
       BOOL bCollisionModeBefore = m_bCollisionMode;
       BOOL bMappingOnBefore = m_bMappingMode;
+      BOOL bHitboxModeBefore = m_bHitboxMode;
       m_bCollisionMode = FALSE;
       m_bMappingMode = FALSE;
+      m_bHitboxMode = FALSE;
 
       RenderView( pDrawPort);
 
       m_bCollisionMode = bCollisionModeBefore;
       m_bMappingMode = bMappingOnBefore;
+	  m_bHitboxMode = bHitboxModeBefore;
 
       pDrawPort->Unlock();
     }
@@ -3272,6 +3324,33 @@ void CModelerView::OnCollisionBox()
     m_bCollisionMode = !m_bCollisionMode;
     Invalidate( FALSE);
   }
+}
+
+void CModelerView::OnUpdateHitBox(CCmdUI* pCmdUI)
+{
+    if (!m_bMappingMode)
+    {
+        if (theApp.m_pHitBoxModelObject != NULL)
+        {
+            // set hit mode check (press in button)
+            pCmdUI->SetCheck(m_bHitboxMode);
+            // enable tool bar's button
+            pCmdUI->Enable(TRUE);
+            // don't disable it again
+            return;
+        }
+    }
+    // gray hit mode command
+    pCmdUI->Enable(FALSE);
+}
+
+void CModelerView::OnHitBox()
+{
+    if (theApp.m_pHitBoxModelObject != NULL)
+    {
+        m_bHitboxMode = !m_bHitboxMode;
+        Invalidate(FALSE);
+    }
 }
 
 void CModelerView::OnResetViewer() 

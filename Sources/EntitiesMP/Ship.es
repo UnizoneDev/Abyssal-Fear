@@ -344,7 +344,7 @@ procedures:
       on (EBlock eBlock) : {
         // inflict damage to entity that block brush
         InflictDirectDamage(eBlock.penOther, this, DMT_BRUSH, 10.0f,
-          FLOAT3D(0.0f,0.0f,0.0f), (FLOAT3D &)eBlock.plCollision);
+          FLOAT3D(0.0f,0.0f,0.0f), (FLOAT3D &)eBlock.plCollision, DBPT_GENERIC);
         resume;
       }
     }

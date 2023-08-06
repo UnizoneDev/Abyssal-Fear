@@ -784,6 +784,36 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[49].st_fClimbSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[49].st_ulFlags = STF_NOIMPACT;
 
+  ASSERT(50==SURFACE_GRAVEL);
+  pwo->wo_astSurfaceTypes[50].st_strName = "Gravel";
+  pwo->wo_astSurfaceTypes[50].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[50].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[50].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[50].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(51==SURFACE_GRAVEL_NOIMPACT);
+  pwo->wo_astSurfaceTypes[51].st_strName = "Gravel no impact";
+  pwo->wo_astSurfaceTypes[51].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[51].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[51].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[51].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[51].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(52==SURFACE_GLITCH);
+  pwo->wo_astSurfaceTypes[52].st_strName = "Glitch";
+  pwo->wo_astSurfaceTypes[52].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[52].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[52].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[52].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(53==SSURFACE_GLITCH_NOIMPACT);
+  pwo->wo_astSurfaceTypes[53].st_strName = "Glitch no impact";
+  pwo->wo_astSurfaceTypes[53].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[53].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[53].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[53].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[53].st_ulFlags = STF_NOIMPACT;
+
   // contents
   pwo->wo_actContentTypes[0].ct_strName = "Air";
   pwo->wo_actContentTypes[0].ct_fDensity = 0.0f;

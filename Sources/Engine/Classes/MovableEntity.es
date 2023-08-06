@@ -1030,7 +1030,7 @@ functions:
       if (tmBreathDelay>en_tmMaxHoldBreath) {
         // inflict drowning damage 
         InflictDirectDamage(this, MiscDamageInflictor(), DMT_DROWNING, ctUp.ct_fDrowningDamageAmount, 
-          en_plPlacement.pl_PositionVector, -en_vGravityDir);
+          en_plPlacement.pl_PositionVector, -en_vGravityDir, DBPT_GENERIC);
         // prolongue breathing a bit, so not to come here every frame
         en_tmLastBreathed = tmNow-en_tmMaxHoldBreath+ctUp.ct_tmDrowningDamageDelay;
       }
@@ -1055,7 +1055,7 @@ functions:
         // inflict drowning damage 
         InflictDirectDamage(this, MiscDamageInflictor(),
           (DamageType)ctDn.ct_iSwimDamageType, ctDn.ct_fSwimDamageAmount*fImmersion, 
-          en_plPlacement.pl_PositionVector, -en_vGravityDir);
+          en_plPlacement.pl_PositionVector, -en_vGravityDir, DBPT_GENERIC);
         en_tmLastSwimDamage = tmNow;
       }
     }
@@ -1065,7 +1065,7 @@ functions:
       // inflict killing damage 
       InflictDirectDamage(this, MiscDamageInflictor(),
         (DamageType)ctDn.ct_iKillDamageType, GetHealth()*10.0f, 
-        en_plPlacement.pl_PositionVector, -en_vGravityDir);
+        en_plPlacement.pl_PositionVector, -en_vGravityDir, DBPT_GENERIC);
     }
   }
 
@@ -1088,7 +1088,7 @@ functions:
         // inflict walking damage 
         InflictDirectDamage(this, MiscDamageInflictor(),
           (DamageType)stDn.st_iWalkDamageType, stDn.st_fWalkDamageAmount, 
-          en_plPlacement.pl_PositionVector, -en_vGravityDir);
+          en_plPlacement.pl_PositionVector, -en_vGravityDir, DBPT_GENERIC);
         en_tmLastSwimDamage = tmNow;
       }
     }
@@ -1615,6 +1615,14 @@ out:;
 
     // use components of the movement for ladders
     FLOAT3D vLadderTranslation = vTranslationAbsolute;
+
+    // if the movement has no substantial value
+    if(vLadderTranslation.Length()<0.001f) {
+      //CPrintF("no value\n");
+      // don't do it
+      _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
+      return FALSE;
+    }
 
     vLadderTranslation(2) = GetClimbingDirection();
 
@@ -3017,7 +3025,7 @@ out:;
       // inflict impact damage 
       FLOAT fDamage = ((fSpeedDelta-en_fCollisionSpeedLimit)/en_fCollisionSpeedLimit)*en_fCollisionDamageFactor;
       InflictDirectDamage(this, MiscDamageInflictor(), DMT_IMPACT, fDamage, 
-        en_plPlacement.pl_PositionVector, -vSpeedDelta.Normalize());
+        en_plPlacement.pl_PositionVector, -vSpeedDelta.Normalize(), DBPT_GENERIC);
     }
     en_ulPhysicsFlags&=~EPF_NOIMPACTTHISTICK;
 

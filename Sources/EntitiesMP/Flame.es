@@ -340,7 +340,7 @@ procedures:
           const FLOAT fDamageMul = GetSeriousDamageMultiplier(m_penOwner);
           FLOAT fDamageToApply=fDamageMul*(m_fDamageToApply/TM_APPLY_WHOLE_DAMAGE*TM_APPLY_DAMAGE_QUANTUM)*m_fDamageStep;
           m_penAttach->InflictDirectDamage( m_penAttach, m_penOwner, DMT_BURNING, fDamageToApply,
-                                            GetPlacement().pl_PositionVector, -en_vGravityDir);
+                                            GetPlacement().pl_PositionVector, -en_vGravityDir, DBPT_GENERIC);
           m_fAppliedDamage+=fDamageToApply;
           resume;
         }

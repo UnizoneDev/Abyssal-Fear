@@ -726,13 +726,13 @@ void ProjectileTouch(CEntityPointer penHit)
     if(bInflictDamage)
     {
       InflictDirectDamage(penHit, m_penLauncher, DMT_BURNING, m_fDamageAmount*fDamageMul,
-                 GetPlacement().pl_PositionVector, vDirection);
+                 GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
     }
   
   // don't damage the same entity twice (wind blast)
   } else {
     InflictDirectDamage(penHit, m_penLauncher, DMT_PROJECTILE, m_fDamageAmount*fDamageMul,
-               GetPlacement().pl_PositionVector, vDirection);
+               GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
   }
 };
 
@@ -744,7 +744,7 @@ void ProjectileHit(void)
   if (m_bExplode) {
     const FLOAT fDamageMul = GetSeriousDamageMultiplier(m_penLauncher);
     InflictRangeDamage(m_penLauncher, DMT_EXPLOSION, m_fRangeDamageAmount*fDamageMul,
-        GetPlacement().pl_PositionVector, m_fDamageHotSpotRange, m_fDamageFallOffRange);
+        GetPlacement().pl_PositionVector, m_fDamageHotSpotRange, m_fDamageFallOffRange, DBPT_GENERIC);
   }
   // sound event
   if (m_fSoundRange>0.0f && IsDerivedFromClass( m_penLauncher, "Player"))
@@ -792,7 +792,7 @@ ANGLE GetRotationSpeed(ANGLE aWantedAngle, ANGLE aRotateSpeed, FLOAT fWaitFreque
 
 /* Receive damage */
 void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-                   FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+                   FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
 {
   if (m_prtType==PRT_FLAME && IsOfClass(penInflictor, "Moving Brush"))
   {
@@ -800,7 +800,7 @@ void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
   }
 
   CMovableModelEntity::ReceiveDamage(penInflictor, 
-    dmtType, fDamageAmmount, vHitPoint, vDirection);
+    dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
 }
 
 /************************************************************

@@ -95,14 +95,14 @@ functions:
 
   /* Receive damage */
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
     // cannot be damaged immediately after spawning
     if ((_pTimer->CurrentTick()-m_tmStarted<1.0f)
       ||(dmtType==DMT_CANNONBALL_EXPLOSION) && (_pTimer->CurrentTick()-m_tmStarted<5.0f)) {
       return;
     }
-    CMovableModelEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+    CMovableModelEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
   };
 
 /************************************************************

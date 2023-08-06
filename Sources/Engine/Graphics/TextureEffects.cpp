@@ -2606,6 +2606,14 @@ pixLoopF:
 }
 
 
+/////////////////   Misc
+
+
+void InitializeMisc(void)
+{
+    Randomize((ULONG)(_pTimer->GetHighPrecisionTimer().GetMilliseconds()));
+}
+
 
 /////////////////////////////////////////////////////////////////////
 //                      EFFECT TABLES
@@ -2882,10 +2890,16 @@ INDEX _ctTextureEffectGlobalPresets = sizeof(_ategtTextureEffectGlobalPresets)
                                     / sizeof(_ategtTextureEffectGlobalPresets[0]);
 
 
-// get effect type (TRUE if water type effect, FALSE if plasma or fire effect)
+// get effect type (TRUE if water type effect, FALSE if misc plasma or fire effect)
 BOOL CTextureEffectGlobal::IsWater(void)
 {
   return( _ategtTextureEffectGlobalPresets[teg_ulEffectType].tegt_Initialize == InitializeWater);
+}
+
+// get effect type (TRUE if misc type effect, FALSE if water plasma or fire effect)
+BOOL CTextureEffectGlobal::IsMisc(void)
+{
+    return(_ategtTextureEffectGlobalPresets[teg_ulEffectType].tegt_Initialize == InitializeMisc);
 }
 
 // default constructor

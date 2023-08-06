@@ -33,7 +33,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define MAPPING_VERSION_WITHOUT_COLLISION "0003"
 #define MAPPING_VERSION_WITHOUT_PATCHES "0004"
 #define MAPPING_WITHOUT_SURFACE_COLORS "0005"
-#define MAPPING_VERSION "0006"
+#define MAPPING_WITHOUT_HITBOXES "0006"
+#define MAPPING_VERSION "0007"
 
 class ENGINE_API CProgressRoutines
 {
@@ -129,6 +130,7 @@ private:
   // loads and converts model's animation data from script file
 	void LoadModelAnimationData_t( CTStream *pFile, const FLOATmatrix3D &mStretch);	// throw char *
   INDEX edm_iActiveCollisionBox;                  // collision box that is currently edited
+  INDEX edm_iActiveHitBox;                        // hit box that is currently edited
 public:
 	CEditModel();																		// default contructor
 	~CEditModel();																	// default destructor
@@ -230,6 +232,25 @@ public:
   INDEX GetCollisionBoxDimensionEquality();
   // set new collision box equality value
   void SetCollisionBoxDimensionEquality( INDEX iNewDimEqType);
+
+  // hit box handling functions
+  FLOAT3D& GetHitBoxMin(void);
+  FLOAT3D& GetHitBoxMax(void);
+  void AddHitBox(void);
+  void DeleteCurrentHitBox(void);
+  INDEX GetActiveHitBoxIndex(void) { return edm_iActiveHitBox; };
+  void ActivatePreviousHitBox(void);
+  void ActivateNextHitBox(void);
+  void SetHitBox(FLOAT3D vMin, FLOAT3D vMax);
+  CTString GetHitBoxName(INDEX iHitBox);
+  CTString GetHitBoxName(void);
+  void SetHitBoxName(CTString strNewName);
+  void CorrectHitBoxSize(void);
+  // returns HEIGHT_EQ_WIDTH, LENGTH_EQ_WIDTH or LENGTH_EQ_HEIGHT
+  INDEX GetHitBoxDimensionEquality();
+  // set new hit box equality value
+  void SetHitBoxDimensionEquality(INDEX iNewDimEqType);
+
   // overloaded load function
 	void Load_t( CTFileName fnFileName); // throw char *
   // overloaded save function

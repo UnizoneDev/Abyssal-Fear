@@ -246,7 +246,7 @@ functions:
   }
   /* Receive damage */
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
     if( m_bMoveOnDamage)
     {
@@ -271,7 +271,7 @@ functions:
     {
       if( dmtType == DMT_DAMAGER)
       {
-        CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+        CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       }
     }
     else if(m_bBlowupByAnything)
@@ -288,7 +288,7 @@ functions:
           (dmtType == DMT_BLUNT)  ||
           (dmtType == DMT_SHARP)  )
       {
-        CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+        CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       }
     }
     else
@@ -298,7 +298,7 @@ functions:
           (dmtType == DMT_PROJECTILE) ||
           (dmtType == DMT_CANNONBALL) )
       {
-        CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+        CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       }
     }
   };
@@ -730,7 +730,7 @@ procedures:
       on (EBlock eBlock) : {
         // inflict damage to entity that block brush
         InflictDirectDamage(eBlock.penOther, this, DMT_BRUSH, m_fBlockDamage,
-          FLOAT3D(0.0f,0.0f,0.0f), (FLOAT3D &)eBlock.plCollision);
+          FLOAT3D(0.0f,0.0f,0.0f), (FLOAT3D &)eBlock.plCollision, DBPT_GENERIC);
         if (m_ebaAction == BA_BOUNCE) {
           // change direction for two ticks
           SetDesiredTranslation(-m_vDesiredTranslation);
@@ -966,7 +966,7 @@ procedures:
         if( m_fTouchDamage != 0.0f)
         {
           InflictDirectDamage( eTouch.penOther, this, DMT_SPIKESTAB, m_fTouchDamage,
-                     eTouch.penOther->GetPlacement().pl_PositionVector, eTouch.plCollision);
+                     eTouch.penOther->GetPlacement().pl_PositionVector, eTouch.plCollision, DBPT_GENERIC);
         }
         // send event on touch
         if(m_tdeSendEventOnDamage!=TDE_DAMAGEONLY && CanReactOnEntity(eTouch.penOther)) {
@@ -985,7 +985,7 @@ procedures:
       on (EBlock eBlock) : {
         // inflict damage to entity that block brush
         InflictDirectDamage(eBlock.penOther, this, DMT_BRUSH, m_fBlockDamage,
-          FLOAT3D(0.0f,0.0f,0.0f), (FLOAT3D &)eBlock.plCollision);
+          FLOAT3D(0.0f,0.0f,0.0f), (FLOAT3D &)eBlock.plCollision, DBPT_GENERIC);
         if (m_ebaAction == BA_BOUNCE) {
           // change direction for two ticks
           SetDesiredTranslation(-m_vDesiredTranslation);

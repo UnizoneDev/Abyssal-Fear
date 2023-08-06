@@ -18,6 +18,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define LENGTH_EQ_WIDTH 1
 #define LENGTH_EQ_HEIGHT 2
 
+// hit box dimension equality names
+#define HEIGHT_EQ_WIDTH_HITBOX 0
+#define LENGTH_EQ_WIDTH_HITBOX 1
+#define LENGTH_EQ_HEIGHT_HITBOX 2
+
 #define MAX_MODELMIPS         32
 #define MAX_TEXTUREPATCHES    32
 #define MAX_COLOR_NAMES       32
@@ -27,6 +32,7 @@ struct ModelPolygon;
 struct ModelTextureVertex;
 struct MappingSurface;
 class CModelCollisionBox;
+class CModelHitBox;
 class CAttachedModelPosition;
 class CRenderModel;
 class CModelInfo;

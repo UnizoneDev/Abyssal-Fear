@@ -50,7 +50,9 @@ IMPLEMENT_DYNAMIC(CDlgInfoSheet, CPropertySheet)
   else if( pgActivPage == &m_PgAttachingPlacement)  \
     m_PgAttachingPlacement.function( parameter);    \
   else if( pgActivPage == &m_PgAttachingSound)      \
-    m_PgAttachingSound.function( parameter);
+    m_PgAttachingSound.function( parameter);        \
+  else if (pgActivPage == &m_PgInfoHitboxes)        \
+      m_PgInfoHitboxes.function(parameter);
 
 CDlgInfoSheet::CDlgInfoSheet(CWnd* pWndParent)
 	: CPropertySheet(AFX_IDS_APP_TITLE, pWndParent)
@@ -68,6 +70,7 @@ CDlgInfoSheet::CDlgInfoSheet(CWnd* pWndParent)
 	AddPage( &m_PgInfoCollision);
 	AddPage( &m_PgAttachingPlacement);
 	AddPage( &m_PgAttachingSound);
+    AddPage( &m_PgInfoHitboxes);
   SetActivePage(0);
 }
 
@@ -170,6 +173,7 @@ BOOL CDlgInfoSheet::OnIdle(LONG lCount)
     AddPage(&m_PgAttachingPlacement);
     AddPage(&m_PgAttachingSound);
     AddPage(&m_PgInfoAnim);
+    AddPage(&m_PgInfoHitboxes);
     ctPages = GetPageCount();
     if( iLastNormalPage<ctPages) SetActivePage( iLastNormalPage);
     else                         SetActivePage( 0);
@@ -205,7 +209,9 @@ BOOL CDlgInfoSheet::PreTranslateMessage(MSG* pMsg)
       (::IsWindow(m_PgAttachingPlacement.m_hWnd)&&
       m_PgAttachingPlacement.GetDlgItem( IDC_ATTACHING_PLACEMENT_NAME) == CWnd::GetFocus()) ||
       (::IsWindow(m_PgInfoCollision.m_hWnd)&&
-      m_PgInfoCollision.GetDlgItem( IDC_COLLISION_BOX_NAME) == CWnd::GetFocus());
+      m_PgInfoCollision.GetDlgItem( IDC_COLLISION_BOX_NAME) == CWnd::GetFocus()) ||
+      (::IsWindow(m_PgInfoHitboxes.m_hWnd) &&
+      m_PgInfoHitboxes.GetDlgItem(IDC_HIT_BOX_NAME) == CWnd::GetFocus());
       
     if( (pMsg->wParam==VK_SPACE) && !bEditingString)
     {
@@ -255,6 +261,11 @@ BOOL CDlgInfoSheet::PreTranslateMessage(MSG* pMsg)
     {
       CustomSetActivePage( &m_PgInfoAnim);
       return TRUE;
+    }
+      else if (pMsg->wParam == 'Y' && !bEditingString)
+    {
+        CustomSetActivePage(&m_PgInfoHitboxes);
+        return FALSE;
     }
     
     if( (pMsg->wParam>='A') && (pMsg->wParam<='Z') && !bEditingString)

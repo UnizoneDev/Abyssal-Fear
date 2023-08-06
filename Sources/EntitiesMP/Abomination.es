@@ -128,11 +128,11 @@ functions:
 
   /* Receive damage */
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
     // abomination can't harm abomination
     if (!IsOfClass(penInflictor, "Abomination")) {
-      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+      CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       // if died of chainsaw
       if (dmtType==DMT_CHAINSAW && GetHealth()<=0) {
         // must always blowup
@@ -143,7 +143,7 @@ functions:
 
 
   // damage anim
-  INDEX AnimForDamage(FLOAT fDamage) {
+  INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     INDEX iAnim;
     iAnim = ABOMINATION_ANIM_WOUND;
     StartModelAnim(iAnim, 0);
@@ -257,9 +257,9 @@ functions:
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         if (m_abChar==ABC_GLUTTON) {
-          InflictDirectDamage(m_penEnemy, this, DMT_STING, 50.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
+          InflictDirectDamage(m_penEnemy, this, DMT_STING, 50.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         } else {
-          InflictDirectDamage(m_penEnemy, this, DMT_STING, 30.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection);
+          InflictDirectDamage(m_penEnemy, this, DMT_STING, 30.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {

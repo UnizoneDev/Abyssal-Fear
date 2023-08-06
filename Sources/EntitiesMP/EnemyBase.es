@@ -226,6 +226,7 @@ properties:
 232 BOOL m_bIsBlocking = FALSE,
 233 FLOAT m_fBlockAmount = 90.0f,
 234 FLOAT m_fBlockDirAmount = 0.5f,
+235 BOOL m_bBlockFirearms = FALSE,
 
 240 INDEX m_ulMovementFlags = 0,
 241 CEntityPointer m_penLastAttacker,
@@ -363,39 +364,6 @@ functions:
   // The AI additions
   // --------------------------------------------------------------------------------------
 
-  BOOL IsBlockingMelee(FLOAT fBlock, enum DamageType dmtType) 
-  {
-    switch(dmtType) {
-      case DMT_DROWNING:
-      case DMT_BURNING:
-      case DMT_FREEZING:
-      case DMT_ACID:
-      case DMT_TELEPORT:
-      case DMT_BRUSH:
-      case DMT_HEAT:
-      case DMT_ABYSS:
-      case DMT_SPIKESTAB:
-      case DMT_EXPLOSION:
-      case DMT_PROJECTILE:
-      case DMT_BULLET:
-      case DMT_PELLET:
-      case DMT_IMPACT:
-      return FALSE;
-      break;
-
-      default: break;
-    }
-
-    FLOAT3D vFront;
-    GetHeadingDirection(0, vFront);
-    FLOAT fDamageDir = m_vDamage%vFront;
-
-    if(fDamageDir < fBlock) {
-      return TRUE;
-    }
-
-    return FALSE;
-  };
 
 
   // --------------------------------------------------------------------------------------
@@ -621,7 +589,7 @@ functions:
       if ( fCrushHealth>((CRationalEntity &)*penOther).GetHealth())
       {
         InflictDirectDamage(penOther, this, 
-          DMT_EXPLOSION, fCrushHealth, GetPlacement().pl_PositionVector, vDirection);
+          DMT_EXPLOSION, fCrushHealth, GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         return TRUE;
       }
     }
@@ -960,7 +928,7 @@ functions:
   /* Receive damage */
   // --------------------------------------------------------------------------------------
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
     // if template
     if (m_bTemplate) {
@@ -990,7 +958,28 @@ functions:
           default: 
           m_bIsBlocking = FALSE;
           break;
+          }
         }
+      }
+    } else if (m_bIsBlocking && m_bBlockFirearms) {
+      if(IsOfClass(penInflictor, "Player") || IsDerivedFromClass(penInflictor, "Enemy Base")) {
+        if (GetPlaneFrustumAngle(vProperDamageDir) < Cos(m_fBlockAmount)) {
+        switch(dmtType) {
+          case DMT_CLOSERANGE:
+          case DMT_AXE:
+          case DMT_BLUNT:
+          case DMT_SHARP:
+          case DMT_BULLET:
+          case DMT_PELLET:
+          case DMT_RIFLE:
+          return;
+          break;
+
+          default: 
+          m_bIsBlocking = FALSE;
+          m_bBlockFirearms = FALSE;
+          break;
+          }
         }
       }
     }
@@ -1144,7 +1133,7 @@ functions:
     m_fSprayDamage += fNewDamage;
 
     CMovableModelEntity::ReceiveDamage(penInflictor, 
-      dmtType, fNewDamage, vHitPoint, vDirection);
+      dmtType, fNewDamage, vHitPoint, vDirection, dbptType);
   };
 
 
@@ -2695,7 +2684,7 @@ functions:
   virtual void DodgeRightAnim(void) {};
   virtual void FloatingAnim(void) {};
   virtual void SwimmingAnim(void) {};
-  virtual INDEX AnimForDamage(FLOAT fDamage) { return 0; };
+  virtual INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) { return 0; };
   virtual void BlowUpNotify(void) {};
   virtual INDEX AnimForDeath(void) { return 0; };
   virtual FLOAT WaitForDust(FLOAT3D &vStretch) { return -1; };
@@ -2747,7 +2736,7 @@ functions:
             IsOfClass(eTouch.penOther, "DestroyableArchitecture") )
         {
           InflictDirectDamage(eTouch.penOther, this, DMT_EXPLOSION, GetCrushHealth(),
-            eTouch.penOther->GetPlacement().pl_PositionVector, -(FLOAT3D&)eTouch.plCollision);
+            eTouch.penOther->GetPlacement().pl_PositionVector, -(FLOAT3D&)eTouch.plCollision, DBPT_GENERIC);
         }
       }
     }
@@ -3613,7 +3602,7 @@ procedures:
           FLOAT3D vSpeed;
           GetHeadingDirection(m_fChargeHitAngle, vSpeed);
           // damage entity in that direction
-          InflictDirectDamage(etouch.penOther, this, DMT_CLOSERANGE, m_fChargeHitDamage, FLOAT3D(0, 0, 0), vSpeed);
+          InflictDirectDamage(etouch.penOther, this, DMT_CLOSERANGE, m_fChargeHitDamage, FLOAT3D(0, 0, 0), vSpeed, DBPT_GENERIC);
           // push it away
           vSpeed = vSpeed * m_fChargeHitSpeed;
           KickEntity(etouch.penOther, vSpeed);
@@ -3806,9 +3795,10 @@ procedures:
   BeWounded(EDamage eDamage)
   { 
     m_bIsBlocking = FALSE;
+    m_bBlockFirearms = FALSE;
     StopMoving();
     // determine damage anim and play the wounding
-    autowait(GetAnimLength(AnimForDamage(eDamage.fAmount)));
+    autowait(GetAnimLength(AnimForDamage(eDamage.fAmount, eDamage.dbptType)));
     return EReturn();
   };
 
@@ -3932,6 +3922,7 @@ procedures:
   Death(EVoid) 
   {
     m_bIsBlocking = FALSE;
+    m_bBlockFirearms = FALSE;
     StopMoving();     // stop moving
     DeathSound();     // death sound
     LeaveStain(FALSE);
@@ -4098,17 +4089,7 @@ procedures:
             // react to it
             call NewEnemySpotted();
           }
-        } /*else {
-            if (m_penFriend != NULL && !m_bRunningToFriend) { 
-                if (CalcDist(m_penFriend) > GetProp(m_fCloseDistance)) {
-                  call Friendship();
-                }  else { 
-                    StopMoving();
-                    StandingAnim();
-                    m_bRunningToFriend = FALSE;
-                }
-            }
-        }*/
+        }
         resume;
       }
 

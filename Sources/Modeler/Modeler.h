@@ -118,6 +118,10 @@ public:
   CTextureData *m_ptdCollisionBoxTexture;
 	CModelData *m_pCollisionBoxModelData;
 	CModelObject *m_pCollisionBoxModelObject;
+  // for hit box
+  CTextureData* m_ptdHitBoxTexture;
+	CModelData* m_pHitBoxModelData;
+	CModelObject* m_pHitBoxModelObject;
   // for floor
   CTextureData *m_ptdFloorTexture;
 	CModelData *m_pFloorModelData;
@@ -143,6 +147,7 @@ public:
 	class CDlgPgInfoAttachingPlacement *m_pPgAttachingPlacement;
 	class CDlgInfoPgSurf *m_pPgInfoSurf;
 	class CDlgInfoPgColorizingSurface *m_pPgInfoColorizingSurface;
+	class CDlgPgHitboxes *m_pPgInfoHitboxes;
 
   // variables for display modes for different modes
 	CChangeable m_chPlacement;
@@ -227,6 +232,7 @@ void SetColorToProfile( CTString strVarName, COLOR colValue);
 #include "DlgInfoPgAnim.h"
 #include "DlgInfoPgRendering.h"
 #include "DlgPgCollision.h"
+#include "DlgPgHitboxes.h"
 #include "DlgPgInfoAttachingPlacement.h"
 #include "DlgPgInfoAttachingSound.h"
 #include "DlgInfoSheet.h"

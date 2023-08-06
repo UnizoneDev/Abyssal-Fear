@@ -233,7 +233,7 @@ static void KillAllEnemies(CEntity *penKiller)
         continue;
       }
       penKiller->InflictDirectDamage(pen, penKiller, DMT_DAMAGER, 
-        penEnemy->GetHealth()+1, pen->GetPlacement().pl_PositionVector, FLOAT3D(0,1,0));
+        penEnemy->GetHealth()+1, pen->GetPlacement().pl_PositionVector, FLOAT3D(0,1,0), DBPT_GENERIC);
     }
   }}
 }
@@ -595,6 +595,8 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_LAND_VENT          );
   pdec->PrecacheSound(SOUND_LAND_COMPUTER      );
   pdec->PrecacheSound(SOUND_LAND_FUSEBOX       );
+  pdec->PrecacheSound(SOUND_LAND_GRAVEL        );
+  pdec->PrecacheSound(SOUND_LAND_GLITCH        );
   pdec->PrecacheSound(SOUND_WATERAMBIENT       );
   pdec->PrecacheSound(SOUND_WATERBUBBLES       );
   pdec->PrecacheSound(SOUND_WATERWALK_L        );
@@ -629,6 +631,10 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_WALK_COMPUTER_R    );
   pdec->PrecacheSound(SOUND_WALK_FUSEBOX_L     );
   pdec->PrecacheSound(SOUND_WALK_FUSEBOX_R     );
+  pdec->PrecacheSound(SOUND_WALK_GRAVEL_L      );
+  pdec->PrecacheSound(SOUND_WALK_GRAVEL_R      );
+  pdec->PrecacheSound(SOUND_WALK_GLITCH_L      );
+  pdec->PrecacheSound(SOUND_WALK_GLITCH_R      );
 //pdec->PrecacheSound(SOUND_HIGHSCORE          );
   pdec->PrecacheSound(SOUND_SILENCE            );
   pdec->PrecacheSound(SOUND_BLOWUP             );
@@ -1227,6 +1233,10 @@ components:
 126 sound SOUND_WALK_COMPUTER_R "Sounds\\Player\\WalkComputerR.wav",
 127 sound SOUND_WALK_FUSEBOX_L  "Sounds\\Player\\WalkFuseboxL.wav",
 128 sound SOUND_WALK_FUSEBOX_R  "Sounds\\Player\\WalkFuseboxR.wav",
+130 sound SOUND_WALK_GRAVEL_L   "Sounds\\Player\\WalkGravelL.wav",
+131 sound SOUND_WALK_GRAVEL_R   "Sounds\\Player\\WalkGravelR.wav",
+132 sound SOUND_WALK_GLITCH_L   "Sounds\\Player\\WalkGlitchL.wav",
+133 sound SOUND_WALK_GLITCH_R   "Sounds\\Player\\WalkGlitchR.wav",
 104 sound SOUND_LAND_SAND       "Sounds\\Player\\LandSand.wav",
 105 sound SOUND_LAND_GRASS      "Sounds\\Player\\LandGrass.wav",
 106 sound SOUND_LAND_WOOD       "Sounds\\Player\\LandWood.wav",
@@ -1242,6 +1252,8 @@ components:
 121 sound SOUND_LAND_VENT       "Sounds\\Player\\LandVent.wav",
 122 sound SOUND_LAND_COMPUTER   "Sounds\\Player\\LandComputer.wav",
 129 sound SOUND_LAND_FUSEBOX    "Sounds\\Player\\LandFusebox.wav",
+134 sound SOUND_LAND_GRAVEL     "Sounds\\Player\\LandGravel.wav",
+135 sound SOUND_LAND_GLITCH     "Sounds\\Player\\LandGlitch.wav",
 114 sound SOUND_BLOWUP          "Sounds\\Player\\BlowUp.wav",
 
 // gender-independent sounds
@@ -2978,7 +2990,7 @@ functions:
 
   /* Receive damage */
   void ReceiveDamage( CEntity *penInflictor, enum DamageType dmtType,
-                      FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection)
+                      FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType)
   {
     // don't harm yourself with knife or with rocket in easy/tourist mode
     if( penInflictor==this && (dmtType==DMT_CLOSERANGE || dmtType==DMT_AXE || dmtType==DMT_CHAINSAW ||
@@ -3102,7 +3114,7 @@ functions:
     DamageImpact(dmtType, fSubHealth, vHitPoint, vDirection);
 
     // receive damage
-    CPlayerEntity::ReceiveDamage( penInflictor, dmtType, fSubHealth, vHitPoint, vDirection);
+    CPlayerEntity::ReceiveDamage( penInflictor, dmtType, fSubHealth, vHitPoint, vDirection, dbptType);
 
     // red screen and hit translation
     if( fDamageAmmount>1.0f) {
@@ -4094,6 +4106,14 @@ functions:
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_FUSEBOX ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_FUSEBOX_NOIMPACT) ) {
              iSoundLand = SOUND_LAND_FUSEBOX;
+          } else if (en_pbpoStandOn!=NULL && 
+            (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
+             iSoundLand = SOUND_LAND_GRAVEL;
+          } else if (en_pbpoStandOn!=NULL && 
+            (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH_NOIMPACT) ) {
+             iSoundLand = SOUND_LAND_GLITCH;
           }
           else {
           }
@@ -4340,6 +4360,16 @@ functions:
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_FUSEBOX_NOIMPACT) ) {
         iSoundWalkL = SOUND_WALK_FUSEBOX_L;
         iSoundWalkR = SOUND_WALK_FUSEBOX_R;
+      } else if (en_pbpoStandOn!=NULL && 
+        (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
+        iSoundWalkL = SOUND_WALK_GRAVEL_L;
+        iSoundWalkR = SOUND_WALK_GRAVEL_R;
+      } else if (en_pbpoStandOn!=NULL && 
+        (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH ||
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH_NOIMPACT) ) {
+        iSoundWalkL = SOUND_WALK_GLITCH_L;
+        iSoundWalkR = SOUND_WALK_GLITCH_R;
       }
       else {
       }

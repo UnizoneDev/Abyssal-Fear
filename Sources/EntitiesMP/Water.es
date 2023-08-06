@@ -116,7 +116,7 @@ functions:
     FLOAT3D vDirection;
     AnglesToDirectionVector(GetPlacement().pl_OrientationAngle, vDirection);
     InflictDirectDamage(penHit, m_penLauncher, DMT_PROJECTILE, m_fDamageAmount,
-               GetPlacement().pl_PositionVector, vDirection);
+               GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
     // push target away
     FLOAT3D vSpeed;
     GetHeadingDirection(0.0f, vSpeed);

@@ -67,9 +67,9 @@ functions:
 
   /* Receive damage */
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection) 
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
-      CMovableModelEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection);
+      CMovableModelEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
   };
 
   void BarrelExplosion(void) {
@@ -140,7 +140,7 @@ procedures:
     
     wait() {
       on (EDeath) : {
-          InflictRangeDamage(this, DMT_EXPLOSION, 100.0f, GetPlacement().pl_PositionVector + FLOAT3D(0.0f, 1.0f, 0.0f), 4.0f, 8.0f);
+          InflictRangeDamage(this, DMT_EXPLOSION, 100.0f, GetPlacement().pl_PositionVector + FLOAT3D(0.0f, 1.0f, 0.0f), 4.0f, 8.0f, DBPT_GENERIC);
           BarrelExplosion();
           SwitchToEditorModel();
           SetPhysicsFlags(EPF_MODEL_IMMATERIAL);

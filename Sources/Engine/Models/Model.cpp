@@ -336,6 +336,7 @@ void CModelData::Clear(void)
   md_VertexMipMask.Clear();
   md_aampAttachedPosition.Clear();
   md_acbCollisionBox.Clear();
+  md_acbHitBox.Clear();
 
   for( i=0; i<md_MipCt;           i++) md_MipInfos[i].Clear();
   for( i=0; i<MAX_COLOR_NAMES;    i++) md_ColorNames[i].Clear();
@@ -360,6 +361,7 @@ SLONG CModelData::GetUsedMemory(void)
   slUsed += md_VertexMipMask.Count()*sizeof(ULONG);
   slUsed += md_acbCollisionBox.Count()*sizeof(CModelCollisionBox);
   slUsed += md_aampAttachedPosition.Count()*sizeof(CAttachedModelPosition);
+  slUsed += md_acbHitBox.Count()*sizeof(CModelHitBox);
 
   for(INDEX i=0; i<md_MipCt; i++) {
     slUsed += md_MipInfos[i].mmpi_aPolygonsPerPatch.Count()*sizeof(struct PolygonsPerPatch);
@@ -430,6 +432,35 @@ INDEX CModelData::GetCollisionBoxDimensionEquality(INDEX iCollisionBox=0)
   INDEX iDimEq = md_acbCollisionBox[ iCollisionBox].mcb_iCollisionBoxDimensionEquality;
   md_acbCollisionBox.Unlock();
   return iDimEq;
+};
+
+
+FLOAT3D CModelData::GetHitBoxMin(INDEX iHitBox)
+{
+    md_acbHitBox.Lock();
+    INDEX iHitBoxClamped = Clamp(iHitBox, 0L, md_acbHitBox.Count() - 1L);
+    FLOAT3D vMin = md_acbHitBox[iHitBoxClamped].mcb_vHitBoxMin;
+    md_acbHitBox.Unlock();
+    return vMin;
+};
+
+FLOAT3D CModelData::GetHitBoxMax(INDEX iHitBox = 0)
+{
+    md_acbHitBox.Lock();
+    INDEX iHitBoxClamped = Clamp(iHitBox, 0L, md_acbHitBox.Count() - 1L);
+    FLOAT3D vMax = md_acbHitBox[iHitBoxClamped].mcb_vHitBoxMax;
+    md_acbHitBox.Unlock();
+    return vMax;
+};
+
+// returns HEIGHT_EQ_WIDTH, LENGHT_EQ_WIDTH or LENGHT_EQ_HEIGHT
+INDEX CModelData::GetHitBoxDimensionEquality(INDEX iHitBox = 0)
+{
+    md_acbHitBox.Lock();
+    iHitBox = Clamp(iHitBox, 0L, md_acbHitBox.Count() - 1L);
+    INDEX iDimEq = md_acbHitBox[iHitBox].mcb_iHitBoxDimensionEquality;
+    md_acbHitBox.Unlock();
+    return iDimEq;
 };
 
 
@@ -1132,6 +1163,63 @@ void CModelCollisionBox::Write_t(CTStream *ostrFile)
   (*ostrFile)<<mcb_strName;
 }
 
+CModelHitBox::CModelHitBox(void)
+{
+    mcb_vHitBoxMin = FLOAT3D(-0.5f, 0.0f, -0.5f);
+    mcb_vHitBoxMax = FLOAT3D(0.5f, 2.0f, 0.5f);
+    mcb_iHitBoxDimensionEquality = LENGTH_EQ_WIDTH_HITBOX;
+    mcb_strName = "PART_NAME";
+}
+
+void CModelHitBox::Read_t(CTStream* istrFile)
+{
+    // Read collision box min
+    istrFile->Read_t(&mcb_vHitBoxMin, sizeof(FLOAT3D));
+    // Read collision box size
+    istrFile->Read_t(&mcb_vHitBoxMax, sizeof(FLOAT3D));
+    // Get "colision box dimensions equality" value
+    if ((mcb_vHitBoxMax(2) - mcb_vHitBoxMin(2)) ==
+        (mcb_vHitBoxMax(1) - mcb_vHitBoxMin(1)))
+    {
+        mcb_iHitBoxDimensionEquality = HEIGHT_EQ_WIDTH_HITBOX;
+    }
+    else if ((mcb_vHitBoxMax(3) - mcb_vHitBoxMin(3)) ==
+        (mcb_vHitBoxMax(1) - mcb_vHitBoxMin(1)))
+    {
+        mcb_iHitBoxDimensionEquality = LENGTH_EQ_WIDTH_HITBOX;
+    }
+    else if ((mcb_vHitBoxMax(3) - mcb_vHitBoxMin(3)) ==
+        (mcb_vHitBoxMax(2) - mcb_vHitBoxMin(2)))
+    {
+        mcb_iHitBoxDimensionEquality = LENGTH_EQ_HEIGHT_HITBOX;
+    }
+    else
+    {
+        /*
+        // Force them to be legal (Lenght = Width)
+        mcb_vCollisionBoxMax(3) = mcb_vCollisionBoxMin(3) +
+                                 (mcb_vCollisionBoxMax(1)-mcb_vCollisionBoxMin(1));
+                                 */
+        mcb_iHitBoxDimensionEquality = LENGTH_EQ_WIDTH_HITBOX;
+    }
+}
+
+void CModelHitBox::ReadName_t(CTStream* istrFile)
+{
+    // read collision box name
+    (*istrFile) >> mcb_strName;
+}
+
+void CModelHitBox::Write_t(CTStream* ostrFile)
+{
+    // Write hit box min
+    ostrFile->Write_t(&mcb_vHitBoxMin, sizeof(FLOAT3D));
+    // Write hit box size
+    ostrFile->Write_t(&mcb_vHitBoxMax, sizeof(FLOAT3D));
+    // write hit box name
+    (*ostrFile) << mcb_strName;
+}
+
 CAttachedModelPosition::CAttachedModelPosition( void)
 {
   amp_iCenterVertex = 0;
@@ -1269,6 +1357,18 @@ void CModelData::Write_t( CTStream *pFile)  // throw char *
   *pFile << md_colReflections;
   *pFile << md_colSpecular;
   *pFile << md_colBump;
+
+  // Save count of hit boxes
+  INDEX ctHitBoxes = md_acbHitBox.Count();
+  pFile->Write_t(&ctHitBoxes, sizeof(INDEX));
+  md_acbHitBox.Lock();
+  // save all hit boxes
+  for (INDEX iHitBox = 0; iHitBox < ctHitBoxes; iHitBox++)
+  {
+      // save current hit box
+      md_acbHitBox[iHitBox].Write_t(pFile);
+  }
+  md_acbHitBox.Unlock();
 }
 
 
@@ -1290,6 +1390,7 @@ void CModelData::Read_t( CTStream *pFile) // throw char *
   BOOL bHasSavedFlagsOnStart = FALSE;
   BOOL bHasColorForReflectionAndSpecularity = FALSE;
   BOOL bHasDiffuseColor = FALSE;
+  BOOL bHasMultipleHitBoxes = FALSE;
   // get version ID
   CChunkID idVersion = pFile->GetID_t();
   // if this is version without stretch center then it doesn't contain multiple
@@ -1350,7 +1451,7 @@ void CModelData::Read_t( CTStream *pFile) // throw char *
     bHasColorForReflectionAndSpecularity = TRUE;
   }
   // has saved diffuse color
-  else if( CChunkID( MODEL_VERSION) == idVersion)
+  else if( CChunkID( MODEL_VERSION_WITHOUT_MUTLIPLE_HIT_BOXES) == idVersion)
   {
     bHasSavedCenter = TRUE;
     bHasMultipleCollisionBoxes = TRUE;
@@ -1360,6 +1461,19 @@ void CModelData::Read_t( CTStream *pFile) // throw char *
     bHasSavedFlagsOnStart = TRUE;
     bHasColorForReflectionAndSpecularity = TRUE;
     bHasDiffuseColor = TRUE;
+  }
+  // has saved multiple hitboxes
+  else if (CChunkID(MODEL_VERSION) == idVersion)
+  {
+      bHasSavedCenter = TRUE;
+      bHasMultipleCollisionBoxes = TRUE;
+      bHasAttachedPositions = TRUE;
+      bHasPolygonalPatches = TRUE;
+      bHasPolygonsPerSurface = TRUE;
+      bHasSavedFlagsOnStart = TRUE;
+      bHasColorForReflectionAndSpecularity = TRUE;
+      bHasDiffuseColor = TRUE;
+      bHasMultipleHitBoxes = TRUE;
   }
   else
   {
@@ -1690,6 +1804,36 @@ void CModelData::Read_t( CTStream *pFile) // throw char *
   }
 
   md_bHasAlpha = _bHasAlpha;
+
+  // if model has been saved with multiple hit boxes
+  if (bHasMultipleHitBoxes)
+  {
+      INDEX ctHitBoxes;
+      // get count of hit boxes
+      pFile->Read_t(&ctHitBoxes, sizeof(INDEX));
+      // add needed ammount of members
+      md_acbHitBox.New(ctHitBoxes);
+      md_acbHitBox.Lock();
+      // for all saved hit boxes
+      for (INDEX iHitBox = 0; iHitBox < ctHitBoxes; iHitBox++)
+      {
+          // load current hit box from stream (without name)
+          md_acbHitBox[iHitBox].Read_t(pFile);
+          // load name manualy
+          md_acbHitBox[iHitBox].ReadName_t(pFile);
+      }
+      md_acbHitBox.Unlock();
+  }
+  // else add one hit box and load it manually
+  else
+  {
+      // add one hit box
+      md_acbHitBox.New();
+      md_acbHitBox.Lock();
+      // read one hit box manualy (without name)
+      md_acbHitBox[0].Read_t(pFile);
+      md_acbHitBox.Unlock();
+  }
 
   // precalculate rendering data
   extern void PrepareModelForRendering(CModelData &md);
@@ -2693,6 +2837,24 @@ INDEX CModelObject::PolygonsInSurfaceCt(INDEX iMipModel, INDEX iSurface)
   ASSERT( GetData() != NULL);
   return GetData()->md_MipInfos[ iMipModel].mmpi_MappingSurfaces[iSurface].ms_aiPolygons.Count();
 };
+
+
+FLOAT3D CModelObject::GetHitBoxMin(INDEX iHitBox)
+{
+    return GetData()->GetHitBoxMin(iHitBox);
+}
+
+FLOAT3D CModelObject::GetHitBoxMax(INDEX iHitBox)
+{
+    return GetData()->GetHitBoxMax(iHitBox);
+}
+
+// returns HEIGHT_EQ_WIDTH_HITBOX, LENGHT_EQ_WIDTH_HITBOX or LENGHT_EQ_HEIGHT_HITBOX
+INDEX CModelObject::GetHitBoxDimensionEquality(INDEX iHitBox)
+{
+    return GetData()->GetHitBoxDimensionEquality(iHitBox);
+}
+
 
 //--------------------------------------------------------------------------------------------
 /*

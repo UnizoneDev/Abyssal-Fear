@@ -252,6 +252,7 @@ class CLiveEntity;
 class CMesh;
 class CMessageDispatcher;
 class CModelInstance;
+class CModelInstanceData;
 class CModelObject;
 class CModelData;
 class CMovableBrushEntity;

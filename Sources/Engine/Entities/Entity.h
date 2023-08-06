@@ -396,13 +396,13 @@ public:
 
   /* Apply some damage directly to one entity. */
   void InflictDirectDamage(CEntity *penToDamage, CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection);
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType);
   /* Apply some damage to all entities in some range (this tests for obstacles). */
   void InflictRangeDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vCenter, FLOAT fHotSpotRange, FLOAT fFallOffRange);
+    FLOAT fDamageAmmount, const FLOAT3D &vCenter, FLOAT fHotSpotRange, FLOAT fFallOffRange, enum DamageBodyPartType dbptType);
   /* Apply some damage to all entities in a box (this doesn't test for obstacles). */
   void InflictBoxDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOATaabbox3D &box);
+    FLOAT fDamageAmmount, const FLOATaabbox3D &box, enum DamageBodyPartType dbptType);
 
   // notify engine that gravity defined by this entity has changed
   void NotifyGravityChanged(void);
@@ -616,6 +616,10 @@ public:
   virtual INDEX GetCollisionBoxIndex(void);
   /* Get current collision box - override for custom collision boxes. */
   virtual void GetCollisionBoxParameters(INDEX iBox, FLOATaabbox3D &box, INDEX &iEquality);
+  /* Get hitboxes for this entity. */
+  virtual ULONG GetHitBoxes(void);
+  /* Get current hit box - override for custom hit boxes. */
+  virtual void GetHitBoxParameters(INDEX iBox, FLOATaabbox3D& box, INDEX& iEquality);
   /* Render game view */
   virtual void RenderGameView(CDrawPort *pdp, void *pvUserData);
   // apply mirror and stretch to the entity if supported
@@ -652,7 +656,8 @@ public:
 
   /* apply some damage to the entity (see event EDamage for more info) */
   virtual void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection);
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection,
+    enum DamageBodyPartType dbptType);
 
   /* Receive item through event - for AI purposes only */
   virtual BOOL ReceiveItem(const CEntityEvent &ee);
@@ -780,7 +785,8 @@ public:
   FLOAT GetHealth(void) const { return en_fHealth; };
   // apply some damage to the entity (see event EDamage for more info)
   virtual void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
-    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection);
+    FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection,
+    enum DamageBodyPartType dbptType);
 
   // returns bytes of memory used by this object
   inline SLONG GetUsedMemory(void) {

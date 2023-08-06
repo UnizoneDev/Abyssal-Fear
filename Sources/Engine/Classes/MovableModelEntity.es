@@ -31,8 +31,9 @@ class export CMovableModelEntity : CMovableEntity {
 name      "MovableModelEntity";
 thumbnail "";
 properties:
-  1 INDEX en_iCollisionBox = 0,   // current collision box for model entities
+  1 INDEX en_iCollisionBox = 0,       // current collision box for model entities
   2 INDEX en_iWantedCollisionBox = 0, // collision box to change to
+  3 INDEX en_ulHitBoxes = 0x01,       // current set of hitboxes
 
 
 components:
@@ -47,6 +48,7 @@ functions:
     if (iExtensiveSyncCheck>0) {
       CRC_AddLONG(ulCRC, en_iCollisionBox);
       CRC_AddLONG(ulCRC, en_iWantedCollisionBox);
+      CRC_AddLONG(ulCRC, en_ulHitBoxes);
     }
   }
   // dump sync data to text file
@@ -55,6 +57,7 @@ functions:
     CMovableEntity::DumpSync_t(strm, iExtensiveSyncCheck);
     if (iExtensiveSyncCheck>0) {
       strm.FPrintF_t("collision box: %d(%d)\n", en_iCollisionBox, en_iWantedCollisionBox);
+      strm.FPrintF_t("hit boxes: %d\n", en_ulHitBoxes);
     }
   }
 
@@ -78,6 +81,12 @@ functions:
   export INDEX GetCollisionBoxIndex(void)
   {
     return en_iCollisionBox;
+  }
+
+  /* Get hit boxes for this entity. */
+  export ULONG GetHitBoxes(void)
+  {
+    return en_ulHitBoxes;
   }
 
   /* Check if collision box touches any brush near. */
