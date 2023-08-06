@@ -6,6 +6,7 @@ New features and entities
 * New editor entities (TextureSwitcher, SwitchChecker, DateChecker, Player Parenter, etc.)
 * Additions to existing entities (SoundHolder pitch and 3D properties, trigger types and console messages, etc.)
 * Player movement tweaks
+* Hitboxes (for different wound and death animations, along with damage multipliers)
 
 Upcoming features
 * Ladders and ropes
