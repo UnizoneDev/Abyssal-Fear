@@ -13,7 +13,7 @@ Upcoming features
 * Physics (Ragdolls, ropes, brushes, models, joints, etc.)
 * Inventory system (Puzzle items, notes, dropping and combining, etc.)
 
-Resources: https://www.dropbox.com/s/eul4ftwzpcvshsf/AbyssalFearTestResources.zip?dl=0
+(Currently outdated) Resources: https://www.dropbox.com/s/eul4ftwzpcvshsf/AbyssalFearTestResources.zip?dl=0
 
 # Serious Engine
 
