@@ -512,22 +512,34 @@
     <ClCompile Include="CustomFire.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="MutantFreak.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-	<ClCompile Include="Shambler.cpp">
+    <ClCompile Include="MutantFreak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SkaModelHeadTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="ScriptedSequencer.cpp">
+    <ClCompile Include="Shambler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptedSequencer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HungCorpse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ControllableTurret.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Yaraka.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utamahi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mihulai.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomEnemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1381,16 +1393,16 @@
     <CustomBuild Include="CustomFire.es">
       <Filter>Class Files\Effects</Filter>
     </CustomBuild>
-	<CustomBuild Include="MutantFreak.es">
+    <CustomBuild Include="MutantFreak.es">
       <Filter>Class Files\Enemies</Filter>
     </CustomBuild>
     <CustomBuild Include="SkaModelHeadTest.es">
       <Filter>Class Files\Effects</Filter>
     </CustomBuild>
-	<CustomBuild Include="Shambler.es">
+    <CustomBuild Include="Shambler.es">
       <Filter>Class Files\Enemies</Filter>
     </CustomBuild>
-	<CustomBuild Include="ScriptedSequencer.es">
+    <CustomBuild Include="ScriptedSequencer.es">
       <Filter>Class Files\Enemies</Filter>
     </CustomBuild>
     <CustomBuild Include="HungCorpse.es">
@@ -1398,6 +1410,18 @@
     </CustomBuild>
     <CustomBuild Include="ControllableTurret.es">
       <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Yaraka.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Utamahi.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Mihulai.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="CustomEnemy.es">
+      <Filter>Class Files\Enemies</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -2217,7 +2241,7 @@
     <ClInclude Include="CustomFire_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-	<ClInclude Include="MutantFreak.h">
+    <ClInclude Include="MutantFreak.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MutantFreak_tables.h">
@@ -2229,13 +2253,13 @@
     <ClInclude Include="SkaModelHeadTest_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-	<ClInclude Include="Shambler.h">
+    <ClInclude Include="Shambler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Shambler_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-	<ClInclude Include="ScriptedSequencer.h">
+    <ClInclude Include="ScriptedSequencer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScriptedSequencer_tables.h">
@@ -2251,6 +2275,30 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ControllableTurret_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Yaraka.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Yaraka_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utamahi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utamahi_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mihulai.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mihulai_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomEnemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomEnemy_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -13,15 +13,10 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-// collision box dimension equality names
+// collision box and hit box dimension equality names
 #define HEIGHT_EQ_WIDTH 0
 #define LENGTH_EQ_WIDTH 1
 #define LENGTH_EQ_HEIGHT 2
-
-// hit box dimension equality names
-#define HEIGHT_EQ_WIDTH_HITBOX 0
-#define LENGTH_EQ_WIDTH_HITBOX 1
-#define LENGTH_EQ_HEIGHT_HITBOX 2
 
 #define MAX_MODELMIPS         32
 #define MAX_TEXTUREPATCHES    32

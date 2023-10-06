@@ -343,6 +343,10 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_attTextureTransformations[49].tt_strName = "Weird movement normal";
   pwo->wo_attTextureTransformations[50].tt_strName = "Weird movement fast";
 
+  pwo->wo_attTextureTransformations[51].tt_strName = "Shake 1";
+  pwo->wo_attTextureTransformations[52].tt_strName = "Shake 2";
+  pwo->wo_attTextureTransformations[53].tt_strName = "Shake 3";
+
 // static
   pwo->wo_atbTextureBlendings[0].tb_strName         = "Opaque";
   pwo->wo_atbTextureBlendings[0].tb_ubBlendingType  = STXF_BLEND_OPAQUE;
@@ -429,6 +433,7 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[0].st_fJumpSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[0].st_fClimbSlopeCos = Cos(45.0f);
 
+  ASSERT(1==SURFACE_ICE);
   pwo->wo_astSurfaceTypes[1].st_strName = "Ice";
   pwo->wo_astSurfaceTypes[1].st_fFriction = 0.045f;
   pwo->wo_astSurfaceTypes[1].st_fStairsHeight = 1.0f;
@@ -900,7 +905,7 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_actContentTypes[7].ct_iSwimDamageType = DMT_ACID;
   pwo->wo_actContentTypes[7].ct_fSwimDamageAmount = 10.0f;
   pwo->wo_actContentTypes[7].ct_tmSwimDamageFrequency = 0.5f;
-  pwo->wo_actContentTypes[7].ct_ulFlags = CTF_BREATHABLE_GILLS|CTF_SWIMABLE|CTF_FADESPINNING;
+  pwo->wo_actContentTypes[7].ct_ulFlags = CTF_FADESPINNING;
 
   // environments
   pwo->wo_aetEnvironmentTypes[ 0].et_strName = "Normal";
@@ -1160,6 +1165,15 @@ void CWorldBase_OnWorldRender(CWorld *pwo)
 
   pwo->wo_attTextureTransformations[50].tt_mdTransformation.md_fUOffset=Sin( tmNow*15);
   pwo->wo_attTextureTransformations[50].tt_mdTransformation.md_fVOffset=Cos( tmNow*25);
+
+  pwo->wo_attTextureTransformations[51].tt_mdTransformation.md_fUOffset=Sin( tmNow*15)/30;
+  pwo->wo_attTextureTransformations[51].tt_mdTransformation.md_fVOffset=Cos( tmNow*12)/35;
+
+  pwo->wo_attTextureTransformations[52].tt_mdTransformation.md_fUOffset=Sin( tmNow*12)/30;
+  pwo->wo_attTextureTransformations[52].tt_mdTransformation.md_fVOffset=Cos( tmNow*9)/35;
+
+  pwo->wo_attTextureTransformations[53].tt_mdTransformation.md_fUOffset=Sin( tmNow*8)/30;
+  pwo->wo_attTextureTransformations[53].tt_mdTransformation.md_fVOffset=Cos( tmNow*6)/35;
 
 
   // ----------- Obtain world settings controller

@@ -42,13 +42,13 @@ event EChangeMusic {
 #define MUSIC_VOLUMEMIN   0.02f     // minimum volume (considered off)
 #define MUSIC_VOLUMEMAX   0.98f     // maximum volume (considered full)
 
-float FadeInFactor(TIME fFadeTime)
+FLOAT FadeInFactor(TIME fFadeTime)
 {
-  return (float) pow(MUSIC_VOLUMEMAX/MUSIC_VOLUMEMIN, 1/(fFadeTime/_pTimer->TickQuantum));
+  return (float) pow(MUSIC_VOLUMEMAX/MUSIC_VOLUMEMIN, 1/(fFadeTime / _pTimer->TickQuantum));
 }
-float FadeOutFactor(TIME fFadeTime)
+FLOAT FadeOutFactor(TIME fFadeTime)
 {
-  return (float) pow(MUSIC_VOLUMEMIN/MUSIC_VOLUMEMAX, 1/(fFadeTime/_pTimer->TickQuantum));
+  return (float) pow(MUSIC_VOLUMEMIN/MUSIC_VOLUMEMAX, 1/(fFadeTime / _pTimer->TickQuantum));
 }
 %}
 
@@ -73,6 +73,10 @@ properties:
  22 FLOAT m_fVolume2  "Volume Heavy"     = 1.0f,
  23 FLOAT m_fVolume3                     = 1.0f,  // event volume
  24 FLOAT m_fVolume4                     = 1.0f,  // continuous volume
+
+ 30 FLOAT m_tmFadeLight  "Fade Light" 'F' = 1.0f,
+ 31 FLOAT m_tmFadeMedium "Fade Medium"    = 1.0f,
+ 32 FLOAT m_tmFadeHeavy  "Fade Heavy"     = 1.0f,
 
 // internals
 
@@ -379,6 +383,9 @@ procedures:
         if (fFussScore<=0.0f) {
           // switch to no fight
           m_mtCurrentMusic=MT_LIGHT;
+        } else if (fFussScore>=m_fScoreMedium) {
+          // switch to medium fight
+          m_mtCurrentMusic=MT_MEDIUM;
         }
       // if medium fight is on
       } else if (m_mtCurrentMusic==MT_MEDIUM) {
@@ -406,11 +413,11 @@ procedures:
 
       // setup fade speed depending on music type
       if (m_mtCurrentMusic==MT_LIGHT) {
-        m_tmFade = 2.0f;
+        m_tmFade = m_tmFadeLight;
       } else if (m_mtCurrentMusic==MT_MEDIUM) {
-        m_tmFade = 1.0f;
+        m_tmFade = m_tmFadeMedium;
       } else if (m_mtCurrentMusic==MT_HEAVY) {
-        m_tmFade = 1.0f;
+        m_tmFade = m_tmFadeHeavy;
       } else if (m_mtCurrentMusic==MT_EVENT || m_mtCurrentMusic==MT_CONTINUOUS) {
         m_tmFade = 0.5f;
       }

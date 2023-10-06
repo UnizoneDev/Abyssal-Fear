@@ -58,6 +58,7 @@ public:
     PTI_AMBIENTFILL,            // CLayerMixer::FillWithAmbientLight()
     PTI_ADDONELAYERPOINT,       // CLayerMixer::AddOneLayerPoint()
     PTI_ADDONELAYERDIRECTIONAL, // CLayerMixer::AddOneLayerDirectional()
+    PTI_ADDONELAYERSPOT,        // CLayerMixer::AddOneLayerSpot()
 
     PTI_COUNT
   };

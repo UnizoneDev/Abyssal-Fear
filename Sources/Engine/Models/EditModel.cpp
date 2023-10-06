@@ -2493,16 +2493,6 @@ void CEditModel::LoadMapping_t( CTFileName fnFileName, INDEX iMip /*=-1*/)
     }
   }
 
-  if( bReadPatches)
-  {
-    EditRemoveAllPatches();
-    for( INDEX iPatch=0; iPatch<MAX_TEXTUREPATCHES; iPatch++)
-    {
-      edm_md.md_mpPatches[ iPatch].Read_t( &strmMappingFile);
-    }
-    CalculatePatchesPerPolygon();
-  }
-
   if (bReadHitboxes)
   {
       // read hit boxes
@@ -2524,6 +2514,16 @@ void CEditModel::LoadMapping_t( CTFileName fnFileName, INDEX iMip /*=-1*/)
           edm_md.md_acbHitBox.New(1);
           throw("Trying to load 0 hit boxes from mapping file.");
       }
+  }
+
+  if (bReadPatches)
+  {
+      EditRemoveAllPatches();
+      for (INDEX iPatch = 0; iPatch < MAX_TEXTUREPATCHES; iPatch++)
+      {
+          edm_md.md_mpPatches[iPatch].Read_t(&strmMappingFile);
+      }
+      CalculatePatchesPerPolygon();
   }
 }
 
@@ -2812,6 +2812,8 @@ void CEditModel::SetHitBoxName(CTString strNewName)
 
 void CEditModel::CorrectHitBoxSize(void)
 {
+    // no correction needed if detecting hits as cube
+    if (edm_md.md_bHitBoxAsCube) return;
     edm_md.md_acbHitBox.Lock();
     // get equality radio initial value
     INDEX iEqualityType = GetHitBoxDimensionEquality();

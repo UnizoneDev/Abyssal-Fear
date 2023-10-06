@@ -52,7 +52,14 @@ properties:
  10 CTString m_strDescription = "",
  11 BOOL m_bAutoStart      "Auto start" 'A' = FALSE,    // auto start (environment sounds)
  12 INDEX m_iPlayType = 0,
- 13 CSoundObject m_soSound,         // sound channel
+ 13 CSoundObject m_soSound1,         // sound channel 1
+ 27 CSoundObject m_soSound2,         // sound channel 2
+ 28 CSoundObject m_soSound3,         // sound channel 3
+ 29 CSoundObject m_soSound4,         // sound channel 4
+ 30 CSoundObject m_soSound5,         // sound channel 5
+ 31 CSoundObject m_soSound6,         // sound channel 6
+ 32 CSoundObject m_soSound7,         // sound channel 7
+ 32 CSoundObject m_soSound8,         // sound channel 8
  14 BOOL m_bDestroyable     "Destroyable" 'Q' = FALSE,
  15 FLOAT m_fPitch         "Pitch" = 1.0F,
  19 INDEX m_iRandomCheck = 0,
@@ -99,7 +106,7 @@ functions:
   SLONG GetUsedMemory(void)
   {
     // initial
-    SLONG slUsedMemory = sizeof(CSoundHolder) - sizeof(CRationalEntity) + CRationalEntity::GetUsedMemory();
+    SLONG slUsedMemory = sizeof(CRandomSoundHolder) - sizeof(CRationalEntity) + CRationalEntity::GetUsedMemory();
     // add some more
     slUsedMemory += m_strName.Length();
     slUsedMemory += m_strDescription.Length();
@@ -170,51 +177,65 @@ procedures:
       // auto play sound
       on (EBegin) : {
         if (m_bAutoStart) {
-            m_soSound.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+            m_soSound1.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+            m_soSound2.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+            m_soSound3.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+            m_soSound4.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+            m_soSound5.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+            m_soSound6.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+            m_soSound7.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+            m_soSound8.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
             if(m_fFilterAmount > 0) {
-              m_soSound.SetFilter(m_fFilterAmount, m_fFilterAmount);
+              m_soSound1.SetFilter(m_fFilterAmount, m_fFilterAmount);
+              m_soSound2.SetFilter(m_fFilterAmount, m_fFilterAmount);
+              m_soSound3.SetFilter(m_fFilterAmount, m_fFilterAmount);
+              m_soSound4.SetFilter(m_fFilterAmount, m_fFilterAmount);
+              m_soSound5.SetFilter(m_fFilterAmount, m_fFilterAmount);
+              m_soSound6.SetFilter(m_fFilterAmount, m_fFilterAmount);
+              m_soSound7.SetFilter(m_fFilterAmount, m_fFilterAmount);
+              m_soSound8.SetFilter(m_fFilterAmount, m_fFilterAmount);
             }
             
           switch(m_iRandomCheck)
           {
             default:
             {
-             PlaySound(m_soSound, m_fnSound1, m_iPlayType);
+             PlaySound(m_soSound1, m_fnSound1, m_iPlayType);
              break;
             }
             case 1:
             {
-             PlaySound(m_soSound, m_fnSound2, m_iPlayType);
+             PlaySound(m_soSound2, m_fnSound2, m_iPlayType);
              break;
             }
             case 2:
             {
-             PlaySound(m_soSound, m_fnSound3, m_iPlayType);
+             PlaySound(m_soSound3, m_fnSound3, m_iPlayType);
              break;
             }
             case 3:
             {
-             PlaySound(m_soSound, m_fnSound4, m_iPlayType);
+             PlaySound(m_soSound4, m_fnSound4, m_iPlayType);
              break;
             }
             case 4:
             {
-             PlaySound(m_soSound, m_fnSound5, m_iPlayType);
+             PlaySound(m_soSound5, m_fnSound5, m_iPlayType);
              break;
             }
             case 5:
             {
-             PlaySound(m_soSound, m_fnSound6, m_iPlayType);
+             PlaySound(m_soSound6, m_fnSound6, m_iPlayType);
              break;
             }
             case 6:
             {
-             PlaySound(m_soSound, m_fnSound7, m_iPlayType);
+             PlaySound(m_soSound7, m_fnSound7, m_iPlayType);
              break;
             }
             case 7:
             {
-             PlaySound(m_soSound, m_fnSound8, m_iPlayType);
+             PlaySound(m_soSound8, m_fnSound8, m_iPlayType);
              break;
             }
           }
@@ -223,51 +244,65 @@ procedures:
       }
       // play sound
       on (EStart) : {
-          m_soSound.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+          m_soSound1.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+          m_soSound2.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+          m_soSound3.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+          m_soSound4.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+          m_soSound5.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+          m_soSound6.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+          m_soSound7.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
+          m_soSound8.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
           if(m_fFilterAmount > 0) {
-            m_soSound.SetFilter(m_fFilterAmount, m_fFilterAmount);
+            m_soSound1.SetFilter(m_fFilterAmount, m_fFilterAmount);
+            m_soSound2.SetFilter(m_fFilterAmount, m_fFilterAmount);
+            m_soSound3.SetFilter(m_fFilterAmount, m_fFilterAmount);
+            m_soSound4.SetFilter(m_fFilterAmount, m_fFilterAmount);
+            m_soSound5.SetFilter(m_fFilterAmount, m_fFilterAmount);
+            m_soSound6.SetFilter(m_fFilterAmount, m_fFilterAmount);
+            m_soSound7.SetFilter(m_fFilterAmount, m_fFilterAmount);
+            m_soSound8.SetFilter(m_fFilterAmount, m_fFilterAmount);
           }
 
           switch(m_iRandomCheck)
           {
             default:
             {
-             PlaySound(m_soSound, m_fnSound1, m_iPlayType);
+             PlaySound(m_soSound1, m_fnSound1, m_iPlayType);
              break;
             }
             case 1:
             {
-             PlaySound(m_soSound, m_fnSound2, m_iPlayType);
+             PlaySound(m_soSound2, m_fnSound2, m_iPlayType);
              break;
             }
             case 2:
             {
-             PlaySound(m_soSound, m_fnSound3, m_iPlayType);
+             PlaySound(m_soSound3, m_fnSound3, m_iPlayType);
              break;
             }
             case 3:
             {
-             PlaySound(m_soSound, m_fnSound4, m_iPlayType);
+             PlaySound(m_soSound4, m_fnSound4, m_iPlayType);
              break;
             }
             case 4:
             {
-             PlaySound(m_soSound, m_fnSound5, m_iPlayType);
+             PlaySound(m_soSound5, m_fnSound5, m_iPlayType);
              break;
             }
             case 5:
             {
-             PlaySound(m_soSound, m_fnSound6, m_iPlayType);
+             PlaySound(m_soSound6, m_fnSound6, m_iPlayType);
              break;
             }
             case 6:
             {
-             PlaySound(m_soSound, m_fnSound7, m_iPlayType);
+             PlaySound(m_soSound7, m_fnSound7, m_iPlayType);
              break;
             }
             case 7:
             {
-             PlaySound(m_soSound, m_fnSound8, m_iPlayType);
+             PlaySound(m_soSound8, m_fnSound8, m_iPlayType);
              break;
             }
           }
@@ -279,8 +314,29 @@ procedures:
           resume;
         }
 
-        if(m_soSound.IsPlaying()) {
-          m_soSound.Pause();
+        if(m_soSound1.IsPlaying()) {
+          m_soSound1.Pause();
+        }
+        if(m_soSound2.IsPlaying()) {
+          m_soSound2.Pause();
+        }
+        if(m_soSound3.IsPlaying()) {
+          m_soSound3.Pause();
+        }
+        if(m_soSound4.IsPlaying()) {
+          m_soSound4.Pause();
+        }
+        if(m_soSound5.IsPlaying()) {
+          m_soSound5.Pause();
+        }
+        if(m_soSound6.IsPlaying()) {
+          m_soSound6.Pause();
+        }
+        if(m_soSound7.IsPlaying()) {
+          m_soSound7.Pause();
+        }
+        if(m_soSound8.IsPlaying()) {
+          m_soSound8.Pause();
         }
         resume;
       }
@@ -289,16 +345,58 @@ procedures:
           resume;
         }
 
-        if(m_soSound.IsPlaying()) {
-          if (m_soSound.IsPaused()) {
-            m_soSound.Resume();
+        if(m_soSound1.IsPlaying()) {
+          if (m_soSound1.IsPaused()) {
+            m_soSound1.Resume();
+          }
+        }
+        if(m_soSound2.IsPlaying()) {
+          if (m_soSound2.IsPaused()) {
+            m_soSound2.Resume();
+          }
+        }
+        if(m_soSound3.IsPlaying()) {
+          if (m_soSound3.IsPaused()) {
+            m_soSound3.Resume();
+          }
+        }
+        if(m_soSound4.IsPlaying()) {
+          if (m_soSound4.IsPaused()) {
+            m_soSound4.Resume();
+          }
+        }
+        if(m_soSound5.IsPlaying()) {
+          if (m_soSound5.IsPaused()) {
+            m_soSound5.Resume();
+          }
+        }
+        if(m_soSound6.IsPlaying()) {
+          if (m_soSound6.IsPaused()) {
+            m_soSound6.Resume();
+          }
+        }
+        if(m_soSound7.IsPlaying()) {
+          if (m_soSound7.IsPaused()) {
+            m_soSound7.Resume();
+          }
+        }
+        if(m_soSound8.IsPlaying()) {
+          if (m_soSound8.IsPaused()) {
+            m_soSound8.Resume();
           }
         }
         resume;
       }
       // stop playing sound
       on (EStop) : {
-        m_soSound.Stop();
+        m_soSound1.Stop();
+        m_soSound2.Stop();
+        m_soSound3.Stop();
+        m_soSound4.Stop();
+        m_soSound5.Stop();
+        m_soSound6.Stop();
+        m_soSound7.Stop();
+        m_soSound8.Stop();
         m_iRandomCheck = IRnd()%8;
         resume;
       }
@@ -307,7 +405,14 @@ procedures:
         // if range destruction is enabled
         if (m_bDestroyable) {
           // stop playing
-          m_soSound.Stop();
+          m_soSound1.Stop();
+          m_soSound2.Stop();
+          m_soSound3.Stop();
+          m_soSound4.Stop();
+          m_soSound5.Stop();
+          m_soSound6.Stop();
+          m_soSound7.Stop();
+          m_soSound8.Stop();
         }
         return TRUE;
       }

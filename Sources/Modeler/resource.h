@@ -481,6 +481,7 @@
 #define IDC_STATIC_WIDTH_HITBOX         1334
 #define IDC_STATIC_HEIGHT_HITBOX        1335
 #define IDC_STATIC_LENGHT_HITBOX        1336
+#define IDC_HITBOX_AS_BOX               1337
 #define ID_RENDER_BBOX                  32700
 #define ID_RENDER_WIRE_NAKED            32701
 #define ID_RENDER_WIRE_SOLID            32702

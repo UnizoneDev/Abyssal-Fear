@@ -102,6 +102,7 @@ public:
   BOOL md_bCollideAsCube;                         // if model colide as stretched cube
   // array of hit boxes for this model
   CDynamicArray<CModelHitBox> md_acbHitBox;
+  BOOL md_bHitBoxAsCube;                         // if hitbox acts as stretched cube
   CDynamicArray<CAttachedModelPosition> md_aampAttachedPosition;
   BOOL md_bIsEdited;  // set if model is part of CEditModel object
   COLOR md_colDiffuse;

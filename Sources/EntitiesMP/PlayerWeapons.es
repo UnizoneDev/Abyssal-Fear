@@ -227,6 +227,12 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
     pdec->PrecacheTexture(TEXTURE_PISTOLITEM       );
     pdec->PrecacheSound(SOUND_PISTOL_FIRE          );
     pdec->PrecacheSound(SOUND_PISTOL_RELOAD        );
+    pdec->PrecacheSound(SOUND_PIPE_HIT1          );
+    pdec->PrecacheSound(SOUND_PIPE_HIT2          );
+    pdec->PrecacheSound(SOUND_PIPE_HIT3          );
+    pdec->PrecacheSound(SOUND_PIPE_HIT4          );
+    pdec->PrecacheSound(SOUND_KNIFE_SWING        );
+    pdec->PrecacheSound(SOUND_PIPE_BANG          );
   }
 
   // precache other weapons if available
@@ -1561,7 +1567,7 @@ functions:
     m_iPistolBullets = m_iMaxPistolBullets;
     m_iShotgunShells = m_iMaxShotgunShells;
     m_iSMGBullets = m_iMaxSMGBullets;
-    m_iStrongBullets = m_iMaxStrongPistolBullets;
+    m_iStrongPistolBullets = m_iMaxStrongPistolBullets;
     Precache();
   };
 
@@ -1587,7 +1593,7 @@ functions:
     m_iPistolBullets = ClampUp(m_iPistolBullets, m_iMaxPistolBullets);
     m_iShotgunShells = ClampUp(m_iShotgunShells, m_iMaxShotgunShells);
     m_iSMGBullets    = ClampUp(m_iSMGBullets,    m_iMaxSMGBullets);
-    m_iStrongPistolBullets = ClampUp(m_iMaxPistolBullets, m_iMaxStrongPistolBullets);
+    m_iStrongPistolBullets = ClampUp(m_iStrongPistolBullets, m_iMaxStrongPistolBullets);
   }
 
   // add default ammount of ammunition when receiving a weapon
@@ -2695,9 +2701,67 @@ procedures:
     return EEnd();
   };
 
-  // ***************** PISTOL ALTFIRE DUMMY *****************
+  // ***************** PISTOL WHIP *****************
   AltPistol() {
-    autowait(0.25);
+    // animator swing
+    GetAnimator()->FireAnimation(BODY_ANIM_KNIFE_ATTACK, 0);
+    // sound
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    
+    m_iAnim = PISTOLVIEWMODEL_ANIM_MELEE; m_fAnimWaitTime = 0.35f;
+    PlaySound(pl.m_soWeapon0, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
+      if(_pNetwork->IsPlayerLocal(m_penPlayer))
+        {IFeel_PlayEffect("Knife_back");}
+    m_moWeapon.PlayAnim(m_iAnim, 0);
+    m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitModel = FALSE;
+    m_bMeleeHitBrush = FALSE;
+    autowait(0.25f);
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT)) {
+      if (m_bMeleeHitEnemy)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      }
+      if (m_bMeleeHitModel || m_bMeleeHitBrush)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon1, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime);
+    } else if (TRUE) {
+      autowait(m_fAnimWaitTime/2);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT);
+      if (m_bMeleeHitEnemy)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      }
+      if (m_bMeleeHitModel || m_bMeleeHitBrush)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon1, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime/2);
+    }
+
+    if (m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime>=_pTimer->TickQuantum) {
+      autowait(m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime);
+    }
     return EEnd();
   };
 

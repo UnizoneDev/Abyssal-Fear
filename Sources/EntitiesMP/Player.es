@@ -582,13 +582,10 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_LAND               );
   pdec->PrecacheSound(SOUND_LAND_SAND          );
   pdec->PrecacheSound(SOUND_LAND_GRASS         );
-  pdec->PrecacheSound(SOUND_LAND_WOOD          );
   pdec->PrecacheSound(SOUND_LAND_SNOW          );
-  pdec->PrecacheSound(SOUND_LAND_METAL         );
   pdec->PrecacheSound(SOUND_LAND_CARPET        );
   pdec->PrecacheSound(SOUND_LAND_GLASS         );
   pdec->PrecacheSound(SOUND_LAND_DIRT          );
-  pdec->PrecacheSound(SOUND_LAND_TILE          );
   pdec->PrecacheSound(SOUND_LAND_CHAINLINK     );
   pdec->PrecacheSound(SOUND_LAND_GRATE         );
   pdec->PrecacheSound(SOUND_LAND_MUD           );
@@ -605,20 +602,14 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_SECRET             );
   pdec->PrecacheSound(SOUND_WALK_GRASS_L       );
   pdec->PrecacheSound(SOUND_WALK_GRASS_R       );
-  pdec->PrecacheSound(SOUND_WALK_WOOD_L        );
-  pdec->PrecacheSound(SOUND_WALK_WOOD_R        );
   pdec->PrecacheSound(SOUND_WALK_SNOW_L        );
   pdec->PrecacheSound(SOUND_WALK_SNOW_R        );
-  pdec->PrecacheSound(SOUND_WALK_METAL_L       );
-  pdec->PrecacheSound(SOUND_WALK_METAL_R       );
   pdec->PrecacheSound(SOUND_WALK_CARPET_L      );
   pdec->PrecacheSound(SOUND_WALK_CARPET_R      );
   pdec->PrecacheSound(SOUND_WALK_GLASS_L       );
   pdec->PrecacheSound(SOUND_WALK_GLASS_R       );
   pdec->PrecacheSound(SOUND_WALK_DIRT_L        );
   pdec->PrecacheSound(SOUND_WALK_DIRT_R        );
-  pdec->PrecacheSound(SOUND_WALK_TILE_L        );
-  pdec->PrecacheSound(SOUND_WALK_TILE_R        );
   pdec->PrecacheSound(SOUND_WALK_CHAINLINK_L   );
   pdec->PrecacheSound(SOUND_WALK_CHAINLINK_R   );
   pdec->PrecacheSound(SOUND_WALK_GRATE_L       );
@@ -651,6 +642,30 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_METAL_STEP3        );
   pdec->PrecacheSound(SOUND_METAL_STEP4        );
   pdec->PrecacheSound(SOUND_METAL_LAND         );
+
+  pdec->PrecacheSound(SOUND_WOOD_STEP1         );
+  pdec->PrecacheSound(SOUND_WOOD_STEP2         );
+  pdec->PrecacheSound(SOUND_WOOD_STEP3         );
+  pdec->PrecacheSound(SOUND_WOOD_STEP4         );
+  pdec->PrecacheSound(SOUND_WOOD_LAND          );
+
+  pdec->PrecacheSound(SOUND_TILE_STEP1         );
+  pdec->PrecacheSound(SOUND_TILE_STEP2         );
+  pdec->PrecacheSound(SOUND_TILE_STEP3         );
+  pdec->PrecacheSound(SOUND_TILE_STEP4         );
+  pdec->PrecacheSound(SOUND_TILE_LAND          );
+
+  pdec->PrecacheSound(SOUND_DIRT_STEP1         );
+  pdec->PrecacheSound(SOUND_DIRT_STEP2         );
+  pdec->PrecacheSound(SOUND_DIRT_STEP3         );
+  pdec->PrecacheSound(SOUND_DIRT_STEP4         );
+  pdec->PrecacheSound(SOUND_DIRT_LAND          );
+
+  pdec->PrecacheSound(SOUND_MUD_STEP1          );
+  pdec->PrecacheSound(SOUND_MUD_STEP2          );
+  pdec->PrecacheSound(SOUND_MUD_STEP3          );
+  pdec->PrecacheSound(SOUND_MUD_STEP4          );
+  pdec->PrecacheSound(SOUND_MUD_LAND           );
 
   pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_TELEPORT);
   pdec->PrecacheClass(CLASS_SERIOUSBOMB);
@@ -1207,20 +1222,20 @@ components:
 //178 sound SOUND_HIGHSCORE       "Sounds\\Player\\HighScore.wav",
  86 sound SOUND_WALK_GRASS_L    "Sounds\\Player\\WalkGrassL.wav",
  87 sound SOUND_WALK_GRASS_R    "Sounds\\Player\\WalkGrassR.wav",
- 88 sound SOUND_WALK_WOOD_L     "Sounds\\Player\\WalkWoodL.wav",
- 89 sound SOUND_WALK_WOOD_R     "Sounds\\Player\\WalkWoodR.wav",
+//88 sound SOUND_WALK_WOOD_L     "Sounds\\Player\\WalkWoodL.wav",
+//89 sound SOUND_WALK_WOOD_R     "Sounds\\Player\\WalkWoodR.wav",
  90 sound SOUND_WALK_SNOW_L     "Sounds\\Player\\WalkSnowL.wav",
  91 sound SOUND_WALK_SNOW_R     "Sounds\\Player\\WalkSnowR.wav",
- 92 sound SOUND_WALK_METAL_L    "Sounds\\Player\\WalkMetalL.wav",
- 93 sound SOUND_WALK_METAL_R    "Sounds\\Player\\WalkMetalR.wav",
+//92 sound SOUND_WALK_METAL_L    "Sounds\\Player\\WalkMetalL.wav",
+//93 sound SOUND_WALK_METAL_R    "Sounds\\Player\\WalkMetalR.wav",
  94 sound SOUND_WALK_CARPET_L   "Sounds\\Player\\WalkCarpetL.wav",
  95 sound SOUND_WALK_CARPET_R   "Sounds\\Player\\WalkCarpetR.wav",
  96 sound SOUND_WALK_GLASS_L    "Sounds\\Player\\WalkGlassL.wav",
  97 sound SOUND_WALK_GLASS_R    "Sounds\\Player\\WalkGlassR.wav",
  98 sound SOUND_WALK_DIRT_L     "Sounds\\Player\\WalkDirtL.wav",
  99 sound SOUND_WALK_DIRT_R     "Sounds\\Player\\WalkDirtR.wav",
-100 sound SOUND_WALK_TILE_L     "Sounds\\Player\\WalkTileL.wav",
-101 sound SOUND_WALK_TILE_R     "Sounds\\Player\\WalkTileR.wav",
+//100 sound SOUND_WALK_TILE_L     "Sounds\\Player\\WalkTileL.wav",
+//101 sound SOUND_WALK_TILE_R     "Sounds\\Player\\WalkTileR.wav",
 102 sound SOUND_WALK_CHAINLINK_L "Sounds\\Player\\WalkChainlinkL.wav",
 103 sound SOUND_WALK_CHAINLINK_R "Sounds\\Player\\WalkChainlinkR.wav",
 115 sound SOUND_WALK_GRATE_L    "Sounds\\Player\\WalkGrateL.wav",
@@ -1239,13 +1254,13 @@ components:
 133 sound SOUND_WALK_GLITCH_R   "Sounds\\Player\\WalkGlitchR.wav",
 104 sound SOUND_LAND_SAND       "Sounds\\Player\\LandSand.wav",
 105 sound SOUND_LAND_GRASS      "Sounds\\Player\\LandGrass.wav",
-106 sound SOUND_LAND_WOOD       "Sounds\\Player\\LandWood.wav",
+//106 sound SOUND_LAND_WOOD       "Sounds\\Player\\LandWood.wav",
 107 sound SOUND_LAND_SNOW       "Sounds\\Player\\LandSnow.wav",
-108 sound SOUND_LAND_METAL      "Sounds\\Player\\LandMetal.wav",
+//108 sound SOUND_LAND_METAL      "Sounds\\Player\\LandMetal.wav",
 109 sound SOUND_LAND_CARPET     "Sounds\\Player\\LandCarpet.wav",
 110 sound SOUND_LAND_GLASS      "Sounds\\Player\\LandGlass.wav",
 111 sound SOUND_LAND_DIRT       "Sounds\\Player\\LandDirt.wav",
-112 sound SOUND_LAND_TILE       "Sounds\\Player\\LandTile.wav",
+//112 sound SOUND_LAND_TILE       "Sounds\\Player\\LandTile.wav",
 113 sound SOUND_LAND_CHAINLINK  "Sounds\\Player\\LandChainlink.wav",
 117 sound SOUND_LAND_GRATE      "Sounds\\Player\\LandGrate.wav",
 120 sound SOUND_LAND_MUD        "Sounds\\Player\\LandMud.wav",
@@ -1282,6 +1297,30 @@ components:
 247 sound SOUND_METAL_STEP3      "Sounds\\Materials\\Metal\\StepMetal3.wav",
 248 sound SOUND_METAL_STEP4      "Sounds\\Materials\\Metal\\StepMetal4.wav",
 249 sound SOUND_METAL_LAND       "Sounds\\Materials\\Metal\\LandMetal.wav",
+
+250 sound SOUND_WOOD_STEP1       "Sounds\\Materials\\Wood\\StepWood1.wav",
+251 sound SOUND_WOOD_STEP2       "Sounds\\Materials\\Wood\\StepWood2.wav",
+252 sound SOUND_WOOD_STEP3       "Sounds\\Materials\\Wood\\StepWood3.wav",
+253 sound SOUND_WOOD_STEP4       "Sounds\\Materials\\Wood\\StepWood4.wav",
+254 sound SOUND_WOOD_LAND        "Sounds\\Materials\\Wood\\LandWood.wav",
+
+255 sound SOUND_TILE_STEP1       "Sounds\\Materials\\Tile\\StepTile1.wav",
+256 sound SOUND_TILE_STEP2       "Sounds\\Materials\\Tile\\StepTile2.wav",
+257 sound SOUND_TILE_STEP3       "Sounds\\Materials\\Tile\\StepTile3.wav",
+258 sound SOUND_TILE_STEP4       "Sounds\\Materials\\Tile\\StepTile4.wav",
+259 sound SOUND_TILE_LAND        "Sounds\\Materials\\Tile\\LandTile.wav",
+
+260 sound SOUND_DIRT_STEP1       "Sounds\\Materials\\Dirt\\StepDirt1.wav",
+261 sound SOUND_DIRT_STEP2       "Sounds\\Materials\\Dirt\\StepDirt2.wav",
+262 sound SOUND_DIRT_STEP3       "Sounds\\Materials\\Dirt\\StepDirt3.wav",
+263 sound SOUND_DIRT_STEP4       "Sounds\\Materials\\Dirt\\StepDirt4.wav",
+264 sound SOUND_DIRT_LAND        "Sounds\\Materials\\Dirt\\LandDirt.wav",
+
+265 sound SOUND_MUD_STEP1       "Sounds\\Materials\\Mud\\StepMud1.wav",
+266 sound SOUND_MUD_STEP2       "Sounds\\Materials\\Mud\\StepMud2.wav",
+267 sound SOUND_MUD_STEP3       "Sounds\\Materials\\Mud\\StepMud3.wav",
+268 sound SOUND_MUD_STEP4       "Sounds\\Materials\\Mud\\StepMud4.wav",
+269 sound SOUND_MUD_LAND        "Sounds\\Materials\\Mud\\LandMud.wav",
 
 
 functions:
@@ -2443,7 +2482,11 @@ functions:
 
     // print center message
     if (_pTimer->CurrentTick()<m_tmCenterMessageEnd) {
-      if(m_mfFont == FNT_RUNIC)
+      if(m_mfFont == FNT_CONSOLE)
+      {
+        pdp->SetFont( _pfdConsoleFont);
+      }
+      else if(m_mfFont == FNT_RUNIC)
       {
         pdp->SetFont( _pfdRunicFont);
       }
@@ -2549,7 +2592,11 @@ functions:
       PIX pixDPWidth  = pdp->GetWidth();
       PIX pixDPHeight = pdp->GetHeight();
       FLOAT fScale = (FLOAT)pixDPWidth/640.0f;
-      if(m_mfFont == FNT_RUNIC)
+      if(m_mfFont == FNT_CONSOLE)
+      {
+        pdp->SetFont( _pfdConsoleFont);
+      }
+      else if(m_mfFont == FNT_RUNIC)
       {
         pdp->SetFont( _pfdRunicFont);
       }
@@ -3452,7 +3499,7 @@ functions:
         }
       }
 
-      // if switch and near enough
+      // if turret and near enough
       if (IsOfClass( pen, "ControllableTurret")) {
         CControllableTurret &enTurret = (CControllableTurret&)*pen;
         // if turret is useable
@@ -4057,7 +4104,7 @@ functions:
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT)) {
-             iSoundLand = SOUND_LAND_WOOD;
+             iSoundLand = SOUND_WOOD_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW_NOIMPACT)) {
@@ -4077,11 +4124,11 @@ functions:
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT)) {
-             iSoundLand = SOUND_LAND_DIRT;
+             iSoundLand = SOUND_DIRT_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT)) {
-             iSoundLand = SOUND_LAND_TILE;
+             iSoundLand = SOUND_TILE_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CHAINLINK ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CHAINLINK_NOIMPACT) ) {
@@ -4093,7 +4140,7 @@ functions:
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
-             iSoundLand = SOUND_LAND_MUD;
+             iSoundLand = SOUND_MUD_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_VENT ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_VENT_NOIMPACT) ) {
@@ -4296,8 +4343,10 @@ functions:
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT) ) {
-        iSoundWalkL = SOUND_WALK_WOOD_L;
-        iSoundWalkR = SOUND_WALK_WOOD_R;
+        iSoundWalkL  = SOUND_WOOD_STEP1;
+        iSoundWalkL2 = SOUND_WOOD_STEP2;
+        iSoundWalkR  = SOUND_WOOD_STEP3;
+        iSoundWalkR2 = SOUND_WOOD_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW_NOIMPACT)) {
@@ -4323,13 +4372,17 @@ functions:
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT) ) {
-        iSoundWalkL = SOUND_WALK_DIRT_L;
-        iSoundWalkR = SOUND_WALK_DIRT_R;
+        iSoundWalkL  = SOUND_DIRT_STEP1;
+        iSoundWalkL2 = SOUND_DIRT_STEP2;
+        iSoundWalkR  = SOUND_DIRT_STEP3;
+        iSoundWalkR2 = SOUND_DIRT_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT) ) {
-        iSoundWalkL = SOUND_WALK_TILE_L;
-        iSoundWalkR = SOUND_WALK_TILE_R;
+        iSoundWalkL  = SOUND_TILE_STEP1;
+        iSoundWalkL2 = SOUND_TILE_STEP2;
+        iSoundWalkR  = SOUND_TILE_STEP3;
+        iSoundWalkR2 = SOUND_TILE_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CHAINLINK ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CHAINLINK_NOIMPACT) ) {
@@ -4343,8 +4396,10 @@ functions:
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
-        iSoundWalkL = SOUND_WALK_MUD_L;
-        iSoundWalkR = SOUND_WALK_MUD_R;
+        iSoundWalkL  = SOUND_MUD_STEP1;
+        iSoundWalkL2 = SOUND_MUD_STEP2;
+        iSoundWalkR  = SOUND_MUD_STEP3;
+        iSoundWalkR2 = SOUND_MUD_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_VENT ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_VENT_NOIMPACT) ) {
@@ -4370,6 +4425,9 @@ functions:
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH_NOIMPACT) ) {
         iSoundWalkL = SOUND_WALK_GLITCH_L;
         iSoundWalkR = SOUND_WALK_GLITCH_R;
+      } else if(en_pbpoStandOn == NULL) {
+        m_soFootL.Stop();
+        m_soFootR.Stop();
       }
       else {
       }
@@ -4382,7 +4440,15 @@ functions:
               (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
                  switch(IRnd()%2) {
                    case 0: PlaySound(m_soFootL, iSoundWalkL, SOF_3D); break;
                    case 1: PlaySound(m_soFootL, iSoundWalkL2, SOF_3D); break;
@@ -4396,10 +4462,18 @@ functions:
               (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
                  switch(IRnd()%2) {
-                   case 0: PlaySound(m_soFootL, iSoundWalkR, SOF_3D); break;
-                   case 1: PlaySound(m_soFootL, iSoundWalkR2, SOF_3D); break;
+                   case 0: PlaySound(m_soFootR, iSoundWalkR, SOF_3D); break;
+                   case 1: PlaySound(m_soFootR, iSoundWalkR2, SOF_3D); break;
                    default: break;
                  }
                } else {
@@ -4416,7 +4490,15 @@ functions:
               (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
                  switch(IRnd()%2) {
                    case 0: PlaySound(m_soFootL, iSoundWalkL, SOF_3D); break;
                    case 1: PlaySound(m_soFootL, iSoundWalkL2, SOF_3D); break;
@@ -4430,10 +4512,18 @@ functions:
               (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
                  switch(IRnd()%2) {
-                   case 0: PlaySound(m_soFootL, iSoundWalkR, SOF_3D); break;
-                   case 1: PlaySound(m_soFootL, iSoundWalkR2, SOF_3D); break;
+                   case 0: PlaySound(m_soFootR, iSoundWalkR, SOF_3D); break;
+                   case 1: PlaySound(m_soFootR, iSoundWalkR2, SOF_3D); break;
                    default: break;
                  }
                } else {

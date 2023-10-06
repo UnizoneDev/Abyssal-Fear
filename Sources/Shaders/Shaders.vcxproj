@@ -181,23 +181,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AddShader.cpp" />
-    <ClCompile Include="AddShaderDS.cpp" />
     <ClCompile Include="BaseShader.cpp" />
-    <ClCompile Include="BaseShaderDS.cpp" />
     <ClCompile Include="BaseTransparent.cpp" />
-    <ClCompile Include="BaseTransparentDS.cpp" />
     <ClCompile Include="ColorShader.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="DetailShader.cpp" />
-	<ClCompile Include="GlassShader.cpp" />
+    <ClCompile Include="DistortionShader.cpp" />
+    <ClCompile Include="GlassShader.cpp" />
     <ClCompile Include="InvisibleShader.cpp" />
     <ClCompile Include="MultiLayerShader.cpp" />
     <ClCompile Include="Reflection.cpp" />
-    <ClCompile Include="ReflectionDS.cpp" />
     <ClCompile Include="ReftectionAndSpecular.cpp" />
-    <ClCompile Include="ReftectionAndSpecularDS.cpp" />
     <ClCompile Include="Specular.cpp" />
-    <ClCompile Include="SpecularDS.cpp" />
     <ClCompile Include="StdH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">StdH.h</PrecompiledHeaderFile>

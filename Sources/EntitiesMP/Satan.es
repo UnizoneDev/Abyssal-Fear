@@ -25,7 +25,7 @@ uses "EntitiesMP/EnemyBase";
 
 // info structure
 static EntityInfo eiSatan = {
-  EIBT_FLESH, 750.0f,
+  EIBT_FLESH, 800.0f,
   0.0f, 1.75f, 0.0f,     // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };
@@ -168,8 +168,8 @@ functions:
     }
 
     if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 25.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);

@@ -33,6 +33,9 @@
 #define GUNMAN_COLLISION_BOX_DEFAULT 0
 #define GUNMAN_COLLISION_BOX_DEATH_BOX 1
 
+// Names of hit boxes
+#define GUNMAN_HIT_BOX_DEFAULT 0
+
 // Attaching position names
 #define GUNMAN_ATTACHMENT_PISTOL 0
 #define GUNMAN_ATTACHMENT_SHOTGUN 1

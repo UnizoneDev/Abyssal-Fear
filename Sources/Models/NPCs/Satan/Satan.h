@@ -16,6 +16,9 @@
 #define SATAN_COLLISION_BOX_DEFAULT 0
 #define SATAN_COLLISION_BOX_DEATH_BOX 1
 
+// Names of hit boxes
+#define SATAN_HIT_BOX_DEFAULT 0
+
 // Attaching position names
 
 // Sound names

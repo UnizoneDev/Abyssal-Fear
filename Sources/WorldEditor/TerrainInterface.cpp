@@ -1919,6 +1919,39 @@ void ApplyImportExport(INDEX iOperation)
         ptrTerrain->ExportHeightMap_t(fnHeightmap, TRUE);
         break;
       }
+	  // [Cecil] Export height map that's usable on terrain primitives
+      case 4: {
+          CTerrain& tr = *ptrTerrain;
+
+          ASSERT(tr.tr_auwHeightMap != NULL);
+          INDEX iSize = tr.tr_pixHeightMapWidth * tr.tr_pixHeightMapHeight;
+
+          // Prepare height map image
+          CImageInfo iiHeightMap;
+          iiHeightMap.ii_Width = tr.tr_pixHeightMapWidth;
+          iiHeightMap.ii_Height = tr.tr_pixHeightMapHeight;
+          iiHeightMap.ii_BitsPerPixel = 32;
+          iiHeightMap.ii_Picture = (UBYTE*)AllocMemory(iSize * 4);
+
+          GFXColor* pacolImage = (GFXColor*)&iiHeightMap.ii_Picture[0];
+          UWORD* puwHeight = tr.tr_auwHeightMap;
+
+          while (--iSize >= 0) {
+              // Get height level from 0 to 255
+              UBYTE ubHeight = (*puwHeight >> 8);
+
+              // Turn it into opaque brightness from black to white
+              *pacolImage = RGBAToColor(ubHeight, ubHeight, ubHeight, 0xFF);
+
+              // Next height
+              pacolImage++;
+              puwHeight++;
+          }
+
+          // Save height map image
+          iiHeightMap.SaveTGA_t(fnHeightmap);
+          iiHeightMap.Clear();
+      } break;
     }
   }
   catch(char *strError)

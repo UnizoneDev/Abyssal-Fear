@@ -27,6 +27,8 @@ enum LightType {
   2 LT_STRONG_AMBIENT "Strong ambient light",
   3 LT_DIRECTIONAL    "Directional light",
   4 LT_STRONG_POINT   "Strong point light",
+  5 LT_SPOT           "Spot light",
+  6 LT_STRONG_SPOT    "Strong spot light",
 };
 
 enum LensFlareType {                
@@ -84,6 +86,7 @@ properties:
    30 CTFileName m_fnmAmbientLightAnimation      "Ambient light animation file" = CTString(""),
    31 ANIMATION m_iAmbientLightAnimation         "Ambient light animation" = 0,
    32 CAnimObject m_aoAmbientLightAnimation,
+   33 CTFileName m_fnmConfig "Light Config" = CTString(""),
 {
   CLightSource m_lsLightSource;
   CBoolDefaultFalse m_bdfInitialized; // set if already initialized once
@@ -97,6 +100,56 @@ components:
     6 texture TEXTURE_SPOT_LIGHT         "Models\\Editor\\SpotLight.tex",
 
 functions:
+
+  // --------------------------------------------------------------------------------------
+  // The config checkers
+  // --------------------------------------------------------------------------------------
+
+  // Set string properties
+  virtual void SetStringProperty(const CTString &strProp, const CTString &strValue) {
+       if (strProp == "name")       { m_strName = strValue; }
+       else if (strProp == "description") { m_strDescription = strValue; }
+  };
+
+  // Set number properties
+  virtual void SetNumberProperty(const CTString &strProp, const FLOAT fValue) {
+       if (strProp == "rFallOffRange") { m_rFallOffRange = fValue; }
+       else if (strProp == "rHotSpotRange") { m_rHotSpotRange = fValue; }
+       else if (strProp == "fNearClip") { m_fNearClip = fValue; }
+       else if (strProp == "fFarClip") { m_fFarClip = fValue; }
+  };
+
+  // Set index properties
+  virtual void SetIndexProperty(const CTString &strProp, const INDEX iValue) {
+       if (strProp == "colColor") { m_colColor = iValue; }
+       else if (strProp == "colAmbient") { m_colAmbient = iValue; }
+  };
+
+  void LoadLightConfig(void) {
+    if (m_fnmConfig == "") {
+      return;
+    }
+
+    // Load variables into this stack
+    CConfigPairs aConfig;
+    LoadConfigFile(m_fnmConfig, aConfig);
+
+    // Iterate through it
+    for (INDEX i = 0; i < aConfig.Count(); i++) {
+        const ConfigPair &pair = aConfig[i];
+  
+        // Set string or number value
+        if (pair.val.bString) {
+            SetStringProperty(pair.key, pair.val.strValue);
+        } else if (pair.val.bFloat) {
+            SetNumberProperty(pair.key, pair.val.fValue);
+        } else {
+            SetIndexProperty(pair.key, pair.val.iValue);
+        }
+    }
+  };
+
+
   /* Get anim data for given animation property - return NULL for none. */
   CAnimData *GetAnimData(SLONG slPropertyOffset) 
   {
@@ -215,6 +268,10 @@ functions:
     case LT_AMBIENT:
       lsNew.ls_ulFlags = 0;
       break;
+    case LT_STRONG_SPOT:
+    case LT_SPOT:
+      lsNew.ls_ulFlags = LSF_SPOT;
+      break;
     }
     if( m_bSubstractSectorAmbient) { lsNew.ls_ulFlags |= LSF_SUBSTRACTSECTORAMBIENT;  }
     if( m_bLensFlareOnly)          { lsNew.ls_ulFlags |= LSF_LENSFLAREONLY; }
@@ -243,7 +300,7 @@ functions:
     lsNew.ls_fNearClipDistance = m_fNearClip;
     lsNew.ls_fFarClipDistance  = m_fFarClip;
     // hot spot for strong lights is 90% of light range
-    if( m_ltType == LT_STRONG_AMBIENT || m_ltType == LT_STRONG_POINT) {
+    if( m_ltType == LT_STRONG_AMBIENT || m_ltType == LT_STRONG_POINT || m_ltType == LT_STRONG_SPOT) {
       lsNew.ls_rHotSpot = lsNew.ls_rFallOff*0.9f;
     }
 
@@ -385,10 +442,19 @@ procedures:
       // set texture of real ambient light model
       SetModelMainTexture(TEXTURE_REAL_AMBIENT_LIGHT);
     }
-    // initialize spot light
+    // initialize global spot light
     else if( m_ltType == LT_DIRECTIONAL)
     {
       strType = "directional";
+      // set model to spot light
+      SetModel(MODEL_SPOT_LIGHT);
+      // set texture of spot light model
+      SetModelMainTexture(TEXTURE_SPOT_LIGHT);
+    }
+    // initialize spot light
+    else if( m_ltType == LT_SPOT || m_ltType == LT_STRONG_SPOT)
+    {
+      strType = "spot";
       // set model to spot light
       SetModel(MODEL_SPOT_LIGHT);
       // set texture of spot light model
@@ -446,6 +512,9 @@ procedures:
 
     m_strDescription.PrintF("%s:%g-%g", 
       strType,  m_rHotSpotRange, m_rFallOffRange);
+
+    // check for configuration file
+    LoadLightConfig();
 
     return;
   };

@@ -19,6 +19,9 @@
 #define TWITCHERMALE2_COLLISION_BOX_FRONTDEATH_BOX 1
 #define TWITCHERMALE2_COLLISION_BOX_BACKDEATH_BOX 2
 
+// Names of hit boxes
+#define TWITCHERMALE2_HIT_BOX_DEFAULT 0
+
 // Attaching position names
 
 // Sound names

@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %{
 #include "StdH.h"
 #include "Models/NPCs/Shambler/Shambler1.h"
+#include "Models/NPCs/Shambler/Shambler2.h"
 %}
 
 uses "EntitiesMP/EnemyBase";
@@ -25,6 +26,13 @@ uses "EntitiesMP/Projectile";
 enum ShamblerSleepPositionType {
   0 SSP_FRONT      "Sleep Front",
   1 SSP_BACK       "Sleep Back",
+};
+
+enum ShamblerType {
+  0 SHC_NORMAL1   "Normal 1",    // standard variant 1
+  1 SHC_NORMAL2   "Normal 2",    // standard variant 2
+  2 SHC_NORMAL3   "Normal 3",    // standard variant 3
+  3 SHC_NORMAL4   "Normal 4",    // standard variant 4
 };
 
 %{
@@ -46,12 +54,15 @@ properties:
   1 BOOL m_bFistHit = FALSE,
   2 BOOL m_bSleeping "Sleeping" 'S' = FALSE,  // set to make shambler sleep initally
   3 enum ShamblerSleepPositionType m_sspType "Sleep Position" = SSP_FRONT,
+  4 enum ShamblerType m_shChar "Character" 'C' = SHC_NORMAL1,      // character
   
 components:
   1 class   CLASS_BASE				"Classes\\EnemyBase.ecl",
   2 class   CLASS_PROJECTILE        "Classes\\Projectile.ecl",
-  10 model   MODEL_SHAMBLER1		    "Models\\NPCs\\Shambler\\Shambler1\\Shambler1.mdl",
+  10 model   MODEL_SHAMBLER1		"Models\\NPCs\\Shambler\\Shambler1\\Shambler1.mdl",
   11 texture TEXTURE_SHAMBLER1		"Models\\NPCs\\Shambler\\Shambler1.tex",
+  12 texture TEXTURE_SHAMBLER2		"Models\\NPCs\\Shambler\\Shambler1b.tex",
+  13 model   MODEL_SHAMBLER2		"Models\\NPCs\\Shambler\\Shambler2\\Shambler2.mdl",
 
   50 sound   SOUND_HIT              "Models\\NPCs\\Abomination\\Sounds\\Hit.wav",
   51 sound   SOUND_SWING            "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
@@ -121,7 +132,11 @@ functions:
   // damage anim
   INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     INDEX iAnim;
-    iAnim = SHAMBLER1_ANIM_WOUND;
+    if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+      iAnim = SHAMBLER2_ANIM_WOUND;
+    } else {
+      iAnim = SHAMBLER1_ANIM_WOUND;
+    }
     StartModelAnim(iAnim, 0);
     return iAnim;
   };
@@ -134,9 +149,17 @@ functions:
       FLOAT fDamageDir = m_vDamage%vFront;
 
       if (fDamageDir<0) {
-          iAnim = SHAMBLER1_ANIM_DEATHFRONT;
+          if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+            iAnim = SHAMBLER2_ANIM_DEATHFRONT;
+          } else {
+            iAnim = SHAMBLER1_ANIM_DEATHFRONT;
+          }
         } else {
-          iAnim = SHAMBLER1_ANIM_DEATHBACK;
+          if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+            iAnim = SHAMBLER2_ANIM_DEATHBACK;
+          } else {
+            iAnim = SHAMBLER1_ANIM_DEATHBACK;
+          }
         }
 
     StartModelAnim(iAnim, 0);
@@ -150,7 +173,21 @@ functions:
   };
 
   void DeathNotify(void) {
-    if(GetModelObject()->GetAnim()==SHAMBLER1_ANIM_DEATHFRONT)
+    // yell
+    ESound eSound;
+    eSound.EsndtSound = SNDT_SHOUT;
+    eSound.penTarget = m_penEnemy;
+    SendEventInRange(eSound, FLOATaabbox3D(GetPlacement().pl_PositionVector, 50.0f));
+
+    if(GetModelObject()->GetAnim()==SHAMBLER2_ANIM_DEATHFRONT)
+    {
+      ChangeCollisionBoxIndexWhenPossible(SHAMBLER2_COLLISION_BOX_FRONTDEATH_BOX);
+    }
+    else if(GetModelObject()->GetAnim()==SHAMBLER2_ANIM_DEATHFRONT)
+    {
+      ChangeCollisionBoxIndexWhenPossible(SHAMBLER2_COLLISION_BOX_BACKDEATH_BOX);
+    }
+    else if(GetModelObject()->GetAnim()==SHAMBLER1_ANIM_DEATHFRONT)
     {
       ChangeCollisionBoxIndexWhenPossible(SHAMBLER1_COLLISION_BOX_FRONTDEATH_BOX);
     }
@@ -164,15 +201,27 @@ functions:
 
   // virtual anim functions
   void StandingAnim(void) {
-    StartModelAnim(SHAMBLER1_ANIM_STAND, AOF_LOOPING|AOF_NORESTART);
+    if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+      StartModelAnim(SHAMBLER2_ANIM_STAND, AOF_LOOPING|AOF_NORESTART);
+    } else {
+      StartModelAnim(SHAMBLER1_ANIM_STAND, AOF_LOOPING|AOF_NORESTART);
+    }
   };
 
   void WalkingAnim(void) {
-    StartModelAnim(SHAMBLER1_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+    if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+      StartModelAnim(SHAMBLER2_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+    } else {
+      StartModelAnim(SHAMBLER1_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+    }
   };
 
   void RunningAnim(void) {
+    if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+      StartModelAnim(SHAMBLER2_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
+    } else {
       StartModelAnim(SHAMBLER1_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
+    }
   };
 
   void RotatingAnim(void) {
@@ -180,7 +229,11 @@ functions:
   };
 
   void JumpingAnim(void) {
-    StartModelAnim(SHAMBLER1_ANIM_LEAP, AOF_LOOPING|AOF_NORESTART);
+    if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+      StartModelAnim(SHAMBLER2_ANIM_JUMP, AOF_LOOPING|AOF_NORESTART);
+    } else {
+      StartModelAnim(SHAMBLER1_ANIM_JUMP, AOF_LOOPING|AOF_NORESTART);
+    }
   };
 
   // virtual sound functions
@@ -231,7 +284,11 @@ functions:
   Shambler1SpitAttack(EVoid) {
     autowait(0.25f + FRnd()/4);
 
-    StartModelAnim(SHAMBLER1_ANIM_SPIT, 0);
+    if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+      StartModelAnim(SHAMBLER2_ANIM_SPIT, 0);
+    } else {
+      StartModelAnim(SHAMBLER1_ANIM_SPIT, 0);
+    }
     autowait(0.375f);
     ShootProjectile(PRT_MUTANT_SPIT, FLOAT3D(0.0f, 1.5f, 0.0f), ANGLE3D(0, 0, 0));
     PlaySound(m_soSound, SOUND_HIT, SOF_3D);
@@ -247,13 +304,29 @@ functions:
 
     switch(IRnd()%2)
     {
-      case 0: StartModelAnim(SHAMBLER1_ANIM_THROW1, 0); break;
-      case 1: StartModelAnim(SHAMBLER1_ANIM_THROW2, 0); break;
+      case 0: 
+      {
+        if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+          StartModelAnim(SHAMBLER2_ANIM_THROW1, 0);
+        } else {
+          StartModelAnim(SHAMBLER1_ANIM_THROW1, 0);
+        }
+      };
+      break;
+      case 1:
+      {
+        if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+          StartModelAnim(SHAMBLER2_ANIM_THROW2, 0);
+        } else {
+          StartModelAnim(SHAMBLER1_ANIM_THROW2, 0);
+        }
+      };
+      break;
       default: ASSERTALWAYS("Shambler unknown throw animation");
     }
 
     autowait(0.375f);
-    ShootProjectile(PRT_SHAMBLER_BLOOD_BUNDLE, FLOAT3D(0.0f, 1.5f, 0.0f), ANGLE3D(0, 0, 0));
+    ShootProjectile(PRT_SHAMBLER_BLOOD_BUNDLE, FLOAT3D(0.0f, 1.5f, -1.5f), ANGLE3D(0, 0, 0));
     PlaySound(m_soSound, SOUND_HIT, SOF_3D);
 
     autowait(0.5f + FRnd()/3);
@@ -263,44 +336,28 @@ functions:
 
   // melee attack enemy
   Hit(EVoid) : CEnemyBase::Hit {
-    switch(IRnd()%2)
-    {
-      case 0: jump SlashEnemySingle(); break;
-      case 1: jump SlashEnemySingle2(); break;
-      default: ASSERTALWAYS("Shambler unknown melee attack");
-    }
+    jump SlashEnemySingle();
 
     return EReturn();
   };
 
   SlashEnemySingle(EVoid) {
     // close attack
-    StartModelAnim(SHAMBLER1_ANIM_MELEE1, 0);
-    m_bFistHit = FALSE;
-    autowait(0.35f);
-    if (CalcDist(m_penEnemy) < 2.8f) {
-      m_bFistHit = TRUE;
-    }
-    
-    if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
-      if (CalcDist(m_penEnemy) < m_fCloseDistance) {
-        FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
-        vDirection.Normalize();
-        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 8.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+    if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+      switch(IRnd()%2)
+      {
+        case 0: StartModelAnim(SHAMBLER2_ANIM_MELEE1, 0); break;
+        case 1: StartModelAnim(SHAMBLER2_ANIM_MELEE2, 0); break;
+        default: ASSERTALWAYS("Shambler unknown melee animation");
       }
     } else {
-      PlaySound(m_soSound, SOUND_SWING, SOF_3D);
+      switch(IRnd()%2)
+      {
+        case 0: StartModelAnim(SHAMBLER1_ANIM_MELEE1, 0); break;
+        case 1: StartModelAnim(SHAMBLER1_ANIM_MELEE2, 0); break;
+        default: ASSERTALWAYS("Shambler unknown melee animation");
+      }
     }
-
-    autowait(0.3f);
-    MaybeSwitchToAnotherPlayer();
-    return EReturn();
-  }
-
-  SlashEnemySingle2(EVoid) {
-    // close attack
-    StartModelAnim(SHAMBLER1_ANIM_MELEE2, 0);
     m_bFistHit = FALSE;
     autowait(0.35f);
     if (CalcDist(m_penEnemy) < 2.8f) {
@@ -308,8 +365,8 @@ functions:
     }
     
     if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 8.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
@@ -327,11 +384,21 @@ functions:
   {
     // start sleeping anim
     if(m_sspType == SSP_FRONT) {
-      StartModelAnim(SHAMBLER1_ANIM_DEADFRONT, AOF_LOOPING);
-      ChangeCollisionBoxIndexWhenPossible(SHAMBLER1_COLLISION_BOX_FRONTDEATH_BOX);
+      if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+        StartModelAnim(SHAMBLER2_ANIM_DEADFRONT, AOF_LOOPING);
+        ChangeCollisionBoxIndexWhenPossible(SHAMBLER2_COLLISION_BOX_FRONTDEATH_BOX);
+      } else {
+        StartModelAnim(SHAMBLER1_ANIM_DEADFRONT, AOF_LOOPING);
+        ChangeCollisionBoxIndexWhenPossible(SHAMBLER1_COLLISION_BOX_FRONTDEATH_BOX);
+      }
     } else {
-      StartModelAnim(SHAMBLER1_ANIM_DEADBACK, AOF_LOOPING);
-      ChangeCollisionBoxIndexWhenPossible(SHAMBLER1_COLLISION_BOX_BACKDEATH_BOX);
+      if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+        StartModelAnim(SHAMBLER2_ANIM_DEADBACK, AOF_LOOPING);
+        ChangeCollisionBoxIndexWhenPossible(SHAMBLER2_COLLISION_BOX_BACKDEATH_BOX);
+      } else {
+        StartModelAnim(SHAMBLER1_ANIM_DEADBACK, AOF_LOOPING);
+        ChangeCollisionBoxIndexWhenPossible(SHAMBLER1_COLLISION_BOX_BACKDEATH_BOX);
+      }
     }
     
     // repeat
@@ -345,6 +412,18 @@ functions:
       }
       on(ETouch eTouch) : {
         if(IsDerivedFromClass(eTouch.penOther, "Enemy Base") || IsOfClass(eTouch.penOther, "Player")) {
+          jump WakeUp();
+        }
+      }
+      on(ESound eSound) : {
+        // if deaf then ignore the sound
+        if (m_bDeaf) {
+          resume;
+        }
+
+        // if the target is visible and can be set as new enemy
+        if (IsVisible(eSound.penTarget) && SetTargetSoft(eSound.penTarget)) {
+          // react to it
           jump WakeUp();
         }
       }
@@ -363,12 +442,24 @@ functions:
   {
     // wakeup anim
     SightSound();
-    ChangeCollisionBoxIndexWhenPossible(SHAMBLER1_COLLISION_BOX_DEFAULT);
+    if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+      ChangeCollisionBoxIndexWhenPossible(SHAMBLER2_COLLISION_BOX_DEFAULT);
+    } else {
+      ChangeCollisionBoxIndexWhenPossible(SHAMBLER1_COLLISION_BOX_DEFAULT);
+    }
 
     if(m_sspType == SSP_FRONT) {
-      StartModelAnim(SHAMBLER1_ANIM_GETUPFRONT, 0);
+      if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+        StartModelAnim(SHAMBLER2_ANIM_GETUPFRONT, 0);
+      } else {
+        StartModelAnim(SHAMBLER1_ANIM_GETUPFRONT, 0);
+      }
     } else {
-      StartModelAnim(SHAMBLER1_ANIM_GETUPBACK, 0);
+      if(m_shChar == SHC_NORMAL3 || m_shChar == SHC_NORMAL4) {
+        StartModelAnim(SHAMBLER2_ANIM_GETUPBACK, 0);
+      } else {
+        StartModelAnim(SHAMBLER1_ANIM_GETUPBACK, 0);
+      }
     }
 
     autowait(GetModelObject()->GetCurrentAnimLength());
@@ -423,9 +514,25 @@ functions:
 
     // set your appearance and texture
     
-        
-        SetModel(MODEL_SHAMBLER1);
-        SetModelMainTexture(TEXTURE_SHAMBLER1);
+        switch(m_shChar) {
+          case SHC_NORMAL1:
+          SetModel(MODEL_SHAMBLER1);
+          SetModelMainTexture(TEXTURE_SHAMBLER1);
+          break;
+          case SHC_NORMAL2:
+          SetModel(MODEL_SHAMBLER1);
+          SetModelMainTexture(TEXTURE_SHAMBLER2);
+          break;
+          case SHC_NORMAL3:
+          SetModel(MODEL_SHAMBLER2);
+          SetModelMainTexture(TEXTURE_SHAMBLER1);
+          break;
+          case SHC_NORMAL4:
+          SetModel(MODEL_SHAMBLER2);
+          SetModelMainTexture(TEXTURE_SHAMBLER2);
+          break;
+        }
+
         GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
 
@@ -438,8 +545,8 @@ functions:
         
         // setup attack distances
         m_fAttackDistance = 100.0f;
-        m_fCloseDistance = 2.75f;
-        m_fStopDistance = 1.75f;
+        m_fCloseDistance = 3.0f;
+        m_fStopDistance = 1.5f;
         m_fAttackFireTime = 0.5f;
         m_fCloseFireTime = 1.0f;
         m_fIgnoreRange = 200.0f;

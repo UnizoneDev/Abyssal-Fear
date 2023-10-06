@@ -18,19 +18,10 @@
     <ClCompile Include="AddShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AddShaderDS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BaseShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BaseShaderDS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BaseTransparent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseTransparentDS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ColorShader.cpp">
@@ -51,19 +42,10 @@
     <ClCompile Include="Reflection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ReflectionDS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ReftectionAndSpecular.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ReftectionAndSpecularDS.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Specular.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SpecularDS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StdH.cpp">
@@ -73,6 +55,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
 	<ClCompile Include="GlassShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DistortionShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

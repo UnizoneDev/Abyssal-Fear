@@ -37,10 +37,6 @@ properties:
   6 enum PuzzleItemType m_pzitType2    "Item Type 2" = PIT_LEVERHANDLE,
   7 enum PuzzleItemType m_pzitType3    "Item Type 3" = PIT_LEVERHANDLE,
   8 enum PuzzleItemType m_pzitType4    "Item Type 4" = PIT_LEVERHANDLE,
-  9 CEntityPointer m_penPuzzleItem1    "Item 1" COLOR(C_RED|0xFF),
- 10 CEntityPointer m_penPuzzleItem2    "Item 2" COLOR(C_RED|0xFF),
- 11 CEntityPointer m_penPuzzleItem3    "Item 3" COLOR(C_RED|0xFF),
- 12 CEntityPointer m_penPuzzleItem4    "Item 4" COLOR(C_RED|0xFF),
 
 
 components:
@@ -56,20 +52,40 @@ procedures:
 MainChecks() {
   BOOL bTrigger = TRUE;
 
-  for (INDEX i = 0; i < 4; i++) {
-    CEntityPointer &pen = (&m_penPuzzleItem1)[i];
+  if (IsDerivedFromClass(m_penCaused, "Player")) {
+    CPlayer *penPlayer = (CPlayer*)&*m_penCaused;
+    // if he has the items
+    ULONG ulPuzzleItem1 = (1<<INDEX(m_pzitType1));
+    ULONG ulPuzzleItem2 = (1<<INDEX(m_pzitType2));
+    ULONG ulPuzzleItem3 = (1<<INDEX(m_pzitType3));
+    ULONG ulPuzzleItem4 = (1<<INDEX(m_pzitType4));
 
-    if (pen == NULL) {
-      continue;
+    if (penPlayer->m_ulPuzzleItems&ulPuzzleItem1) {
+      // use the key
+      penPlayer->m_ulPuzzleItems&=~ulPuzzleItem1;
+    } else {
+      bTrigger = FALSE;
     }
 
-    CPuzzleItem *ppzi = (CPuzzleItem *)&*pen;
-    PuzzleItemType &pziType = (&m_pzitType1)[i];
-
-    // At least one of the valid switches isn't in the correct position
-    if (ppzi->m_pitType != pziType) {
+    if (penPlayer->m_ulPuzzleItems&ulPuzzleItem2) {
+      // use the key
+      penPlayer->m_ulPuzzleItems&=~ulPuzzleItem2;
+    } else {
       bTrigger = FALSE;
-      break;
+    }
+
+    if (penPlayer->m_ulPuzzleItems&ulPuzzleItem3) {
+      // use the key
+      penPlayer->m_ulPuzzleItems&=~ulPuzzleItem3;
+    } else {
+      bTrigger = FALSE;
+    }
+
+    if (penPlayer->m_ulPuzzleItems&ulPuzzleItem4) {
+      // use the key
+      penPlayer->m_ulPuzzleItems&=~ulPuzzleItem4;
+    } else {
+      bTrigger = FALSE;
     }
   }
 

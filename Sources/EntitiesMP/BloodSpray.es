@@ -165,7 +165,7 @@ procedures:
       m_boxOriginalOwner.StretchByVector(eSpawn.penOwner->en_pmoModelObject->mo_Stretch);
     }
 
-      if (m_penOwner->GetPhysicsFlags()&EPF_MOVABLE) {
+    if (m_penOwner->GetPhysicsFlags()&EPF_MOVABLE) {
       m_vGDir = ((CMovableEntity *)&*m_penOwner)->en_vGravityDir;
       m_fGA = ((CMovableEntity *)&*m_penOwner)->en_fGravityA;
     } else {

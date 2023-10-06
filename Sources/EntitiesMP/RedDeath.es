@@ -208,19 +208,19 @@ functions:
 
   // melee attack enemy
   Hit(EVoid) : CEnemyBase::Hit {
-    switch(IRnd()%2)
-    {
-      case 0: jump SlashEnemySingle(); break;
-      case 1: jump SlashEnemySingle2(); break;
-      default: ASSERTALWAYS("Red Death unknown melee attack");
-    }
+    jump SlashEnemySingle();
 
     return EReturn();
   };
 
   SlashEnemySingle(EVoid) {
     // close attack
-    StartModelAnim(REDDEATH_ANIM_MELEE1, 0);
+    switch(IRnd()%2)
+    {
+      case 0: StartModelAnim(REDDEATH_ANIM_MELEE1, 0); break;
+      case 1: StartModelAnim(REDDEATH_ANIM_MELEE2, 0); break;
+      default: ASSERTALWAYS("Red Death unknown melee animation");
+    }
     m_bFistHit = FALSE;
     autowait(0.35f);
     if (CalcDist(m_penEnemy) < 2.8f) {
@@ -228,33 +228,8 @@ functions:
     }
     
     if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
-        FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
-        vDirection.Normalize();
-        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
-      }
-    } else {
-      PlaySound(m_soSound, SOUND_SWING, SOF_3D);
-    }
-
-    autowait(0.3f);
-    MaybeSwitchToAnotherPlayer();
-    return EReturn();
-  }
-
-  SlashEnemySingle2(EVoid) {
-    // close attack
-    StartModelAnim(REDDEATH_ANIM_MELEE2, 0);
-    m_bFistHit = FALSE;
-    autowait(0.35f);
-    if (CalcDist(m_penEnemy) < 2.8f) {
-      m_bFistHit = TRUE;
-    }
-    
-    if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
-      if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);

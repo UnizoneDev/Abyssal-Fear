@@ -21,6 +21,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 uses "EntitiesMP/EnemyWildlife";
 
+enum BlackDogType {
+  0 BDT_BLACKDOG    "Black Dog",    // standard variant
+  1 BDT_FLESHHOUND  "Flesh Hound",  // gluttony variant
+};
+
 %{
 
 // info structure
@@ -38,11 +43,13 @@ thumbnail "Thumbnails\\BlackDog.tbn";
 
 properties:
   1 BOOL m_bFistHit = FALSE,
+  2 enum BlackDogType m_bdChar "Character" 'C' = BDT_BLACKDOG,      // character
   
 components:
   1 class   CLASS_BASE				"Classes\\EnemyWildlife.ecl",
   2 model   MODEL_BLACKDOG		    "Models\\NPCs\\BlackDog\\BlackDog.mdl",
   3 texture TEXTURE_BLACKDOG   		"Models\\NPCs\\BlackDog\\BlackDog.tex",
+  4 texture TEXTURE_FLESHHOUND   	"Models\\NPCs\\BlackDog\\FleshHound.tex",
 
   10 sound   SOUND_BITE             "Models\\NPCs\\BlackDog\\Sounds\\Bite.wav",
   11 sound   SOUND_SIGHT1           "Models\\NPCs\\BlackDog\\Sounds\\Sight1.wav",
@@ -213,11 +220,21 @@ functions:
     // animation - IGNORE DAMAGE WOUND -
     SpawnReminder(this, 0.5f, 0);
     m_iChargeHitAnimation = BLACKDOG_ANIM_LEAP;
-    m_fChargeHitDamage = 10.0f;
+    if (m_bdChar==BDT_FLESHHOUND) {
+      m_fChargeHitDamage = 15.0f;
+    } else {
+      m_fChargeHitDamage = 10.0f;
+    }
     m_fChargeHitAngle = 0.0f;
     m_fChargeHitSpeed = 8.0f;
     autocall CEnemyBase::ChargeHitEnemy() EReturn;
     autowait(0.35f);
+
+    if(!CheckIfFull()) {
+      MaybeSwitchToAnotherFood();
+    } else {
+      MaybeSwitchToAnotherPlayer();
+    }
     return EReturn();
   };
 
@@ -231,11 +248,15 @@ functions:
     }
     
     if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_BITE, SOF_3D);
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        PlaySound(m_soSound, SOUND_BITE, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 8.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        if (m_bdChar==BDT_FLESHHOUND) {
+          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 12.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        } else {
+          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 8.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        }
       }
     } else {
       SightSound();
@@ -260,10 +281,17 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_WILDLIFE;
-    SetHealth(100.0f);
-    m_fMaxHealth = 100.0f;
-    m_fDamageWounded = 40.0f;
-    m_iScore = 2500;
+    if (m_bdChar==BDT_FLESHHOUND) {
+      SetHealth(175.0f);
+      m_fMaxHealth = 175.0f;
+      m_fDamageWounded = 60.0f;
+      m_iScore = 5000;
+    } else {
+      SetHealth(100.0f);
+      m_fMaxHealth = 100.0f;
+      m_fDamageWounded = 40.0f;
+      m_iScore = 2500;
+    }
     en_tmMaxHoldBreath = 30.0f;
     en_fDensity = 1750.0f;
     m_fBlowUpSize = 2.0f;
@@ -272,7 +300,13 @@ functions:
     
         
         SetModel(MODEL_BLACKDOG);
-        SetModelMainTexture(TEXTURE_BLACKDOG);
+
+        if (m_bdChar==BDT_FLESHHOUND) {
+          SetModelMainTexture(TEXTURE_FLESHHOUND);
+        } else {
+          SetModelMainTexture(TEXTURE_BLACKDOG);
+        }
+
         GetModelObject()->StretchModel(FLOAT3D(1.0f, 1.0f, 1.0f));
         ModelChangeNotify();
 
@@ -286,7 +320,7 @@ functions:
         // setup attack distances
         m_fAttackDistance = 100.0f;
         m_fCloseDistance = 22.0f;
-        m_fStopDistance = 1.75f;
+        m_fStopDistance = 1.5f;
         m_fAttackFireTime = 0.5f;
         m_fCloseFireTime = 1.0f;
         m_fIgnoreRange = 200.0f;

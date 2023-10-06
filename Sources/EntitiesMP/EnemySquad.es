@@ -189,8 +189,31 @@ procedures:
   };
 
   SquadRunAway(EVoid) {
+    m_bCoward = TRUE;
+
     // stop moving
     StopMoving();
+    RunningAnim();
+
+    m_fLockOnEnemyTime = 2.0f;
+    m_fLockStartTime = _pTimer->CurrentTick();
+    while (m_fLockStartTime+GetProp(m_fLockOnEnemyTime) > _pTimer->CurrentTick()) {
+      m_fMoveFrequency = 0.1f;
+      wait (m_fMoveFrequency) {
+        on (EBegin) : {
+          FLOAT fSpeedMultiplier = 1.0f;
+          m_fMoveSpeed = GetProp(m_fCloseRunSpeed) * fSpeedMultiplier;
+          m_vDesiredPosition = FLOAT3D(0.0f, 0.0f, -m_fMoveSpeed);
+          // start moving
+          m_ulMovementFlags = SetDesiredMovement(); 
+          MovementAnimation(m_ulMovementFlags);
+          resume; 
+        }
+        on (ETimer) : { stop; }
+      }
+    }
+
+    m_bCoward = FALSE;
 
     return EReturn();
   };

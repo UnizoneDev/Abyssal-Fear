@@ -554,6 +554,7 @@ void CBrushSector::TriangularizeMarkedPolygons( void)
 
       bpoNew.bpo_colColor         = itbpo->bpo_colColor;
       bpoNew.bpo_ulFlags          = itbpo->bpo_ulFlags & ~(BPOF_MARKED_FOR_USE|BPOF_SELECTED);
+      bpoNew.bpo_ulFlags2         = itbpo->bpo_ulFlags2;
       bpoNew.bpo_colShadow        = itbpo->bpo_colShadow;
       bpoNew.bpo_bppProperties    = itbpo->bpo_bppProperties;
       bpoNew.bpo_pbscSector       = itbpo->bpo_pbscSector;
@@ -647,6 +648,7 @@ void CBrushSector::TriangularizeMarkedPolygons( void)
 
         bpoNew.bpo_colColor         = itbpo->bpo_colColor;
         bpoNew.bpo_ulFlags          = itbpo->bpo_ulFlags & ~(BPOF_MARKED_FOR_USE|BPOF_SELECTED);
+        bpoNew.bpo_ulFlags2         = itbpo->bpo_ulFlags2;
         bpoNew.bpo_colShadow        = itbpo->bpo_colShadow;
         bpoNew.bpo_bppProperties    = itbpo->bpo_bppProperties;
         bpoNew.bpo_pbscSector       = itbpo->bpo_pbscSector;
@@ -786,6 +788,7 @@ void CBrushSector::SubdivideTriangles( CBrushPolygonSelection &selPolygon)
 
       bpoNew.bpo_colColor         = bpoOld.bpo_colColor;
       bpoNew.bpo_ulFlags          = bpoOld.bpo_ulFlags & ~(BPOF_MARKED_FOR_USE|BPOF_SELECTED);
+      bpoNew.bpo_ulFlags2         = bpoOld.bpo_ulFlags2;
       bpoNew.bpo_colShadow        = bpoOld.bpo_colShadow;
       bpoNew.bpo_bppProperties    = bpoOld.bpo_bppProperties;
       bpoNew.bpo_pbscSector       = bpoOld.bpo_pbscSector;
@@ -899,6 +902,7 @@ void CBrushSector::SubdivideTriangles( CBrushPolygonSelection &selPolygon)
       bpoNew1.bpo_abptTextures[2].CopyTextureProperties( bpoOld.bpo_abptTextures[2], TRUE);
       bpoNew1.bpo_colColor         = bpoOld.bpo_colColor;
       bpoNew1.bpo_ulFlags          = bpoOld.bpo_ulFlags & ~(BPOF_MARKED_FOR_USE|BPOF_SELECTED);
+      bpoNew1.bpo_ulFlags2         = bpoOld.bpo_ulFlags2;
       bpoNew1.bpo_colShadow        = bpoOld.bpo_colShadow;
       bpoNew1.bpo_bppProperties    = bpoOld.bpo_bppProperties;
       bpoNew1.bpo_pbscSector       = bpoOld.bpo_pbscSector;
@@ -936,6 +940,7 @@ void CBrushSector::SubdivideTriangles( CBrushPolygonSelection &selPolygon)
       bpoNew2.bpo_abptTextures[2].CopyTextureProperties( bpoOld.bpo_abptTextures[2], TRUE);
       bpoNew2.bpo_colColor         = bpoOld.bpo_colColor;
       bpoNew2.bpo_ulFlags          = bpoOld.bpo_ulFlags & ~(BPOF_MARKED_FOR_USE|BPOF_SELECTED);
+      bpoNew2.bpo_ulFlags2         = bpoOld.bpo_ulFlags2;
       bpoNew2.bpo_colShadow        = bpoOld.bpo_colShadow;
       bpoNew2.bpo_bppProperties    = bpoOld.bpo_bppProperties;
       bpoNew2.bpo_pbscSector       = bpoOld.bpo_pbscSector;
@@ -973,6 +978,7 @@ void CBrushSector::SubdivideTriangles( CBrushPolygonSelection &selPolygon)
       bpoNew3.bpo_abptTextures[2].CopyTextureProperties( bpoOld.bpo_abptTextures[2], TRUE);
       bpoNew3.bpo_colColor         = bpoOld.bpo_colColor;
       bpoNew3.bpo_ulFlags          = bpoOld.bpo_ulFlags & ~(BPOF_MARKED_FOR_USE|BPOF_SELECTED);
+      bpoNew3.bpo_ulFlags2         = bpoOld.bpo_ulFlags2;
       bpoNew3.bpo_colShadow        = bpoOld.bpo_colShadow;
       bpoNew3.bpo_bppProperties    = bpoOld.bpo_bppProperties;
       bpoNew3.bpo_pbscSector       = bpoOld.bpo_pbscSector;
@@ -1158,6 +1164,7 @@ void CBrushSector::ReTriple( CBrushPolygonSelection &selPolygon)
 
       bpoNew.bpo_colColor         = bpoOld.bpo_colColor;
       bpoNew.bpo_ulFlags          = bpoOld.bpo_ulFlags & ~(BPOF_MARKED_FOR_USE|BPOF_SELECTED);
+      bpoNew.bpo_ulFlags2         = bpoOld.bpo_ulFlags2;
       bpoNew.bpo_colShadow        = bpoOld.bpo_colShadow;
       bpoNew.bpo_bppProperties    = bpoOld.bpo_bppProperties;
       bpoNew.bpo_pbscSector       = bpoOld.bpo_pbscSector;
@@ -1282,6 +1289,7 @@ void CBrushSector::ReTriple( CBrushPolygonSelection &selPolygon)
 
     bpoNew.bpo_colColor         = bpoOld.bpo_colColor;
     bpoNew.bpo_ulFlags          = bpoOld.bpo_ulFlags & ~(BPOF_MARKED_FOR_USE|BPOF_SELECTED);
+    bpoNew.bpo_ulFlags2         = bpoOld.bpo_ulFlags2;
     bpoNew.bpo_colShadow        = bpoOld.bpo_colShadow;
     bpoNew.bpo_bppProperties    = bpoOld.bpo_bppProperties;
     bpoNew.bpo_pbscSector       = bpoOld.bpo_pbscSector;
@@ -1325,6 +1333,7 @@ void CBrushSector::ReTriple( CBrushPolygonSelection &selPolygon)
 
     bpoNew.bpo_colColor         = bpoOld.bpo_colColor;
     bpoNew.bpo_ulFlags          = bpoOld.bpo_ulFlags & ~(BPOF_MARKED_FOR_USE|BPOF_SELECTED);
+    bpoNew.bpo_ulFlags2         = bpoOld.bpo_ulFlags2;
     bpoNew.bpo_colShadow        = bpoOld.bpo_colShadow;
     bpoNew.bpo_bppProperties    = bpoOld.bpo_bppProperties;
     bpoNew.bpo_pbscSector       = bpoOld.bpo_pbscSector;

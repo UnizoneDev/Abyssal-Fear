@@ -154,6 +154,7 @@ void CBrushSector::ToObjectSector(CObjectSector &osc)
 
     // set polygon flags
     opo.opo_ulFlags = bpo.bpo_ulFlags;
+    opo.opo_ulFlags2 = bpo.bpo_ulFlags2;
     // set portal backtracking flag
     if (bpo.bpo_ulFlags&OPOF_PORTAL) {
       opo.opo_ulFlags |= BPOF_WASPORTAL;

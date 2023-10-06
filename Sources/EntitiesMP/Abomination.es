@@ -31,14 +31,14 @@ enum AbominationType {
 
 // info structure
 static EntityInfo eiAbomination = {
-  EIBT_FLESH, 300.0f,
+  EIBT_FLESH, 1000.0f,
   0.0f, 1.75f, 0.0f,     // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };
 
 // info structure
 static EntityInfo eiAbominationGlutton = {
-  EIBT_FLESH, 500.0f,
+  EIBT_FLESH, 1250.0f,
   0.0f, 2.5f, 0.0f,     // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };
@@ -252,8 +252,8 @@ functions:
     }
 
     if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         if (m_abChar==ABC_GLUTTON) {

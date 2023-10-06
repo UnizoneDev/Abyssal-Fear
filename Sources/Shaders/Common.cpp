@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Shaders/Common.h>
 #include <Engine/Base/ByteSwap.h>
 
-void DoSpecularLayer(INDEX iSpeculaTexture,INDEX iSpecularColor)
+void DoSpecularLayer(INDEX iSpecularTexture,INDEX iSpecularColor)
 {
   GFXVertex4 *paVertices = shaGetVertexArray();
   GFXNormal *paNormals = shaGetNormalArray();
@@ -90,7 +90,7 @@ void DoSpecularLayer(INDEX iSpeculaTexture,INDEX iSpecularColor)
 
   shaSetTexCoords(ptcUVMap);
   shaSetVertexColors(pcolSpec);
-  shaSetTexture(iSpeculaTexture);
+  shaSetTexture(iSpecularTexture);
   shaBlendFunc( GFX_INV_SRC_ALPHA, GFX_ONE);
   shaEnableBlend();
   shaCullFace(GFX_BACK);

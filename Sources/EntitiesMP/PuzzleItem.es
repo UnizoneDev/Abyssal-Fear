@@ -29,7 +29,8 @@ enum PuzzleItemType {
   3 PIT_SCREWDRIVER_ORANGE   "Orange Screwdriver",
   4 PIT_SCREWDRIVER_BLACK    "Black Screwdriver",
   5 PIT_SCREWDRIVER_HELLISH  "Hellish Screwdriver",
-  6 PIT_HAMMER               "Hammer"
+  6 PIT_HAMMER               "Hammer",
+  7 PIT_HAMMER_HELLISH       "Hellish Hammer"
 };
 
 // event for sending through receive item
@@ -49,6 +50,7 @@ const char *GetPuzzleItemName(enum PuzzleItemType pit)
   case PIT_SCREWDRIVER_BLACK    :  return TRANS("Black Screwdriver"); break;
   case PIT_SCREWDRIVER_HELLISH  :  return TRANS("Hellish Screwdriver"); break;
   case PIT_HAMMER               :  return TRANS("Hammer"); break;
+  case PIT_HAMMER_HELLISH       :  return TRANS("Hellish Hammer"); break;
   default: return TRANS("unknown item"); break;
   };
 }
@@ -82,6 +84,7 @@ components:
   // ********* HAMMERS *********
  20 model   MODEL_HAMMER                  "Models\\Items\\Puzzle\\Tools\\Hammer.mdl",
  21 texture TEXTURE_HAMMER                "Models\\Items\\Puzzle\\Tools\\Hammer.tex",
+ 22 texture TEXTURE_HAMMER_HELLISH        "Models\\Items\\Puzzle\\Tools\\HammerHellish.tex",
 
   // ********* MISC *********
   250 texture TEXTURE_FLARE       "ModelsMP\\Items\\Flares\\Flare.tex",
@@ -160,6 +163,12 @@ functions:
       case PIT_HAMMER:
         // set appearance
         AddItem(MODEL_HAMMER, TEXTURE_HAMMER, 0, 0, 0);
+        StretchItem(FLOAT3D(1.0f, 1.0f, 1.0f));
+        m_iSoundComponent = SOUND_KEY;
+        break;
+      case PIT_HAMMER_HELLISH:
+        // set appearance
+        AddItem(MODEL_HAMMER, TEXTURE_HAMMER_HELLISH, 0, 0, 0);
         StretchItem(FLOAT3D(1.0f, 1.0f, 1.0f));
         m_iSoundComponent = SOUND_KEY;
         break;

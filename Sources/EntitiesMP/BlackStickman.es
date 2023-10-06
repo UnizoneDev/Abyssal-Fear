@@ -47,7 +47,7 @@ enum BlackStickmanBehaviorType {
 
 // info structure
 static EntityInfo eiBlackStickman = {
-  EIBT_FLESH, 500.0f,
+  EIBT_SHADOW, 1000.0f,
   0.0f, 1.9f, 0.0f,     // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };
@@ -351,6 +351,7 @@ functions:
       FLOAT fSpeedX = 0.0f;
       FLOAT fSpeedY = 0.0f;
       FLOAT fSpeedZ = 0.0f;
+      m_vDesiredPosition = FLOAT3D(0.0f, 0.0f, 0.0f);
       StandingAnim();
     }
     
@@ -369,43 +370,46 @@ functions:
 
       ANGLE aHeadingRotation;
       
-      switch(IRnd()%6)
+      if(m_bsbtType != BSBT_STARE)
       {
-        case 0:
+        switch(IRnd()%6)
         {
-          aHeadingRotation = +m_aRotateSpeed*FRnd()+50.0f-150.0f;
+          case 0:
+          {
+            aHeadingRotation = +m_aRotateSpeed*FRnd()+50.0f-150.0f;
+          }
+          break;
+          case 1:
+          {
+            aHeadingRotation = -m_aRotateSpeed*FRnd()-50.0f+150.0f;
+          }
+          break;
+          case 2:
+          {
+            aHeadingRotation = +m_aRotateSpeed*FRnd()+60.0f-120.0f;
+          }
+          break;
+          case 3:
+          {
+            aHeadingRotation = -m_aRotateSpeed*FRnd()-60.0f+120.0f;
+          }
+          break;
+          case 4:
+          {
+            aHeadingRotation = +m_aRotateSpeed*FRnd()+90.0f-180.0f;
+          }
+          break;
+          case 5:
+          {
+            aHeadingRotation = -m_aRotateSpeed*FRnd()-90.0f+180.0f;
+          }
+          break;
+          default:
+          {
+            ASSERT(FALSE);
+          }
+          break;
         }
-        break;
-        case 1:
-        {
-          aHeadingRotation = -m_aRotateSpeed*FRnd()-50.0f+150.0f;
-        }
-        break;
-        case 2:
-        {
-          aHeadingRotation = +m_aRotateSpeed*FRnd()+60.0f-120.0f;
-        }
-        break;
-        case 3:
-        {
-          aHeadingRotation = -m_aRotateSpeed*FRnd()-60.0f+120.0f;
-        }
-        break;
-        case 4:
-        {
-          aHeadingRotation = +m_aRotateSpeed*FRnd()+90.0f-180.0f;
-        }
-        break;
-        case 5:
-        {
-          aHeadingRotation = -m_aRotateSpeed*FRnd()-90.0f+180.0f;
-        }
-        break;
-        default:
-        {
-          ASSERT(FALSE);
-        }
-        break;
       }
 
       if(m_bsbtType != BSBT_STARE) {

@@ -315,6 +315,7 @@ void CBrushSector::Write_t( CTStream *postrm) // throw char *
     (*postrm)<<bpo.bpo_colColor;
     // write polygon flags
     (*postrm)<<bpo.bpo_ulFlags;
+    (*postrm) << bpo.bpo_ulFlags2;
     // write all textures
     bpo.bpo_abptTextures[0].Write_t(*postrm);
     bpo.bpo_abptTextures[1].Write_t(*postrm);
@@ -485,6 +486,7 @@ void CBrushSector::Read_t( CTStream *pistrm) // throw char *
       (*pistrm)>>bpo.bpo_colColor;
       // read polygon flags
       (*pistrm)>>bpo.bpo_ulFlags;
+      (*pistrm) >> bpo.bpo_ulFlags2;
       // read all textures
       bpo.bpo_abptTextures[0].Read_t(*pistrm);
       bpo.bpo_abptTextures[1].Read_t(*pistrm);
@@ -505,6 +507,7 @@ void CBrushSector::Read_t( CTStream *pistrm) // throw char *
       (*pistrm)>>bpo.bpo_colColor;
       // read polygon flags
       (*pistrm)>>bpo.bpo_ulFlags;
+      (*pistrm) >> bpo.bpo_ulFlags2;
       // read texture mapping
       bpo.bpo_mdShadow.ReadOld_t(*pistrm);
       // read other polygon properties

@@ -28,7 +28,7 @@ properties:
 
   1 CTString m_strName            "Name" 'N' = "Custom Fire",
   2 CTString m_strDescription = "",
-  3 CTFileName m_fnmFireTexture  "Fire Texture" 'T' = CTString(""),
+  3 CTFileName m_fnmFireTexture  "Fire Texture" 'T' = CTFILENAME("Models\\Effects\\Flames\\Fire1.tex"),
   4 FLOAT m_fStretch "Stretch" = 1.0f,
   5 BOOL m_bActive "Active" = TRUE,
   6 FLOAT m_fHealth "Health" = 50.0f,
@@ -43,22 +43,23 @@ properties:
  15 RANGE m_fDamageHotSpot "Damage HotSpot" = 4.0f,
  16 FLOAT m_fDamageWait "Damage Wait" = 0.25f,
  17 FLOAT m_fSmokeStretch "Smoke Stretch" = 0.5f,
+ 18 CTFileName m_fnmFireSound  "Fire Sound" 'S' = CTFILENAME("SoundsMP\\Fire\\Burning.wav"),
 
   {
     CTextureObject m_toFire;
+    CAutoPrecacheSound m_aps;
   }
 
 components:
   1 class   CLASS_BASIC_EFFECT      "Classes\\BasicEffect.ecl",
   2 model   MODEL_FIRE              "Models\\Effects\\Flames\\Fire1.mdl",
-  3 sound   SOUND_FIRE              "SoundsMP\\Fire\\Burning.wav",
 
 functions:
 
   void Precache(void) {
     PrecacheClass(CLASS_BASIC_EFFECT, BET_FIRE_SMOKE);
     PrecacheModel(MODEL_FIRE);
-    PrecacheSound(SOUND_FIRE);
+    m_aps.Precache(m_fnmFireSound);
   }
 
   /* Read from stream. */
@@ -130,6 +131,19 @@ functions:
     m_fDamageHotSpot*=fStretch;
   }
 
+  // returns bytes of memory used by this object
+  SLONG GetUsedMemory(void)
+  {
+    // initial
+    SLONG slUsedMemory = sizeof(CCustomFire) - sizeof(CMovableModelEntity) + CMovableModelEntity::GetUsedMemory();
+    // add some more
+    slUsedMemory += m_strName.Length();
+    slUsedMemory += m_strDescription.Length();
+    slUsedMemory += m_fnmFireSound.Length();
+    slUsedMemory += 1* sizeof(CSoundObject);
+    return slUsedMemory;
+  }
+
 /************************************************************
  *                          MAIN                            *
  ************************************************************/
@@ -141,7 +155,7 @@ procedures:
     SwitchToModel();
 
     if(m_bPlaySound) {
-      PlaySound(m_soSound, SOUND_FIRE, SOF_3D|SOF_LOOP);
+      PlaySound(m_soSound, m_fnmFireSound, SOF_3D|SOF_LOOP);
     }
 
     //main loop
@@ -234,6 +248,8 @@ procedures:
 
     // setup texture
     SetFireTexture();
+
+    m_strDescription.PrintF("%s", (CTString&)m_fnmFireSound.FileName());
 
     try {
       GetModelObject()->mo_toTexture.SetData_t(m_fnmFireTexture);

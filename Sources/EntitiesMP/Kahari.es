@@ -59,7 +59,7 @@ functions:
   virtual CTString GetPlayerKillDescription(const CTString &strPlayerName, const EDeath &eDeath)
   {
     CTString str;
-      str.PrintF(TRANS("A kahari sliced %s"), strPlayerName);
+      str.PrintF(TRANS("A kahari mutilated %s"), strPlayerName);
     return str;
   }
 
@@ -255,8 +255,8 @@ functions:
     }
     
     if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
@@ -280,8 +280,8 @@ functions:
     }
     
     if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);

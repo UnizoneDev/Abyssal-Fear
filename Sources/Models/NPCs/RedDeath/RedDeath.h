@@ -20,6 +20,9 @@
 #define REDDEATH_COLLISION_BOX_DEATHBOX_FRONT 1
 #define REDDEATH_COLLISION_BOX_DEATHBOX_BACK 2
 
+// Names of hit boxes
+#define REDDEATH_HIT_BOX_DEFAULT 0
+
 // Attaching position names
 
 // Sound names

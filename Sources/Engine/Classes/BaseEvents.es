@@ -97,12 +97,16 @@ enum DamageBodyPartType {
   2 DBPT_NECK         "",     // how to properly shut up
   3 DBPT_GUT          "",     // belly rubs won't help in this case
   4 DBPT_GROIN        "",     // SOMEONE KICKED ME IN MENARDS!
-  5 DBPT_FOOT         "",     // dance enemy dance!
-  6 DBPT_LEG          "",     // limping around
-  7 DBPT_HAND         "",     // drop the gun, or I'll disarm you!
-  8 DBPT_ARM          "",     // OUCH
+  5 DBPT_LEFTFOOT     "",     // dance enemy dance!
+  6 DBPT_LEFTLEG      "",     // limping around
+  7 DBPT_LEFTHAND     "",     // drop the gun, or I'll disarm you!
+  8 DBPT_LEFTARM      "",     // OUCH
   9 DBPT_BUTT         "",     // I lied about liking big butts and paid the price
  10 DBPT_CHEST        "",     // HELP I CAN'T BREATHE!!!
+ 11 DBPT_RIGHTFOOT    "",
+ 12 DBPT_RIGHTLEG     "",
+ 13 DBPT_RIGHTHAND    "",
+ 14 DBPT_RIGHTARM     "",
 };
 
 event EDamage {  // entity has been damaged

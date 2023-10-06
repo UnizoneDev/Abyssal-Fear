@@ -105,6 +105,9 @@ static CTextureObject _toBulletMud;
 static CTextureObject _toBulletVent;
 static CTextureObject _toBulletComputer;
 static CTextureObject _toBulletFusebox;
+static CTextureObject _toBulletGravel;
+static CTextureObject _toBulletGlitch;
+static CTextureObject _toBulletIce;
 static CTextureObject _toAirSprayTexture;
 static CTextureObject _toFlameThrowerGradient;
 static CTextureObject _toFlameThrowerStartGradient;
@@ -290,6 +293,9 @@ void InitParticles(void)
     _toBulletVent.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayVent.tex"));
     _toBulletComputer.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayComputer.tex"));
     _toBulletFusebox.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayFusebox.tex"));
+    _toBulletGravel.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayGravel.tex"));
+    _toBulletGlitch.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayGlitch.tex"));
+    _toBulletIce.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayIce.tex"));
     _toAirSprayTexture.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\AirSpray.tex"));
     _toFlameThrowerGradient.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\FlameThrowerGradient.tex"));
     _toFlameThrowerStartGradient.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\FlameThrowerStartGradient.tex"));
@@ -433,6 +439,9 @@ void CloseParticles(void)
   _toBulletVent.SetData(NULL);
   _toBulletComputer.SetData(NULL);
   _toBulletFusebox.SetData(NULL);
+  _toBulletGravel.SetData(NULL);
+  _toBulletGlitch.SetData(NULL);
+  _toBulletIce.SetData(NULL);
   _toAirSprayTexture.SetData(NULL);
   _toFlameThrowerGradient.SetData(NULL);
   _toFlameThrowerStartGradient.SetData(NULL);
@@ -3756,6 +3765,30 @@ void Particles_BulletSpray(INDEX iRndBase, FLOAT3D vSource, FLOAT3D vGDir, enum 
     {
         colSmoke = 0xFFE8C000;
         Particle_PrepareTexture(&_toBulletFusebox, PBT_BLEND);
+        fSizeStart = 0.15f;
+        fSpeedStart = 1.25f;
+        break;
+    }
+    case EPT_BULLET_GRAVEL:
+    {
+        colSmoke = 0xFFE8C000;
+        Particle_PrepareTexture(&_toBulletGravel, PBT_BLEND);
+        fSizeStart = 0.15f;
+        fSpeedStart = 1.25f;
+        break;
+    }
+    case EPT_BULLET_GLITCH:
+    {
+        colSmoke = 0xFFE8C000;
+        Particle_PrepareTexture(&_toBulletGlitch, PBT_BLEND);
+        fSizeStart = 0.15f;
+        fSpeedStart = 1.25f;
+        break;
+    }
+    case EPT_BULLET_ICE:
+    {
+        colSmoke = 0xFFE8C000;
+        Particle_PrepareTexture(&_toBulletIce, PBT_BLEND);
         fSizeStart = 0.15f;
         fSpeedStart = 1.25f;
         break;

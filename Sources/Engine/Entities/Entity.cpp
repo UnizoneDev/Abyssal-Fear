@@ -2453,46 +2453,55 @@ void CEntity::SetSkaColisionInfo()
 
 void CEntity::SetSkaModel_t(const CTString &fnmModel)
 {
-  ASSERT(en_RenderType==RT_SKAMODEL || en_RenderType==RT_SKAEDITORMODEL);
-  // if model instance allready exists
-  if(en_pmiModelInstance!=NULL) {
-    // release it first
-    en_pmiModelInstance->Clear();
-  }
-  try {
-    // load the new model data
-    en_pmiModelInstance = ParseSmcFile_t(fnmModel);
-  } catch (char *strErrorDefault) {
-    throw(strErrorDefault);
-  }
-  SetSkaColisionInfo();
+    ASSERT(en_RenderType == RT_SKAMODEL || en_RenderType == RT_SKAEDITORMODEL);
+    // if model instance allready exists
+    if (en_pmiModelInstance != NULL) {
+        // release it first
+        en_pmiModelInstance->Clear();
+    }
+    try {
+        // load the new model data
+        en_pmiModelInstance = ParseSmcFile_t(fnmModel);
+    }
+    catch (char* strErrorDefault) {
+        throw(strErrorDefault);
+    }
+    SetSkaColisionInfo();
 }
-BOOL CEntity::SetSkaModel(const CTString &fnmModel)
+
+// Set the model data for a SKA model entity from file.
+BOOL CEntity::SetSkaModel(const CTString& fnmModel)
 {
-  ASSERT(en_RenderType==RT_SKAMODEL || en_RenderType==RT_SKAEDITORMODEL);
-  // try to
-  try {
-    SetSkaModel_t(fnmModel);
-  // if failed
-  } catch(char *strError) {
-    (void)strError;
-    WarningMessage("%s\n\rLoading default model.\n", strError);
-    DECLARE_CTFILENAME(fnmDefault, "Models\\Editor\\Ska\\Axis.smc");    
+    ASSERT(en_RenderType == RT_SKAMODEL || en_RenderType == RT_SKAEDITORMODEL);
+
     // try to
     try {
-      // load the default model data
-      en_pmiModelInstance = ParseSmcFile_t(fnmDefault);
-    // if failed
-    } catch(char *strErrorDefault) {
-      FatalError(TRANS("Cannot load default model '%s':\n%s"),
-        (CTString&)fnmDefault, strErrorDefault);
+        SetSkaModel_t(fnmModel);
+
+        // if failed
     }
-    // set colision info for default model
-    SetSkaColisionInfo();
-    return FALSE;
-  }
-  return TRUE;
+    catch (char* strError) {
+        (void)strError;
+        WarningMessage("%s\n\rLoading default model.\n", strError);
+        DECLARE_CTFILENAME(fnmDefault, "Models\\Editor\\Ska\\Axis.smc");
+
+        // Try to load the default model data
+        try {
+            SetSkaModel_t(fnmDefault);
+            // if failed
+        }
+        catch (char* strErrorDefault) {
+            FatalError(TRANS("Cannot load default model '%s':\n%s"), (CTString&)fnmDefault, strErrorDefault);
+        }
+
+        // set collision info for default model
+        SetSkaColisionInfo();
+        return FALSE;
+    }
+
+    return TRUE;
 }
+
 // set/get model main blend color
 
 void CEntity::SetModelColor( const COLOR colBlend)
@@ -2582,7 +2591,7 @@ void CEntity::SetModelSpecularTexture(SLONG idTextureComponent)
     ECT_TEXTURE, idTextureComponent);
   en_pmoModelObject->mo_toSpecular.SetData(pecTexture->ec_ptdTexture);
 }
-/* Set the specular texture data for model entity. */
+/* Set the bump texture data for model entity. */
 void CEntity::SetModelBumpTexture(SLONG idTextureComponent)
 {
     ASSERT(en_RenderType == RT_MODEL || en_RenderType == RT_EDITORMODEL);
@@ -3832,7 +3841,7 @@ void CRationalEntity::Copy(CEntity &enOther, ULONG ulFlags)
 void CRationalEntity::Read_t( CTStream *istr) // throw char *
 {
   CLiveEntity::Read_t(istr);
-  (*istr)>>en_timeTimer;
+  (*istr) >> en_timeTimer;
   // if waiting for thinking
   if (en_timeTimer!=THINKTIME_NEVER) {
     // add to list of thinkers
@@ -3857,7 +3866,7 @@ void CRationalEntity::Write_t( CTStream *ostr) // throw char *
     // set dummy thinking time as a flag for later loading
     en_timeTimer = THINKTIME_NEVER;
   }
-  (*ostr)<<en_timeTimer;
+  (*ostr) << en_timeTimer;
   // write the state stack
   (*ostr)<<en_stslStateStack.Count();
   for(INDEX iState=0; iState<en_stslStateStack.Count(); iState++) {

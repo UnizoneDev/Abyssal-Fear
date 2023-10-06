@@ -32,6 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define LSF_NONPERSISTENT           (1L<<5)   // not saved (can change during game)
 #define LSF_LENSFLAREONLY           (1L<<6)   // no light, only lens flare
 #define LSF_DYNAMIC                 (1L<<7)   // dynamic light (fast frequent caching, no shadows)
+#define LSF_SPOT                    (1L<<8)   // spot light (can be used for flashlights)
 
 class ENGINE_API CLightSource
 {
@@ -80,6 +81,7 @@ public:
   void FindShadowLayers(BOOL bSelectedOnly);
   void FindShadowLayersDirectional(BOOL bSelectedOnly);
   void FindShadowLayersPoint(BOOL bSelectedOnly);
+  void FindShadowLayersSpot(BOOL bSelectedOnly);
   // update shadow map on all terrains in world
   void UpdateTerrains(CPlacement3D plOld, CPlacement3D plNew);
   void UpdateTerrains(void);

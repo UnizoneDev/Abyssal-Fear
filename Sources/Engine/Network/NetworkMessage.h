@@ -161,6 +161,7 @@ public:
 
   /* Read an object from message. */
   inline CNetworkMessage &operator>>(float  &f) { Read( &f, sizeof( f)); return *this; }
+  inline CNetworkMessage& operator>>(double &d) { Read( &d, sizeof( d)); return *this; }
   inline CNetworkMessage &operator>>(ULONG &ul) { Read(&ul, sizeof(ul)); return *this; }
   inline CNetworkMessage &operator>>(UWORD &uw) { Read(&uw, sizeof(uw)); return *this; }
   inline CNetworkMessage &operator>>(UBYTE &ub) { Read(&ub, sizeof(ub)); return *this; }

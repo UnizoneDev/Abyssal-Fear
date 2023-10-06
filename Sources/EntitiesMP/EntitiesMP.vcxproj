@@ -193,6 +193,8 @@
     <ClCompile Include="Common\HUD.cpp" />
     <ClCompile Include="Common\Particles.cpp" />
     <ClCompile Include="Common\PathFinding.cpp" />
+    <ClCompile Include="ControllableTurret.cpp" />
+    <ClCompile Include="CustomEnemy.cpp" />
     <ClCompile Include="CustomFire.cpp" />
     <ClCompile Include="DateChecker.cpp" />
     <ClCompile Include="DeadFace.cpp" />
@@ -205,11 +207,13 @@
     <ClCompile Include="GameChecker.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="Gunman.cpp" />
+    <ClCompile Include="HungCorpse.cpp" />
     <ClCompile Include="Kahari.cpp" />
     <ClCompile Include="Korotuprok.cpp" />
     <ClCompile Include="LadderBrush.cpp" />
     <ClCompile Include="LoopingTrigger.cpp" />
-	<ClCompile Include="MutantFreak.cpp" />									   
+    <ClCompile Include="Mihulai.cpp" />
+    <ClCompile Include="MutantFreak.cpp" />
     <ClCompile Include="OverlayHolder.cpp" />
     <ClCompile Include="PlayerBarrierBrush.cpp" />
     <ClCompile Include="PlayerParenter.cpp" />
@@ -218,8 +222,9 @@
     <ClCompile Include="RandomSoundHolder.cpp" />
     <ClCompile Include="RedDeath.cpp" />
     <ClCompile Include="Satan.cpp" />
-	<ClCompile Include="Shambler.cpp" />
-	<ClCompile Include="SkaModelHeadTest.cpp" />											
+    <ClCompile Include="ScriptedSequencer.cpp" />
+    <ClCompile Include="Shambler.cpp" />
+    <ClCompile Include="SkaModelHeadTest.cpp" />
     <ClCompile Include="StdH\StdH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StdH.h</PrecompiledHeaderFile>
@@ -375,6 +380,7 @@
     <ClCompile Include="TouchField.cpp" />
     <ClCompile Include="Trigger.cpp" />
     <ClCompile Include="Twitcher.cpp" />
+    <ClCompile Include="Utamahi.cpp" />
     <ClCompile Include="VariableChecker.cpp" />
     <ClCompile Include="VoiceHolder.cpp" />
     <ClCompile Include="Watcher.cpp" />
@@ -390,6 +396,7 @@
     </ClCompile>
     <ClCompile Include="WorldLink.cpp" />
     <ClCompile Include="WorldSettingsController.cpp" />
+    <ClCompile Include="Yaraka.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Flesh\Classes\Acid.ecl">
@@ -840,12 +847,16 @@
     <ClInclude Include="Common\Particles.h" />
     <ClInclude Include="Common\PathFinding.h" />
     <ClInclude Include="Common\WeaponPositions.h" />
+    <ClInclude Include="ControllableTurret.h" />
+    <ClInclude Include="ControllableTurret_tables.h" />
     <ClInclude Include="Copier.h" />
     <ClInclude Include="Copier_tables.h" />
     <ClInclude Include="Counter.h" />
     <ClInclude Include="Counter_tables.h" />
     <ClInclude Include="CreditsHolder.h" />
     <ClInclude Include="CreditsHolder_tables.h" />
+    <ClInclude Include="CustomEnemy.h" />
+    <ClInclude Include="CustomEnemy_tables.h" />
     <ClInclude Include="CustomFire.h" />
     <ClInclude Include="CustomFire_tables.h" />
     <ClInclude Include="Damager.h" />
@@ -922,6 +933,8 @@
     <ClInclude Include="HealthItem_tables.h" />
     <ClInclude Include="HudPicHolder.h" />
     <ClInclude Include="HudPicHolder_tables.h" />
+    <ClInclude Include="HungCorpse.h" />
+    <ClInclude Include="HungCorpse_tables.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="Item_tables.h" />
     <ClInclude Include="Kahari.h" />
@@ -944,6 +957,8 @@
     <ClInclude Include="MessageHolder_tables.h" />
     <ClInclude Include="MessageItem.h" />
     <ClInclude Include="MessageItem_tables.h" />
+    <ClInclude Include="Mihulai.h" />
+    <ClInclude Include="Mihulai_tables.h" />
     <ClInclude Include="MirrorMarker.h" />
     <ClInclude Include="MirrorMarker_tables.h" />
     <ClInclude Include="ModelDestruction.h" />
@@ -962,7 +977,7 @@
     <ClInclude Include="MusicChanger_tables.h" />
     <ClInclude Include="MusicHolder.h" />
     <ClInclude Include="MusicHolder_tables.h" />
-	<ClInclude Include="MutantFreak.h" />
+    <ClInclude Include="MutantFreak.h" />
     <ClInclude Include="MutantFreak_tables.h" />
     <ClInclude Include="NavigationMarker.h" />
     <ClInclude Include="NavigationMarker_tables.h" />
@@ -1014,18 +1029,20 @@
     <ClInclude Include="RollingStone_tables.h" />
     <ClInclude Include="Satan.h" />
     <ClInclude Include="Satan_tables.h" />
+    <ClInclude Include="ScriptedSequencer.h" />
+    <ClInclude Include="ScriptedSequencer_tables.h" />
     <ClInclude Include="ScrollHolder.h" />
     <ClInclude Include="ScrollHolder_tables.h" />
     <ClInclude Include="SeriousBomb.h" />
     <ClInclude Include="SeriousBomb_tables.h" />
+    <ClInclude Include="Shambler.h" />
+    <ClInclude Include="Shambler_tables.h" />
     <ClInclude Include="Ship.h" />
     <ClInclude Include="ShipMarker.h" />
     <ClInclude Include="ShipMarker_tables.h" />
     <ClInclude Include="Ship_tables.h" />
-	<ClInclude Include="SkaModelHeadTest.h" />
+    <ClInclude Include="SkaModelHeadTest.h" />
     <ClInclude Include="SkaModelHeadTest_tables.h" />
-    <ClInclude Include="Shambler.h" />
-    <ClInclude Include="Shambler_tables.h" />	
     <ClInclude Include="SoundHolder.h" />
     <ClInclude Include="SoundHolder_tables.h" />
     <ClInclude Include="StdH\StdH.h" />
@@ -1055,6 +1072,8 @@
     <ClInclude Include="Trigger_tables.h" />
     <ClInclude Include="Twitcher.h" />
     <ClInclude Include="Twitcher_tables.h" />
+    <ClInclude Include="Utamahi.h" />
+    <ClInclude Include="Utamahi_tables.h" />
     <ClInclude Include="VariableChecker.h" />
     <ClInclude Include="VariableChecker_tables.h" />
     <ClInclude Include="VoiceHolder.h" />
@@ -1073,6 +1092,8 @@
     <ClInclude Include="WorldLink_tables.h" />
     <ClInclude Include="WorldSettingsController.h" />
     <ClInclude Include="WorldSettingsController_tables.h" />
+    <ClInclude Include="Yaraka.h" />
+    <ClInclude Include="Yaraka_tables.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Abomination.es">
@@ -2564,7 +2585,7 @@ ecc EntitiesMP/%(Filename).es </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
-<ItemGroup>
+  <ItemGroup>
     <CustomBuild Include="MutantFreak.es">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
@@ -2636,6 +2657,58 @@ ecc EntitiesMP/%(Filename).es </Command>
 ecc EntitiesMP/%(Filename).es</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
 ecc EntitiesMP/%(Filename).es</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Yaraka.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Utamahi.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Mihulai.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="CustomEnemy.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>

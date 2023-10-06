@@ -43,8 +43,17 @@ SHADER_MAIN(Glass)
     shaCalculateLight();
 
     COLOR colModelColor = MulColors(shaGetModelColor(), shaGetCurrentColor());
+    BOOL bDoubleSided = shaGetFlags() & BASE_DOUBLE_SIDED;
     BOOL bFullBright = shaGetFlags() & BASE_FULL_BRIGHT;
     BOOL bOpaque = (colModelColor & 0xFF) == 0xFF;
+
+    if (bDoubleSided) {
+        shaCullFace(GFX_NONE);
+    }
+    else {
+        shaCullFace(GFX_BACK);
+    }
+
     // if fully opaque
     if (bOpaque) {
         shaDisableAlphaTest();

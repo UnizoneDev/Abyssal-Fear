@@ -117,6 +117,14 @@ public:
     // add one gradient layer to the shadow map
     void AddOneLayerGradient(CGradientParameters& gp);
 
+    // add one spot layer to the shadow map
+    void AddAmbientSpot(void);
+    void AddAmbientMaskSpot(UBYTE* pubMask, UBYTE ubMask);
+    void AddDiffusionSpot(void);
+    void AddDiffusionMaskSpot(UBYTE* pubMask, UBYTE ubMask);
+    BOOL PrepareOneLayerSpot(CBrushShadowLayer* pbsl, BOOL bNoMask);
+    void AddOneLayerSpot(CBrushShadowLayer* pbsl, UBYTE* pub, UBYTE ubMask = 0);
+
     // add the intensity to the pixel
     inline void AddToCluster(UBYTE* pub);
     inline void AddAmbientToCluster(UBYTE* pub);

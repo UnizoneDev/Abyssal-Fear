@@ -68,6 +68,10 @@
 // Names of collision boxes
 #define BODY_COLLISION_BOX_STAND 0
 
+// Names of hit boxes
+#define BODY_HIT_BOX_DEFAULT 0
+#define BODY_HIT_BOX_HEAD 1
+
 // Attaching position names
 #define BODY_ATTACHMENT_HEAD 0
 #define BODY_ATTACHMENT_PISTOL 1

@@ -35,15 +35,16 @@ public:
 	// Dialog Data
 		//{{AFX_DATA(CDlgPgHitboxes)
 	enum { IDD = IDD_INFO_HITBOXES };
-	float	m_fWidth;
-	float	m_fHeight;
-	float	m_fLenght;
-	float	m_fXCenter;
-	float	m_fYDown;
-	float	m_fZCenter;
-	int		m_EqualityRadio;
+	float	m_fWidthHitBox;
+	float	m_fHeightHitBox;
+	float	m_fLenghtHitBox;
+	float	m_fXCenterHitBox;
+	float	m_fYDownHitBox;
+	float	m_fZCenterHitBox;
+	int		m_EqualityRadioHitBox;
 	CString	m_strHitBoxName;
 	CString	m_strHitBoxIndex;
+	BOOL	m_bHitBoxAsBox;
 	//}}AFX_DATA
 
 
@@ -72,6 +73,7 @@ protected:
 	afx_msg void OnNextHitBox();
 	afx_msg void OnPreviousHitBox();
 	afx_msg void OnRemoveHitBox();
+	afx_msg void OnHitBoxAsBox();
 	afx_msg void OnAllignToSizeHitBox();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()

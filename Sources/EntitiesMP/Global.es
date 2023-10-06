@@ -113,6 +113,8 @@ enum EntityInfoBodyType {
   9 EIBT_ROBOT  "Robot",
  10 EIBT_ICE    "Ice",
  11 EIBT_GLASS  "Glass",
+ 12 EIBT_SHADOW "Shadow",
+ 13 EIBT_SMOKE  "Smoke",
 };
 
 enum MessageSound {
@@ -145,7 +147,7 @@ enum SightType {
   2 SIGT_ALLY         "",     // enemy from same faction
   3 SIGT_ENEMY        "",     // enemy from different faction
   4 SIGT_BULLET       "",     // taking hostile fire!
-  5 SIGT_GRENADE      "",     // I've gotta go fast to escape the big boom!
+  5 SIGT_GRENADE      "",     // I've gotta go fast to escape the big WTFboom!
   6 SIGT_FLASHBANG    "",     // I've been blinded and I can't see!
 };
 
@@ -195,6 +197,7 @@ enum BulletHitType {
  25 BHT_BRUSH_FUSEBOX       "",     // brush fusebox
  26 BHT_BRUSH_GRAVEL        "",     // brush gravel
  27 BHT_BRUSH_GLITCH        "",     // brush glitch
+ 28 BHT_BRUSH_ICE           "",     // brush ice
 };
 
 enum EffectParticlesType {
@@ -224,6 +227,7 @@ enum EffectParticlesType {
  23 EPT_BULLET_FUSEBOX        "",    // bullet particles on fusebox
  24 EPT_BULLET_GRAVEL         "",    // bullet particles on gravel
  25 EPT_BULLET_GLITCH         "",    // bullet particles on glitch
+ 26 EPT_BULLET_ICE            "",    // bullet particles on ice
 };
 
 enum SprayParticlesType {
@@ -361,6 +365,7 @@ event EOverlayFX {
 enum MessageFont {
   0 FNT_NORMAL       "Normal",
   1 FNT_RUNIC        "Demon Sigils",
+  2 FNT_CONSOLE      "Console",
 };
 
 // event for printing centered message

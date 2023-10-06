@@ -34,7 +34,7 @@ properties:
   2 FLOAT m_fWaitTime             "Wait" 'W' = 0.0f,                      // wait before send events
   3 BOOL m_bActive                "Active" 'V' = TRUE,                    // starts in active/inactive state
   4 BOOL m_bAutoStart             "Auto start" 'A' = FALSE,               // trigger auto starts
-  5 FLOAT m_fInbetweenWaitTime    "Inbetween Wait" = 1.0f,                // wait before send events
+  5 FLOAT m_fInbetweenWaitTime    "In-between Wait" = 1.0f,                // wait before send events
   6 CEntityPointer m_penCaused,                                           // who touched it last time
   7 CEntityPointer m_penTarget1    "Target 01" 'T' COLOR(C_RED|0xFF),        // send event to entity
   8 CEntityPointer m_penTarget2    "Target 02" COLOR(C_RED|0xFF),            // send event to entity

@@ -108,6 +108,8 @@ enum BasicEffectType {
  71 BET_BULLETSTAINGRAVELNOSOUND  "Bullet stain gravel no sound",
  72 BET_BULLETSTAINGLITCH    "Bullet stain glitch", 
  73 BET_BULLETSTAINGLITCHNOSOUND  "Bullet stain glitch no sound",
+ 74 BET_BULLETSTAINICE    "Bullet stain ice", 
+ 75 BET_BULLETSTAINICENOSOUND  "Bullet stain ice no sound",
 };
 
 
@@ -186,11 +188,14 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
   case BET_BULLETSTAINGRAVELNOSOUND:
   case BET_BULLETSTAINGLITCH:
   case BET_BULLETSTAINGLITCHNOSOUND:
+  case BET_BULLETSTAINICE:
+  case BET_BULLETSTAINICENOSOUND:
     pdec->PrecacheModel(MODEL_BULLET_HIT);
     pdec->PrecacheTexture(TEXTURE_BULLET_HIT);
     pdec->PrecacheTexture(TEXTURE_BULLET_SAND);
     pdec->PrecacheTexture(TEXTURE_BULLET_METAL);
     pdec->PrecacheTexture(TEXTURE_BULLET_GLASS);
+    pdec->PrecacheTexture(TEXTURE_BULLET_GRASS);
     pdec->PrecacheModel(MODEL_SHOCKWAVE);
     pdec->PrecacheTexture(TEXTURE_WATER_WAVE);
     pdec->PrecacheTexture(TEXTURE_BLOOD_WAVE);
@@ -296,6 +301,10 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheModel(MDL_PARTICLES3D_EXPLOSION);
     pdec->PrecacheTexture(TXT_PARTICLES_EXPLOSION);
     break;
+  case BET_FIRE_SMOKE:
+    pdec->PrecacheModel(MODEL_INVISIBLE_PLANE);
+    pdec->PrecacheTexture(TEXTURE_INVISIBLE_PLANE);
+    break;
   case BET_SPARKS:
     break;
   default:
@@ -362,6 +371,7 @@ components:
  19 texture TEXTURE_BULLET_STAIN  "Models\\Effects\\BulletOnTheWall\\Bullet.tex",
  102 texture TEXTURE_BULLET_METAL  "Models\\Effects\\BulletOnTheWall\\BulletMetal.tex",
  131 texture TEXTURE_BULLET_GLASS  "Models\\Effects\\BulletOnTheWall\\BulletGlass.tex",
+ 167 texture TEXTURE_BULLET_GRASS  "Models\\Effects\\BulletOnTheWall\\BulletGrass.tex",
  70 texture TEXTURE_BULLET_TRAIL  "Models\\Effects\\BulletTrail\\BulletTrail.tex",
  71 model   MODEL_BULLET_TRAIL    "Models\\Effects\\BulletTrail\\BulletTrail.mdl",
 
@@ -449,6 +459,9 @@ components:
  160 sound   SOUND_MUD_BULLET2    "Sounds\\Materials\\Mud\\BulletMud2.wav",
  161 sound   SOUND_MUD_BULLET3    "Sounds\\Materials\\Mud\\BulletMud3.wav",
  162 sound   SOUND_MUD_BULLET4    "Sounds\\Materials\\Mud\\BulletMud4.wav",
+
+ 165 model   MODEL_INVISIBLE_PLANE    "Models\\Effects\\InvisiblePlane\\InvisiblePlane.mdl",
+ 166 texture TEXTURE_INVISIBLE_PLANE  "Models\\Effects\\InvisiblePlane\\InvisiblePlane.tex",
 
 functions:
 
@@ -884,8 +897,8 @@ functions:
   void FireSmoke(void)
   {
     SetPredictable(TRUE);
-    SetModel(MODEL_BULLET_HIT);
-    SetModelMainTexture(TEXTURE_BULLET_HIT);
+    SetModel(MODEL_INVISIBLE_PLANE);
+    SetModelMainTexture(TEXTURE_INVISIBLE_PLANE);
     m_fWaitTime=0.25f;
     m_tmWaitAfterDeath=8.0f;
     m_bLightSource = FALSE;
@@ -1192,7 +1205,7 @@ functions:
     }
     
     SetModel(MODEL_BULLET_STAIN);
-    SetModelMainTexture(TEXTURE_BULLET_STAIN);
+    SetModelMainTexture(TEXTURE_BULLET_GRASS);
     CModelObject &moHole = *GetModelObject();
     moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
     ModelChangeNotify();
@@ -1618,14 +1631,13 @@ functions:
   };
 
   void Sparks() {
-    SetModel(MODEL_BULLET_STAIN);
-    SetModelMainTexture(TEXTURE_BULLET_METAL);
+    SetModel(MODEL_INVISIBLE_PLANE);
+    SetModelMainTexture(TEXTURE_INVISIBLE_PLANE);
 
     SetNormalWithRandomBanking();
     m_fWaitTime = 0.5f;
     m_fFadeTime = 0.5f;
     m_bLightSource = FALSE;
-    m_eptType = EPT_BULLET_FUSEBOX;
   };
 
   void BulletStainGravel(BOOL bSound) {
@@ -1673,6 +1685,53 @@ functions:
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_GLITCH;
+    FLOAT3D vTemp = m_vStretch;
+    ParentToNearestPolygonAndStretch();
+    m_vStretch = vTemp;
+  };
+
+  void BulletStainIce(BOOL bSound) {
+    if( bSound)
+    {
+      m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
+
+      switch(IRnd()%5) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_GLASS_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_GLASS_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_GLASS_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_GLASS_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_GLASS_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_GLASS_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_GLASS_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_GLASS_BULLET4);
+        } break;
+        case 4: {
+          PlaySound(m_soEffect, SOUND_GLASS_BULLET5, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_GLASS_BULLET5);
+        } break;
+        default: break;
+      }
+    }
+    
+    SetModel(MODEL_BULLET_STAIN);
+    SetModelMainTexture(TEXTURE_BULLET_GLASS);
+    CModelObject &moHole = *GetModelObject();
+    moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
+    ModelChangeNotify();
+    moHole.mo_colBlendColor = 0x33CCFFFF;
+
+    SetNormalWithRandomBanking();
+    m_fWaitTime = 2.0f;
+    m_fFadeTime = 2.0f;
+    m_bLightSource = FALSE;
+    m_eptType = EPT_BULLET_ICE;
     FLOAT3D vTemp = m_vStretch;
     ParentToNearestPolygonAndStretch();
     m_vStretch = vTemp;
@@ -1902,6 +1961,8 @@ procedures:
       case BET_BULLETSTAINGRAVELNOSOUND: BulletStainGravel(FALSE); break;
       case BET_BULLETSTAINGLITCH: BulletStainGlitch(TRUE); break;
       case BET_BULLETSTAINGLITCHNOSOUND: BulletStainGlitch(FALSE); break;
+      case BET_BULLETSTAINICE: BulletStainIce(TRUE); break;
+      case BET_BULLETSTAINICENOSOUND: BulletStainIce(FALSE); break;
       default:
         ASSERTALWAYS("Unknown effect type");
     }

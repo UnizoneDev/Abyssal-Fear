@@ -625,6 +625,8 @@ void CEntityComponent::Obtain_t(void)  // throw char *
       ec_pecEntityClass = _pEntityClassStock->Obtain_t(ec_fnmComponent);
       ctUsed = ec_pecEntityClass->GetUsedCount();
       break;
+
+
     // if something else
     default:
       // error
@@ -661,10 +663,10 @@ void CEntityComponent::AddToCRCTable(void)
 
   // add it
   switch(ec_ectType) {
-    case ECT_TEXTURE: ec_ptdTexture->AddToCRCTable(); break;
-    case ECT_MODEL:   ec_pmdModel->AddToCRCTable(); break;
-    case ECT_SOUND:   ec_psdSound->AddToCRCTable(); break;
-    case ECT_CLASS:   ec_pecEntityClass->AddToCRCTable(); break;
+    case ECT_TEXTURE:   ec_ptdTexture->AddToCRCTable(); break;
+    case ECT_MODEL:     ec_pmdModel->AddToCRCTable(); break;
+    case ECT_SOUND:     ec_psdSound->AddToCRCTable(); break;
+    case ECT_CLASS:     ec_pecEntityClass->AddToCRCTable(); break;
   }
 }
 

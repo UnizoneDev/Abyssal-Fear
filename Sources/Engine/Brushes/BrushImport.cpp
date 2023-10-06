@@ -212,6 +212,7 @@ void CBrushSector::FromObjectSector_t(CObjectSector &osc) // throw char *
 
     // set polygon flags
     bpo.bpo_ulFlags = opo.opo_ulFlags & ~(OPOF_IGNOREDBYCSG|BPOF_SELECTED);
+    bpo.bpo_ulFlags2 = opo.opo_ulFlags2;
 
     // if the polygon was just created
     if(!(bpo.bpo_ulFlags&BPOF_WASBRUSHPOLYGON)) {

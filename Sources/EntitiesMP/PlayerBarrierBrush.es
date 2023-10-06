@@ -25,11 +25,12 @@ features "HasName", "IsTargetable";
 
 properties:
 
-  1 CTString m_strName            "Name" 'N' = "Player Barrier Brush",       // class name
-  2 BOOL m_bActive                "Active" 'A' = TRUE,              // is field active
-  3 BOOL m_bBlockEnemies          "Block Enemies" = FALSE,          // can field block NPCs
-  4 BOOL m_bBlockProjectiles      "Block Projectiles" = FALSE,      // can field block Projectiles
-  5 BOOL m_bBlockPlayers          "Block Players" = FALSE,          // can field block Players
+  1 CTString m_strName               "Name" 'N' = "Player Barrier Brush",       // class name
+  2 BOOL m_bActive                   "Active" 'A' = TRUE,              // is field active
+  3 BOOL m_bBlockEnemies             "Block Enemies" = FALSE,          // can field block NPCs
+  4 BOOL m_bBlockProjectiles         "Block Projectiles" = FALSE,      // can field block Projectiles
+  5 BOOL m_bBlockPlayers             "Block Players" = FALSE,          // can field block Players
+  6 BOOL m_bBlockMagicProjectiles    "Block Magic Projectiles" = FALSE,      // can field block Magic Projectiles
 
 {
   CFieldSettings m_fsField;
@@ -82,7 +83,11 @@ procedures:
     }
 
     if(m_bBlockProjectiles) {
-      SetCollisionFlags(GetCollisionFlags() | ((ECBI_PROJECTILE_SOLID|ECBI_PROJECTILE_MAGIC)<<ECB_TEST));
+      SetCollisionFlags(GetCollisionFlags() | ((ECBI_PROJECTILE_SOLID)<<ECB_TEST));
+    }
+
+    if(m_bBlockMagicProjectiles) {
+      SetCollisionFlags(GetCollisionFlags() | ((ECBI_PROJECTILE_MAGIC)<<ECB_TEST));
     }
 
     wait() {
@@ -104,7 +109,11 @@ procedures:
     }
 
     if(m_bBlockProjectiles) {
-      SetCollisionFlags(GetCollisionFlags() & ~((ECBI_PROJECTILE_SOLID|ECBI_PROJECTILE_MAGIC)<<ECB_TEST));
+      SetCollisionFlags(GetCollisionFlags() & ~((ECBI_PROJECTILE_SOLID)<<ECB_TEST));
+    }
+
+    if(m_bBlockMagicProjectiles) {
+      SetCollisionFlags(GetCollisionFlags() & ~((ECBI_PROJECTILE_MAGIC)<<ECB_TEST));
     }
 
     wait() {

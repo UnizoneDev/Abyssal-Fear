@@ -753,6 +753,8 @@
 #define IDC_HAS_DIRECTIONAL_AMBIENT     11059
 #define IDC_DARK_CORNERS                11060
 #define IDC_APPLY_GRADIENT              11061
+#define IDC_LADDER                      11062
+#define IDC_STICKY                      11063
 #define ID_SAVE_VIRTUAL_TREE            32771
 #define ID_LOAD_VIRTUAL_TREE            32772
 #define ID_DELETE_DIRECTORY             32773
@@ -1256,6 +1258,7 @@
 #define ID_EXPORT_HEIGHTMAP16           33355
 #define ID_CHANGE_HIEGHTMAP_SIZE        33356
 #define ID_CHANGE_HEIGHTMAP_SIZE        33357
+#define ID_EXPORT_B2WHEIGHTMAP          33358
 #define ID_TEXTURE_MODE_4               -32178
 #define ID_TEXTURE_MODE_5               -32177
 #define ID_TEXTURE_MODE_6               -32176

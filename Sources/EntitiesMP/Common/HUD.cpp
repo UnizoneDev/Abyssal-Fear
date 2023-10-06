@@ -153,7 +153,7 @@ struct AmmoInfo {
   INDEX ai_iAmmoAmmount;
   INDEX ai_iMaxAmmoAmmount;
   INDEX ai_iLastAmmoAmmount;
-  TIME  ai_tmAmmoChanged;
+  TIME ai_tmAmmoChanged;
   BOOL  ai_bHasWeapon;
 };
 

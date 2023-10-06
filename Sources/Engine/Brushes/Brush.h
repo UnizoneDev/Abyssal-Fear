@@ -351,6 +351,9 @@ public:
    BPOF_DETAILPOLYGON|BPOF_PORTAL|BPOF_ACCURATESHADOWS|BPOF_HASDIRECTIONALAMBIENT|\
    BPOF_DYNAMICLIGHTSONLY|BPOF_DOESNOTRECEIVESHADOW|BPOF_NODYNAMICLIGHTS|BPOF_DARKCORNERS|BPOF_OCCLUDER)
 
+#define BPOF2_LADDER (1UL<<0)  // polygon can be climbed
+#define BPOF2_STICKY (1UL<<1)  // polygon can be used for pseudo-parkour
+
 // properties that are retained in conversions to/from CObjectPolygon
 struct CBrushPolygonProperties {
   UBYTE bpp_ubSurfaceType;        // surface type on this polygon
@@ -396,6 +399,7 @@ public:
   CBrushPolygonTexture bpo_abptTextures[3];   // texture on this polygon
   COLOR bpo_colColor;                         // color of this polygon
   ULONG bpo_ulFlags;                          // flags
+  ULONG bpo_ulFlags2;                         // second set of flags
   COLOR bpo_colShadow;                        // color of shadow on this polygon
   CBrushShadowMap bpo_smShadowMap;            // shadow map of this polygon
   CMappingDefinition bpo_mdShadow;            // mapping of shadow on polygon
@@ -410,7 +414,7 @@ public:
   INDEX bpo_iInWorld;   // index of the polygon in entire world
 
   /* Default constructor. */
-  inline CBrushPolygon(void) : bpo_ulFlags(0) {};
+  inline CBrushPolygon(void) : bpo_ulFlags(0), bpo_ulFlags2(0) {};
   /* Clear the object. */
   void Clear(void);
   /* Destructor. */

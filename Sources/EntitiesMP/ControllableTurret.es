@@ -32,7 +32,7 @@ enum ControllableTurretType {
   2 CTT_BULLETPROJECTILE    "Projectile Bullet",    // dodgeable bullet
 };
 
-class CControllableTurret : CRationalEntity {
+class CControllableTurret : CMovableModelEntity {
 name      "ControllableTurret";
 thumbnail "Thumbnails\\ControllableTurret.tbn";
 features  "HasName", "IsTargetable";
@@ -230,8 +230,8 @@ procedures:
   Main()
   {
     InitAsModel();
-    SetPhysicsFlags(EPF_MODEL_FIXED);
-    SetCollisionFlags(ECF_MODEL_HOLDER);
+    SetPhysicsFlags(EPF_MODEL_SLIDING);
+    SetCollisionFlags(ECF_MODEL);
 
     // set appearance
     SetModel(MODEL_CONTROLLABLETURRET);

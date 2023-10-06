@@ -33,6 +33,7 @@ features  "HasName";
 properties:
   1 CTString m_strName                    "Name" 'N' = "Wildlife Food",              // class name
   2 enum WildlifeFoodType m_wfType        "Type" = WFT_ORANGE,                       // type
+  3 RANGE m_fSmellRadius                  "Smell Radius" = 40.0f,                    // smell radius
 
 components:
   1 model   MODEL_ORANGE     "Models\\Props\\Fruit\\CitrusOrange.mdl",
@@ -71,6 +72,11 @@ procedures:
   // dummy main
   Main()
   {
+    // smell radius must be positive value
+    if (m_fSmellRadius<0) {
+      m_fSmellRadius = 0.0f;
+    }
+
     InitAsModel();
     SetPhysicsFlags(EPF_MODEL_SLIDING);
     SetCollisionFlags(ECF_MODEL);
@@ -111,7 +117,7 @@ procedures:
         ESmell eSmell;
         eSmell.EsmltSmell = SMLT_FOOD;
         eSmell.penTarget = this;
-        SendEventInRange(eSmell, FLOATaabbox3D(GetPlacement().pl_PositionVector, 40.0f)); 
+        SendEventInRange(eSmell, FLOATaabbox3D(GetPlacement().pl_PositionVector, m_fSmellRadius)); 
         stop;
       }
       otherwise() : { resume; }

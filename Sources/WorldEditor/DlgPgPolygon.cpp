@@ -77,6 +77,8 @@ void CDlgPgPolygon::DoDataExchange(CDataExchange* pDX)
     m_IsTransparent.EnableWindow( bSelectionExists);
 	  m_ComboMirror.EnableWindow( bSelectionExists);
 	  m_ComboFriction.EnableWindow( bSelectionExists);
+	m_bLadder.EnableWindow(bSelectionExists);
+    m_bSticky.EnableWindow(bSelectionExists);
     GetDlgItem( IDC_STATIC_MIRROR)->EnableWindow( bSelectionExists);
     GetDlgItem( IDC_STATIC_FRICTION)->EnableWindow( bSelectionExists);
     GetDlgItem( IDC_PRETENDER_DISTANCE)->EnableWindow( bSelectionExists);
@@ -123,6 +125,11 @@ void CDlgPgPolygon::DoDataExchange(CDataExchange* pDX)
   if((ulFlagsOn & flag) && !(ulFlagsOff & flag)) ctrl.SetCheck( 1);\
   else if(!(ulFlagsOn & flag) && (ulFlagsOff & flag)) ctrl.SetCheck( 0);\
   else ctrl.SetCheck( 2);
+  
+#define SET_TRI_STATE_TO_CTRL2( ctrl, flag)\
+  if((ulFlags2On & flag) && !(ulFlags2Off & flag)) ctrl.SetCheck( 1);\
+  else if(!(ulFlags2On & flag) && (ulFlags2Off & flag)) ctrl.SetCheck( 0);\
+  else ctrl.SetCheck( 2);
 
       SET_TRI_STATE_TO_CTRL( m_IsPortal,      BPOF_PORTAL);
       SET_TRI_STATE_TO_CTRL( m_IsOldPortal,   OPOF_PORTAL);
@@ -135,6 +142,8 @@ void CDlgPgPolygon::DoDataExchange(CDataExchange* pDX)
       SET_TRI_STATE_TO_CTRL( m_bIsDetail,     BPOF_DETAILPOLYGON);      
       SET_TRI_STATE_TO_CTRL( m_IsTranslucent, BPOF_TRANSLUCENT);
       SET_TRI_STATE_TO_CTRL( m_IsTransparent, BPOF_TRANSPARENT);
+	  SET_TRI_STATE_TO_CTRL2(m_bLadder, BPOF2_LADDER);
+      SET_TRI_STATE_TO_CTRL2(m_bSticky, BPOF2_STICKY);
 
       if( bSameFriction) m_ComboFriction.SetCurSel( ubFirstFriction);
       else m_ComboFriction.SetCurSel(-1);
@@ -147,6 +156,8 @@ void CDlgPgPolygon::DoDataExchange(CDataExchange* pDX)
   }
 
   //{{AFX_DATA_MAP(CDlgPgPolygon)
+    DDX_Control(pDX, IDC_LADDER, m_bLadder);
+    DDX_Control(pDX, IDC_STICKY, m_bSticky);
 	DDX_Control(pDX, IDC_DOUBLESIDED, m_IsDoubleSided);
 	DDX_Control(pDX, IDC_SHOOTTROUGH, m_bShootThru);
 	DDX_Control(pDX, IDC_IS_TRANSPARENT, m_IsTransparent);
@@ -201,6 +212,17 @@ void CDlgPgPolygon::DoDataExchange(CDataExchange* pDX)
     if( bDiscardShd) itbpo->DiscardShadows();\
     if( bFindShdLayers) bFindShadowLayers = TRUE;\
   }
+  
+#define TRI_STATE_CTRL_TO_FLAGS2( ctrl, flag, bDiscardShd, bFindShdLayers)\
+  if( (ctrl.GetCheck() == 1) && !(itbpo->bpo_ulFlags2 & flag) ) {\
+    itbpo->bpo_ulFlags2 |= flag;\
+    if( bDiscardShd) itbpo->DiscardShadows();\
+    if( bFindShdLayers) bFindShadowLayers = TRUE;\
+  } else if( (ctrl.GetCheck() == 0) && (itbpo->bpo_ulFlags2 & flag) ) {\
+    itbpo->bpo_ulFlags2 &= ~flag;\
+    if( bDiscardShd) itbpo->DiscardShadows();\
+    if( bFindShdLayers) bFindShadowLayers = TRUE;\
+  }
 
       ULONG ulFlagsBefore = itbpo->bpo_ulFlags;
       TRI_STATE_CTRL_TO_FLAGS( m_IsPortal, BPOF_PORTAL, TRUE, TRUE);
@@ -215,6 +237,9 @@ void CDlgPgPolygon::DoDataExchange(CDataExchange* pDX)
       TRI_STATE_CTRL_TO_FLAGS( m_IsTranslucent, BPOF_TRANSLUCENT, FALSE, FALSE);
       TRI_STATE_CTRL_TO_FLAGS( m_IsTransparent, BPOF_TRANSPARENT, FALSE, FALSE);
       ULONG ulFlagsAfter = itbpo->bpo_ulFlags;
+	  
+	  TRI_STATE_CTRL_TO_FLAGS2(m_bLadder, BPOF2_LADDER, FALSE, FALSE);
+      TRI_STATE_CTRL_TO_FLAGS2(m_bSticky, BPOF2_STICKY, FALSE, FALSE);
 
       // occluder and detail flags can't be on at the same time    
       BOOL bOccluderSet = ((ulFlagsBefore&BPOF_OCCLUDER)!=(ulFlagsAfter&BPOF_OCCLUDER))&&(ulFlagsAfter&BPOF_OCCLUDER);
@@ -372,6 +397,8 @@ BOOL CDlgPgPolygon::OnInitDialog()
 	m_IsPortal.SetDialogPtr( this);
 	m_IsOldPortal.SetDialogPtr( this);
 	m_IsOccluder.SetDialogPtr( this);
+	m_bLadder.SetDialogPtr(this);
+    m_bSticky.SetDialogPtr(this);
   return TRUE;
 }
 

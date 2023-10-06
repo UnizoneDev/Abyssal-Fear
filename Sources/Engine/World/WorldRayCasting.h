@@ -32,7 +32,6 @@ public:
     TT_NONE,            // do not test at all
     TT_SIMPLE,          // do approximate testing
     TT_COLLISIONBOX,    // do testing by collision box
-    TT_HITBOX,          // do testing by hit box
     TT_FULL,            // do full testing
     TT_FULLSEETHROUGH,  // do full testing without entities marked as see through
   };
@@ -56,7 +55,6 @@ public:
   /* Test against a model entity. */
   void TestModelSimple(CEntity *penModel, CModelObject &mo);
   void TestModelCollisionBox(CEntity *penModel);
-  void TestModelHitBox(CEntity *penModel);
   void TestModelFull(CEntity *penModel, CModelObject &mo);
   void TestSkaModelSimple(CEntity *penModel, CModelInstance &mi);
 	void TestSkaModelFull(CEntity *penModel, CModelInstance &mi);

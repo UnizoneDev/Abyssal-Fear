@@ -24,6 +24,9 @@
 #define TWITCHERBLADED3_COLLISION_BOX_FRONTDEATH_BOX 1
 #define TWITCHERBLADED3_COLLISION_BOX_BACKDEATH_BOX 2
 
+// Names of hit boxes
+#define TWITCHERBLADED3_HIT_BOX_DEFAULT 0
+
 // Attaching position names
 
 // Sound names

@@ -21,11 +21,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 uses "EntitiesMP/EnemyBase";
 uses "EntitiesMP/EnemyMarker";
 
+enum EnemySoundType {
+  0 EST_NONE         "None",
+  1 EST_SIGHT        "Sight",
+  2 EST_WOUND        "Wound",
+  3 EST_DEATH        "Death",
+  4 EST_IDLE         "Idle",
+  5 EST_ACTIVE       "Active",
+  6 EST_TAUNT        "Taunt",
+  7 EST_LEADERSIGHT  "Leader Alert",
+};
+
 // event sent to the enemy/NPC that should do this
 event EChangeSequence {
   INDEX iModelAnim,
   INDEX iModelCollisionBox,
   CEntityPointer penEnemyMarker,
+  enum EnemySoundType estSoundType,
 };
 
 class CScriptedSequencer : CRationalEntity {
@@ -35,11 +47,12 @@ features "HasName", "HasTarget", "IsTargetable";
 
 properties:
 
-  1 CTString m_strName              "Name" 'N' = "Scripted Sequencer",           // class name
-  2 INDEX m_iCollisionBox           "Collision Box" 'B' = 0,
-  3 ANIMATION m_iEnemyAnim          "Enemy Animation" 'M' = 0,
-  4 CEntityPointer m_penTarget      "Marker Target" 'T' COLOR(C_RED|0xFF),
-  5 CEntityPointer m_penEnemy       "Enemy" COLOR(C_GREEN|0xFF),
+  1 CTString m_strName                  "Name" 'N' = "Scripted Sequencer",           // class name
+  2 INDEX m_iCollisionBox               "Collision Box" 'B' = 0,
+  3 ANIMATION m_iEnemyAnim              "Enemy Animation" 'M' = 0,
+  4 CEntityPointer m_penTarget          "Marker Target" 'T' COLOR(C_RED|0xFF),
+  5 CEntityPointer m_penEnemy           "Enemy" COLOR(C_GREEN|0xFF),
+  6 enum EnemySoundType m_estSoundType  "Enemy Sound Type" = EST_NONE,
 
 components:
 
@@ -112,6 +125,7 @@ procedures:
           eSequence.iModelAnim = m_iEnemyAnim;
           eSequence.iModelCollisionBox = m_iCollisionBox;
           eSequence.penEnemyMarker = m_penTarget;
+          eSequence.estSoundType = m_estSoundType;
           m_penEnemy->SendEvent(eSequence);
           resume;
       }

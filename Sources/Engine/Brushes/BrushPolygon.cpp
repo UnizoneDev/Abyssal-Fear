@@ -253,6 +253,7 @@ void CBrushPolygon::CopyFromSameSector(CBrushPolygon &bpoOriginal)
   bpo_pbplPlane    = bpoOriginal.bpo_pbplPlane;
   bpo_colColor     = bpoOriginal.bpo_colColor;
   bpo_ulFlags      = bpoOriginal.bpo_ulFlags;
+  bpo_ulFlags2     = bpoOriginal.bpo_ulFlags2;
   BOOL bCopyMapping = TRUE;
   bpo_abptTextures[0].CopyTextureProperties( bpoOriginal.bpo_abptTextures[0], bCopyMapping);
   bpo_abptTextures[1].CopyTextureProperties( bpoOriginal.bpo_abptTextures[1], bCopyMapping);
@@ -502,6 +503,7 @@ CBrushPolygon &CBrushPolygon::CopyPolygon(CBrushPolygon &bp)
   CopyTextures(bp);
   bpo_colColor=bp.bpo_colColor;
   bpo_ulFlags=bp.bpo_ulFlags;
+  bpo_ulFlags2 = bp.bpo_ulFlags2;
   bpo_colShadow=bp.bpo_colShadow;
   bpo_mdShadow=bp.bpo_mdShadow;
   bpo_bppProperties=bp.bpo_bppProperties;

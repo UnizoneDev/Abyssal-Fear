@@ -66,6 +66,7 @@ functions:
   void Precache(void) {
     CModelHolder2::Precache();
     PrecacheClass(CLASS_PROJECTILE, PRT_SHOOTER_WOODEN_DART);
+    PrecacheClass(CLASS_PROJECTILE, PRT_SHOOTER_SPIT);
     PrecacheClass(CLASS_PROJECTILE, PRT_SHOOTER_FIREBALL);
   };
 

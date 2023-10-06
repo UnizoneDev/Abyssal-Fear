@@ -522,6 +522,86 @@ void CLightSource::FindShadowLayersPoint(BOOL bSelectedOnly)
   }}
 }
 
+static inline BOOL IsPolygonInfluencedBySpotLight(CBrushPolygon* pbpo)
+{
+    ULONG ulFlags = pbpo->bpo_ulFlags;
+
+    // if has no shadows
+    BOOL bIsTransparent = (ulFlags & BPOF_PORTAL) && !(ulFlags & (BPOF_TRANSLUCENT | BPOF_TRANSPARENT));
+    BOOL bTakesShadow = !(ulFlags & BPOF_FULLBRIGHT);
+    if (bIsTransparent || !bTakesShadow) {
+        // not influenced
+        return FALSE;
+    }
+
+    // influenced
+    return TRUE;
+}
+
+// find all shadow maps that should have layers from this light source
+void CLightSource::FindShadowLayersSpot(BOOL bSelectedOnly)
+{
+    // for each layer of the light source
+    {FORDELETELIST(CBrushShadowLayer, bsl_lnInLightSource, ls_lhLayers, itbsl) {
+        CBrushPolygon* pbpo = itbsl->bsl_pbsmShadowMap->GetBrushPolygon();
+        // if only selected polygons are checked, and this one is not selected
+        if (bSelectedOnly && !(pbpo->bpo_ulFlags & BPOF_SELECTED)) {
+            // skip it
+            continue;
+        }
+        // if the polygon is influenced
+        if (IsPolygonInfluencedBySpotLight(pbpo)) {
+            // mark it
+            pbpo->bpo_ulFlags |= BPOF_MARKEDLAYER;
+            // update its parameters
+            UpdateLayer(*itbsl);
+            // if the polygon is not influenced
+        }
+        else {
+            // invalidate its shadow map
+            itbsl->bsl_pbsmShadowMap->Invalidate(ls_ulFlags & LSF_DYNAMIC);
+            // delete the layer
+            delete&* itbsl;
+        }
+    }}
+
+    // for each entity in the world
+    {FOREACHINDYNAMICCONTAINER(ls_penEntity->en_pwoWorld->wo_cenEntities, CEntity, iten) {
+        // if it is brush entity
+        if (iten->en_RenderType == CEntity::RT_BRUSH) {
+            // for each mip in its brush
+            FOREACHINLIST(CBrushMip, bm_lnInBrush, iten->en_pbrBrush->br_lhBrushMips, itbm) {
+                // for all sectors in this mip
+                FOREACHINDYNAMICARRAY(itbm->bm_abscSectors, CBrushSector, itbsc) {
+                    // for each polygon in sector
+                    FOREACHINSTATICARRAY(itbsc->bsc_abpoPolygons, CBrushPolygon, itbpo) {
+                        CBrushPolygon* pbpo = itbpo;
+                        // if only selected polygons are checked, and this one is not selected
+                        if (bSelectedOnly && !(pbpo->bpo_ulFlags & BPOF_SELECTED)) {
+                            // skip it
+                            continue;
+                        }
+                        // if the polygon is not marked but it is influenced
+                        if (!(pbpo->bpo_ulFlags & BPOF_MARKEDLAYER)
+                            && IsPolygonInfluencedByDirectionalLight(pbpo)) {
+                            // add a layer to the polygon
+                            AddLayer(*pbpo);
+                        }
+                    }
+                }
+            }
+        }
+    }}
+
+    // for each layer of the light source
+    {FOREACHINLIST(CBrushShadowLayer, bsl_lnInLightSource, ls_lhLayers, itbsl) {
+        CBrushPolygon* pbpo = itbsl->bsl_pbsmShadowMap->GetBrushPolygon();
+        // unmark the polygon
+        pbpo->bpo_ulFlags &= ~BPOF_MARKEDLAYER;
+    }}
+}
+
+
 void CLightSource::FindShadowLayers(BOOL bSelectedOnly)
 {
   // if the light is used for lens flares only
@@ -535,6 +615,8 @@ void CLightSource::FindShadowLayers(BOOL bSelectedOnly)
   // find the influenced polygons
   if (ls_ulFlags&LSF_DIRECTIONAL) {
     FindShadowLayersDirectional(bSelectedOnly);
+  } else if (ls_ulFlags & LSF_SPOT) {
+    FindShadowLayersSpot(bSelectedOnly);
   } else {
     FindShadowLayersPoint(bSelectedOnly);
   }
@@ -616,13 +698,13 @@ void CLightSource::SetLightSource(const CLightSource &lsOriginal)
     ls_ubPolygonalMask        !=  lsOriginal.ls_ubPolygonalMask        ||
     ls_ulFlags                !=  lsOriginal.ls_ulFlags                ||
     ls_fNearClipDistance      !=  lsOriginal.ls_fNearClipDistance      ||
-    ls_fFarClipDistance       !=  lsOriginal.ls_fFarClipDistance       ;
+    ls_fFarClipDistance       !=  lsOriginal.ls_fFarClipDistance;
   // test if shadows should be uncached
   BOOL bUncacheShadows = bDiscardLayers ||
     ls_rHotSpot               !=  lsOriginal.ls_rHotSpot               ||
     ls_colColor               !=  lsOriginal.ls_colColor               ||
     ls_colAmbient             !=  lsOriginal.ls_colAmbient             ||
-    ls_ubLightAnimationObject !=  lsOriginal.ls_ubLightAnimationObject ;
+    ls_ubLightAnimationObject !=  lsOriginal.ls_ubLightAnimationObject;
   // discard shadows if needed
   if( bDiscardLayers) {
     DiscardShadowLayers();

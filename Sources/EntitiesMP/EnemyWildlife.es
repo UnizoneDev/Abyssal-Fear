@@ -69,9 +69,16 @@ virtual void DrinkingSound(void) {};
   // --------------------------------------------------------------------------------------
   void MaybeSwitchToAnotherFood(void)
   {
-    // If current player is inside threat distance then do not switch.
-    if (CalcDist(m_penEnemy) < GetThreatDistance()) {
+    // if full of food
+    if(CheckIfFull()) {
       return;
+    }
+
+    // If current player is inside threat distance then do not switch.
+    if ( IsOfClass(m_penEnemy, "Player") || IsDerivedFromClass(m_penEnemy, "Enemy Base") ) {
+      if (CalcDist(m_penEnemy) < GetThreatDistance()) {
+        return;
+      }
     }
 
     // maybe switch
@@ -145,6 +152,7 @@ virtual void DrinkingSound(void) {};
 
     if (IsOfClass(penNewTarget, "Wildlife Food")  && !CheckIfFull())
     {
+      m_bWantsFood = TRUE;
       return TRUE;
     }
 
@@ -260,9 +268,6 @@ procedures:
             // attack it
             call CEnemyBase::AttackEnemy();
           }
-        // if we have food to eat
-        } else if (m_penEnemy != NULL && IsOfClass(m_penEnemy, "Wildlife Food")) {
-          m_bWantsFood = TRUE;
         // if we have a marker to walk to
         } else if (m_penMarker != NULL) {
           // go to the marker
@@ -496,6 +501,22 @@ procedures:
         }
 
         return;
+      }
+      // if you smell something
+      on (ESmell eSmell) :
+      {
+        // if deaf then ignore the sound
+        if (m_bAnosmic) {
+          resume;
+        }
+
+        // if the target can be set as new enemy
+        if (SetTargetSoft(eSmell.penTarget)) {
+          // become active (this will attack the player)
+          jump Active(); 
+        }
+
+        resume;
       }
     }
   };

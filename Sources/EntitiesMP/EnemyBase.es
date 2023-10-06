@@ -69,7 +69,7 @@ enum FactionType {
    5 FT_HERETICS "Cultists Of Heresy",
    6 FT_VICTIM "Victims",
    7 FT_SINNER "Sinners",
-   8 FT_ALLY "Demon Allies",
+   8 FT_ALLY "Allies",
 };
 
 %{
@@ -364,7 +364,8 @@ functions:
   // The AI additions
   // --------------------------------------------------------------------------------------
 
-
+  // [Cecil] Update enemy every step with some frequency
+  virtual void OnStep(void) {};
 
   // --------------------------------------------------------------------------------------
   // The Constructor
@@ -2630,7 +2631,9 @@ functions:
     }
 
     // if not killed from short distance
-    if (eDamage.dmtType != DMT_CLOSERANGE && eDamage.dmtType != DMT_CHAINSAW) {
+    if (eDamage.dmtType != DMT_CLOSERANGE && eDamage.dmtType != DMT_CHAINSAW &&
+        eDamage.dmtType != DMT_BLUNT && eDamage.dmtType != DMT_SHARP &&
+        eDamage.dmtType != DMT_AXE) {
       // yell
       ESound eSound;
       eSound.EsndtSound = SNDT_YELL;
@@ -3126,7 +3129,11 @@ procedures:
             call DoPatrolling(); 
           }
           // if time is up
-          on (EReminder) : {
+          on (EReminder eReminder) : {
+            // [Cecil] Enemy loop
+            if (eReminder.iValue == ENEMY_STEP_VAL) {
+              pass;
+            }
             // stop patroling
             stop;
           }
@@ -3184,6 +3191,15 @@ procedures:
         on (EDamage) : { pass; }
         // pass space beam hit
         on (EHitBySpaceShipBeam) : { pass;}
+
+        // [Cecil] Pass enemy step function
+        on (EReminder eStep) : {
+          if (eStep.iValue == ENEMY_STEP_VAL) {
+            pass;
+          }
+          resume;
+        }
+
         // ignore all other events
         otherwise () : { resume; }
       }
@@ -3460,6 +3476,15 @@ procedures:
             pass;
           }
         }
+
+        // [Cecil] Pass enemy step function
+        on (EReminder eStep) : {
+          if (eStep.iValue == ENEMY_STEP_VAL) {
+            pass;
+          }
+          resume;
+        }
+
         on (ESound) : { resume; }     // ignore all sounds
         on (EWatch) : { resume; }     // ignore watch
         on (EReturn) : { stop; }  // returned from subprocedure
@@ -3774,6 +3799,82 @@ procedures:
           m_vDesiredPosition = FLOAT3D(+m_fMoveSpeed, 0.0f, 0.0f);
           // start moving
           SetDesiredTranslation(m_vDesiredPosition);
+          resume;
+        }
+      }
+    }
+    // stop rotating
+    StopRotating();
+
+    // return to caller
+    return EReturn();
+  };
+
+  // --------------------------------------------------------------------------------------
+  // Call this to make the enemy dodge roll to the left
+  // --------------------------------------------------------------------------------------
+  DodgeLeft(EVoid) 
+  {
+    // stop moving
+    StopMoving();
+    // play animation for locking
+    DodgeLeftAnim();
+    // wait charge time
+    m_fLockStartTime = _pTimer->CurrentTick();
+    while (m_fLockStartTime+GetProp(m_fLockOnEnemyTime) > _pTimer->CurrentTick()) {
+      // each tick
+      m_fMoveFrequency = 0.05f;
+      wait (m_fMoveFrequency) {
+        on (ETimer) : { stop; }
+        on (EBegin) : {
+          FLOAT fSpeedMultiplier = 1.5f;
+          m_fMoveSpeed = GetProp(m_fAttackRunSpeed) * fSpeedMultiplier;
+          m_aRotateSpeed = 0.0f;
+          m_vDesiredPosition = FLOAT3D(-m_fMoveSpeed, 0.0f, 0.0f);
+          // start moving
+          SetDesiredTranslation(m_vDesiredPosition);
+          m_fMoveSpeed += 0.05f;
+          if (m_fMoveSpeed<=0) {
+            return EReturn();
+          }
+          resume;
+        }
+      }
+    }
+    // stop rotating
+    StopRotating();
+
+    // return to caller
+    return EReturn();
+  };
+
+  // --------------------------------------------------------------------------------------
+  // Call this to make the enemy dodge roll to the right
+  // --------------------------------------------------------------------------------------
+  DodgeRight(EVoid) 
+  {
+    // stop moving
+    StopMoving();
+    // play animation for locking
+    DodgeRightAnim();
+    // wait charge time
+    m_fLockStartTime = _pTimer->CurrentTick();
+    while (m_fLockStartTime+GetProp(m_fLockOnEnemyTime) > _pTimer->CurrentTick()) {
+      // each tick
+      m_fMoveFrequency = 0.05f;
+      wait (m_fMoveFrequency) {
+        on (ETimer) : { stop; }
+        on (EBegin) : {
+          FLOAT fSpeedMultiplier = 1.5f;
+          m_fMoveSpeed = GetProp(m_fAttackRunSpeed) * fSpeedMultiplier;
+          m_aRotateSpeed = 0.0f;
+          m_vDesiredPosition = FLOAT3D(+m_fMoveSpeed, 0.0f, 0.0f);
+          // start moving
+          SetDesiredTranslation(m_vDesiredPosition);
+          m_fMoveSpeed -= 0.05f;
+          if (m_fMoveSpeed<=0) {
+            return EReturn();
+          }
           resume;
         }
       }
@@ -4197,6 +4298,14 @@ procedures:
         jump Inactive();
       }
 
+      // [Cecil] Pass enemy step function
+      on (EReminder eStep) : {
+        if (eStep.iValue == ENEMY_STEP_VAL) {
+          pass;
+        }
+        resume;
+      }
+
       // warn for all obsolete events
       on (EStartAttack) : {
         //CPrintF("%s: StartAttack event is obsolete!\n", GetName());
@@ -4215,6 +4324,28 @@ procedures:
         INDEX iAnim = eChangeSequence.iModelAnim;
         INDEX iBox = eChangeSequence.iModelCollisionBox;
         m_penMarker = eChangeSequence.penEnemyMarker;
+
+        switch(eChangeSequence.estSoundType) {
+            case EST_NONE:
+            break;
+            case EST_SIGHT:
+            SightSound();
+            break;
+            case EST_WOUND:
+            WoundSound();
+            break;
+            case EST_DEATH:
+            DeathSound();
+            break;
+            case EST_IDLE:
+            IdleSound();
+            break;
+            case EST_ACTIVE:
+            ActiveSound();
+            break;
+            default:
+            break;
+        }
 
         StartModelAnim(iAnim, 0);
         ForceCollisionBoxIndexChange(iBox);
@@ -4288,6 +4419,14 @@ procedures:
         }
 
         return;
+      }
+
+      // [Cecil] Pass enemy step function
+      on (EReminder eStep) : {
+        if (eStep.iValue == ENEMY_STEP_VAL) {
+          pass;
+        }
+        resume;
       }
 
       // utilize Half-Life 1 scripted events for enemies/NPCs
@@ -4462,6 +4601,14 @@ procedures:
         IfTargetCrushed(eTouch.penOther, (FLOAT3D&)eTouch.plCollision);
         if (IsOfClass(eTouch.penOther, "Bouncer")) {
           JumpFromBouncer(this, eTouch.penOther);
+        }
+        resume;
+      }
+
+      // [Cecil] Call enemy step function
+      on (EReminder eStep) : {
+        if (eStep.iValue == ENEMY_STEP_VAL) {
+          OnStep();
         }
         resume;
       }

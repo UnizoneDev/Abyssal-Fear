@@ -52,6 +52,7 @@ enum ProjectileMovingType {
   3 PMT_GUIDED_FAST    "",     // fast guided projectile
   4 PMT_FLYING_REBOUNDING "",  // flying and rebounding from walls a few times
   5 PMT_GUIDED_SLIDING "",     // sliding on floor and guided at the same time
+  6 PMT_BLOODBUNDLE "",        // projectile that is throw at an arc
 };
 
 
@@ -658,13 +659,18 @@ void ShooterBloodSpit(void) {
 void ShamblerBloodBundle(void) {
   // set appearance
   InitAsModel();
-  SetPhysicsFlags(EPF_PROJECTILE_FLYING);
+  SetPhysicsFlags(EPF_MODEL_BOUNCING);
   SetCollisionFlags(ECF_PROJECTILE_MAGIC);
   SetModel(MODEL_BLOODSPIT);
   SetModelMainTexture(TEX_BLOODSPIT);
   // start moving
-  LaunchAsPropelledProjectile(FLOAT3D(0.0f, 0.0f, -20.0f), (CMovableEntity*)(CEntity*)m_penLauncher);
-  SetDesiredRotation(ANGLE3D(0, 0, 0));
+  LaunchAsFreeProjectile(FLOAT3D(0.0f, 8.0f, -20.0f), (CMovableEntity*)(CEntity*)m_penLauncher);
+  SetDesiredRotation(ANGLE3D(0, FRnd()*120.0f+120.0f, FRnd()*250.0f-125.0f));
+  en_fBounceDampNormal   = 0.75f;
+  en_fBounceDampParallel = 0.6f;
+  en_fJumpControlMultiplier = 0.0f;
+  en_fCollisionSpeedLimit = 45.0f;
+  en_fCollisionDamageFactor = 10.0f;
   m_fFlyTime = 5.0f;
   m_fDamageAmount = 10.0f;
   m_fSoundRange = 0.0f;
@@ -673,7 +679,7 @@ void ShamblerBloodBundle(void) {
   m_bCanHitHimself = FALSE;
   m_bCanBeDestroyed = FALSE;
   m_fWaitAfterDeath = 0.0f;
-  m_pmtMove = PMT_FLYING;
+  m_pmtMove = PMT_BLOODBUNDLE;
 };
 
 /************************************************************
@@ -1317,6 +1323,82 @@ procedures:
     return EEnd();
   };
 
+  // --->>> PROJECTILE BURST ON CONTACT WITH BRUSHES AND ENTITIES
+  ProjectileBloodBundle(EVoid) {
+    // if already inside some entity
+    CEntity *penObstacle;
+    if (CheckForCollisionNow(0, &penObstacle)) {
+      // explode now
+      ProjectileTouch(penObstacle);
+      return EEnd();
+    }
+    // fly loop
+    wait(m_fFlyTime) {
+      on (EBegin) : { resume; }
+      on (EPass epass) : {
+        BOOL bHit;
+        // ignore launcher within 1 second
+        bHit = epass.penOther!=m_penLauncher || _pTimer->CurrentTick()>m_fIgnoreTime;
+        // ignore another projectile of same type
+        bHit &= !((!m_bCanHitHimself && IsOfClass(epass.penOther, "Projectile") &&
+                ((CProjectile*)&*epass.penOther)->m_prtType==m_prtType));
+        // ignore twister
+        bHit &= !IsOfClass(epass.penOther, "Twister");
+        if (epass.penOther!=m_penLauncher) {
+   bHit = bHit ;
+        }
+        if (bHit) {
+          ProjectileTouch(epass.penOther);
+          // player flame passes through enemies
+          if (m_prtType==PRT_FLAME && IsDerivedFromClass((CEntity *)&*(epass.penOther), "Enemy Base")) {
+            resume;
+          }
+          
+          stop;
+        }
+        resume;
+      }
+      on (ETouch etouch) : {
+        // clear time limit for launcher
+        m_fIgnoreTime = 0.0f;
+        // don't ignore brushes and other projectiles
+
+        if(etouch.penOther->GetRenderType() & RT_MODEL || etouch.penOther->GetRenderType() & RT_BRUSH ||
+           etouch.penOther->GetRenderType() & RT_SKAMODEL) {
+          ProjectileHit();
+          stop;
+        }
+
+        BOOL bHit;
+        // ignore another projectile of same type
+        bHit &= !((!m_bCanHitHimself && IsOfClass(etouch.penOther, "Projectile") &&
+                  ((CProjectile*)&*etouch.penOther)->m_prtType==m_prtType));
+        if (bHit) {
+          ProjectileTouch(etouch.penOther);
+          stop;
+        }
+        // projectile is moving to slow (stuck somewhere) -> kill it
+        if (en_vCurrentTranslationAbsolute.Length() < 0.25f*en_vDesiredTranslationRelative.Length()) {
+          ProjectileHit();
+          stop;
+        }
+        resume;
+      }
+      on (EDeath) : {
+        if (m_bCanBeDestroyed) {
+          ProjectileHit();
+          stop;
+        }
+        resume;
+      }
+      on (ETimer) : {
+        ProjectileHit();
+        stop;
+      }
+    }
+    return EEnd();
+  };
+
   // --->>> MAIN
   Main(ELaunchProjectile eLaunch) {
     // remember the initial parameters
@@ -1370,7 +1452,9 @@ procedures:
       autocall ProjectileFlyRebounding() EEnd;
     } else if (m_pmtMove==PMT_GUIDED_SLIDING) {
       autocall ProjectileGuidedSlide() EEnd;
-    }
+    } else if (m_pmtMove==PMT_BLOODBUNDLE) {
+      autocall ProjectileBloodBundle() EEnd;
+    }  
 
     // projectile explosion
     switch (m_prtType) {

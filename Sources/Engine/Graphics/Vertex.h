@@ -20,6 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #endif
 
 
+#include <Engine/Base/ByteSwap.h>
+
+
 struct GFXVertex3
 {
     FLOAT x, y, z;
@@ -57,17 +60,11 @@ struct GFXColor
     GFXColor() {};
 
     GFXColor(COLOR col) {
-        _asm mov   ecx, dword ptr[this]
-            _asm mov   eax, dword ptr[col]
-            _asm bswap eax
-        _asm mov   dword ptr[ecx], eax
+        abgr = ByteSwap32(col);
     }
 
     __forceinline void Set(COLOR col) {
-        _asm mov   ecx, dword ptr[this]
-            _asm mov   eax, dword ptr[col]
-            _asm bswap eax
-        _asm mov   dword ptr[ecx], eax
+        abgr = ByteSwap32(col);
     }
 
     void MultiplyRGBA(const GFXColor& col1, const GFXColor& col2) {

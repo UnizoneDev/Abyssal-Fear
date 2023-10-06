@@ -156,17 +156,9 @@ functions:
       {
         if (m_strMessage!="")
         {
-            if(m_mfType == FNT_RUNIC)
-            {
-              PrintCenterMessage(this, m_penCaused, 
+            PrintCenterMessage(this, m_penCaused, 
               TranslateConst(m_strMessage), 
-              m_fMessageTime, m_mssMessageSound, FNT_RUNIC, m_fMessagePosX, m_fMessagePosY);
-            } else
-            {
-              PrintCenterMessage(this, m_penCaused, 
-              TranslateConst(m_strMessage), 
-              m_fMessageTime, m_mssMessageSound, FNT_NORMAL, m_fMessagePosX, m_fMessagePosY);
-            }
+              m_fMessageTime, m_mssMessageSound, m_mfType, m_fMessagePosX, m_fMessagePosY);
         }
       }
     }
@@ -246,8 +238,6 @@ procedures:
       on (EBegin) : { 
         // if auto start send event on init
         if (m_bAutoStart) {
-          call SendEventToTargets();
-
           if (m_eTType == TT_NORMAL) {
             call SendEventToTargets();
           } else if (m_eTType == TT_DELAY) {

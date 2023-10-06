@@ -19,6 +19,9 @@
 #define ABOMINATION_COLLISION_BOX_DEFAULT 0
 #define ABOMINATION_COLLISION_BOX_DEATH_BOX 1
 
+// Names of hit boxes
+#define ABOMINATION_HIT_BOX_DEFAULT 0
+
 // Attaching position names
 
 // Sound names

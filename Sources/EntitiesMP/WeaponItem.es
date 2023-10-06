@@ -107,10 +107,12 @@ components:
 
 // ************** SOUNDS **************
 213 sound SOUND_PICK             "Sounds\\Items\\PistolPickup.wav",
+214 sound SOUND_KNIFE_PICK       "Sounds\\Items\\KnifePickup.wav",
 
 functions:
   void Precache(void) {
     PrecacheSound(SOUND_PICK);
+    PrecacheSound(SOUND_KNIFE_PICK);
     switch (m_EwitType) {
       case WIT_KNIFE:           CPlayerWeapons_Precache(1<<(INDEX(WEAPON_KNIFE          )-1)); break;
       case WIT_PISTOL:          CPlayerWeapons_Precache(1<<(INDEX(WEAPON_PISTOL         )-1)); break;
@@ -227,8 +229,13 @@ procedures:
       if(_pNetwork->IsPlayerLocal(epass.penOther)) {IFeel_PlayEffect("PU_Weapon");}
       // play the pickup sound
       m_soPick.Set3DParameters(50.0f, 1.0f, 1.0f, 1.0f);
-      PlaySound(m_soPick, SOUND_PICK, SOF_3D);
-      m_fPickSoundLen = GetSoundLength(SOUND_PICK);
+      if(m_EwitType == WIT_KNIFE) {
+        PlaySound(m_soPick, SOUND_KNIFE_PICK, SOF_3D);
+        m_fPickSoundLen = GetSoundLength(SOUND_KNIFE_PICK);
+      } else {
+        PlaySound(m_soPick, SOUND_PICK, SOF_3D);
+        m_fPickSoundLen = GetSoundLength(SOUND_PICK);
+      }
       if (!GetSP()->sp_bWeaponsStay || m_bDropped || (m_bPickupOnce||m_bRespawn)) {
         jump CItem::ItemReceived();
       }

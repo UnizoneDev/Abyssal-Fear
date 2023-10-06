@@ -20,6 +20,9 @@
 #define MUTANTFREAK1_COLLISION_BOX_DEATHFRONT_BOX 1
 #define MUTANTFREAK1_COLLISION_BOX_DEATHBACK_BOX 2
 
+// Names of hit boxes
+#define MUTANTFREAK1_HIT_BOX_DEFAULT 0
+
 // Attaching position names
 
 // Sound names

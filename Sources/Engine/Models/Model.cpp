@@ -310,7 +310,8 @@ CModelData::CModelData()
   md_Flags = 0;		                                // model flags (flat, reflection mapping)
   md_ShadowQuality = 0;
   md_Stretch = FLOAT3D(1,1,1);                 		// stretch vector (static one, dynamic one is in model object)
-  md_bCollideAsCube = FALSE;                      // collide as sphere
+  md_bCollideAsCube = FALSE;                        // collide as sphere
+  md_bHitBoxAsCube = FALSE;                         // check hits as sphere
   md_colDiffuse = C_WHITE|CT_OPAQUE;
   md_colReflections = C_WHITE|CT_OPAQUE;
   md_colSpecular = C_WHITE|CT_OPAQUE;
@@ -682,7 +683,6 @@ void MappingSurface::Write_t( CTStream *pFile)  // throw char *
   (*pFile) << ms_colReflections;
   (*pFile) << ms_colSpecular;
   (*pFile) << ms_colBump;
-  
   (*pFile) << ms_ulOnColor;
   (*pFile) << ms_ulOffColor;
 }
@@ -740,7 +740,8 @@ void MappingSurface::Read_t( CTStream *pFile, BOOL bReadPolygonsPerSurface,
     if( (ms_ulRenderingFlags&SRF_NEW_TEXTURE_FORMAT) == 0)
       ms_ulRenderingFlags |= SRF_DIFFUSE|SRF_NEW_TEXTURE_FORMAT;
     if (ms_sttTranslucencyType==STT_TRANSLUCENT || ms_sttTranslucencyType==STT_ALPHAGOURAUD
-      ||ms_sttTranslucencyType==STT_ADD||ms_sttTranslucencyType==STT_MULTIPLY) {
+      ||ms_sttTranslucencyType==STT_ADD || ms_sttTranslucencyType==STT_MULTIPLY
+      ||ms_sttTranslucencyType == STT_INVERT || ms_sttTranslucencyType == STT_TRUEMULTIPLY) {
       _bHasAlpha = TRUE;
     }
 
@@ -1167,7 +1168,7 @@ CModelHitBox::CModelHitBox(void)
 {
     mcb_vHitBoxMin = FLOAT3D(-0.5f, 0.0f, -0.5f);
     mcb_vHitBoxMax = FLOAT3D(0.5f, 2.0f, 0.5f);
-    mcb_iHitBoxDimensionEquality = LENGTH_EQ_WIDTH_HITBOX;
+    mcb_iHitBoxDimensionEquality = LENGTH_EQ_WIDTH;
     mcb_strName = "PART_NAME";
 }
 
@@ -1181,17 +1182,17 @@ void CModelHitBox::Read_t(CTStream* istrFile)
     if ((mcb_vHitBoxMax(2) - mcb_vHitBoxMin(2)) ==
         (mcb_vHitBoxMax(1) - mcb_vHitBoxMin(1)))
     {
-        mcb_iHitBoxDimensionEquality = HEIGHT_EQ_WIDTH_HITBOX;
+        mcb_iHitBoxDimensionEquality = HEIGHT_EQ_WIDTH;
     }
     else if ((mcb_vHitBoxMax(3) - mcb_vHitBoxMin(3)) ==
         (mcb_vHitBoxMax(1) - mcb_vHitBoxMin(1)))
     {
-        mcb_iHitBoxDimensionEquality = LENGTH_EQ_WIDTH_HITBOX;
+        mcb_iHitBoxDimensionEquality = LENGTH_EQ_WIDTH;
     }
     else if ((mcb_vHitBoxMax(3) - mcb_vHitBoxMin(3)) ==
         (mcb_vHitBoxMax(2) - mcb_vHitBoxMin(2)))
     {
-        mcb_iHitBoxDimensionEquality = LENGTH_EQ_HEIGHT_HITBOX;
+        mcb_iHitBoxDimensionEquality = LENGTH_EQ_HEIGHT;
     }
     else
     {
@@ -1200,7 +1201,7 @@ void CModelHitBox::Read_t(CTStream* istrFile)
         mcb_vCollisionBoxMax(3) = mcb_vCollisionBoxMin(3) +
                                  (mcb_vCollisionBoxMax(1)-mcb_vCollisionBoxMin(1));
                                  */
-        mcb_iHitBoxDimensionEquality = LENGTH_EQ_WIDTH_HITBOX;
+        mcb_iHitBoxDimensionEquality = LENGTH_EQ_WIDTH;
     }
 }
 
@@ -1369,6 +1370,10 @@ void CModelData::Write_t( CTStream *pFile)  // throw char *
       md_acbHitBox[iHitBox].Write_t(pFile);
   }
   md_acbHitBox.Unlock();
+
+  // save boolean defining hitbox type for this model
+  pFile->WriteID_t(CChunkID("HITB"));
+  *pFile << md_bHitBoxAsCube;
 }
 
 
@@ -1833,6 +1838,17 @@ void CModelData::Read_t( CTStream *pFile) // throw char *
       // read one hit box manualy (without name)
       md_acbHitBox[0].Read_t(pFile);
       md_acbHitBox.Unlock();
+  }
+
+  // peek chunk ID and see if we should read boolean defining hitbox type (speheres or cube)
+  if (pFile->PeekID_t() == CChunkID("HITB"))
+  {
+      pFile->ExpectID_t("HITB");
+      *pFile >> md_bHitBoxAsCube;
+  }
+  else
+  {
+      md_bHitBoxAsCube = FALSE;
   }
 
   // precalculate rendering data
@@ -2849,7 +2865,7 @@ FLOAT3D CModelObject::GetHitBoxMax(INDEX iHitBox)
     return GetData()->GetHitBoxMax(iHitBox);
 }
 
-// returns HEIGHT_EQ_WIDTH_HITBOX, LENGHT_EQ_WIDTH_HITBOX or LENGHT_EQ_HEIGHT_HITBOX
+// returns HEIGHT_EQ_WIDTH, LENGHT_EQ_WIDTH or LENGHT_EQ_HEIGHT
 INDEX CModelObject::GetHitBoxDimensionEquality(INDEX iHitBox)
 {
     return GetData()->GetHitBoxDimensionEquality(iHitBox);

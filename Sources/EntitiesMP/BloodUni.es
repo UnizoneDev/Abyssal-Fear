@@ -60,11 +60,11 @@ properties:
   7 FLOAT m_fLaunchPower = 1.0f,
   8 COLOR m_colCentralColor = COLOR(C_WHITE|CT_OPAQUE),
   9 FLOATaabbox3D m_boxOriginalOwner = FLOATaabbox3D(FLOAT3D(0,0,0), 0.01f),
- 10 BOOL m_bGenerateStain = TRUE,
+ 10 BOOL m_bGenerateStain = FALSE,
  11 COLOR m_colBurnColor = COLOR(C_WHITE|CT_OPAQUE),
  12 FLOAT m_tmStarted = 0.0f,                                        // time when spawned
  13 INDEX m_iAmount = 1,
- 14 BOOL m_bGenerateStreams = TRUE,
+ 14 BOOL m_bGenerateStreams = FALSE,
  15 FLOAT3D m_vLastStain  = FLOAT3D(0,0,0), // where last stain was left
 
 

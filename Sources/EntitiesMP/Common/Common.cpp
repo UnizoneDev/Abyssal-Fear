@@ -272,7 +272,7 @@ void SendInRange(CEntity *penSource, EventEType eetEventType, const FLOATaabbox3
 };
 
 // spawn reminder
-CEntityPointer SpawnReminder(CEntity *penOwner, FLOAT fWaitTime, INDEX iValue) {
+CEntityPointer SpawnReminder(CEntity *penOwner, FLOAT fWaitTime, INDEX iValue, BOOL bLooped) {
   CEntityPointer penReminder;
   try {
     penReminder = penOwner->GetWorld()->CreateEntity_t
@@ -284,6 +284,7 @@ CEntityPointer SpawnReminder(CEntity *penOwner, FLOAT fWaitTime, INDEX iValue) {
   eri.penOwner = penOwner;
   eri.fWaitTime = fWaitTime;
   eri.iValue = iValue;
+  eri.bLooped = bLooped; // [Cecil]
   penReminder->Initialize(eri);
 
   return penReminder;
@@ -352,6 +353,8 @@ EffectParticlesType GetParticleEffectTypeForSurface(INDEX iSurfaceType)
     case SURFACE_GLITCH:
     case SURFACE_GLITCH_NOIMPACT:
     {eptType = EPT_BULLET_GLITCH; break; }
+    case SURFACE_ICE:
+    {eptType = EPT_BULLET_ICE; break; }
   }
   return eptType;
 }
@@ -419,6 +422,8 @@ BulletHitType GetBulletHitTypeForSurface(INDEX iSurfaceType)
     case SURFACE_GLITCH:
     case SURFACE_GLITCH_NOIMPACT:
     {bhtType = BHT_BRUSH_GLITCH; break; }
+    case SURFACE_ICE:
+    {bhtType = BHT_BRUSH_ICE; break; }
   }
   return bhtType;
 }
@@ -453,6 +458,7 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
     case BHT_BRUSH_FUSEBOX:
     case BHT_BRUSH_GRAVEL:
     case BHT_BRUSH_GLITCH:
+    case BHT_BRUSH_ICE:
     {
       // bullet stain
       ESpawnEffect ese;
@@ -483,6 +489,7 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if (bhtType == BHT_BRUSH_FUSEBOX)       { ese.betType = BET_BULLETSTAINFUSEBOX; };
         if (bhtType == BHT_BRUSH_GRAVEL)        { ese.betType = BET_BULLETSTAINGRAVEL; };
         if (bhtType == BHT_BRUSH_GLITCH)        { ese.betType = BET_BULLETSTAINGLITCH; };
+        if (bhtType == BHT_BRUSH_ICE)           { ese.betType = BET_BULLETSTAINICE; };
       }
       else
       {
@@ -511,6 +518,7 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if (bhtType == BHT_BRUSH_FUSEBOX)       { ese.betType = BET_BULLETSTAINFUSEBOXNOSOUND; };
         if (bhtType == BHT_BRUSH_GRAVEL)        { ese.betType = BET_BULLETSTAINGRAVELNOSOUND; };
         if (bhtType == BHT_BRUSH_GLITCH)        { ese.betType = BET_BULLETSTAINGLITCHNOSOUND; };
+        if (bhtType == BHT_BRUSH_ICE)           { ese.betType = BET_BULLETSTAINICENOSOUND; };
       }
 
       ese.vNormal = vHitNormal;
@@ -1286,6 +1294,8 @@ static EntityInfo eiMetal = {EIBT_METAL};
 static EntityInfo eiRobot = {EIBT_ROBOT};
 static EntityInfo eiIce   = {EIBT_ICE  };
 static EntityInfo eiGlass = {EIBT_GLASS};
+static EntityInfo eiShadow = {EIBT_SHADOW};
+static EntityInfo eiSmoke = {EIBT_SMOKE};
 
 // get default entity info for given body type
 EntityInfo *GetStdEntityInfo(EntityInfoBodyType eibt)
@@ -1302,6 +1312,8 @@ EntityInfo *GetStdEntityInfo(EntityInfoBodyType eibt)
   case EIBT_ROBOT: {return &eiRobot; } break;
   case EIBT_ICE  : {return &eiIce  ; } break;
   case EIBT_GLASS: {return &eiGlass; } break;
+  case EIBT_SHADOW: {return &eiShadow; } break;
+  case EIBT_SMOKE: {return &eiSmoke; } break;
   default:    {return NULL;} break;
   };
 }
@@ -1379,8 +1391,37 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_CLOSERANGE: return 1.5f;
     case DMT_SHARP:  return 1.5f;
     case DMT_BLUNT:  return 1.5f;
+    case DMT_AXE:    return 1.5f;
     }
     return 1.0f;
+  case EIBT_SHADOW:
+      switch (dtDamage) {
+      case DMT_BURNING: return 1.5f;
+      case DMT_SHARP:  return 0.0f;
+      case DMT_BLUNT:  return 0.0f;
+      case DMT_CLOSERANGE:  return 0.0f;
+      case DMT_BULLET:  return 0.0f;
+      case DMT_DROWNING:  return 0.0f;
+      case DMT_FREEZING:  return 0.0f;
+      case DMT_HEAT:  return 0.0f;
+      case DMT_STING:  return 0.0f;
+      case DMT_AXE:    return 0.0f;
+      case DMT_CHAINSAW: return 0.0f;
+      }
+      return 1.0f;
+  case EIBT_SMOKE:
+      switch (dtDamage) {
+      case DMT_BURNING: return 0.5f;
+      case DMT_SHARP:  return 0.0f;
+      case DMT_BLUNT:  return 0.0f;
+      case DMT_CLOSERANGE:  return 0.0f;
+      case DMT_BULLET:  return 0.0f;
+      case DMT_HEAT:  return 0.0f;
+      case DMT_STING:  return 0.0f;
+      case DMT_AXE:    return 0.0f;
+      case DMT_CHAINSAW: return 0.0f;
+      }
+      return 1.0f;
   default:
     ASSERT(FALSE);
     return 1.0f;

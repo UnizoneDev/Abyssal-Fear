@@ -82,7 +82,9 @@ components:
  21 sound   SOUND_HIT                  "Models\\NPCs\\Gunman\\Sounds\\Kick.wav",
  22 sound   SOUND_SWING                "Models\\Weapons\\Knife\\Sounds\\Swing.wav", 
  23 sound   SOUND_FIRE_SHOTGUN         "Models\\NPCs\\Gunman\\Sounds\\ShotgunAttack.wav",
- 24 sound   SOUND_SLICE                "Models\\NPCs\\Twitcher\\Sounds\\Slice.wav",
+ 24 sound   SOUND_SLICE1               "Models\\NPCs\\Twitcher\\Sounds\\Slice1.wav",
+ 82 sound   SOUND_SLICE2               "Models\\NPCs\\Twitcher\\Sounds\\Slice2.wav",
+ 83 sound   SOUND_SLICE3               "Models\\NPCs\\Twitcher\\Sounds\\Slice3.wav",
 
  50 model   MODEL_ITEM            "Models\\Items\\ItemHolder\\ItemHolder.mdl",
  51 model   MODEL_BULLETS         "Models\\Items\\Ammo\\PistolClip\\PistolClip.mdl",
@@ -159,7 +161,9 @@ functions:
     PrecacheSound(SOUND_FIRE);
     PrecacheSound(SOUND_HIT);
     PrecacheSound(SOUND_SWING);
-    PrecacheSound(SOUND_SLICE);
+    PrecacheSound(SOUND_SLICE1);
+    PrecacheSound(SOUND_SLICE2);
+    PrecacheSound(SOUND_SLICE3);
     PrecacheSound(SOUND_FIRE_SHOTGUN);
     PrecacheClass(CLASS_PROJECTILE, PRT_GUNMAN_BULLET);
     PrecacheClass(CLASS_AMMO, AIT_BULLETS);
@@ -442,8 +446,8 @@ functions:
     }
     
     if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 6.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
@@ -472,8 +476,8 @@ functions:
     }
     
     if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_HIT, SOF_3D);
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 9.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
@@ -507,8 +511,14 @@ functions:
     }
     
     if (m_bFistHit) {
-      PlaySound(m_soSound, SOUND_SLICE, SOF_3D);
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        switch(IRnd()%3)
+        {
+          case 0: PlaySound(m_soSound, SOUND_SLICE1, SOF_3D); break;
+          case 1: PlaySound(m_soSound, SOUND_SLICE2, SOF_3D); break;
+          case 2: PlaySound(m_soSound, SOUND_SLICE3, SOF_3D); break;
+          default: ASSERTALWAYS("Gunman unknown melee hit sound");
+        }
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 12.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
@@ -696,6 +706,7 @@ functions:
         SetModelMainTexture(TEXTURE_GUNMAN);
         GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
+        m_bIsLeader = FALSE;
         m_iScore = 1500;
       break;
 
@@ -706,6 +717,7 @@ functions:
         AddAttachment(GUNMAN_ATTACHMENT_SHOTGUN, MODEL_SHOTGUN, TEXTURE_SHOTGUN);
         GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
+        m_bIsLeader = FALSE;
         m_iScore = 2500;
       break;
 
@@ -733,6 +745,7 @@ functions:
         AddAttachment(GUNMAN_ATTACHMENT_PISTOL, MODEL_PISTOL, TEXTURE_PISTOL);
         GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
+        m_bIsLeader = FALSE;
         m_iScore = 500;
       break;
     }

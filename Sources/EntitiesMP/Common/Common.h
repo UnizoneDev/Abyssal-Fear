@@ -15,6 +15,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 // common headers for flesh entity classes
 
+#define SURFACE_ICE 1
 #define SURFACE_SAND 9
 #define SURFACE_WATER 12
 #define SURFACE_RED_SAND 13
@@ -80,6 +81,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define BLOOD_SPILL_RED RGBAToColor(250,20,20,255)
 #define BLOOD_SPILL_GREEN RGBAToColor(0,250,0,255)
+
+// [Cecil] Own definitions
+#define ONE_TICK _pTimer->TickQuantum
+#define ENEMY_STEP_VAL INDEX(-123) // Reminder value for calling enemy step function
 
 // Ammo mana Value
 #define AV_BULLETS        INDEX(10)
@@ -194,7 +199,7 @@ DECL_DLL void SendToTarget(CEntity *penSendEvent, EventEType eetEventType, CEnti
 DECL_DLL void SendInRange(CEntity *penSource, EventEType eetEventType, const FLOATaabbox3D &boxRange);
 
 // spawn reminder
-DECL_DLL CEntityPointer SpawnReminder(CEntity *penOwner, FLOAT fWaitTime, INDEX iValue);
+DECL_DLL CEntityPointer SpawnReminder(CEntity *penOwner, FLOAT fWaitTime, INDEX iValue, BOOL bLooped = FALSE);
 // spawn flame
 DECL_DLL CEntityPointer SpawnFlame(CEntity *penOwner, CEntity *penAttach, const FLOAT3D &vSource);
 

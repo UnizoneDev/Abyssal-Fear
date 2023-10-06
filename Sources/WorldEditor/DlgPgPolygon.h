@@ -52,6 +52,8 @@ public:
 	CCtrlEditBoolean	m_IsPassable;
 	CCtrlEditBoolean	m_IsPortal;
 	CComboBox	m_ComboFriction;
+	CCtrlEditBoolean	m_bLadder;
+	CCtrlEditBoolean	m_bSticky;
 	//}}AFX_DATA
 
 

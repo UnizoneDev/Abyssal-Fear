@@ -974,6 +974,7 @@ BEGIN
             MENUITEM "Import 16 bit heightmap",     ID_IMPORT_HEIGHTMAP16
             MENUITEM "Export 8 bit heightmap",      ID_EXPORT_HEIGHTMAP
             MENUITEM "Export 16 bit heightmap",     ID_EXPORT_HEIGHTMAP16
+			MENUITEM "Export heightmap for terrain primitives", ID_EXPORT_B2WHEIGHTMAP
             MENUITEM SEPARATOR
             MENUITEM "View heightmap",              ID_VIEW_HEIGHTMAP
         END
@@ -1651,6 +1652,8 @@ BEGIN
     CONTROL         "&Transparent",IDC_IS_TRANSPARENT,"Button",BS_AUTO3STATE | WS_TABSTOP,5,15,54,10
     CONTROL         "&Shoot trough",IDC_SHOOTTROUGH,"Button",BS_AUTO3STATE | WS_TABSTOP,148,14,57,10
     CONTROL         "Dou&ble sided",IDC_DOUBLESIDED,"Button",BS_AUTO3STATE | WS_TABSTOP,148,24,56,10
+	CONTROL         "&Ladder", IDC_LADDER, "Button", BS_AUTO3STATE | WS_TABSTOP, 148, 34, 57, 10
+    CONTROL         "&Sticky", IDC_STICKY, "Button", BS_AUTO3STATE | WS_TABSTOP, 148, 44, 56, 10
 END
 
 IDD_AUTO_DELTA_CSG DIALOG 0, 0, 212, 57
@@ -3702,6 +3705,7 @@ BEGIN
     ID_VIEW_HEIGHTMAP       "View heightmap\nView heightmap"
     ID_IMPORT_HEIGHTMAP16   "Import 16 bit heightmap\nImport 16 bit heightmap"
     ID_EXPORT_HEIGHTMAP16   "Export 16 bit heightmap\nExport 16 bit heightmap"
+	ID_EXPORT_B2WHEIGHTMAP  "Export heightmap for terrain primitives\nExport heightmap for terrain primitives"
     ID_CHANGE_HIEGHTMAP_SIZE "Change heightmap size\nChange heightmap size"
     ID_CHANGE_HEIGHTMAP_SIZE "Change heightmap size\nChange heightmap size"
 END
