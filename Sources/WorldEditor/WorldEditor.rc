@@ -173,7 +173,6 @@ BEGIN
     BUTTON      ID_EDIT_PASTE
     SEPARATOR
     BUTTON      ID_APP_ABOUT
-    BUTTON      ID_QT_ABOUTBOX
     BUTTON      ID_CONTEXT_HELP
 END
 
@@ -405,7 +404,6 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Browse window",              ID_VIEW_BROWSEDIALOGBAR
         MENUITEM "&Property combo",             ID_VIEW_PROPERTYCOMBO
-        MENUITEM "&Property tree",              ID_VIEW_PROPERTY_TREE
         MENUITEM "&Info window\tQ, Ctrl+I",     ID_VIEW_INFOWINDOW
     END
     POPUP "&Help"
@@ -414,7 +412,6 @@ BEGIN
         MENUITEM "&Help Topics",                ID_HELP_FINDER
         MENUITEM SEPARATOR
         MENUITEM "&About SeriousEditor...",     ID_APP_ABOUT
-        MENUITEM "&About Qt...",                ID_QT_ABOUTBOX
     END
 END
 
@@ -485,7 +482,6 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Browse window",              ID_VIEW_BROWSEDIALOGBAR
         MENUITEM "&Property combo",             ID_VIEW_PROPERTYCOMBO
-        MENUITEM "&Property tree",              ID_VIEW_PROPERTY_TREE
         MENUITEM "&Info window\tQ, Ctrl+I",     ID_VIEW_INFOWINDOW
     END
     POPUP "&Window"
@@ -502,7 +498,6 @@ BEGIN
         MENUITEM "&Help Topics",                ID_HELP_FINDER
         MENUITEM SEPARATOR
         MENUITEM "&About SeriousEditor...",     ID_APP_ABOUT
-        MENUITEM "&About Qt...",                ID_QT_ABOUTBOX
     END
 END
 
@@ -974,7 +969,7 @@ BEGIN
             MENUITEM "Import 16 bit heightmap",     ID_IMPORT_HEIGHTMAP16
             MENUITEM "Export 8 bit heightmap",      ID_EXPORT_HEIGHTMAP
             MENUITEM "Export 16 bit heightmap",     ID_EXPORT_HEIGHTMAP16
-			MENUITEM "Export heightmap for terrain primitives", ID_EXPORT_B2WHEIGHTMAP
+            MENUITEM "Export heightmap for terrain primitives", ID_EXPORT_B2WHEIGHTMAP
             MENUITEM SEPARATOR
             MENUITEM "View heightmap",              ID_VIEW_HEIGHTMAP
         END
@@ -1043,173 +1038,173 @@ END
 
 IDR_WEDTYPE ACCELERATORS
 BEGIN
-    ",",            ID_COPY_TEXTURE,        ASCII,  NOINVERT
-    "/",            ID_DESELECT_ALL,        ASCII,  NOINVERT
-    "0",            ID_BUFFER10,            VIRTKEY, ALT, NOINVERT
-    "0",            ID_EDIT_BUFFER10,       VIRTKEY, CONTROL, ALT, NOINVERT
-    "0",            ID_TEXTURE_MODE_10,     VIRTKEY, SHIFT, NOINVERT
-    28,             ID_SELECT_ALL_TARGETS,  ASCII,  NOINVERT
-    "1",            ID_BUFFER01,            VIRTKEY, ALT, NOINVERT
-    "1",            ID_EDIT_BUFFER01,       VIRTKEY, CONTROL, ALT, NOINVERT
-    "1",            ID_TEXTURE_MODE_1,      VIRTKEY, SHIFT, NOINVERT
-    "1",            ID_TEXTURE_1,           VIRTKEY, SHIFT, CONTROL, NOINVERT
-    VK_OEM_PERIOD,  ID_VERTEX_MODE,         VIRTKEY, NOINVERT
-    "2",            ID_BUFFER02,            VIRTKEY, ALT, NOINVERT
-    "2",            ID_EDIT_BUFFER02,       VIRTKEY, CONTROL, ALT, NOINVERT
-    "2",            ID_TEXTURE_MODE_2,      VIRTKEY, SHIFT, NOINVERT
-    "2",            ID_TEXTURE_2,           VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "3",            ID_BUFFER03,            VIRTKEY, ALT, NOINVERT
-    "3",            ID_EDIT_BUFFER03,       VIRTKEY, CONTROL, ALT, NOINVERT
-    "3",            ID_TEXTURE_MODE_3,      VIRTKEY, SHIFT, NOINVERT
-    "3",            ID_TEXTURE_3,           VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "4",            ID_BUFFER04,            VIRTKEY, ALT, NOINVERT
-    "4",            ID_EDIT_BUFFER04,       VIRTKEY, CONTROL, ALT, NOINVERT
-    "4",            ID_TEXTURE_MODE_4,      VIRTKEY, SHIFT, NOINVERT
-    "5",            ID_BUFFER05,            VIRTKEY, ALT, NOINVERT
-    "5",            ID_EDIT_BUFFER05,       VIRTKEY, CONTROL, ALT, NOINVERT
-    "5",            ID_TEXTURE_MODE_5,      VIRTKEY, SHIFT, NOINVERT
-    "6",            ID_BUFFER06,            VIRTKEY, ALT, NOINVERT
-    "6",            ID_EDIT_BUFFER06,       VIRTKEY, CONTROL, ALT, NOINVERT
-    "6",            ID_TEXTURE_MODE_6,      VIRTKEY, SHIFT, NOINVERT
-    "7",            ID_BUFFER07,            VIRTKEY, ALT, NOINVERT
-    "7",            ID_EDIT_BUFFER07,       VIRTKEY, CONTROL, ALT, NOINVERT
-    "7",            ID_TEXTURE_MODE_7,      VIRTKEY, SHIFT, NOINVERT
-    "8",            ID_BUFFER08,            VIRTKEY, ALT, NOINVERT
-    "8",            ID_EDIT_BUFFER08,       VIRTKEY, CONTROL, ALT, NOINVERT
-    "8",            ID_TEXTURE_MODE_8,      VIRTKEY, SHIFT, NOINVERT
-    "9",            ID_BUFFER09,            VIRTKEY, ALT, NOINVERT
-    "9",            ID_EDIT_BUFFER09,       VIRTKEY, CONTROL, ALT, NOINVERT
-    "9",            ID_TEXTURE_MODE_9,      VIRTKEY, SHIFT, NOINVERT
-    ";",            ID_POSTERIZE,           ASCII,  NOINVERT
-    "=",            ID_EQUILIZE,            ASCII,  NOINVERT
-    "?",            ID_FLIP_LAYER,          ASCII,  NOINVERT
-    "A",            ID_SELECT_ALL,          VIRTKEY, CONTROL, NOINVERT
-    "A",            ID_SELECT_BY_CLASS,     VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "B",            ID_KEY_B,               VIRTKEY, NOINVERT
-    "C",            ID_CROSSROAD_FOR_C,     VIRTKEY, NOINVERT
-    "C",            ID_TAKE_SS,             VIRTKEY, ALT, NOINVERT
-    "C",            ID_EDIT_COPY_ALTERNATIVE, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "D",            ID_KEY_D,               VIRTKEY, NOINVERT
-    "D",            ID_TOGGLE_VISIBILITY_TWEAKS, VIRTKEY, CONTROL, NOINVERT
-    "D",            ID_TEST_CONNECTIONS,    VIRTKEY, ALT, NOINVERT
-    "D",            ID_ENABLE_VISIBILITY_TWEAKS, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "D",            ID_TEST_CONNECTIONS_BACK, VIRTKEY, SHIFT, ALT, NOINVERT
-    "E",            ID_ENTITY_MODE,         VIRTKEY, NOINVERT
-    "E",            ID_SELECT_CLONES,       VIRTKEY, CONTROL, NOINVERT
-    "E",            ID_KEY_CTRL_SHIFT_E,    VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "E",            ID_SELECT_OF_SAME_CLASS, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "F",            ID_FUNCTION,            VIRTKEY, NOINVERT
-    "F",            ID_CROSSROAD_FOR_CTRL_F, VIRTKEY, CONTROL, NOINVERT
-    "F",            ID_APPLY_FILTER,        VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "G",            ID_KEY_G,               VIRTKEY, NOINVERT
-    "G",            ID_KEY_CTRL_G,          VIRTKEY, CONTROL, NOINVERT
-    "G",            ID_KEY_CTRL_SHIFT_G,    VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "H",            ID_VIEW_SHADOWS_ONOFF,  VIRTKEY, NOINVERT
-    "H",            ID_CALCULATE_SHADOWS_ONOFF, VIRTKEY, CONTROL, NOINVERT
-    "I",            ID_SELECT_BY_CLASS_IMPORTANT, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "I",            ID_SHOW_ORIENTATION,    VIRTKEY, SHIFT, ALT, NOINVERT
-    "J",            ID_KEY_PASTE,           VIRTKEY, NOINVERT
-    "K",            ID_PASTE_TEXTURE,       VIRTKEY, NOINVERT
-    "K",            ID_MENU_ALIGN_MAPPING_U, VIRTKEY, CONTROL, NOINVERT
-    "R",            ID_ADV_MAPPING_ROTATION_ALIGN, VIRTKEY, SHIFT, NOINVERT
-    "N",            ID_ADV_MAPPING_ALIGN_TANGENT, VIRTKEY, ALT, NOINVERT
+    VK_PRIOR,       ID_ADD_MORE_PRECISE_MIP, VIRTKEY, SHIFT, NOINVERT
+    VK_PRIOR,       ID_ADD_MORE_PRECISE_MIP, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    VK_NEXT,        ID_ADD_ROUGHER_MIP_LEVEL, VIRTKEY, SHIFT, NOINVERT
+    VK_NEXT,        ID_ADD_ROUGHER_MIP_LEVEL, VIRTKEY, SHIFT, CONTROL, NOINVERT
     "N",            ID_ADV_MAPPING_ALIGN_ADJACENT, VIRTKEY, SHIFT, ALT, NOINVERT
     "N",            ID_ADV_MAPPING_ALIGN_ADJACENT_TANGENT, VIRTKEY, SHIFT, CONTROL, ALT, NOINVERT
-    "K",            ID_KEY_CTRL_SHIFT_K,    VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "L",            ID_CROSSROAD_FOR_L,     VIRTKEY, NOINVERT
-    "L",            ID_TERRAIN_LAYER_OPTIONS, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "M",            ID_KEY_M,               VIRTKEY, NOINVERT
-    "M",            ID_MEASUREMENT_TAPE,    VIRTKEY, ALT, NOINVERT
-    "M",            ID_APPLY_MINIMUM,       VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "N",            ID_CROSSROAD_FOR_N,     VIRTKEY, NOINVERT
-    "N",            ID_APPLY_FLATTEN,       VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "O",            ID_KEY_O,               VIRTKEY, NOINVERT
-    "O",            ID_CLONE_CSG,           VIRTKEY, ALT, NOINVERT
-    "O",            ID_TE_SMOOTH,           VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "P",            ID_POLYGON_MODE,        VIRTKEY, NOINVERT
-    "P",            ID_TOGGLE_VIEW_PICTURES, VIRTKEY, ALT, NOINVERT
-    "P",            ID_EDIT_TERRAIN_PREFS,  VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "Q",            ID_MEASURE_ON,          VIRTKEY, CONTROL, NOINVERT
-    "R",            ID_TERRAIN_MODE,        VIRTKEY, NOINVERT
-    "R",            ID_CALCULATESHADOWS,    VIRTKEY, CONTROL, NOINVERT
-    "R",            ID_SCENE_RENDERING_TIME, VIRTKEY, ALT, NOINVERT
-    "S",            ID_SECTOR_MODE,         VIRTKEY, NOINVERT
-    "S",            ID_SELECT_SECTORS_ARROUND_ENTITY, VIRTKEY, ALT, NOINVERT
-    "T",            ID_TEST_GAME,           VIRTKEY, NOINVERT
-    "T",            ID_TEST_GAME_FULLSCREEN, VIRTKEY, CONTROL, NOINVERT
-    "T",            ID_TRIANGULARIZE_SELECTION, VIRTKEY, ALT, NOINVERT
-    "T",            ID_TERRAIN_PROPERTIES,  VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "U",            ID_KEY_U,               VIRTKEY, NOINVERT
-    "U",            ID_AUTOTEXTURIZE_MIPS,  VIRTKEY, CONTROL, NOINVERT
-    "U",            ID_UPDATE_CLONES,       VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "V",            ID_BROWSE_ENTITIES_MODE, VIRTKEY, NOINVERT
-    "V",            ID_EDIT_PASTE_ALTERNATIVE, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    VK_ADD,         ID_CSG_ADD,             VIRTKEY, NOINVERT
-    VK_ADD,         ID_ZOOM_MORE,           VIRTKEY, CONTROL, NOINVERT
-    VK_ADD,         ID_CSG_ADD,             VIRTKEY, SHIFT, NOINVERT
-    VK_BACK,        ID_FALL_DOWN,           VIRTKEY, NOINVERT
-    VK_BACK,        ID_RESET_VIEWER,        VIRTKEY, CONTROL, NOINVERT
-    VK_BACK,        ID_CENTER_BCG_VIEWER,   VIRTKEY, SHIFT, NOINVERT
-    VK_DECIMAL,     ID_CSG_CANCEL,          VIRTKEY, NOINVERT
-    VK_DECIMAL,     ID_VERTEX_MODE,         VIRTKEY, NOINVERT
-    VK_DELETE,      ID_DELETE_ENTITIES,     VIRTKEY, NOINVERT
-    VK_DIVIDE,      ID_CSG_SPLIT_SECTORS,   VIRTKEY, NOINVERT
-    VK_DIVIDE,      ID_CSG_JOIN_SECTORS,    VIRTKEY, SHIFT, NOINVERT
-    VK_DOWN,        ID_ROTATE_DOWN,         VIRTKEY, NOINVERT
-    VK_DOWN,        ID_ROTATE_DOWN,         VIRTKEY, SHIFT, NOINVERT
-    VK_END,         ID_RESTORE_POSITION02,  VIRTKEY, NOINVERT
-    VK_END,         ID_STORE_POSITION02,    VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_ADV_MAPPING_ALIGN_TANGENT, VIRTKEY, ALT, NOINVERT
+    "R",            ID_ADV_MAPPING_ROTATION_ALIGN, VIRTKEY, SHIFT, NOINVERT
     VK_ESCAPE,      ID_ALTERNATIVE_MOVING_MODE, VIRTKEY, NOINVERT
-    VK_F10,         ID_CURRENT_VIEW_PROPERTIES, VIRTKEY, NOINVERT
-    VK_F5,          ID_ISOMETRIC_TOP,       VIRTKEY, NOINVERT
-    VK_F5,          ID_ISOMETRIC_BOTTOM,    VIRTKEY, SHIFT, NOINVERT
-    VK_F6,          ID_ISOMETRIC_RIGHT,     VIRTKEY, NOINVERT
-    VK_F6,          ID_ISOMETRIC_LEFT,      VIRTKEY, SHIFT, NOINVERT
-    VK_F7,          ID_ISOMETRIC_FRONT,     VIRTKEY, NOINVERT
-    VK_F7,          ID_ISOMETRIC_BACK,      VIRTKEY, SHIFT, NOINVERT
-    VK_F8,          ID_PERSPECTIVE,         VIRTKEY, NOINVERT
-    VK_F9,          ID_RE_TRIPLE,           VIRTKEY, NOINVERT
-    VK_HOME,        ID_RESTORE_POSITION01,  VIRTKEY, NOINVERT
-    VK_HOME,        ID_STORE_POSITION01,    VIRTKEY, CONTROL, NOINVERT
-    VK_LEFT,        ID_ROTATE_LEFT,         VIRTKEY, NOINVERT
-    VK_LEFT,        ID_ROTATE_LEFT,         VIRTKEY, SHIFT, NOINVERT
-    VK_MULTIPLY,    ID_CSG_SPLIT_POLYGONS,  VIRTKEY, NOINVERT
+    "Y",            ID_APPLY_CONTINOUS_NOISE, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "F",            ID_APPLY_FILTER,        VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "N",            ID_APPLY_FLATTEN,       VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "X",            ID_APPLY_MAXIMUM,       VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "M",            ID_APPLY_MINIMUM,       VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "U",            ID_AUTOTEXTURIZE_MIPS,  VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_BROWSE_ENTITIES_MODE, VIRTKEY, NOINVERT
+    "1",            ID_BUFFER01,            VIRTKEY, ALT, NOINVERT
+    "2",            ID_BUFFER02,            VIRTKEY, ALT, NOINVERT
+    "3",            ID_BUFFER03,            VIRTKEY, ALT, NOINVERT
+    "4",            ID_BUFFER04,            VIRTKEY, ALT, NOINVERT
+    "5",            ID_BUFFER05,            VIRTKEY, ALT, NOINVERT
+    "6",            ID_BUFFER06,            VIRTKEY, ALT, NOINVERT
+    "7",            ID_BUFFER07,            VIRTKEY, ALT, NOINVERT
+    "8",            ID_BUFFER08,            VIRTKEY, ALT, NOINVERT
+    "9",            ID_BUFFER09,            VIRTKEY, ALT, NOINVERT
+    "0",            ID_BUFFER10,            VIRTKEY, ALT, NOINVERT
+    "H",            ID_CALCULATE_SHADOWS_ONOFF, VIRTKEY, CONTROL, NOINVERT
+    "R",            ID_CALCULATESHADOWS,    VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_CENTER_BCG_VIEWER,   VIRTKEY, SHIFT, NOINVERT
+    "O",            ID_CLONE_CSG,           VIRTKEY, ALT, NOINVERT
+    ",",            ID_COPY_TEXTURE,        ASCII,  NOINVERT
+    "C",            ID_CROSSROAD_FOR_C,     VIRTKEY, NOINVERT
+    "F",            ID_CROSSROAD_FOR_CTRL_F, VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_CROSSROAD_FOR_L,     VIRTKEY, NOINVERT
+    "N",            ID_CROSSROAD_FOR_N,     VIRTKEY, NOINVERT
+    VK_ADD,         ID_CSG_ADD,             VIRTKEY, NOINVERT
+    VK_ADD,         ID_CSG_ADD,             VIRTKEY, SHIFT, NOINVERT
+    VK_DECIMAL,     ID_CSG_CANCEL,          VIRTKEY, NOINVERT
     VK_MULTIPLY,    ID_CSG_JOIN_ALL_POLYGONS, VIRTKEY, ALT, NOINVERT
     VK_MULTIPLY,    ID_CSG_JOIN_ALL_POLYGONS, VIRTKEY, CONTROL, ALT, NOINVERT
     VK_MULTIPLY,    ID_CSG_JOIN_POLYGONS,   VIRTKEY, SHIFT, NOINVERT
     VK_MULTIPLY,    ID_CSG_JOIN_POLYGONS,   VIRTKEY, SHIFT, CONTROL, NOINVERT
-    VK_NEXT,        ID_RESTORE_POSITION04,  VIRTKEY, NOINVERT
-    VK_NEXT,        ID_STORE_POSITION04,    VIRTKEY, CONTROL, NOINVERT
-    VK_NEXT,        ID_ADD_ROUGHER_MIP_LEVEL, VIRTKEY, SHIFT, NOINVERT
-    VK_NEXT,        ID_ADD_ROUGHER_MIP_LEVEL, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    VK_PRIOR,       ID_RESTORE_POSITION03,  VIRTKEY, NOINVERT
-    VK_PRIOR,       ID_STORE_POSITION03,    VIRTKEY, CONTROL, NOINVERT
-    VK_PRIOR,       ID_ADD_MORE_PRECISE_MIP, VIRTKEY, SHIFT, NOINVERT
-    VK_PRIOR,       ID_ADD_MORE_PRECISE_MIP, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    VK_RETURN,      ID_LAST_PRIMITIVE,      VIRTKEY, NOINVERT
-    VK_RIGHT,       ID_ROTATE_RIGHT,        VIRTKEY, NOINVERT
-    VK_RIGHT,       ID_ROTATE_RIGHT,        VIRTKEY, SHIFT, NOINVERT
+    VK_DIVIDE,      ID_CSG_JOIN_SECTORS,    VIRTKEY, SHIFT, NOINVERT
     VK_SUBTRACT,    ID_CSG_REMOVE,          VIRTKEY, NOINVERT
-    VK_SUBTRACT,    ID_ZOOM_LESS,           VIRTKEY, CONTROL, NOINVERT
+    VK_MULTIPLY,    ID_CSG_SPLIT_POLYGONS,  VIRTKEY, NOINVERT
+    VK_DIVIDE,      ID_CSG_SPLIT_SECTORS,   VIRTKEY, NOINVERT
+    VK_F10,         ID_CURRENT_VIEW_PROPERTIES, VIRTKEY, NOINVERT
+    "X",            ID_CUT_MODE,            VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_DELETE_ENTITIES,     VIRTKEY, NOINVERT
+    "/",            ID_DESELECT_ALL,        ASCII,  NOINVERT
+    "`",            ID_DESELECT_ALL,        ASCII,  NOINVERT
+    "1",            ID_EDIT_BUFFER01,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "2",            ID_EDIT_BUFFER02,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "3",            ID_EDIT_BUFFER03,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "4",            ID_EDIT_BUFFER04,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "5",            ID_EDIT_BUFFER05,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "6",            ID_EDIT_BUFFER06,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "7",            ID_EDIT_BUFFER07,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "8",            ID_EDIT_BUFFER08,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "9",            ID_EDIT_BUFFER09,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "0",            ID_EDIT_BUFFER10,       VIRTKEY, CONTROL, ALT, NOINVERT
+    "C",            ID_EDIT_COPY_ALTERNATIVE, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE_ALTERNATIVE, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "P",            ID_EDIT_TERRAIN_PREFS,  VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "D",            ID_ENABLE_VISIBILITY_TWEAKS, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "E",            ID_ENTITY_MODE,         VIRTKEY, NOINVERT
+    "=",            ID_EQUILIZE,            ASCII,  NOINVERT
+    VK_BACK,        ID_FALL_DOWN,           VIRTKEY, NOINVERT
+    "?",            ID_FLIP_LAYER,          ASCII,  NOINVERT
+    "F",            ID_FUNCTION,            VIRTKEY, NOINVERT
+    "X",            ID_HIDE_SELECTED,       VIRTKEY, ALT, NOINVERT
+    "X",            ID_HIDE_UNSELECTED,     VIRTKEY, NOINVERT
+    VK_F7,          ID_ISOMETRIC_BACK,      VIRTKEY, SHIFT, NOINVERT
+    VK_F5,          ID_ISOMETRIC_BOTTOM,    VIRTKEY, SHIFT, NOINVERT
+    VK_F7,          ID_ISOMETRIC_FRONT,     VIRTKEY, NOINVERT
+    VK_F6,          ID_ISOMETRIC_LEFT,      VIRTKEY, SHIFT, NOINVERT
+    VK_F6,          ID_ISOMETRIC_RIGHT,     VIRTKEY, NOINVERT
+    VK_F5,          ID_ISOMETRIC_TOP,       VIRTKEY, NOINVERT
+    "B",            ID_KEY_B,               VIRTKEY, NOINVERT
+    "\\",           ID_KEY_BACKSLASH,       ASCII,  NOINVERT
+    "G",            ID_KEY_CTRL_G,          VIRTKEY, CONTROL, NOINVERT
+    "E",            ID_KEY_CTRL_SHIFT_E,    VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "G",            ID_KEY_CTRL_SHIFT_G,    VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "K",            ID_KEY_CTRL_SHIFT_K,    VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "D",            ID_KEY_D,               VIRTKEY, NOINVERT
+    "G",            ID_KEY_G,               VIRTKEY, NOINVERT
+    "M",            ID_KEY_M,               VIRTKEY, NOINVERT
+    "O",            ID_KEY_O,               VIRTKEY, NOINVERT
+    "J",            ID_KEY_PASTE,           VIRTKEY, NOINVERT
+    "U",            ID_KEY_U,               VIRTKEY, NOINVERT
+    "Y",            ID_KEY_Y,               VIRTKEY, NOINVERT
+    VK_RETURN,      ID_LAST_PRIMITIVE,      VIRTKEY, NOINVERT
+    "`",            ID_MAXIMIZE_VIEW,       ASCII,  ALT, NOINVERT
+    "Q",            ID_MEASURE_ON,          VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_MEASUREMENT_TAPE,    VIRTKEY, ALT, NOINVERT
+    "K",            ID_MENU_ALIGN_MAPPING_U, VIRTKEY, CONTROL, NOINVERT
+    "]",            ID_NEXT,                ASCII,  NOINVERT
+    "Z",            ID_OPTIMIZE_LAYERS,     VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "K",            ID_PASTE_TEXTURE,       VIRTKEY, NOINVERT
+    VK_F8,          ID_PERSPECTIVE,         VIRTKEY, NOINVERT
+    "P",            ID_POLYGON_MODE,        VIRTKEY, NOINVERT
+    ";",            ID_POSTERIZE,           ASCII,  NOINVERT
+    "[",            ID_PREVIOUS,            ASCII,  NOINVERT
+    VK_F9,          ID_RE_TRIPLE,           VIRTKEY, NOINVERT
+    VK_BACK,        ID_RESET_VIEWER,        VIRTKEY, CONTROL, NOINVERT
+    VK_HOME,        ID_RESTORE_POSITION01,  VIRTKEY, NOINVERT
+    VK_END,         ID_RESTORE_POSITION02,  VIRTKEY, NOINVERT
+    VK_PRIOR,       ID_RESTORE_POSITION03,  VIRTKEY, NOINVERT
+    VK_NEXT,        ID_RESTORE_POSITION04,  VIRTKEY, NOINVERT
     VK_TAB,         ID_ROTATE,              VIRTKEY, NOINVERT
     VK_TAB,         ID_ROTATE_BACK,         VIRTKEY, SHIFT, NOINVERT
+    VK_DOWN,        ID_ROTATE_DOWN,         VIRTKEY, NOINVERT
+    VK_DOWN,        ID_ROTATE_DOWN,         VIRTKEY, SHIFT, NOINVERT
+    VK_LEFT,        ID_ROTATE_LEFT,         VIRTKEY, NOINVERT
+    VK_LEFT,        ID_ROTATE_LEFT,         VIRTKEY, SHIFT, NOINVERT
+    VK_RIGHT,       ID_ROTATE_RIGHT,        VIRTKEY, NOINVERT
+    VK_RIGHT,       ID_ROTATE_RIGHT,        VIRTKEY, SHIFT, NOINVERT
     VK_UP,          ID_ROTATE_UP,           VIRTKEY, NOINVERT
     VK_UP,          ID_ROTATE_UP,           VIRTKEY, SHIFT, NOINVERT
-    "W",            ID_SNAPSHOT,            VIRTKEY, CONTROL, NOINVERT
-    "X",            ID_HIDE_UNSELECTED,     VIRTKEY, NOINVERT
-    "X",            ID_CUT_MODE,            VIRTKEY, CONTROL, NOINVERT
-    "X",            ID_HIDE_SELECTED,       VIRTKEY, ALT, NOINVERT
-    "X",            ID_APPLY_MAXIMUM,       VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "Y",            ID_KEY_Y,               VIRTKEY, NOINVERT
-    "Y",            ID_APPLY_CONTINOUS_NOISE, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "Z",            ID_VIEW_SELECTION,      VIRTKEY, NOINVERT
-    "Z",            ID_OPTIMIZE_LAYERS,     VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "[",            ID_PREVIOUS,            ASCII,  NOINVERT
-    "\\",           ID_KEY_BACKSLASH,       ASCII,  NOINVERT
-    "]",            ID_NEXT,                ASCII,  NOINVERT
-    "`",            ID_DESELECT_ALL,        ASCII,  NOINVERT
-    "`",            ID_MAXIMIZE_VIEW,       ASCII,  ALT, NOINVERT
+    "R",            ID_SCENE_RENDERING_TIME, VIRTKEY, ALT, NOINVERT
+    "S",            ID_SECTOR_MODE,         VIRTKEY, NOINVERT
+    "A",            ID_SELECT_ALL,          VIRTKEY, CONTROL, NOINVERT
+    28,             ID_SELECT_ALL_TARGETS,  ASCII,  NOINVERT
+    "A",            ID_SELECT_BY_CLASS,     VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "I",            ID_SELECT_BY_CLASS_IMPORTANT, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "E",            ID_SELECT_CLONES,       VIRTKEY, CONTROL, NOINVERT
+    "E",            ID_SELECT_OF_SAME_CLASS, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "S",            ID_SELECT_SECTORS_ARROUND_ENTITY, VIRTKEY, ALT, NOINVERT
     "|",            ID_SELECT_WHO_TARGETS,  ASCII,  NOINVERT
+    "I",            ID_SHOW_ORIENTATION,    VIRTKEY, SHIFT, ALT, NOINVERT
+    "W",            ID_SNAPSHOT,            VIRTKEY, CONTROL, NOINVERT
+    VK_HOME,        ID_STORE_POSITION01,    VIRTKEY, CONTROL, NOINVERT
+    VK_END,         ID_STORE_POSITION02,    VIRTKEY, CONTROL, NOINVERT
+    VK_PRIOR,       ID_STORE_POSITION03,    VIRTKEY, CONTROL, NOINVERT
+    VK_NEXT,        ID_STORE_POSITION04,    VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_TAKE_SS,             VIRTKEY, ALT, NOINVERT
+    "O",            ID_TE_SMOOTH,           VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "L",            ID_TERRAIN_LAYER_OPTIONS, VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "R",            ID_TERRAIN_MODE,        VIRTKEY, NOINVERT
+    "T",            ID_TERRAIN_PROPERTIES,  VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "D",            ID_TEST_CONNECTIONS,    VIRTKEY, ALT, NOINVERT
+    "D",            ID_TEST_CONNECTIONS_BACK, VIRTKEY, SHIFT, ALT, NOINVERT
+    "T",            ID_TEST_GAME,           VIRTKEY, NOINVERT
+    "T",            ID_TEST_GAME_FULLSCREEN, VIRTKEY, CONTROL, NOINVERT
+    "1",            ID_TEXTURE_1,           VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "2",            ID_TEXTURE_2,           VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "3",            ID_TEXTURE_3,           VIRTKEY, SHIFT, CONTROL, NOINVERT
+    "1",            ID_TEXTURE_MODE_1,      VIRTKEY, SHIFT, NOINVERT
+    "0",            ID_TEXTURE_MODE_10,     VIRTKEY, SHIFT, NOINVERT
+    "2",            ID_TEXTURE_MODE_2,      VIRTKEY, SHIFT, NOINVERT
+    "3",            ID_TEXTURE_MODE_3,      VIRTKEY, SHIFT, NOINVERT
+    "4",            ID_TEXTURE_MODE_4,      VIRTKEY, SHIFT, NOINVERT
+    "5",            ID_TEXTURE_MODE_5,      VIRTKEY, SHIFT, NOINVERT
+    "6",            ID_TEXTURE_MODE_6,      VIRTKEY, SHIFT, NOINVERT
+    "7",            ID_TEXTURE_MODE_7,      VIRTKEY, SHIFT, NOINVERT
+    "8",            ID_TEXTURE_MODE_8,      VIRTKEY, SHIFT, NOINVERT
+    "9",            ID_TEXTURE_MODE_9,      VIRTKEY, SHIFT, NOINVERT
+    "P",            ID_TOGGLE_VIEW_PICTURES, VIRTKEY, ALT, NOINVERT
+    "D",            ID_TOGGLE_VISIBILITY_TWEAKS, VIRTKEY, CONTROL, NOINVERT
+    "T",            ID_TRIANGULARIZE_SELECTION, VIRTKEY, ALT, NOINVERT
+    "U",            ID_UPDATE_CLONES,       VIRTKEY, SHIFT, CONTROL, NOINVERT
+    VK_DECIMAL,     ID_VERTEX_MODE,         VIRTKEY, NOINVERT
+    VK_OEM_PERIOD,  ID_VERTEX_MODE,         VIRTKEY, NOINVERT
+    "Z",            ID_VIEW_SELECTION,      VIRTKEY, NOINVERT
+    "H",            ID_VIEW_SHADOWS_ONOFF,  VIRTKEY, NOINVERT
+    VK_SUBTRACT,    ID_ZOOM_LESS,           VIRTKEY, CONTROL, NOINVERT
+    VK_ADD,         ID_ZOOM_MORE,           VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -1652,7 +1647,7 @@ BEGIN
     CONTROL         "&Transparent",IDC_IS_TRANSPARENT,"Button",BS_AUTO3STATE | WS_TABSTOP,5,15,54,10
     CONTROL         "&Shoot trough",IDC_SHOOTTROUGH,"Button",BS_AUTO3STATE | WS_TABSTOP,148,14,57,10
     CONTROL         "Dou&ble sided",IDC_DOUBLESIDED,"Button",BS_AUTO3STATE | WS_TABSTOP,148,24,56,10
-	CONTROL         "&Ladder", IDC_LADDER, "Button", BS_AUTO3STATE | WS_TABSTOP, 148, 34, 57, 10
+    CONTROL         "&Ladder", IDC_LADDER, "Button", BS_AUTO3STATE | WS_TABSTOP, 148, 34, 57, 10
     CONTROL         "&Sticky", IDC_STICKY, "Button", BS_AUTO3STATE | WS_TABSTOP, 148, 44, 56, 10
 END
 
@@ -1741,10 +1736,10 @@ BEGIN
     CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,7,129,155,25
 END
 
-IDD_BROWSE_BY_CLASS DIALOGEX 0, 0, 533, 223
-STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+IDD_BROWSE_BY_CLASS DIALOG 0, 0, 531, 223
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Select entities"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
+FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "Entities in volume: 4",IDC_ENTITIES_IN_VOLUME_T,7,7,185,8
     CONTROL         "List1",IDC_ENTITY_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,18,474,172
@@ -1760,7 +1755,7 @@ BEGIN
     PUSHBUTTON      "R&evert",ID_REVERT,299,198,46,14
     PUSHBUTTON      "&Sel. sectors",ID_SELECT_SECTORS,356,198,46,14
     DEFPUSHBUTTON   "OK",IDOK,413,198,46,14
-    PUSHBUTTON      "Cancel",IDCANCEL,470,202,46,14
+    PUSHBUTTON      "Cancel",IDCANCEL,470,199,46,14
 END
 
 IDD_FILE_REQUESTER DIALOG 0, 0, 250, 80
@@ -2277,12 +2272,6 @@ BEGIN
     CONTROL         "Ran&dom octave offset",IDC_RANDOM_OFFSET,"Button",BS_AUTOCHECKBOX | BS_LEFTTEXT | WS_TABSTOP,10,65,124,10
 END
 
-IDD_PROPERTY_TREE DIALOGEX 0, 0, 145, 180
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
-FONT 8, "MS Shell Dlg", 400, 0, 0x0
-BEGIN
-END
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -2592,7 +2581,7 @@ BEGIN
     IDD_BROWSE_BY_CLASS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 526
+        RIGHTMARGIN, 524
         VERTGUIDE, 403
         TOPMARGIN, 7
         BOTTOMMARGIN, 216
@@ -2820,14 +2809,6 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 293
     END
-
-    IDD_PROPERTY_TREE, DIALOG
-    BEGIN
-        LEFTMARGIN, 6
-        RIGHTMARGIN, 138
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 173
-    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -2893,22 +2874,6 @@ IDC_TE_TILE_PAINTING    CURSOR                  "res\\te_pick1.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// AFX_DIALOG_LAYOUT
-//
-
-IDD_PROPERTY_TREE AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_BROWSE_BY_CLASS AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // String Table
 //
 
@@ -2922,7 +2887,7 @@ END
 
 STRINGTABLE
 BEGIN
-    AFX_IDS_APP_TITLE       "SeriousEditor"
+    AFX_IDS_APP_TITLE       "WorldEditor"
     AFX_IDS_IDLEMESSAGE     "For Help, press F1"
     AFX_IDS_HELPMODEMESSAGE "Select an object on which to get Help"
 END
@@ -2944,16 +2909,6 @@ BEGIN
     ID_FILE_CLOSE           "Close the active document\nClose"
     ID_FILE_SAVE            "Save the active document\nSave"
     ID_FILE_SAVE_AS         "Save the active document with a new name (Ctrl+Shift+S)\nSave As (Ctrl+Shift+S)"
-END
-
-STRINGTABLE
-BEGIN
-    ID_VIEW_TOOLBAR         "Show or hide main toolbar\nToggle main tool bar"
-    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle status bar"
-    ID_VIEW_BROWSEDIALOGBAR "Show or hide Browse window\nToggle Browse window"
-    ID_VIEW_PROPERTYCOMBO   "Toggle visibility of property dialog\nProperty dialog on/off"
-    ID_VIEW_PROPERTY_TREE   "Toggle visibility of property tree\nProperty tree on/off"
-    ID_QT_ABOUTBOX          "Display information about Qt third-party library\nAbout Qt"
 END
 
 STRINGTABLE
@@ -3016,6 +2971,14 @@ BEGIN
     ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
     ID_EDIT_UNDO            "Undo the last action\nUndo"
     ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide main toolbar\nToggle main tool bar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle status bar"
+    ID_VIEW_BROWSEDIALOGBAR "Show or hide Browse window\nToggle Browse window"
+    ID_VIEW_PROPERTYCOMBO   "Toggle visibility of property dialog\nProperty dialog on/off"
 END
 
 STRINGTABLE
@@ -3384,6 +3347,29 @@ END
 
 STRINGTABLE
 BEGIN
+    ID_TBRUSH_FILTER        "Filter brush (F)\nFilter brush (F)"
+    ID_TBRUSH_MINIMUM       "Limit down brush (M)\nLimit down brush (M)"
+    ID_TBRUSH_MAXIMUM       "Limit up brush (X)\nLimit up brush (X)"
+    ID_TBRUSH_POSTERIZE     "Posterize brush (-)\nPosterize brush (-)"
+    ID_TBRUSH_CONTINOUS_NOISE 
+                            "Texture noise brush (K)\nTexture noise brush (K)"
+    ID_TERRAIN_PROPERTIES   "Invoke terrain properties (Ctrl+Shift+T)\nInvoke terrain properties (Ctrl+Shift+T)"
+END
+
+STRINGTABLE
+BEGIN
+    ID_ADV_MAPPING_ROTATION_ALIGN 
+                            "Rotate to align next edge (Shift+R)\nRotate to align next edge (Shift+R)"
+    ID_ADV_MAPPING_ALIGN_TANGENT 
+                            "Align by tangent edge (Alt+N)\nAlign by tangent edge (Alt+N)"
+    ID_ADV_MAPPING_ALIGN_ADJACENT 
+                            "Align by adjacent edge (Alt+Shift+N)\nAlign by adjacent edge (Alt+Shift+N)"
+    ID_ADV_MAPPING_ALIGN_ADJACENT_TANGENT 
+                            "Align by adjacent and tangent edges (Alt+Shift+Ctrl+N)\nAlign by adjacent and tangent edges (Alt+Shift+Ctrl+N)"
+END
+
+STRINGTABLE
+BEGIN
     IDW_SHOW_TEXTURE        "Selected polygon's (selection) texture"
 END
 
@@ -3476,18 +3462,6 @@ BEGIN
                             "Selects polygons in world that contain textures that are not selected in browser\nSelects polygons in world that contain textures that are not selected in browser"
     ID_REMOVE_UNUSED_TEXTURES 
                             "Remove unused textures from all of world's polygons (from non translucent portals)\nRemove unused textures from all of world's polygons (from non translucent portals)"
-END
-
-STRINGTABLE
-BEGIN
-    ID_ADV_MAPPING_ROTATION_ALIGN 
-                            "Rotate to align next edge (Shift+R)\nRotate to align next edge (Shift+R)"
-    ID_ADV_MAPPING_ALIGN_TANGENT 
-                            "Align by tangent edge (Alt+N)\nAlign by tangent edge (Alt+N)"
-    ID_ADV_MAPPING_ALIGN_ADJACENT 
-                            "Align by adjacent edge (Alt+Shift+N)\nAlign by adjacent edge (Alt+Shift+N)"
-    ID_ADV_MAPPING_ALIGN_ADJACENT_TANGENT 
-                            "Align by adjacent and tangent edges (Alt+Shift+Ctrl+N)\nAlign by adjacent and tangent edges (Alt+Shift+Ctrl+N)"
 END
 
 STRINGTABLE
@@ -3705,20 +3679,9 @@ BEGIN
     ID_VIEW_HEIGHTMAP       "View heightmap\nView heightmap"
     ID_IMPORT_HEIGHTMAP16   "Import 16 bit heightmap\nImport 16 bit heightmap"
     ID_EXPORT_HEIGHTMAP16   "Export 16 bit heightmap\nExport 16 bit heightmap"
-	ID_EXPORT_B2WHEIGHTMAP  "Export heightmap for terrain primitives\nExport heightmap for terrain primitives"
+    ID_EXPORT_B2WHEIGHTMAP  "Export heightmap for terrain primitives\nExport heightmap for terrain primitives"
     ID_CHANGE_HIEGHTMAP_SIZE "Change heightmap size\nChange heightmap size"
     ID_CHANGE_HEIGHTMAP_SIZE "Change heightmap size\nChange heightmap size"
-END
-
-STRINGTABLE
-BEGIN
-    ID_TBRUSH_FILTER        "Filter brush (F)\nFilter brush (F)"
-    ID_TBRUSH_MINIMUM       "Limit down brush (M)\nLimit down brush (M)"
-    ID_TBRUSH_MAXIMUM       "Limit up brush (X)\nLimit up brush (X)"
-    ID_TBRUSH_POSTERIZE     "Posterize brush (-)\nPosterize brush (-)"
-    ID_TBRUSH_CONTINOUS_NOISE 
-                            "Texture noise brush (K)\nTexture noise brush (K)"
-    ID_TERRAIN_PROPERTIES   "Invoke terrain properties (Ctrl+Shift+T)\nInvoke terrain properties (Ctrl+Shift+T)"
 END
 
 #endif    // English (United States) resources

@@ -19,8 +19,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "stdafx.h"
 #include "DlgWorldSettings.h"
 
-#include <Engine/Models/ImportedMesh.h>
-
 #ifdef _DEBUG
 #undef new
 #define new DEBUG_NEW
@@ -186,7 +184,7 @@ void CDlgWorldSettings::DoDataExchange(CDataExchange* pDX)
         // load 3D object
         FLOATmatrix3D mStretch;
         mStretch.Diagonal(1.0f);
-        pDoc->m_o3dBackdropObject.FillFromMesh(ImportedMesh(pDoc->m_woWorld.wo_strBackdropObject, mStretch));
+        pDoc->m_o3dBackdropObject.LoadAny3DFormat_t( pDoc->m_woWorld.wo_strBackdropObject, mStretch);
       }
       // catch and
       catch( char *strError)
@@ -315,9 +313,8 @@ BOOL CDlgWorldSettings::OnInitDialog()
 
 void CDlgWorldSettings::OnBrowseTopViewPicture()
 {
-  const auto imageFilter = _EngineGUI.GetListOfImportImageFormats();
   CTFileName fnPicture = _EngineGUI.FileRequester( "Picture for top view",
-    imageFilter.data(), "Picture for view directory", "");
+    FILTER_PICTURES FILTER_ALL FILTER_END, "Picture for view directory", "");
   if( fnPicture == "") return;
   GetDlgItem( IDC_TOP_VIEW_PICTURE_T)->SetWindowText( CString(fnPicture));
 	m_strTopViewPicture = fnPicture;
@@ -327,9 +324,8 @@ void CDlgWorldSettings::OnBrowseTopViewPicture()
 
 void CDlgWorldSettings::OnBrowseFrontViewPicture()
 {
-  const auto imageFilter = _EngineGUI.GetListOfImportImageFormats();
   CTFileName fnPicture = _EngineGUI.FileRequester( "Picture for front view",
-    imageFilter.data(), "Picture for view directory", "");
+    FILTER_PICTURES FILTER_ALL FILTER_END, "Picture for view directory", "");
   if( fnPicture == "") return;
   GetDlgItem( IDC_FRONT_VIEW_PICTURE_T)->SetWindowText( CString(fnPicture));
 	m_strFrontViewPicture = fnPicture;
@@ -339,9 +335,8 @@ void CDlgWorldSettings::OnBrowseFrontViewPicture()
 
 void CDlgWorldSettings::OnBrowseRightViewPicture()
 {
-  const auto imageFilter = _EngineGUI.GetListOfImportImageFormats();
   CTFileName fnPicture = _EngineGUI.FileRequester( "Picture for right view",
-    imageFilter.data(), "Picture for view directory", "");
+    FILTER_PICTURES FILTER_ALL FILTER_END, "Picture for view directory", "");
   if( fnPicture == "") return;
   GetDlgItem( IDC_RIGHT_VIEW_PICTURE_T)->SetWindowText( CString(fnPicture));
 	m_strRightViewPicture = fnPicture;

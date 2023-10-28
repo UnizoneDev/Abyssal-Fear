@@ -25,7 +25,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "resource.h"       // main symbols
 #include "Viewers.h"
 
-#include <functional>
 
 #define CHILD_CONFIGURATION_VER "V012"
 #define VIEW_PREFERENCES_VER "V012"
@@ -323,8 +322,6 @@ class CWorldEditorApp : public CWinApp
 {
 private:
   CWorldEditorDoc *m_pLastActivatedDocument;
-  bool m_showing_modal_dialog;
-  std::function<void(CEntity*)> m_selection_stealer;
 public:
 // Atributes
   FLOAT3D m_vLastTerrainHit;
@@ -499,17 +496,9 @@ public:
   CChangeableRT m_ctTerrainPage;
   CChangeableRT m_ctTerrainPageCanvas;
 
-  struct ModalGuard
-  {
-    ModalGuard();
-    ~ModalGuard();
-  };
-
 // Operations
   CWorldEditorApp();
 	~CWorldEditorApp();
-  void InstallOneTimeSelectionStealer(std::function<void(CEntity*)>&& selection_stealer, void* source);
-  const std::function<void(CEntity*)>& GetSelectionStealer() const;
 	void MyParseCommandLine(void);
 	BOOL SubInitInstance(void);
   void OnFileNew();
@@ -570,7 +559,6 @@ public:
 
 	//{{AFX_MSG(CWorldEditorApp)
 	afx_msg void OnAppAbout();
-  afx_msg void OnQtAbout();
 	afx_msg void OnFilePreferences();
 	afx_msg void OnFileOpen();
 	afx_msg void OnImport3DObject();

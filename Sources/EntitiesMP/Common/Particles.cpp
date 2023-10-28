@@ -108,6 +108,7 @@ static CTextureObject _toBulletFusebox;
 static CTextureObject _toBulletGravel;
 static CTextureObject _toBulletGlitch;
 static CTextureObject _toBulletIce;
+static CTextureObject _toBulletLava;
 static CTextureObject _toAirSprayTexture;
 static CTextureObject _toFlameThrowerGradient;
 static CTextureObject _toFlameThrowerStartGradient;
@@ -296,6 +297,7 @@ void InitParticles(void)
     _toBulletGravel.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayGravel.tex"));
     _toBulletGlitch.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayGlitch.tex"));
     _toBulletIce.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayIce.tex"));
+    _toBulletLava.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayLava.tex"));
     _toAirSprayTexture.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\AirSpray.tex"));
     _toFlameThrowerGradient.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\FlameThrowerGradient.tex"));
     _toFlameThrowerStartGradient.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\FlameThrowerStartGradient.tex"));
@@ -442,6 +444,7 @@ void CloseParticles(void)
   _toBulletGravel.SetData(NULL);
   _toBulletGlitch.SetData(NULL);
   _toBulletIce.SetData(NULL);
+  _toBulletLava.SetData(NULL);
   _toAirSprayTexture.SetData(NULL);
   _toFlameThrowerGradient.SetData(NULL);
   _toFlameThrowerStartGradient.SetData(NULL);
@@ -3791,6 +3794,14 @@ void Particles_BulletSpray(INDEX iRndBase, FLOAT3D vSource, FLOAT3D vGDir, enum 
         Particle_PrepareTexture(&_toBulletIce, PBT_BLEND);
         fSizeStart = 0.15f;
         fSpeedStart = 1.25f;
+        break;
+    }
+    case EPT_BULLET_LAVA:
+    {
+        colSmoke = C_WHITE;
+        Particle_PrepareTexture(&_toBulletLava, PBT_BLEND);
+        fSizeStart = 0.05f;
+        fSpeedStart = 1.5f;
         break;
     }
     default:

@@ -477,6 +477,7 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[7].st_fClimbSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[7].st_ulFlags = STF_SLIDEDOWNSLOPE;
 
+  ASSERT(8==SURFACE_LAVA);
   pwo->wo_astSurfaceTypes[8].st_strName = "Lava";
   pwo->wo_astSurfaceTypes[8].st_fFriction = 1.0f;
   pwo->wo_astSurfaceTypes[8].st_fStairsHeight = 1.0f;
@@ -897,9 +898,9 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
 
   pwo->wo_actContentTypes[7].ct_strName = "Acid";
   pwo->wo_actContentTypes[7].ct_fDensity = 1000.0f;
-  pwo->wo_actContentTypes[7].ct_fFluidFriction     = 0.0f;
-  pwo->wo_actContentTypes[7].ct_fControlMultiplier = 2.0f;
-  pwo->wo_actContentTypes[7].ct_fSpeedMultiplier = 0.75f;
+  pwo->wo_actContentTypes[7].ct_fFluidFriction     = 1.0f;
+  pwo->wo_actContentTypes[7].ct_fControlMultiplier = 1.0f;
+  pwo->wo_actContentTypes[7].ct_fSpeedMultiplier = 0.5f;
   pwo->wo_actContentTypes[7].ct_fDrowningDamageAmount = 0.0f;
   pwo->wo_actContentTypes[7].ct_tmDrowningDamageDelay = 1.0f;
   pwo->wo_actContentTypes[7].ct_iSwimDamageType = DMT_ACID;
@@ -999,6 +1000,26 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_aetEnvironmentTypes[22].et_strName = "Cave 2";
   pwo->wo_aetEnvironmentTypes[22].et_iType = EAX_ENVIRONMENT_CAVE;
   pwo->wo_aetEnvironmentTypes[22].et_fSize = 20.5f;
+
+  pwo->wo_aetEnvironmentTypes[23].et_strName = "Hallway";
+  pwo->wo_aetEnvironmentTypes[23].et_iType = EAX_ENVIRONMENT_HALLWAY;
+  pwo->wo_aetEnvironmentTypes[23].et_fSize = 4.5f;
+
+  pwo->wo_aetEnvironmentTypes[24].et_strName = "Hallway 2";
+  pwo->wo_aetEnvironmentTypes[24].et_iType = EAX_ENVIRONMENT_CARPETEDHALLWAY;
+  pwo->wo_aetEnvironmentTypes[24].et_fSize = 7.5f;
+
+  pwo->wo_aetEnvironmentTypes[25].et_strName = "Nightmare Chaotic";
+  pwo->wo_aetEnvironmentTypes[25].et_iType = EAX_ENVIRONMENT_PSYCHOTIC;
+  pwo->wo_aetEnvironmentTypes[25].et_fSize = 0.78f;
+
+  pwo->wo_aetEnvironmentTypes[26].et_strName = "Dream Chaotic";
+  pwo->wo_aetEnvironmentTypes[26].et_iType = EAX_ENVIRONMENT_DRUGGED;
+  pwo->wo_aetEnvironmentTypes[26].et_fSize = 9.4f;
+
+  pwo->wo_aetEnvironmentTypes[27].et_strName = "Hallucination Chaotic";
+  pwo->wo_aetEnvironmentTypes[27].et_iType = EAX_ENVIRONMENT_DIZZY;
+  pwo->wo_aetEnvironmentTypes[27].et_fSize = 1.25f;
 
   // declare console variables
   _pShell->DeclareSymbol("user void MakeWorldStatistics(void);",  &MakeWorldStatistics);

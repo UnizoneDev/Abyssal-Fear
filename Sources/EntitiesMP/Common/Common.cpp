@@ -355,6 +355,8 @@ EffectParticlesType GetParticleEffectTypeForSurface(INDEX iSurfaceType)
     {eptType = EPT_BULLET_GLITCH; break; }
     case SURFACE_ICE:
     {eptType = EPT_BULLET_ICE; break; }
+    case SURFACE_LAVA:
+    {eptType = EPT_BULLET_LAVA; break; }
   }
   return eptType;
 }
@@ -424,6 +426,8 @@ BulletHitType GetBulletHitTypeForSurface(INDEX iSurfaceType)
     {bhtType = BHT_BRUSH_GLITCH; break; }
     case SURFACE_ICE:
     {bhtType = BHT_BRUSH_ICE; break; }
+    case SURFACE_LAVA:
+    {bhtType = BHT_BRUSH_LAVA; break; }
   }
   return bhtType;
 }
@@ -459,6 +463,7 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
     case BHT_BRUSH_GRAVEL:
     case BHT_BRUSH_GLITCH:
     case BHT_BRUSH_ICE:
+    case BHT_BRUSH_LAVA:
     {
       // bullet stain
       ESpawnEffect ese;
@@ -490,6 +495,7 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if (bhtType == BHT_BRUSH_GRAVEL)        { ese.betType = BET_BULLETSTAINGRAVEL; };
         if (bhtType == BHT_BRUSH_GLITCH)        { ese.betType = BET_BULLETSTAINGLITCH; };
         if (bhtType == BHT_BRUSH_ICE)           { ese.betType = BET_BULLETSTAINICE; };
+        if (bhtType == BHT_BRUSH_LAVA)          { ese.betType = BET_BULLETSTAINLAVA; };
       }
       else
       {
@@ -519,6 +525,7 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if (bhtType == BHT_BRUSH_GRAVEL)        { ese.betType = BET_BULLETSTAINGRAVELNOSOUND; };
         if (bhtType == BHT_BRUSH_GLITCH)        { ese.betType = BET_BULLETSTAINGLITCHNOSOUND; };
         if (bhtType == BHT_BRUSH_ICE)           { ese.betType = BET_BULLETSTAINICENOSOUND; };
+        if (bhtType == BHT_BRUSH_LAVA)          { ese.betType = BET_BULLETSTAINLAVANOSOUND; };
       }
 
       ese.vNormal = vHitNormal;
@@ -1334,6 +1341,11 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_CLOSERANGE:  return 0.0f;
     case DMT_BURNING:  return 0.0f;
     case DMT_DROWNING: return 0.0f;
+    case DMT_SHARP:  return 0.0f;
+    case DMT_BLUNT:  return 0.0f;
+    case DMT_AXE:    return 0.0f;
+    case DMT_STING:  return 0.0f;
+    case DMT_PUNCH:  return 0.0f;
     }
     return 1.0f;
   case EIBT_ROCK :
@@ -1341,6 +1353,11 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_CLOSERANGE:  return 0.0f;
     case DMT_BURNING:   return 0.0f;
     case DMT_FREEZING:  return 0.0f;
+    case DMT_SHARP:  return 0.0f;
+    case DMT_BLUNT:  return 0.0f;
+    case DMT_AXE:    return 0.0f;
+    case DMT_STING:  return 0.0f;
+    case DMT_PUNCH:  return 0.0f;
     }
     return 1.0f;
   case EIBT_ICE :
@@ -1348,12 +1365,22 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_CLOSERANGE:  return 0.5f;
     case DMT_BURNING:  return 3.0f;
     case DMT_FREEZING:  return 0.0f;
+    case DMT_SHARP:  return 1.0f;
+    case DMT_BLUNT:  return 0.5f;
+    case DMT_AXE:    return 1.0f;
+    case DMT_STING:  return 0.5f;
+    case DMT_PUNCH:  return 0.75f;
     }
     return 1.0f;
   case EIBT_FIRE :
     switch(dtDamage) {
     case DMT_CLOSERANGE:  return 0.5f;
     case DMT_BURNING:   return 0.0f;
+    case DMT_SHARP:  return 0.5f;
+    case DMT_BLUNT:  return 0.5f;
+    case DMT_AXE:    return 0.5f;
+    case DMT_STING:  return 0.5f;
+    case DMT_PUNCH:  return 0.5f;
     }
     return 1.0f;
   case EIBT_AIR  :
@@ -1407,6 +1434,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
       case DMT_STING:  return 0.0f;
       case DMT_AXE:    return 0.0f;
       case DMT_CHAINSAW: return 0.0f;
+      case DMT_PUNCH:  return 0.0f;
       }
       return 1.0f;
   case EIBT_SMOKE:
@@ -1420,6 +1448,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
       case DMT_STING:  return 0.0f;
       case DMT_AXE:    return 0.0f;
       case DMT_CHAINSAW: return 0.0f;
+      case DMT_PUNCH:  return 0.0f;
       }
       return 1.0f;
   default:

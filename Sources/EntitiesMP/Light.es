@@ -368,6 +368,7 @@ procedures:
     if (m_rHotSpotRange<0) {
       m_rHotSpotRange = 0.0f;
     }
+
     // hot spot must be less or equal falloff
     if (m_rHotSpotRange>m_rFallOffRange) {
       m_rHotSpotRange = m_rFallOffRange;

@@ -16,6 +16,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // common headers for flesh entity classes
 
 #define SURFACE_ICE 1
+#define SURFACE_LAVA 8
 #define SURFACE_SAND 9
 #define SURFACE_WATER 12
 #define SURFACE_RED_SAND 13

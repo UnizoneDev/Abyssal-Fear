@@ -26,6 +26,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Base/CRC.h>
 #include <Engine/Base/CRCTable.h>
 #include <Engine/Base/ProgressHook.h>
+#include <Engine/Base/Config.h>
 #include <Engine/Sound/SoundListener.h>
 #include <Engine/Sound/SoundLibrary.h>
 #include <Engine/Graphics/GfxLibrary.h>
@@ -265,15 +266,15 @@ ENGINE_API void SE_InitEngine(CTString strGameID)
   }
   _pConsole->Initialize(_fnmApplicationPath+_strLogFile+".log", 90, 512);
 
-  _pAnimStock        = new CStock_CAnimData;
-  _pTextureStock     = new CStock_CTextureData;
-  _pSoundStock       = new CStock_CSoundData;
-  _pModelStock       = new CStock_CModelData;
-  _pEntityClassStock = new CStock_CEntityClass;
-  _pMeshStock        = new CStock_CMesh;
-  _pSkeletonStock    = new CStock_CSkeleton;
-  _pAnimSetStock     = new CStock_CAnimSet;
-  _pShaderStock      = new CStock_CShader;
+  _pAnimStock          = new CStock_CAnimData;
+  _pTextureStock       = new CStock_CTextureData;
+  _pSoundStock         = new CStock_CSoundData;
+  _pModelStock         = new CStock_CModelData;
+  _pEntityClassStock   = new CStock_CEntityClass;
+  _pMeshStock          = new CStock_CMesh;
+  _pSkeletonStock      = new CStock_CSkeleton;
+  _pAnimSetStock       = new CStock_CAnimSet;
+  _pShaderStock        = new CStock_CShader;
 
   _pTimer = new CTimer;
   _pGfx   = new CGfxLibrary;
@@ -510,15 +511,15 @@ ENGINE_API void SE_EndEngine(void)
   }
 
   // free stocks
-  delete _pEntityClassStock;  _pEntityClassStock = NULL;
-  delete _pModelStock;        _pModelStock       = NULL; 
-  delete _pSoundStock;        _pSoundStock       = NULL; 
-  delete _pTextureStock;      _pTextureStock     = NULL; 
-  delete _pAnimStock;         _pAnimStock        = NULL; 
-  delete _pMeshStock;         _pMeshStock        = NULL; 
-  delete _pSkeletonStock;     _pSkeletonStock    = NULL; 
-  delete _pAnimSetStock;      _pAnimSetStock     = NULL; 
-  delete _pShaderStock;       _pShaderStock      = NULL; 
+  delete _pEntityClassStock;    _pEntityClassStock   = NULL;
+  delete _pModelStock;          _pModelStock         = NULL; 
+  delete _pSoundStock;          _pSoundStock         = NULL; 
+  delete _pTextureStock;        _pTextureStock       = NULL; 
+  delete _pAnimStock;           _pAnimStock          = NULL; 
+  delete _pMeshStock;           _pMeshStock          = NULL; 
+  delete _pSkeletonStock;       _pSkeletonStock      = NULL; 
+  delete _pAnimSetStock;        _pAnimSetStock       = NULL; 
+  delete _pShaderStock;         _pShaderStock        = NULL;
 
   // free all memory used by the crc cache
   CRCT_Clear();

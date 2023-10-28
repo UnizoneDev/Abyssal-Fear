@@ -30,6 +30,7 @@ enum EnemySoundType {
   5 EST_ACTIVE       "Active",
   6 EST_TAUNT        "Taunt",
   7 EST_LEADERSIGHT  "Leader Alert",
+  8 EST_PAIN         "Pain",
 };
 
 // event sent to the enemy/NPC that should do this

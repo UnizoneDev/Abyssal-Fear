@@ -54,10 +54,13 @@
     <ClCompile Include="Translucent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="GlassShader.cpp">
+    <ClCompile Include="GlassShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DistortionShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NPCModelShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

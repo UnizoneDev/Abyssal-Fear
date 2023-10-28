@@ -26,6 +26,9 @@ enum GfxBlend
   GFX_INV_DST_COLOR = 26,
   GFX_SRC_ALPHA     = 27,
   GFX_INV_SRC_ALPHA = 28,
+  GFX_DST_ALPHA     = 29,
+  GFX_INV_DST_ALPHA = 30,
+  GFX_SRC_ALPHA_SATURATE = 31,
 };
 
 enum GfxComp

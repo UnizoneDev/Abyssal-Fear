@@ -580,6 +580,9 @@ __forceinline GLenum BlendToOGL( GfxBlend eFunc) {
   case GFX_INV_DST_COLOR: return GL_ONE_MINUS_DST_COLOR;
   case GFX_SRC_ALPHA:     return GL_SRC_ALPHA;          
   case GFX_INV_SRC_ALPHA: return GL_ONE_MINUS_SRC_ALPHA;
+  case GFX_DST_ALPHA:     return GL_DST_ALPHA;
+  case GFX_INV_DST_ALPHA: return GL_ONE_MINUS_DST_ALPHA;
+  case GFX_SRC_ALPHA_SATURATE: return GL_SRC_ALPHA_SATURATE;
   default: ASSERTALWAYS("Invalid GFX blending function!");
   } return GL_ONE;
 }
@@ -594,6 +597,9 @@ __forceinline GfxBlend BlendFromOGL( GLenum gFunc) {
   case GL_ONE_MINUS_DST_COLOR: return GFX_INV_DST_COLOR;
   case GL_SRC_ALPHA:           return GFX_SRC_ALPHA;
   case GL_ONE_MINUS_SRC_ALPHA: return GFX_INV_SRC_ALPHA;
+  case GL_DST_ALPHA:           return GFX_DST_ALPHA;
+  case GL_ONE_MINUS_DST_ALPHA: return GFX_INV_DST_ALPHA;
+  case GL_SRC_ALPHA_SATURATE:  return GFX_SRC_ALPHA_SATURATE;
   default: ASSERTALWAYS("Unsupported OGL blending function!");
   } return GFX_ONE;
 }

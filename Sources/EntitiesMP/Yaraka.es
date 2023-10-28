@@ -183,7 +183,7 @@ functions:
   };
 
   SlashEnemySingle1(EVoid) {
-    INDEX iRandomChoice = IRnd()%2;
+    INDEX iRandomChoice = IRnd()%3;
     if(iRandomChoice == 1) {
       autocall DodgeRandom() EReturn;
       return EReturn();
@@ -216,7 +216,7 @@ functions:
   }
 
   SlashEnemySingle2(EVoid) {
-    INDEX iRandomChoice = IRnd()%2;
+    INDEX iRandomChoice = IRnd()%3;
     if(iRandomChoice == 1) {
       autocall DodgeRandom() EReturn;
       return EReturn();
@@ -249,7 +249,7 @@ functions:
   }
 
   SlashEnemySlam(EVoid) {
-    INDEX iRandomChoice = IRnd()%2;
+    INDEX iRandomChoice = IRnd()%3;
     if(iRandomChoice == 1) {
       autocall DodgeRandom() EReturn;
       return EReturn();

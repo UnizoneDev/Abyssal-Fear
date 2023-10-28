@@ -149,10 +149,10 @@ procedures:
   CheckLeaderDeath(EVoid) {
     if(IsLeaderDead())
     {
-      jump SquadRunAway();
+      autocall SquadRunAway() EReturn;
     }
 
-    return EReturn();
+    return EBegin();
   };
 
   SquadTakeCover(EVoid) {
@@ -195,23 +195,7 @@ procedures:
     StopMoving();
     RunningAnim();
 
-    m_fLockOnEnemyTime = 2.0f;
-    m_fLockStartTime = _pTimer->CurrentTick();
-    while (m_fLockStartTime+GetProp(m_fLockOnEnemyTime) > _pTimer->CurrentTick()) {
-      m_fMoveFrequency = 0.1f;
-      wait (m_fMoveFrequency) {
-        on (EBegin) : {
-          FLOAT fSpeedMultiplier = 1.0f;
-          m_fMoveSpeed = GetProp(m_fCloseRunSpeed) * fSpeedMultiplier;
-          m_vDesiredPosition = FLOAT3D(0.0f, 0.0f, -m_fMoveSpeed);
-          // start moving
-          m_ulMovementFlags = SetDesiredMovement(); 
-          MovementAnimation(m_ulMovementFlags);
-          resume; 
-        }
-        on (ETimer) : { stop; }
-      }
-    }
+    autowait(2.0f);
 
     m_bCoward = FALSE;
 
@@ -428,6 +412,72 @@ procedures:
 
       // take next marker in loop
       m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget;
+
+      CEnemyMarker *pem = (CEnemyMarker *)&*m_penMarker;
+      if(pem->m_penRandomTarget1 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget1; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget2 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget2; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget3 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget3; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget4 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget4; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget5 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget5; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget6 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget6; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget7 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget7; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget8 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget8; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
     } // when no more markers
 
     // stop where you are

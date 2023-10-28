@@ -511,25 +511,25 @@ void WriteOffsetAndChildren(CTStream &strm, CModelInstance &mi)
   }
 }
 
-void WriteModelInstance_t(CTStream &strm, CModelInstance &mi)
+void WriteModelInstance_t(CTStream& strm, CModelInstance& mi)
 {
-  strm.WriteID_t("MI03"); // model instance 03
-  // write model instance name
-  strm<<mi.GetName();
-  // write index of current colision box
-  strm<<mi.mi_iCurentBBox;
-  // write stretch
-  strm<<mi.mi_vStretch;
-  // write color
-  strm<<mi.mi_colModelColor;
+    strm.WriteID_t("MI03"); // model instance 03
+    // write model instance name
+    strm << mi.GetName();
+    // write index of current colision box
+    strm << mi.mi_iCurentBBox;
+    // write stretch
+    strm << mi.mi_vStretch;
+    // write color
+    strm << mi.mi_colModelColor;
 
-  WriteMeshInstances_t(strm,mi);
-  WriteSkeleton_t(strm, mi);
-  WriteAnimSets(strm, mi);
-  WriteAnimQueue_t(strm, mi);
-  WriteColisionBoxes(strm, mi);
-  WriteOffsetAndChildren(strm, mi);
-  strm.WriteID_t("ME03"); // model instance end 03
+    WriteMeshInstances_t(strm, mi);
+    WriteSkeleton_t(strm, mi);
+    WriteAnimSets(strm, mi);
+    WriteAnimQueue_t(strm, mi);
+    WriteColisionBoxes(strm, mi);
+    WriteOffsetAndChildren(strm, mi);
+    strm.WriteID_t("ME03"); // model instance end 03
 }
 
 
@@ -823,35 +823,35 @@ void ReadOffsetAndChildren_t(CTStream &strm, CModelInstance &mi)
 
 void ReadModelInstanceNew_t(CTStream &strm, CModelInstance &mi)
 {
-  strm.ExpectID_t("MI03");  // model instance 02
-  // Read model instance name
-  CTString strModelInstanceName;
-  strm>>strModelInstanceName;
-  mi.SetName(strModelInstanceName);
+    strm.ExpectID_t("MI03");  // model instance 02
+    // Read model instance name
+    CTString strModelInstanceName;
+    strm >> strModelInstanceName;
+    mi.SetName(strModelInstanceName);
 
-  // read index of current colision box
-  strm>>mi.mi_iCurentBBox;
-  // read stretch
-  strm>>mi.mi_vStretch;
-  // read color
-  strm>>mi.mi_colModelColor;
+    // read index of current colision box
+    strm >> mi.mi_iCurentBBox;
+    // read stretch
+    strm >> mi.mi_vStretch;
+    // read color
+    strm >> mi.mi_colModelColor;
 
-  ReadMeshInstances_t(strm,mi);
-  ReadSkeleton_t(strm, mi);
-  ReadAnimSets_t(strm, mi);
-  ReadAnimQueue_t(strm, mi);
-  ReadColisionBoxes_t(strm, mi);
-  ReadOffsetAndChildren_t(strm, mi);
-  strm.ExpectID_t("ME03"); // model instance end 02
+    ReadMeshInstances_t(strm, mi);
+    ReadSkeleton_t(strm, mi);
+    ReadAnimSets_t(strm, mi);
+    ReadAnimQueue_t(strm, mi);
+    ReadColisionBoxes_t(strm, mi);
+    ReadOffsetAndChildren_t(strm, mi);
+    strm.ExpectID_t("ME03"); // model instance end 02
 }
 
 void ReadModelInstance_t(CTStream &strm, CModelInstance &mi)
 {
   // is model instance writen in old format
-  if(strm.PeekID_t() == CChunkID("SKMI")) {
+  if (strm.PeekID_t() == CChunkID("SKMI")) {
     ReadModelInstanceOld_t(strm, mi);
   // is model instance writen in new format
-  } else if(strm.PeekID_t() == CChunkID("MI03")) {
+  } else if (strm.PeekID_t() == CChunkID("MI03")) {
     ReadModelInstanceNew_t(strm, mi);
   // unknown format
   } else {
@@ -860,10 +860,11 @@ void ReadModelInstance_t(CTStream &strm, CModelInstance &mi)
   }
 }
 
+
 void SkipModelInstance_t(CTStream &strm)
 {
   CModelInstance miDummy;
-  ReadModelInstance_t(strm,miDummy);
+  ReadModelInstance_t(strm, miDummy);
 }
 
 // read an anim object from a file together with its anim data filename

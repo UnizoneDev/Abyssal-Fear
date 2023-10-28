@@ -20,6 +20,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/BackgroundViewer.h"
 %}
 
+// type of overlay
+enum OverlayImageType {
+  1 OIT_STATIC  "Static",
+  2 OIT_SHAKE   "Shake",
+};
 
 %{
 BOOL _bOverlayLoaded = FALSE;
@@ -41,6 +46,8 @@ properties:
   5 FLOAT m_fXRatio "Horizontal position ratio" 'X' = 0.5f,
   6 FLOAT m_fOverlayStretch "Overlay stretch" 'S' = 1.0f,
   7 COLOR m_colOverlay "Overlay color" 'C' = C_WHITE,
+  8 enum OverlayImageType m_oiType "Overlay type" 'O' = OIT_STATIC,
+  9 FLOAT m_fShakeAmount "Shake amount" = 1.0f,
 
 components:
   1 model   MODEL_MARKER     "Models\\Editor\\MessageHolder.mdl",

@@ -472,8 +472,8 @@ void LoadCommands(void)
 
 CTString ToUpper(const CTString &strResult)
 {
-  char *pch = (char*)(const char *)strResult;
-  for(INDEX i=0; i<strlen(pch); i++) {
+    char* pch = (char*)(const char*)strResult;
+    for (INDEX i = 0; i < strlen(pch); i++) {
     pch[i]=toupper(pch[i]);
   }
   return strResult;
@@ -485,8 +485,8 @@ CTString ToUpperCfunc(void* pArgs)
 }
 CTString ToLower(const CTString &strResult)
 {
-  char *pch = (char*)(const char *)strResult;
-  for(INDEX i=0; i<strlen(pch); i++) {
+  char* pch = (char*)(const char*)strResult;
+  for (INDEX i = 0; i < strlen(pch); i++) {
     pch[i]=tolower(pch[i]);
   }
   return strResult;
@@ -505,9 +505,10 @@ CTString RemoveSubstring(const CTString &strFull, const CTString &strSub)
   const char *pchFullL = strFullL;
   const char *pchSubL = strSubL;
   const char *pchFound = strstr(pchFullL, pchSubL);
-  if (pchFound==NULL || strlen(strSub)==0) {
+  if (pchFound == NULL || strlen(strSub) == 0) {
     return strFull;
   }
+
   INDEX iOffset = pchFound-pchFullL;
   INDEX iLenFull = strlen(strFull);
   INDEX iLenSub = strlen(strSub);

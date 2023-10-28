@@ -85,7 +85,7 @@ CTString &CTString::operator+=(const CTString &strSecond)
 {
   ASSERT(IsValid() && strSecond.IsValid());
 
-  GrowMemory( (void **)&str_String, strlen( str_String) + strlen( strSecond) + 1 );
+  GrowMemory((void**)&str_String, strlen(str_String) + strlen(strSecond) + 1);
   strcat(str_String, strSecond.str_String);
   return *this;
 }
@@ -95,12 +95,12 @@ CTString &CTString::operator+=(const CTString &strSecond)
  */
 BOOL CTString::RemovePrefix( const CTString &strPrefix)
 {
-  INDEX lenPrefix = strlen( strPrefix);
-  INDEX lenDest = strlen( str_String) - lenPrefix;
+    INDEX lenPrefix = strlen(strPrefix);
+    INDEX lenDest = strlen(str_String) - lenPrefix;
 
-  if( strnicmp( str_String, strPrefix, lenPrefix) != 0)
+  if (strnicmp(str_String, strPrefix, lenPrefix) != 0)
     return FALSE;
-  CTString strTemp = CTString( &str_String[ lenPrefix]);
+  CTString strTemp = CTString(&str_String[lenPrefix]);
   ShrinkMemory( (void **)&str_String, lenDest+1);
   strcpy( str_String, strTemp.str_String);
   return TRUE;
@@ -108,8 +108,8 @@ BOOL CTString::RemovePrefix( const CTString &strPrefix)
 /* Check if has given prefix */
 BOOL CTString::HasPrefix( const CTString &strPrefix) const
 {
-  INDEX lenPrefix = strlen( strPrefix);
-  if( strnicmp( str_String, strPrefix, lenPrefix) != 0)
+    INDEX lenPrefix = strlen(strPrefix);
+  if (strnicmp(str_String, strPrefix, lenPrefix) != 0)
     return FALSE;
   return TRUE;
 }
@@ -246,7 +246,7 @@ INDEX CTString::TrimSpacesLeft(void)
     }
   }
   // trim to that character
-  return TrimLeft(str_String+strlen(str_String) - chr);
+  return TrimLeft(str_String + strlen(str_String) - chr);
 }
 
 /* Trim the string from from spaces from right. */
@@ -254,7 +254,7 @@ INDEX CTString::TrimSpacesRight(void)
 {
   // for each character in string reversed
   const char *chr;
-  for(chr = str_String+strlen(str_String)-1; chr>str_String; chr--) {
+  for (chr = str_String + strlen(str_String) - 1; chr > str_String; chr--) {
     // if the character is not space 
     if (!IsSpace(*chr)) {
       // stop searching
@@ -352,7 +352,7 @@ CTStream &operator<<(CTStream &strmStream, const CTString &strString)
   ASSERT(strString.IsValid());
 
   // calculate size
-  INDEX iStringLen = strlen( strString);
+  INDEX iStringLen = strlen(strString);
   // write size
   strmStream<<iStringLen;
   // if the string is not empty
@@ -457,8 +457,8 @@ void CTString::SaveKeepCRLF_t(const class CTFileName &fnmFile)  // throw char *
   CTFileStream strmFile;
   strmFile.Create_t(fnmFile);
   // save the string to the file
-  if (strlen(str_String)>0) {
-    strmFile.Write_t(str_String, strlen(str_String));
+  if (strlen(str_String) > 0) {
+      strmFile.Write_t(str_String, strlen(str_String));
   }
 }
 
@@ -526,7 +526,7 @@ void CTString::Split( INDEX iPos, CTString &str1, CTString &str2)
   str1 = str_String;
   str2 = str_String;
   str1.TrimRight(iPos);
-  str2.TrimLeft(strlen(str2)-iPos);
+  str2.TrimLeft(strlen(str2) - iPos);
 }
 
 
@@ -695,8 +695,8 @@ void SaveIntVar(const CTFileName &fnmVar, INDEX &iVar)
 CTString RemoveSpecialCodes( const CTString &str)
 {
   CTString strRet=str;
-  char *pcSrc = (char*)(const char*)strRet;
-  char *pcDst = (char*)(const char*)strRet;
+  char* pcSrc = (char*)(const char*)strRet;
+  char* pcDst = (char*)(const char*)strRet;
   // copy char inside string skipping special codes
   while( *pcSrc != 0)
   {

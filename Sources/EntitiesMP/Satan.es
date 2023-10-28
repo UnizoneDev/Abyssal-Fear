@@ -30,12 +30,6 @@ static EntityInfo eiSatan = {
   0.0f, 1.0f, 0.0f,     // target (body)
 };
 
-#define MF_MOVEZ    (1L<<0)
-#define MF_ROTATEH  (1L<<1)
-#define MF_MOVEXZY  (1L<<2)
-#define MF_MOVEY    (1L<<3)
-#define MF_MOVEX    (1L<<4)
-
 %}
 
 
@@ -172,7 +166,7 @@ functions:
         PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 25.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
       }
     } else {
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);

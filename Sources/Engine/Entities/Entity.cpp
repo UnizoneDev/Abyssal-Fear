@@ -2451,7 +2451,7 @@ void CEntity::SetSkaColisionInfo()
   FindCollisionInfo();
 }
 
-void CEntity::SetSkaModel_t(const CTString &fnmModel)
+void CEntity::SetSkaModel_t(const CTString& fnmModel)
 {
     ASSERT(en_RenderType == RT_SKAMODEL || en_RenderType == RT_SKAEDITORMODEL);
     // if model instance allready exists
@@ -2482,7 +2482,7 @@ BOOL CEntity::SetSkaModel(const CTString& fnmModel)
     }
     catch (char* strError) {
         (void)strError;
-        WarningMessage("%s\n\rLoading default model.\n", strError);
+        WarningMessage("%s\n\rLoading default model.\n", (const char*)strError);
         DECLARE_CTFILENAME(fnmDefault, "Models\\Editor\\Ska\\Axis.smc");
 
         // Try to load the default model data
@@ -2494,7 +2494,7 @@ BOOL CEntity::SetSkaModel(const CTString& fnmModel)
             FatalError(TRANS("Cannot load default model '%s':\n%s"), (CTString&)fnmDefault, strErrorDefault);
         }
 
-        // set collision info for default model
+        // set colision info for default model
         SetSkaColisionInfo();
         return FALSE;
     }

@@ -40,6 +40,7 @@ CPhysicsProfile::CPhysicsProfile(void)
   SETTIMERNAME(PTI_TRYTOGOUPSTAIRS, " TryToGoUpstairs()", "try");
   SETTIMERNAME(PTI_SETPLACEMENTFROMNEXTPOSITION, "SetPlacementFromNextPosition()", "setting");
   SETTIMERNAME(PTI_SETPLACEMENT,    " SetPlacement()", "setting");
+  SETTIMERNAME(PTI_TRYTOCLIMBLADDER, " TryToClimbLadder()", "try");
 
   SETTIMERNAME(PTI_SETPLACEMENT_COORDSUPDATE,    "  coords updating", "");
   SETTIMERNAME(PTI_SETPLACEMENT_LIGHTUPDATE,     "  light updating", "");
@@ -79,8 +80,6 @@ CPhysicsProfile::CPhysicsProfile(void)
   SETTIMERNAME(PTI_ADDENTITYTOGRID,               " AddEntityToCollisionGrid()", "");
   SETTIMERNAME(PTI_REMENTITYFROMGRID,             " RemoveEntityFromCollisionGrid()", "");
   SETTIMERNAME(PTI_MOVEENTITYINGRID,              " MoveEntityInCollisionGrid()", "");
-
-  SETTIMERNAME(PTI_TRYTOCLIMBLADDER, " TryToClimbLadder()", "try");
 
   SETCOUNTERNAME(PCI_GRAVITY_NONTRIVIAL,  "non-trivial gravity moves");
   SETCOUNTERNAME(PCI_GRAVITY_TRIVIAL,     "trivial gravity moves");

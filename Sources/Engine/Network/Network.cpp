@@ -2232,7 +2232,7 @@ void *CNetworkLibrary::GetSessionProperties(void)
 void CNetworkLibrary::SendChat(ULONG ulFrom, ULONG ulTo, const CTString &strMessage)
 {
   // if the string is too long and we're not server
-  if (strlen(strMessage)>256 && !_pNetwork->IsServer()) {
+  if (strlen(strMessage) > 256 && !_pNetwork->IsServer()) {
     // refuse it
     return;
   }

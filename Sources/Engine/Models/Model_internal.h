@@ -53,6 +53,9 @@ enum SurfaceTranslucencyType {
   STT_MULTIPLY     =  5,
   STT_INVERT       =  6,
   STT_TRUEMULTIPLY =  7,
+  STT_SPECIAL1     =  8,
+  STT_SPECIAL2     =  9,
+  STT_SPECIAL3     = 10,
 };                   
 
 // surface rendering flags

@@ -278,6 +278,12 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
     pdec->PrecacheTexture(TEXTURE_STRONGPISTOLITEM );
     pdec->PrecacheSound(SOUND_STRONGPISTOL_FIRE    );
     pdec->PrecacheSound(SOUND_PISTOL_RELOAD        );
+    pdec->PrecacheSound(SOUND_PIPE_HIT1          );
+    pdec->PrecacheSound(SOUND_PIPE_HIT2          );
+    pdec->PrecacheSound(SOUND_PIPE_HIT3          );
+    pdec->PrecacheSound(SOUND_PIPE_HIT4          );
+    pdec->PrecacheSound(SOUND_KNIFE_SWING        );
+    pdec->PrecacheSound(SOUND_PIPE_BANG          );
   }
 
   // precache animator too
@@ -335,7 +341,7 @@ properties:
  11 INDEX m_iAvailableWeapons = 0x01,   // avaible weapons
  12 BOOL  m_bChangeWeapon = FALSE,      // change current weapon
  13 BOOL  m_bReloadWeapon = FALSE,      // reload weapon
- 271 BOOL m_bHolsterWeapon = FALSE,       // weapon is holstering
+ 271 BOOL m_bHolsterWeapon = FALSE,     // weapon is holstering
  15 INDEX m_iAnim         = 0,          // temporary anim variable
  16 FLOAT m_fAnimWaitTime = 0.0f,       // animation wait time
  17 FLOAT m_tmRangeSoundSpawned = 0.0f, // for not spawning range sounds too often
@@ -2474,7 +2480,7 @@ procedures:
     m_bMeleeHitBrush = FALSE;
     autowait(0.15f);
 
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP)) {
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP)) {
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2489,7 +2495,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP);
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2526,7 +2532,7 @@ procedures:
     m_bMeleeHitBrush = FALSE;
     autowait(0.15f);
 
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP)) {
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP)) {
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2540,7 +2546,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP);
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2576,7 +2582,7 @@ procedures:
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.175f);
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 70.0f : 50.0f), DMT_AXE)) {
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 50.0f : 30.0f), DMT_AXE)) {
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2590,7 +2596,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 70.0f : 50.0f), DMT_AXE);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 50.0f : 30.0f), DMT_AXE);
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2640,7 +2646,7 @@ procedures:
 
     // fire bullet
     FireOneBullet(wpn_fFX[WEAPON_PISTOL], wpn_fFY[WEAPON_PISTOL], 500.0f,
-    ((GetSP()->sp_bCooperative) ? 30.0f : 50.0f), DMT_BULLET);
+    ((GetSP()->sp_bCooperative) ? 40.0f : 25.0f), DMT_BULLET);
 
     if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("Pistol_fire");}
     DoRecoil();
@@ -2709,7 +2715,7 @@ procedures:
     CPlayer &pl = (CPlayer&)*m_penPlayer;
     
     m_iAnim = PISTOLVIEWMODEL_ANIM_MELEE; m_fAnimWaitTime = 0.35f;
-    PlaySound(pl.m_soWeapon0, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
+    PlaySound(pl.m_soWeapon2, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
       if(_pNetwork->IsPlayerLocal(m_penPlayer))
         {IFeel_PlayEffect("Knife_back");}
     m_moWeapon.PlayAnim(m_iAnim, 0);
@@ -2717,7 +2723,7 @@ procedures:
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.25f);
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT)) {
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_BLUNT)) {
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2733,12 +2739,12 @@ procedures:
       if (m_bMeleeHitModel || m_bMeleeHitBrush)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
+        PlaySound(pl.m_soWeapon3, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
       }
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_BLUNT);
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2754,7 +2760,7 @@ procedures:
       if (m_bMeleeHitModel || m_bMeleeHitBrush)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
+        PlaySound(pl.m_soWeapon3, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
       }
       autowait(m_fAnimWaitTime/2);
     }
@@ -2894,7 +2900,7 @@ procedures:
     // fire one bullet
     if (m_iSMGBullets>0) {
       FireMachineBullet(wpn_fFX[WEAPON_SMG], wpn_fFY[WEAPON_SMG], 
-        500.0f, 12.0f, ((GetSP()->sp_bCooperative) ? 0.01f : 0.03f),
+        500.0f, 8.0f, ((GetSP()->sp_bCooperative) ? 0.01f : 0.03f),
         ((GetSP()->sp_bCooperative) ? 0.5f : 0.0f), DMT_BULLET);
       SpawnRangeSound(50.0f);
       if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("SMG_fire");}
@@ -2977,7 +2983,7 @@ procedures:
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.25f);
-    if (CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_BLUNT)) {
+    if (CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT)) {
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2998,7 +3004,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_BLUNT);
+      CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT);
       if (m_bMeleeHitEnemy)
       {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -3037,16 +3043,18 @@ procedures:
 
     while(m_bAltFireWeapon)
     {
-      autowait(m_fAnimWaitTime);
+      CPlayer &pl = (CPlayer&)*m_penPlayer;
+      pl.m_bIsBlocking = TRUE;
+      autowait(m_fAnimWaitTime/2);
     }
 
     m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_BLOCKLOWER, 0);
     autowait(m_moWeapon.GetAnimLength(METALPIPEVIEWMODEL_ANIM_BLOCKLOWER));
 
-    m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_IDLE, 0);
-
     CPlayer &pl = (CPlayer&)*m_penPlayer;
     pl.m_bIsBlocking = FALSE;
+
+    m_moWeapon.PlayAnim(METALPIPEVIEWMODEL_ANIM_IDLE, 0);
 
     return EEnd();
   };
@@ -3075,7 +3083,7 @@ procedures:
 
     // fire bullet
     FireOneBullet(wpn_fFX[WEAPON_STRONGPISTOL], wpn_fFY[WEAPON_STRONGPISTOL], 500.0f,
-    ((GetSP()->sp_bCooperative) ? 60.0f : 80.0f), DMT_BULLET);
+    ((GetSP()->sp_bCooperative) ? 50.0f : 30.0f), DMT_BULLET);
 
     if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("StrongPistol_fire");}
     DoRecoil();
@@ -3136,9 +3144,67 @@ procedures:
     return EEnd();
   };
 
-  // ***************** PISTOL ALTFIRE DUMMY *****************
+  // ***************** STRONG PISTOL WHIP *****************
   AltStrongPistol() {
-    autowait(0.25);
+    // animator swing
+    GetAnimator()->FireAnimation(BODY_ANIM_KNIFE_ATTACK, 0);
+    // sound
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    
+    m_iAnim = STRONGPISTOLVIEWMODEL_ANIM_MELEE; m_fAnimWaitTime = 0.35f;
+    PlaySound(pl.m_soWeapon2, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
+      if(_pNetwork->IsPlayerLocal(m_penPlayer))
+        {IFeel_PlayEffect("Knife_back");}
+    m_moWeapon.PlayAnim(m_iAnim, 0);
+    m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitModel = FALSE;
+    m_bMeleeHitBrush = FALSE;
+    autowait(0.25f);
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 10.0f), DMT_BLUNT)) {
+      if (m_bMeleeHitEnemy)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      }
+      if (m_bMeleeHitModel || m_bMeleeHitBrush)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon3, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime);
+    } else if (TRUE) {
+      autowait(m_fAnimWaitTime/2);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 10.0f), DMT_BLUNT);
+      if (m_bMeleeHitEnemy)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      }
+      if (m_bMeleeHitModel || m_bMeleeHitBrush)
+      {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon3, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime/2);
+    }
+
+    if (m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime>=_pTimer->TickQuantum) {
+      autowait(m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime);
+    }
     return EEnd();
   };
 

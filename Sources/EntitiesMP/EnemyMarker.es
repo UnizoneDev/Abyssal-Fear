@@ -52,6 +52,15 @@ properties:
 
  18 BOOL m_bStartTactics          "Start Tactics" = FALSE, 
 
+ 28 CEntityPointer m_penRandomTarget1  "Random Target 1" COLOR(C_dGREEN|0xFF),
+ 29 CEntityPointer m_penRandomTarget2  "Random Target 2" COLOR(C_dGREEN|0xFF),
+ 30 CEntityPointer m_penRandomTarget3  "Random Target 3" COLOR(C_dGREEN|0xFF),
+ 31 CEntityPointer m_penRandomTarget4  "Random Target 4" COLOR(C_dGREEN|0xFF),
+ 32 CEntityPointer m_penRandomTarget5  "Random Target 5" COLOR(C_dGREEN|0xFF),
+ 33 CEntityPointer m_penRandomTarget6  "Random Target 6" COLOR(C_dGREEN|0xFF),
+ 34 CEntityPointer m_penRandomTarget7  "Random Target 7" COLOR(C_dGREEN|0xFF),
+ 35 CEntityPointer m_penRandomTarget8  "Random Target 8" COLOR(C_dGREEN|0xFF),
+
 components:
   1 model   MODEL_MARKER     "Models\\Editor\\EnemyMarker.mdl",
   2 texture TEXTURE_MARKER   "Models\\Editor\\EnemyMarker.tex"

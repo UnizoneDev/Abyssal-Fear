@@ -332,6 +332,7 @@ public:
   void SetModel(SLONG idModelComponent);
   BOOL SetSkaModel(const CTString &fnmModel);
   void SetSkaModel_t(const CTString &fnmModel);
+  void SetSkaModel(SLONG idModelComponent);
   void SetSkaColisionInfo();
   /* Get the model data for model entity. */
   const CTFileName &GetModel(void);
@@ -390,6 +391,7 @@ public:
   void PrecacheTexture(SLONG slID);
   void PrecacheSound(SLONG slID);
   void PrecacheClass(SLONG slID, INDEX iUser = -1);
+  void PrecacheSkaModel(SLONG slID);
 
   /* Create a new entity of given class in this world. */
   CEntity *CreateEntity(const CPlacement3D &plPlacement, SLONG idModelComponent);

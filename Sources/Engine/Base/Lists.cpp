@@ -168,7 +168,7 @@ void CListHead::Sort(int (*pCompare)(const void *p0, const void *p1), int iNodeO
   }
 
   // create array of that much integers (the array will hold pointers to the list)
-  ULONG *aulPointers = new ULONG[ctCount];
+  ULONG*aulPointers = new ULONG[ctCount];
   // fill it
   INDEX i=0;
   for ( CListIter<int, 0> iter(*this); !iter.IsPastEnd(); iter.MoveToNext() ) {

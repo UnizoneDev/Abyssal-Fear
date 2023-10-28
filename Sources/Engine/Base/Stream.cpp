@@ -384,47 +384,47 @@ ULONG CTStream::GetStreamCRC32_t(void)
 // throws char *
 void CTStream::GetLine_t(char *strBuffer, SLONG slBufferSize, char cDelimiter /*='\n'*/ )
 {
-  // check parameters
-  ASSERT(strBuffer!=NULL && slBufferSize>0);
-  // check that the stream can be read
-  ASSERT(IsReadable());
-  // letters slider
-  INDEX iLetters = 0;
-  // test if EOF reached
-  if(AtEOF()) {
-    ThrowF_t(TRANS("EOF reached, file %s"), strm_strStreamDescription);
-  }
-  // get line from istream
-  FOREVER
-  {
-    char c;
-    Read_t(&c, 1);
-
-    if(AtEOF()) {
-      // cut off
-      strBuffer[ iLetters] = 0;
-      break;
+    // check parameters
+    ASSERT(strBuffer != NULL && slBufferSize > 0);
+    // check that the stream can be read
+    ASSERT(IsReadable());
+    // letters slider
+    INDEX iLetters = 0;
+    // test if EOF reached
+    if (AtEOF()) {
+        ThrowF_t(TRANS("EOF reached, file %s"), strm_strStreamDescription);
     }
+    // get line from istream
+    FOREVER
+    {
+      char c;
+      Read_t(&c, 1);
 
-    // don't read "\r" characters but rather act like they don't exist
-    if( c != '\r') {
-      strBuffer[ iLetters] = c;
-      // stop reading when delimiter loaded
-      if( strBuffer[ iLetters] == cDelimiter) {
-        // convert delimiter to zero
-        strBuffer[ iLetters] = 0;
-        // jump over delimiter
-        //Seek_t(1, SD_CUR);
-        break;
+      if (AtEOF()) {
+          // cut off
+          strBuffer[iLetters] = 0;
+          break;
+        }
+
+      // don't read "\r" characters but rather act like they don't exist
+      if (c != '\r') {
+        strBuffer[iLetters] = c;
+        // stop reading when delimiter loaded
+        if (strBuffer[iLetters] == cDelimiter) {
+            // convert delimiter to zero
+            strBuffer[iLetters] = 0;
+            // jump over delimiter
+            //Seek_t(1, SD_CUR);
+            break;
+          }
+        // jump to next destination letter
+        iLetters++;
       }
-      // jump to next destination letter
-      iLetters++;
+      // test if maximum buffer lenght reached
+      if (iLetters == slBufferSize) {
+        return;
+      }
     }
-    // test if maximum buffer lenght reached
-    if( iLetters==slBufferSize) {
-      return;
-    }
-  }
 }
 
 void CTStream::GetLine_t(CTString &strLine, char cDelimiter/*='\n'*/) // throw char *
@@ -517,7 +517,7 @@ void CTStream::ExpectID_t(const CChunkID &cidExpected) // throws char *
 void CTStream::ExpectKeyword_t(const CTString &strKeyword) // throw char *
 {
   // check that the keyword is present
-  for(INDEX iKeywordChar=0; iKeywordChar<(INDEX)strlen(strKeyword); iKeywordChar++) {
+  for (INDEX iKeywordChar = 0; iKeywordChar < (INDEX)strlen(strKeyword); iKeywordChar++) {
     SBYTE chKeywordChar;
     (*this)>>chKeywordChar;
     if (chKeywordChar!=strKeyword[iKeywordChar]) {
@@ -900,7 +900,7 @@ void CTFileStream::Open_t(const CTFileName &fnFileName, CTStream::OpenMode om/*=
   }
 
   // check parameters
-  ASSERT(strlen(fnFileName)>0);
+  ASSERT(strlen(fnFileName) > 0);
   // check that the file is not open
   ASSERT(fstrm_pFile==NULL && fstrm_iZipHandle==-1);
 
@@ -972,7 +972,7 @@ void CTFileStream::Create_t(const CTFileName &fnFileName,
   INDEX iFile = ExpandFilePath(EFP_WRITE, fnFileNameAbsolute, fnmFullFileName);
 
   // check parameters
-  ASSERT(strlen(fnFileNameAbsolute)>0);
+  ASSERT(strlen(fnFileNameAbsolute) > 0);
   // check that the file is not open
   ASSERT(fstrm_pFile == NULL);
 

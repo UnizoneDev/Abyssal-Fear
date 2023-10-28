@@ -583,7 +583,7 @@ void CLightSource::FindShadowLayersSpot(BOOL bSelectedOnly)
                         }
                         // if the polygon is not marked but it is influenced
                         if (!(pbpo->bpo_ulFlags & BPOF_MARKEDLAYER)
-                            && IsPolygonInfluencedByDirectionalLight(pbpo)) {
+                            && IsPolygonInfluencedBySpotLight(pbpo)) {
                             // add a layer to the polygon
                             AddLayer(*pbpo);
                         }

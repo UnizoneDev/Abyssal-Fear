@@ -30,7 +30,7 @@ enum MihulaiType {
 
 // info structure
 static EntityInfo eiMihulai = {
-  EIBT_FLESH, 200.0f,
+  EIBT_FLESH, 175.0f,
   0.0f, 1.25f, 0.0f,    // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };

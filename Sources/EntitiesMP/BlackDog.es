@@ -331,6 +331,6 @@ functions:
     StandingAnim();
 
     // continue behavior in base class
-    jump CEnemyBase::MainLoop();
+    jump CEnemyWildlife::MainLoop();
   };
 };

@@ -169,10 +169,10 @@ public:
 
   // this one is auto-filled by SCape on DLL initialization
   union { // pointer to component
-    CTextureData *ec_ptdTexture;      // for textures
-    CModelData   *ec_pmdModel;        // for models
-    CSoundData   *ec_psdSound;        // for sounds
-    CEntityClass *ec_pecEntityClass;  // for entity classes
+    CTextureData *ec_ptdTexture;               // for textures
+    CModelData   *ec_pmdModel;                 // for models
+    CSoundData   *ec_psdSound;                 // for sounds
+    CEntityClass *ec_pecEntityClass;           // for entity classes
     void *ec_pvPointer;   // for comparison needs
   };
 

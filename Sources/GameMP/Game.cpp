@@ -2378,7 +2378,7 @@ void CGame::GameRedrawView( CDrawPort *pdpDrawPort, ULONG ulFlags)
   INDEX ctNewChatMessages = _pShell->GetINDEX("net_ctChatMessages");
   if (ctNewChatMessages!=ctChatMessages) {
     ctChatMessages=ctNewChatMessages;
-    PlayScriptSound(MAX_SCRIPTSOUNDS-1, CTFILENAME("Sounds\\Menu\\Chat.wav"), 4.0f*gam_fChatSoundVolume, 1.0f, FALSE);
+    PlayScriptSound(MAX_SCRIPTSOUNDS-1, CTFILENAME("Sounds\\Menu\\ChatMessage.wav"), 4.0f*gam_fChatSoundVolume, 1.0f, FALSE);
   }
 
   // update sounds and forbid probing

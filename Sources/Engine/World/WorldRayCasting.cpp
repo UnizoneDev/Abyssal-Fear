@@ -238,6 +238,12 @@ void CCastRay::TestModelCollisionBox(CEntity *penModel)
   }
 }
 
+// TODO: check for hitboxes in some way
+void CCastRay::TestModelHitBox(CEntity* penModel, CModelObject& mo)
+{
+    return;
+}
+
 void CCastRay::TestModelFull(CEntity *penModel, CModelObject &mo)
 {
   // NOTE: this contains an ugly hack to simulate good trivial rejection
@@ -316,8 +322,12 @@ void CCastRay::TestModel(CEntity *penModel)
   } else if (cr_ttHitModels==TT_COLLISIONBOX) {
     TestModelCollisionBox(penModel);
   // if full testing
-  } else if (cr_ttHitModels==TT_FULL || cr_ttHitModels==TT_FULLSEETHROUGH) {
-    TestModelFull(penModel, mo);
+  }
+  else if (cr_ttHitModels == TT_FULL || cr_ttHitModels == TT_FULLSEETHROUGH) {
+      TestModelFull(penModel, mo);
+  // if hit box testing
+  } else if(cr_ttHitModels == TT_HITBOX) {
+      TestModelHitBox(penModel, mo);
   // must be no other testing
   } else {
     ASSERT(FALSE);

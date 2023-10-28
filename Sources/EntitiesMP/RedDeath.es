@@ -25,7 +25,7 @@ uses "EntitiesMP/EnemyBase";
 
 // info structure
 static EntityInfo eiRedDeath = {
-  EIBT_FLESH, 200.0f,
+  EIBT_FLESH, 300.0f,
   0.0f, 1.5f, 0.0f,     // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };

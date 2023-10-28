@@ -206,6 +206,7 @@
     <ClCompile Include="ExplosiveBarrel.cpp" />
     <ClCompile Include="GameChecker.cpp" />
     <ClCompile Include="GameController.cpp" />
+    <ClCompile Include="GnawBeast.cpp" />
     <ClCompile Include="Gunman.cpp" />
     <ClCompile Include="HungCorpse.cpp" />
     <ClCompile Include="Kahari.cpp" />
@@ -381,6 +382,7 @@
     <ClCompile Include="Trigger.cpp" />
     <ClCompile Include="Twitcher.cpp" />
     <ClCompile Include="Utamahi.cpp" />
+    <ClCompile Include="UZModelHolder.cpp" />
     <ClCompile Include="VariableChecker.cpp" />
     <ClCompile Include="VoiceHolder.cpp" />
     <ClCompile Include="Watcher.cpp" />
@@ -919,6 +921,8 @@
     <ClInclude Include="GameController_tables.h" />
     <ClInclude Include="Global.h" />
     <ClInclude Include="Global_tables.h" />
+    <ClInclude Include="GnawBeast.h" />
+    <ClInclude Include="GnawBeast_tables.h" />
     <ClInclude Include="GradientMarker.h" />
     <ClInclude Include="GradientMarker_tables.h" />
     <ClInclude Include="GravityMarker.h" />
@@ -1074,6 +1078,8 @@
     <ClInclude Include="Twitcher_tables.h" />
     <ClInclude Include="Utamahi.h" />
     <ClInclude Include="Utamahi_tables.h" />
+    <ClInclude Include="UZModelHolder.h" />
+    <ClInclude Include="UZModelHolder_tables.h" />
     <ClInclude Include="VariableChecker.h" />
     <ClInclude Include="VariableChecker_tables.h" />
     <ClInclude Include="VoiceHolder.h" />
@@ -2709,6 +2715,32 @@ ecc EntitiesMP/%(Filename).es </Command>
 ecc EntitiesMP/%(Filename).es </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
 ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="GnawBeast.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="UZModelHolder.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>

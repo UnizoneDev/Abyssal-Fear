@@ -182,7 +182,7 @@ procedures:
   EatFood(EVoid)
   {
     // if we touched food and are hungry
-    if (IsOfClass(m_penEnemy, "Wildlife Food") && !CheckIfFull())
+    if (IsOfClass(m_penEnemy, "Wildlife Food"))
     {
       if(!CheckIfFull()) {
         StopMoving();

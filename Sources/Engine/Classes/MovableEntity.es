@@ -1594,13 +1594,14 @@ out:;
     return 0.0f;
   };
 
-  BOOL TryToClimbLadder(const FLOAT3D &vTranslationAbsolute, const CSurfaceType &stHit, CBrushPolygon* pbpoClimbable)
+  BOOL TryToClimbLadder(const FLOAT3D &vTranslationAbsolute, const CSurfaceType &stHit, 
+                        CBrushPolygon* pbpoClimbable)
   {
     _pfPhysicsProfile.StartTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
     _pfPhysicsProfile.IncrementTimerAveragingCounter(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
 
     // get polygon plane
-    const FLOATplane3D &plPolygon = pbpoClimbable->bpo_pbplPlane->bpl_plAbsolute;
+    FLOATplane3D &plPolygon = pbpoClimbable->bpo_pbplPlane->bpl_plAbsolute;
 
     FLOAT3D vPolygonNormal = ((FLOAT3D&)plPolygon);
     vPolygonNormal.Normalize();
@@ -1622,6 +1623,13 @@ out:;
       // don't do it
       _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
       return FALSE;
+    }
+
+    // if the surface that is climbed on is not really ladder
+    if (!pbpoClimbable->bpo_ulFlags2 == BPOF2_LADDER) {
+      // keep minimum speed
+      vLadderTranslation.Normalize();
+      vLadderTranslation*=0.5f;
     }
 
     vLadderTranslation(2) = GetClimbingDirection();
@@ -1921,6 +1929,7 @@ out:;
               // the plane that is more orthogonal to the movement direction.
               FLOAT3D &vHitPlane = (FLOAT3D&)cmMove.cm_plClippedPlane;//cmMove.cm_pbpoHit->bpo_pbplPlane->bpl_plAbsolute;
               BOOL bHitStairs = cmMove.cm_pbpoHit->bpo_ulFlags&BPOF_STAIRS;
+              BOOL bHitLadder = cmMove.cm_pbpoHit->bpo_ulFlags2&BPOF2_LADDER;
 
               // if the plane hit is steep enough to climb on it 
               // (cannot climb low slopes as if those were stairs)
@@ -1938,10 +1947,9 @@ out:;
                   _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOTRANSLATE);
                   return FALSE;
                 }
+              } else if(bHitLadder) {
+                TryToClimbLadder(en_vMoveTranslation, stHit, cmMove.cm_pbpoHit);
               }
-            }
-            if(en_ulPhysicsFlags&EPF_ONLADDER) {
-              TryToClimbLadder(en_vMoveTranslation, stHit, cmMove.cm_pbpoHit);
             }
           }
           // entity shouldn't really slide

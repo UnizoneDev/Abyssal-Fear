@@ -235,7 +235,12 @@ functions:
   // melee attack enemy
   Hit(EVoid) : CEnemyBase::Hit {
     if (CalcDist(m_penEnemy) < 2.75f) {
-      jump PunchEnemy();
+      switch(IRnd()%2)
+      {
+        case 0: jump PunchEnemy(); break;
+        case 1: jump SlamEnemy(); break;
+        default: ASSERTALWAYS("Abomination unknown melee attack");
+      }
     } else if (CalcDist(m_penEnemy) < 16.0f && m_bCanCharge) {
       jump JumpOnEnemy();
     }
@@ -252,7 +257,7 @@ functions:
     }
 
     if (m_bFistHit) {
-      if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+      if (CalcDist(m_penEnemy) < 2.75f) {
         PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
@@ -260,6 +265,35 @@ functions:
           InflictDirectDamage(m_penEnemy, this, DMT_STING, 50.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         } else {
           InflictDirectDamage(m_penEnemy, this, DMT_STING, 30.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        }
+      }
+    } else {
+      PlaySound(m_soSound, SOUND_SWING, SOF_3D);
+    }
+    
+    autowait(0.45f);
+    MaybeSwitchToAnotherPlayer();
+    return EReturn();
+  }
+
+  SlamEnemy(EVoid) {
+    // close attack
+    StartModelAnim(ABOMINATION_ANIM_SLAM, 0);
+    m_bFistHit = FALSE;
+    autowait(0.55f);
+    if (CalcDist(m_penEnemy) < 2.75f) {
+      m_bFistHit = TRUE;
+    }
+
+    if (m_bFistHit) {
+      if (CalcDist(m_penEnemy) < 2.75f) {
+        PlaySound(m_soSound, SOUND_HIT, SOF_3D);
+        FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
+        vDirection.Normalize();
+        if (m_abChar==ABC_GLUTTON) {
+          InflictDirectDamage(m_penEnemy, this, DMT_BLUNT, 40.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        } else {
+          InflictDirectDamage(m_penEnemy, this, DMT_BLUNT, 20.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {

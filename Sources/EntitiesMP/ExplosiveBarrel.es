@@ -35,6 +35,7 @@ properties:
 
   1 CTString m_strName                    "Name" 'N' = "Explosive Barrel",              // class name
   2 enum ExplosiveBarrelType m_ebType     "Type" = EBT_EXPLOSIVE,                       // type
+  3 CSoundObject m_soSound,        // sound channel
 
 
 components:
@@ -42,7 +43,14 @@ components:
   1 class   CLASS_BASIC_EFFECT  "Classes\\BasicEffect.ecl",
   2 model   MODEL_BARREL     "Models\\Props\\Barrel1\\Barrel1.mdl",
   3 texture TEXTURE_BARREL1   "Models\\Props\\Barrel1\\Barrel1.tex",
-  4 texture TEXTURE_BARREL2   "Models\\Props\\Barrel1\\Barrel1b.tex"
+  4 texture TEXTURE_BARREL2   "Models\\Props\\Barrel1\\Barrel1b.tex",
+
+  // ********** BULLET RICOCHETS **********
+ 100 sound   SOUND_METAL_BULLET1    "Sounds\\Materials\\Metal\\BulletMetal1.wav",
+ 101 sound   SOUND_METAL_BULLET2    "Sounds\\Materials\\Metal\\BulletMetal2.wav",
+ 102 sound   SOUND_METAL_BULLET3    "Sounds\\Materials\\Metal\\BulletMetal3.wav",
+ 103 sound   SOUND_METAL_BULLET4    "Sounds\\Materials\\Metal\\BulletMetal4.wav",
+ 104 sound   SOUND_METAL_BULLET5    "Sounds\\Materials\\Metal\\BulletMetal5.wav"
 
 
 functions:
@@ -57,6 +65,11 @@ functions:
     PrecacheModel(MODEL_BARREL);
     PrecacheTexture(TEXTURE_BARREL1);
     PrecacheTexture(TEXTURE_BARREL2);
+    PrecacheSound(SOUND_METAL_BULLET1);
+    PrecacheSound(SOUND_METAL_BULLET2);
+    PrecacheSound(SOUND_METAL_BULLET3);
+    PrecacheSound(SOUND_METAL_BULLET4);
+    PrecacheSound(SOUND_METAL_BULLET5);
     PrecacheClass(CLASS_BASIC_EFFECT, BET_EXPLOSIVEBARREL);
     PrecacheClass(CLASS_BASIC_EFFECT, BET_EXPLOSION_DEBRIS);
     PrecacheClass(CLASS_BASIC_EFFECT, BET_EXPLOSION_SMOKE);
@@ -139,6 +152,21 @@ procedures:
     autowait(0.1f);
     
     wait() {
+      on (EBegin) : {
+          m_soSound.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
+          resume;
+      }
+      on (EDamage eDamage) : {
+          switch(IRnd()%5) {
+            case 0: { PlaySound(m_soSound, SOUND_METAL_BULLET1, SOF_3D); } break;
+            case 1: { PlaySound(m_soSound, SOUND_METAL_BULLET2, SOF_3D); } break;
+            case 2: { PlaySound(m_soSound, SOUND_METAL_BULLET3, SOF_3D); } break;
+            case 3: { PlaySound(m_soSound, SOUND_METAL_BULLET4, SOF_3D); } break;
+            case 4: { PlaySound(m_soSound, SOUND_METAL_BULLET5, SOF_3D); } break;
+            default: break;
+          }
+          resume;
+      }
       on (EDeath) : {
           InflictRangeDamage(this, DMT_EXPLOSION, 100.0f, GetPlacement().pl_PositionVector + FLOAT3D(0.0f, 1.0f, 0.0f), 4.0f, 8.0f, DBPT_GENERIC);
           BarrelExplosion();

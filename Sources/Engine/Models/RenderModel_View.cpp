@@ -420,6 +420,21 @@ static int qsort_CompareSurfaceDiffuseTypes(const void* pSrf1, const void* pSrf2
     // ... then multiplicative.
     if (srf1.ms_sttTranslucencyType == STT_MULTIPLY) return +1;
     if (srf2.ms_sttTranslucencyType == STT_MULTIPLY) return -1;
+    // ... then invert ...
+    if (srf1.ms_sttTranslucencyType == STT_INVERT) return +1;
+    if (srf2.ms_sttTranslucencyType == STT_INVERT) return -1;
+    // ... then true multiplicative.
+    if (srf1.ms_sttTranslucencyType == STT_TRUEMULTIPLY) return +1;
+    if (srf2.ms_sttTranslucencyType == STT_TRUEMULTIPLY) return -1;
+    // ... then special 1.
+    if (srf1.ms_sttTranslucencyType == STT_SPECIAL1) return +1;
+    if (srf2.ms_sttTranslucencyType == STT_SPECIAL1) return -1;
+    // ... then special 2.
+    if (srf1.ms_sttTranslucencyType == STT_SPECIAL2) return +1;
+    if (srf2.ms_sttTranslucencyType == STT_SPECIAL2) return -1;
+    // ... then special 3.
+    if (srf1.ms_sttTranslucencyType == STT_SPECIAL3) return +1;
+    if (srf2.ms_sttTranslucencyType == STT_SPECIAL3) return -1;
     ASSERTALWAYS("Unrecognized surface type!");
     return 0;
 }
@@ -502,7 +517,12 @@ static void PrepareModelMipForRendering(CModelData& md, INDEX iMip)
         if (!(ms.ms_ulRenderingFlags & SRF_DIFFUSE)
             || ms.ms_sttTranslucencyType == STT_TRANSLUCENT
             || ms.ms_sttTranslucencyType == STT_ADD
-            || ms.ms_sttTranslucencyType == STT_MULTIPLY) {
+            || ms.ms_sttTranslucencyType == STT_MULTIPLY
+            || ms.ms_sttTranslucencyType == STT_INVERT
+            || ms.ms_sttTranslucencyType == STT_TRUEMULTIPLY
+            || ms.ms_sttTranslucencyType == STT_SPECIAL1
+            || ms.ms_sttTranslucencyType == STT_SPECIAL2
+            || ms.ms_sttTranslucencyType == STT_SPECIAL3) {
             ms.ms_ulRenderingFlags &= ~SRF_OPAQUE;
             mmi.mmpi_ulLayerFlags &= ~MMI_OPAQUE;
         }
@@ -858,6 +878,36 @@ static void SetRenderingParameters(SurfaceTranslucencyType stt, BOOL bHasBump)
     else if (stt == STT_MULTIPLY) {
         gfxEnableBlend();
         gfxBlendFunc(GFX_ZERO, GFX_INV_SRC_COLOR);
+        gfxDisableAlphaTest();
+        gfxDisableDepthWrite();
+    }
+    else if (stt == STT_INVERT) {
+        gfxEnableBlend();
+        gfxBlendFunc(GFX_INV_SRC_COLOR, GFX_INV_DST_COLOR);
+        gfxDisableAlphaTest();
+        gfxDisableDepthWrite();
+    }
+    else if (stt == STT_TRUEMULTIPLY) {
+        gfxEnableBlend();
+        gfxBlendFunc(GFX_DST_COLOR, GFX_INV_SRC_ALPHA);
+        gfxDisableAlphaTest();
+        gfxDisableDepthWrite();
+    }
+    else if (stt == STT_SPECIAL1) {
+        gfxEnableBlend();
+        gfxBlendFunc(GFX_DST_COLOR, GFX_INV_SRC_ALPHA);
+        gfxDisableAlphaTest();
+        gfxDisableDepthWrite();
+    }
+    else if (stt == STT_SPECIAL2) {
+        gfxEnableBlend();
+        gfxBlendFunc(GFX_INV_SRC_COLOR, GFX_INV_DST_ALPHA);
+        gfxDisableAlphaTest();
+        gfxDisableDepthWrite();
+    }
+    else if (stt == STT_SPECIAL3) {
+        gfxEnableBlend();
+        gfxBlendFunc(GFX_SRC_ALPHA_SATURATE, GFX_INV_SRC_COLOR);
         gfxDisableAlphaTest();
         gfxDisableDepthWrite();
     }
@@ -2338,11 +2388,13 @@ void CModelObject::RenderModel_View(CRenderModel& rm)
         if ((ms.ms_ulRenderingFlags & SRF_OPAQUE) && !_bForceTranslucency) continue;
         // eventually do some haze and/or fog attenuation of alpha channel in surface
         if (rm.rm_ulFlags & RMF_HAZE) {
-            if (ms.ms_sttTranslucencyType == STT_MULTIPLY) AttenuateColor(pshdMipHaze, ctSrfVx);
+            if (ms.ms_sttTranslucencyType == STT_MULTIPLY
+                || ms.ms_sttTranslucencyType == STT_TRUEMULTIPLY) AttenuateColor(pshdMipHaze, ctSrfVx);
             else AttenuateAlpha(pshdMipHaze, ctSrfVx);
         }
         if (rm.rm_ulFlags & RMF_FOG) {
-            if (ms.ms_sttTranslucencyType == STT_MULTIPLY) AttenuateColor(pshdMipFogy, ctSrfVx);
+            if (ms.ms_sttTranslucencyType == STT_MULTIPLY
+                || ms.ms_sttTranslucencyType == STT_TRUEMULTIPLY) AttenuateColor(pshdMipFogy, ctSrfVx);
             else AttenuateAlpha(pshdMipFogy, ctSrfVx);
         }
     }}
@@ -2405,7 +2457,6 @@ void CModelObject::RenderModel_View(CRenderModel& rm)
 
 
     // if patches are on and are enabled for this mip model
-    // TODO !!!!
     // if( (mo_PatchMask!=0) && (mmi.mmpi_ulFlags&MM_PATCHES_VISIBLE)) RenderPatches_View(rm);
 
 
@@ -2650,11 +2701,13 @@ void CModelObject::RenderModel_View(CRenderModel& rm)
             if ((ms.ms_ulRenderingFlags & SRF_OPAQUE) && !_bForceTranslucency) continue;
             // eventually do some haze and/or fog attenuation of alpha channel in surface
             if (rm.rm_ulFlags & RMF_HAZE) {
-                if (ms.ms_sttTranslucencyType == STT_MULTIPLY) AttenuateColor(pshdMipHaze, ctSrfVx);
+                if (ms.ms_sttTranslucencyType == STT_MULTIPLY
+                    || ms.ms_sttTranslucencyType == STT_TRUEMULTIPLY) AttenuateColor(pshdMipHaze, ctSrfVx);
                 else AttenuateAlpha(pshdMipHaze, ctSrfVx);
             }
             if (rm.rm_ulFlags & RMF_FOG) {
-                if (ms.ms_sttTranslucencyType == STT_MULTIPLY) AttenuateColor(pshdMipFogy, ctSrfVx);
+                if (ms.ms_sttTranslucencyType == STT_MULTIPLY
+                    || ms.ms_sttTranslucencyType == STT_TRUEMULTIPLY) AttenuateColor(pshdMipFogy, ctSrfVx);
                 else AttenuateAlpha(pshdMipFogy, ctSrfVx);
             }
         }
@@ -2845,11 +2898,13 @@ void CModelObject::RenderModel_View(CRenderModel& rm)
             if ((ms.ms_ulRenderingFlags & SRF_OPAQUE) && !_bForceTranslucency) continue;
             // eventually do some haze and/or fog attenuation of alpha channel in surface
             if (rm.rm_ulFlags & RMF_HAZE) {
-                if (ms.ms_sttTranslucencyType == STT_MULTIPLY) AttenuateColor(pshdMipHaze, ctSrfVx);
+                if (ms.ms_sttTranslucencyType == STT_MULTIPLY
+                    || ms.ms_sttTranslucencyType == STT_TRUEMULTIPLY) AttenuateColor(pshdMipHaze, ctSrfVx);
                 else AttenuateAlpha(pshdMipHaze, ctSrfVx);
             }
             if (rm.rm_ulFlags & RMF_FOG) {
-                if (ms.ms_sttTranslucencyType == STT_MULTIPLY) AttenuateColor(pshdMipFogy, ctSrfVx);
+                if (ms.ms_sttTranslucencyType == STT_MULTIPLY
+                    || ms.ms_sttTranslucencyType == STT_TRUEMULTIPLY) AttenuateColor(pshdMipFogy, ctSrfVx);
                 else AttenuateAlpha(pshdMipFogy, ctSrfVx);
             }
         }
@@ -2872,7 +2927,6 @@ void CModelObject::RenderModel_View(CRenderModel& rm)
         // specular rendering done
         _pfModelProfile.StopTimer(CModelProfile::PTI_VIEW_RENDER_SPECULAR);
     }
-
 
 
     // RENDER HAZE LAYER -------------------------------------------------------------------

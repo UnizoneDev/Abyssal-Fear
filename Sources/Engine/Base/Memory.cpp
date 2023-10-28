@@ -114,7 +114,7 @@ void *AllocMemoryAligned(SLONG memsize, SLONG slAlignPow2)
 }
 void FreeMemoryAligned( void *memory)
 {
-    FreeMemory((void*)(((uintptr_t*)memory)[-1]));
+    FreeMemory((void*)(((ULONG*)memory)[-1]));
 }
 
 void FreeMemory( void *memory )

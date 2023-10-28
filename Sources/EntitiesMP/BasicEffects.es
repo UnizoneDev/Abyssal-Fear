@@ -110,6 +110,8 @@ enum BasicEffectType {
  73 BET_BULLETSTAINGLITCHNOSOUND  "Bullet stain glitch no sound",
  74 BET_BULLETSTAINICE    "Bullet stain ice", 
  75 BET_BULLETSTAINICENOSOUND  "Bullet stain ice no sound",
+ 76 BET_BULLETSTAINLAVA    "Bullet stain lava", 
+ 77 BET_BULLETSTAINLAVANOSOUND  "Bullet stain lava no sound",
 };
 
 
@@ -190,6 +192,8 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
   case BET_BULLETSTAINGLITCHNOSOUND:
   case BET_BULLETSTAINICE:
   case BET_BULLETSTAINICENOSOUND:
+  case BET_BULLETSTAINLAVA:
+  case BET_BULLETSTAINLAVANOSOUND:
     pdec->PrecacheModel(MODEL_BULLET_HIT);
     pdec->PrecacheTexture(TEXTURE_BULLET_HIT);
     pdec->PrecacheTexture(TEXTURE_BULLET_SAND);
@@ -251,6 +255,11 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheSound(SOUND_MUD_BULLET2);
     pdec->PrecacheSound(SOUND_MUD_BULLET3);
     pdec->PrecacheSound(SOUND_MUD_BULLET4);
+
+    pdec->PrecacheSound(SOUND_DIRT_BULLET1);
+    pdec->PrecacheSound(SOUND_DIRT_BULLET2);
+    pdec->PrecacheSound(SOUND_DIRT_BULLET3);
+    pdec->PrecacheSound(SOUND_DIRT_BULLET4);
     break;
   case BET_BULLETTRAIL:
     pdec->PrecacheModel(MODEL_BULLET_TRAIL);
@@ -459,6 +468,11 @@ components:
  160 sound   SOUND_MUD_BULLET2    "Sounds\\Materials\\Mud\\BulletMud2.wav",
  161 sound   SOUND_MUD_BULLET3    "Sounds\\Materials\\Mud\\BulletMud3.wav",
  162 sound   SOUND_MUD_BULLET4    "Sounds\\Materials\\Mud\\BulletMud4.wav",
+
+ 168 sound   SOUND_DIRT_BULLET1    "Sounds\\Materials\\Dirt\\BulletDirt1.wav",
+ 169 sound   SOUND_DIRT_BULLET2    "Sounds\\Materials\\Dirt\\BulletDirt2.wav",
+ 170 sound   SOUND_DIRT_BULLET3    "Sounds\\Materials\\Dirt\\BulletDirt3.wav",
+ 171 sound   SOUND_DIRT_BULLET4    "Sounds\\Materials\\Dirt\\BulletDirt4.wav",
 
  165 model   MODEL_INVISIBLE_PLANE    "Models\\Effects\\InvisiblePlane\\InvisiblePlane.mdl",
  166 texture TEXTURE_INVISIBLE_PLANE  "Models\\Effects\\InvisiblePlane\\InvisiblePlane.tex",
@@ -1019,8 +1033,25 @@ functions:
     if( bSound)
     {
       m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
-      PlaySound(m_soEffect, SOUND_BULLET_SAND, SOF_3D);
-      m_fSoundTime = GetSoundLength(SOUND_BULLET_SAND);
+      switch(IRnd()%4) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET4);
+        } break;
+        default: break;
+      }
     }
     
     SetModel(MODEL_BULLET_STAIN);
@@ -1044,8 +1075,25 @@ functions:
     if( bSound)
     {
       m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
-      PlaySound(m_soEffect, SOUND_BULLET_SAND, SOF_3D);
-      m_fSoundTime = GetSoundLength(SOUND_BULLET_SAND);
+      switch(IRnd()%4) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET4);
+        } break;
+        default: break;
+      }
     }
     
     SetModel(MODEL_BULLET_STAIN);
@@ -1200,8 +1248,25 @@ functions:
     if( bSound)
     {
       m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
-      PlaySound(m_soEffect, SOUND_BULLET_GRASS, SOF_3D);
-      m_fSoundTime = GetSoundLength(SOUND_BULLET_GRASS);
+      switch(IRnd()%4) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET4);
+        } break;
+        default: break;
+      }
     }
     
     SetModel(MODEL_BULLET_STAIN);
@@ -1416,8 +1481,25 @@ functions:
     if( bSound)
     {
       m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
-      PlaySound(m_soEffect, SOUND_BULLET_DIRT, SOF_3D);
-      m_fSoundTime = GetSoundLength(SOUND_BULLET_DIRT);
+      switch(IRnd()%4) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET4);
+        } break;
+        default: break;
+      }
     }
     
     SetModel(MODEL_BULLET_STAIN);
@@ -1644,8 +1726,25 @@ functions:
     if( bSound)
     {
       m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
-      PlaySound(m_soEffect, SOUND_BULLET_GRAVEL, SOF_3D);
-      m_fSoundTime = GetSoundLength(SOUND_BULLET_GRAVEL);
+      switch(IRnd()%4) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_DIRT_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_DIRT_BULLET4);
+        } break;
+        default: break;
+      }
     }
     
     SetModel(MODEL_BULLET_STAIN);
@@ -1736,6 +1835,48 @@ functions:
     ParentToNearestPolygonAndStretch();
     m_vStretch = vTemp;
   };
+
+  void BulletStainLava(BOOL bSound)
+  {
+    if( bSound)
+    {
+      m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
+      switch(IRnd()%4) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET4);
+        } break;
+        default: break;
+      }
+    }
+    
+    SetModel(MODEL_BULLET_STAIN);
+    SetModelMainTexture(TEXTURE_BULLET_HIT);
+    CModelObject &moHole = *GetModelObject();
+    moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
+    ModelChangeNotify();
+
+    SetNormalWithRandomBanking();
+    m_fWaitTime = 2.0f;
+    m_fFadeTime = 2.0f;
+    m_bLightSource = FALSE;
+    m_eptType = EPT_BULLET_LAVA;
+    FLOAT3D vTemp = m_vStretch;
+    ParentToNearestPolygonAndStretch();
+    m_vStretch = vTemp;
+  }
 
 /************************************************************
  *                  BLOOD SPILL / STAIN                     *
@@ -1963,6 +2104,8 @@ procedures:
       case BET_BULLETSTAINGLITCHNOSOUND: BulletStainGlitch(FALSE); break;
       case BET_BULLETSTAINICE: BulletStainIce(TRUE); break;
       case BET_BULLETSTAINICENOSOUND: BulletStainIce(FALSE); break;
+      case BET_BULLETSTAINLAVA: BulletStainLava(TRUE); break;
+      case BET_BULLETSTAINLAVANOSOUND: BulletStainLava(FALSE); break;
       default:
         ASSERTALWAYS("Unknown effect type");
     }

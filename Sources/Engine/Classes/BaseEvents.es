@@ -88,6 +88,7 @@ enum DamageType {
   22 DMT_BLUNT      "Blunt",        // caused by blunt weapons
   23 DMT_STING      "Sting",        // caused by an abomination stinging their target
   24 DMT_RIFLE      "Rifle Bullets",    // caused by stronger bullets from rifles
+  25 DMT_PUNCH      "Punch",        // caused by a gnaw beast's strong fists
 9999 DMT_NONE       "no damage",    // internal
 };
 

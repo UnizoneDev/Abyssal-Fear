@@ -30,6 +30,8 @@ enum CustomEnemyBehaviorType {
   5 CEBT_STRAFE    "Strafing Grunt",  // melee only variant that can strafe and backpedal
   6 CEBT_TACTICAL  "Tactical Grunt",  // melee and ranged variant that can strafe and backpedal
   7 CEBT_WANDER    "Wanderer",        // wanderer variant
+  8 CEBT_CHARGER   "Charger",         // melee only variant that can rush
+  9 CEBT_COMBAT    "Combative Grunt", // melee only variant that can block attacks, strafe and backpedal
 };
 
 %{
@@ -74,6 +76,7 @@ properties:
  21 CTFileName m_fnmWoundSound     "Wound Sound" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareWound1.wav"),
  22 CTFileName m_fnmDeathSound     "Death Sound" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareDeath1.wav"),
  23 CTFileName m_fnmActiveSound    "Active Sound" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareAttack1.wav"),
+ 60 CTFileName m_fnmPainSound      "Pain Sound" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareWound3.wav"),
 
  24 ANIMATION m_iEnemyStandAnim        "Stand Animation" = 0,
  25 ANIMATION m_iEnemyWalkAnim         "Walk Animation" = 0,
@@ -108,6 +111,11 @@ properties:
  53 INDEX m_iBackDeathCollisionBox     "Back Death Collision Box" = 0,
  54 enum DamageType m_dmtMeleeType "Melee Damage Type" = DMT_CLOSERANGE,    // type of melee damage
  55 CTStringTrans m_strMessage     "Kill Message" = "A Custom Enemy pwned",     // message
+ 56 INDEX m_iMeleeBlockChance      "Melee Block Chance" = 2,
+ 57 FLOAT m_fCustomBlowUpSize      "Custom Blow Up Size" = 4,
+ 58 FLOAT m_fCustomBlowUpAmount    "Custom Blow Up Amount" = 190.0f,
+ 59 INDEX m_fCustomBlowUpParts     "Custom Blow Up Parts" = 4,
+ 60 INDEX m_iStrafeChance          "Strafe Chance" = 2,
 
   {
     CTextureObject m_toCustomTexture;
@@ -173,6 +181,7 @@ functions:
     m_aps.Precache(m_fnmMissSound);
     m_aps.Precache(m_fnmHitSound);
     m_aps.Precache(m_fnmFireSound);
+    m_aps.Precache(m_fnmPainSound);
     PrecacheClass(CLASS_PROJECTILE, PRT_FLAME);
     PrecacheClass(CLASS_PROJECTILE, PRT_SHOOTER_FLAME);
     PrecacheClass(CLASS_PROJECTILE, PRT_AFTERBURNER_DEBRIS);
@@ -441,7 +450,12 @@ functions:
 
     if(m_cebtAIType == CEBT_TACTICAL) {
       m_fLockOnEnemyTime = 1.0f;
-      autocall CEnemyBase::StepBackwards() EReturn;
+
+      INDEX iRandomMovementChoice = IRnd()%m_iStrafeChance;
+
+      if(iRandomMovementChoice == 1) {
+        autocall CEnemyBase::StrafeLeftOrRightRandom() EReturn;
+      }
     }
 
     return EReturn();
@@ -449,9 +463,9 @@ functions:
 
   Hit(EVoid) : CEnemyBase::Hit
   {
-    INDEX iRandomChoice = IRnd()%2;
+    INDEX iRandomChoice = IRnd()%m_iMeleeBlockChance;
 
-    if(m_cebtAIType == CEBT_DEFENSIVE) {
+    if(m_cebtAIType == CEBT_DEFENSIVE || m_cebtAIType == CEBT_COMBAT) {
       if(iRandomChoice == 1) {
         autocall BlockEnemyMelee() EReturn;
         return EReturn();
@@ -462,9 +476,14 @@ functions:
       autocall MeleeAttack() EEnd;
     }
 
-    if(m_cebtAIType == CEBT_STRAFE || m_cebtAIType == CEBT_TACTICAL) {
+    if(m_cebtAIType == CEBT_STRAFE || m_cebtAIType == CEBT_TACTICAL || m_cebtAIType == CEBT_COMBAT) {
       m_fLockOnEnemyTime = 1.0f;
-      autocall CEnemyBase::StepBackwards() EReturn;
+
+      INDEX iRandomMovementChoice = IRnd()%m_iStrafeChance;
+
+      if(iRandomMovementChoice == 1) {
+        autocall CEnemyBase::StepBackwards() EReturn;
+      }
     }
 
     return EReturn();
@@ -525,6 +544,18 @@ functions:
     return EReturn();
   };
 
+
+  PreMainLoop(EVoid)
+  {
+    if(m_fnmPainSound != "") {
+      m_bUsePainSound = TRUE;
+    } else {
+      m_bUsePainSound = FALSE;
+    }
+    return EReturn();
+  }
+
+
   /************************************************************
  *                       M  A  I  N                         *
  ************************************************************/
@@ -552,7 +583,7 @@ functions:
     m_iScore = m_fCustomScore;
     en_tmMaxHoldBreath = m_fCustomBreathHoldTime;
     en_fDensity = m_fCustomDensity;
-    m_fBlowUpSize = 2.0f;
+    m_fBlowUpSize = m_fCustomBlowUpSize;
 
         
         m_fWalkSpeed = FRnd() + m_fCustomWalkSpeed;
@@ -570,8 +601,8 @@ functions:
         m_fCloseFireTime = m_fCustomMeleeTime;
         m_fIgnoreRange = m_fCustomIgnoreRange;
         // damage/explode properties
-        m_fBlowUpAmount = 150.0f;
-        m_fBodyParts = 4;
+        m_fBlowUpAmount = m_fCustomBlowUpAmount;
+        m_fBodyParts = m_fCustomBlowUpParts;
 
     StandingAnim();
 

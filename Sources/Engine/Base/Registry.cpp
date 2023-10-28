@@ -24,7 +24,7 @@ static void ParseKeyName(const CTString &strKey, HKEY &hKeyRoot, CTString &strKe
   // separate key into the value part and path
   strKeyName = CTFileName(strRemain).FileName();
   strRemain = CTFileName(strRemain).FileDir();
-  strRemain.TrimRight(strlen(strRemain)-1); // removes trailing backslash
+  strRemain.TrimRight(strlen(strRemain) - 1); // removes trailing backslash
   // try to find root key value
 
   if (strRemain.RemovePrefix("HKEY_CLASSES_ROOT\\")) {

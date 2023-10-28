@@ -34,6 +34,10 @@ properties:
   7 FLOAT m_fBlockDamage                  "Block damage" 'D' = -1.0f,
   8 FLOAT m_tmBankingRotation             "Banking rotation speed" = -1.0f,
   9 BOOL  m_bBankingClockwise             "Banking rotation clockwise" = TRUE,
+ 23 FLOAT m_tmHeadingRotation             "Heading rotation speed" = -1.0f,
+ 24 BOOL  m_bHeadingClockwise             "Heading rotation clockwise" = TRUE,
+ 25 FLOAT m_tmPitchRotation               "Pitch rotation speed" = -1.0f,
+ 26 BOOL  m_bPitchClockwise               "Pitch rotation clockwise" = TRUE,
  14 BOOL  m_bNoRotation                   "Don't use marker orientation" = FALSE, 
   
   // send event on marker

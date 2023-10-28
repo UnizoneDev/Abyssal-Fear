@@ -34,6 +34,7 @@ public:
     TT_COLLISIONBOX,    // do testing by collision box
     TT_FULL,            // do full testing
     TT_FULLSEETHROUGH,  // do full testing without entities marked as see through
+    TT_HITBOX,          // do testing by hit box
   };
 public:
   BOOL cr_bAllowOverHit;                // set if the ray can hit behind its target
@@ -56,6 +57,7 @@ public:
   void TestModelSimple(CEntity *penModel, CModelObject &mo);
   void TestModelCollisionBox(CEntity *penModel);
   void TestModelFull(CEntity *penModel, CModelObject &mo);
+  void TestModelHitBox(CEntity *penModel, CModelObject &mo);
   void TestSkaModelSimple(CEntity *penModel, CModelInstance &mi);
 	void TestSkaModelFull(CEntity *penModel, CModelInstance &mi);
   void TestModel(CEntity *penModel);

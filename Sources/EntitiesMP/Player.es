@@ -57,6 +57,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/HudPicHolder.h"
 #include "EntitiesMP/OverlayHolder.h"
 #include "EntitiesMP/ControllableTurret.h"
+#include "EntitiesMP/UZModelHolder.h"
 
 extern void JumpFromBouncer(CEntity *penToBounce, CEntity *penBouncer);
 // from game
@@ -666,6 +667,12 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_MUD_STEP3          );
   pdec->PrecacheSound(SOUND_MUD_STEP4          );
   pdec->PrecacheSound(SOUND_MUD_LAND           );
+
+  pdec->PrecacheSound(SOUND_GRAVEL_STEP1          );
+  pdec->PrecacheSound(SOUND_GRAVEL_STEP2          );
+  pdec->PrecacheSound(SOUND_GRAVEL_STEP3          );
+  pdec->PrecacheSound(SOUND_GRAVEL_STEP4          );
+  pdec->PrecacheSound(SOUND_GRAVEL_LAND           );
 
   pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_TELEPORT);
   pdec->PrecacheClass(CLASS_SERIOUSBOMB);
@@ -1321,6 +1328,12 @@ components:
 267 sound SOUND_MUD_STEP3       "Sounds\\Materials\\Mud\\StepMud3.wav",
 268 sound SOUND_MUD_STEP4       "Sounds\\Materials\\Mud\\StepMud4.wav",
 269 sound SOUND_MUD_LAND        "Sounds\\Materials\\Mud\\LandMud.wav",
+
+270 sound SOUND_GRAVEL_STEP1       "Sounds\\Materials\\Gravel\\StepGravel1.wav",
+271 sound SOUND_GRAVEL_STEP2       "Sounds\\Materials\\Gravel\\StepGravel2.wav",
+272 sound SOUND_GRAVEL_STEP3       "Sounds\\Materials\\Gravel\\StepGravel3.wav",
+273 sound SOUND_GRAVEL_STEP4       "Sounds\\Materials\\Gravel\\StepGravel4.wav",
+274 sound SOUND_GRAVEL_LAND        "Sounds\\Materials\\Gravel\\LandGravel.wav",
 
 
 functions:
@@ -3103,10 +3116,10 @@ functions:
           return;
           break;
 
-          default: 
+          default:
           m_bIsBlocking = FALSE;
           break;
-        }
+          }
         }
       }
     }
@@ -3508,6 +3521,10 @@ functions:
           SendToTarget(pen, EET_TRIGGER, this);
           bSomethingToUse = TRUE;
         }
+      }
+
+      if (IsOfClass(pen, "UZModelHolder")) {
+      
       }
     }
     
@@ -4156,7 +4173,7 @@ functions:
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
-             iSoundLand = SOUND_LAND_GRAVEL;
+             iSoundLand = SOUND_GRAVEL_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH_NOIMPACT) ) {
@@ -4262,11 +4279,12 @@ functions:
 
       // check for ladders
       if(en_ulPhysicsFlags&EPF_ONLADDER) {
-        if(vTranslation(3)<0) {
-          m_fClimbDir = vTranslation(3) / plr_fSpeedForward;
-        } else if (vTranslation(3)>0) {
-          m_fClimbDir = vTranslation(3) / plr_fSpeedBackward;
-        }
+        // translate up/down with view pitch
+        FLOATmatrix3D mPitch;
+        MakeRotationMatrixFast(mPitch, FLOAT3D(0,en_plViewpoint.pl_OrientationAngle(2),0));
+        FLOAT fZ = vTranslation(3);
+        vTranslation(3) = 0.0f;
+        vTranslation += FLOAT3D(0,0,fZ)*mPitch;
       }
 
       // set translation
@@ -4418,8 +4436,10 @@ functions:
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
-        iSoundWalkL = SOUND_WALK_GRAVEL_L;
-        iSoundWalkR = SOUND_WALK_GRAVEL_R;
+        iSoundWalkL  = SOUND_GRAVEL_STEP1;
+        iSoundWalkL2 = SOUND_GRAVEL_STEP2;
+        iSoundWalkR  = SOUND_GRAVEL_STEP3;
+        iSoundWalkR2 = SOUND_GRAVEL_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH_NOIMPACT) ) {
@@ -4448,7 +4468,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
                  switch(IRnd()%2) {
                    case 0: PlaySound(m_soFootL, iSoundWalkL, SOF_3D); break;
                    case 1: PlaySound(m_soFootL, iSoundWalkL2, SOF_3D); break;
@@ -4470,7 +4492,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
                  switch(IRnd()%2) {
                    case 0: PlaySound(m_soFootR, iSoundWalkR, SOF_3D); break;
                    case 1: PlaySound(m_soFootR, iSoundWalkR2, SOF_3D); break;
@@ -4498,7 +4522,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
                  switch(IRnd()%2) {
                    case 0: PlaySound(m_soFootL, iSoundWalkL, SOF_3D); break;
                    case 1: PlaySound(m_soFootL, iSoundWalkL2, SOF_3D); break;
@@ -4520,7 +4546,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
                  switch(IRnd()%2) {
                    case 0: PlaySound(m_soFootR, iSoundWalkR, SOF_3D); break;
                    case 1: PlaySound(m_soFootR, iSoundWalkR2, SOF_3D); break;
@@ -6758,6 +6786,21 @@ procedures:
           PlaySound(m_soMouth, SOUND_JUMP, SOF_3D);
           if(_pNetwork->IsPlayerLocal(this)) {IFeel_PlayEffect("Jump");}
         }
+
+        if(IsOfClass(eTouch.penOther, "UZModelHolder")) {
+          FLOAT3D vPush = eTouch.penOther->GetPlacement().pl_PositionVector - GetPlacement().pl_PositionVector;
+          CUZModelHolder *penPushable = (CUZModelHolder*)&*eTouch.penOther;
+          switch(penPushable->m_pmwType)
+          {
+            case PMWT_SMALL: vPush *= 2.0f; break;
+            case PMWT_MEDIUM: vPush *= 1.65f; break;
+            case PMWT_BIG: vPush *= 1.35f; break;
+            case PMWT_HUGE: vPush *= 1.1f; break;
+            default: break;
+          }
+          penPushable->GiveImpulseTranslationAbsolute(FLOAT3D(vPush(1), 0.0f, vPush(3)));
+        }
+
         resume;
       }
     }

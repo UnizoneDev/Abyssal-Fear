@@ -102,6 +102,8 @@ properties:
 
  // rotation
  18 FLOAT m_tmBankingRotation "Banking rotation speed" = 0.0f, // set if only banking rotation
+ 102 FLOAT m_tmHeadingRotation "Heading rotation speed" = 0.0f, // set if only heading rotation
+ 103 FLOAT m_tmPitchRotation "Pitch rotation speed" = 0.0f, // set if only pitch rotation
 
  // class properties
  20 BOOL m_bMoving = FALSE,           // the brush is moving
@@ -286,7 +288,8 @@ functions:
           (dmtType == DMT_PELLET) ||
           (dmtType == DMT_AXE)    ||
           (dmtType == DMT_BLUNT)  ||
-          (dmtType == DMT_SHARP)  )
+          (dmtType == DMT_SHARP)  ||
+          (dmtType == DMT_RIFLE) )
       {
         CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       }
@@ -450,7 +453,8 @@ functions:
 
       // stop moving ?
       if (vSpeed(1)==0.0f && vSpeed(2)==0.0f && vSpeed(3)==0.0f
-       && ((m_tmBankingRotation!=0 || m_bNoRotation)||(aSpeed(1)==0.0f && aSpeed(2)==0.0f && aSpeed(3)==0.0f)) ) 
+       && ((m_tmBankingRotation!=0 || m_tmPitchRotation!=0 || m_tmHeadingRotation!=0 || m_bNoRotation)||
+          (aSpeed(1)==0.0f && aSpeed(2)==0.0f && aSpeed(3)==0.0f)) ) 
       {
         // stop brush
         ForceFullStop();
@@ -464,7 +468,7 @@ functions:
         SetDesiredTranslation(vSpeed);
         if (m_bRotating) {
           MaybeActivateRotation();
-        } else if (!m_tmBankingRotation && !m_bNoRotation) {
+        } else if ((!m_tmBankingRotation || !m_tmPitchRotation || !m_tmHeadingRotation) && !m_bNoRotation) {
           SetDesiredRotation(aSpeed);
         } else {
           SetDesiredRotation(ANGLE3D(0,0,0));
@@ -541,6 +545,20 @@ functions:
       }
     }
 
+    if (mbm.m_tmHeadingRotation>=0.0f) {
+      m_tmHeadingRotation = mbm.m_tmHeadingRotation;
+      if (!mbm.m_bHeadingClockwise) {
+        m_tmHeadingRotation *= -1;
+      }
+    }
+
+    if (mbm.m_tmPitchRotation>=0.0f) {
+      m_tmPitchRotation = mbm.m_tmPitchRotation;
+      if (!mbm.m_bPitchClockwise) {
+        m_tmPitchRotation *= -1;
+      }
+    }
+
     return TRUE;
   };
 
@@ -598,6 +616,16 @@ functions:
     m_soFollow.Stop();
   };
 
+  // stop start sound
+  void StopStartSound(void) {
+    m_soStart.Stop();
+  };
+
+  // stop stop sound
+  void StopStopSound(void) {
+    m_soStop.Stop();
+  };
+
 
   void MovingOn(void)
   {
@@ -622,9 +650,9 @@ functions:
 
   void MaybeActivateRotation(void)
   {
-    if (m_tmBankingRotation!=0) {
+    if (m_tmHeadingRotation!=0 || m_tmPitchRotation!=0 || m_tmBankingRotation!=0) {
       m_bRotating = TRUE;
-      SetDesiredRotation(ANGLE3D(0.0f,0.0f,360.0f/m_tmBankingRotation));  
+      SetDesiredRotation(ANGLE3D(360.0f/m_tmHeadingRotation,360.0f/m_tmPitchRotation,360.0f/m_tmBankingRotation));
     }
     else {
       m_bRotating = FALSE;
@@ -706,7 +734,7 @@ procedures:
     SetDesiredTranslation(m_vDesiredTranslation);
     if (m_bRotating) {
       MaybeActivateRotation();
-    } else if (!m_tmBankingRotation) {
+    } else if (!m_tmBankingRotation || !m_tmPitchRotation || !m_tmHeadingRotation) {
       SetDesiredRotation(m_aDesiredRotation);
     }
 
@@ -716,7 +744,7 @@ procedures:
       on (EStop) : {
         //SetCollisionFlags(ECF_IMMATERIAL);
         SetDesiredTranslation(FLOAT3D(0.0f, 0.0f, 0.0f));
-        if (m_tmBankingRotation==0) {
+        if (m_tmBankingRotation==0 || m_tmPitchRotation==0 || m_tmHeadingRotation==0) {
           SetDesiredRotation(ANGLE3D(0.0f, 0.0f, 0.0f));
         }
         m_bForceStop = TRUE;
@@ -736,7 +764,7 @@ procedures:
           SetDesiredTranslation(-m_vDesiredTranslation);
           if (m_bRotating) {
               MaybeActivateRotation();
-            } else if (!m_tmBankingRotation) {
+            } else if (!m_tmBankingRotation || !m_tmPitchRotation || !m_tmHeadingRotation) {
               SetDesiredRotation(-m_aDesiredRotation);
           }
           // wait for two ticks and reset direction
@@ -760,8 +788,8 @@ procedures:
     // return to standard direction
     SetDesiredTranslation(m_vDesiredTranslation);
     if (m_bRotating) {
-      SetDesiredRotation(ANGLE3D(0.0f, 0.0f, 360.0f/m_tmBankingRotation));
-    } else if (!m_tmBankingRotation) {
+      SetDesiredRotation(ANGLE3D(360.0f/m_tmHeadingRotation, 360.0f/m_tmPitchRotation, 360.0f/m_tmBankingRotation));
+    } else if (!m_tmBankingRotation || !m_tmPitchRotation || !m_tmHeadingRotation) {
       SetDesiredRotation(m_aDesiredRotation);
     }
     return;
@@ -791,7 +819,7 @@ procedures:
 
   RotActive()
   {
-    SetDesiredRotation(ANGLE3D(0,0,360.0f/m_tmBankingRotation));
+    SetDesiredRotation(ANGLE3D(360.0f/m_tmHeadingRotation,360.0f/m_tmPitchRotation,360.0f/m_tmBankingRotation));
 
     wait() {
       on (EDeactivate) : {
@@ -841,7 +869,7 @@ procedures:
           on (EStop) : {
             //SetCollisionFlags(ECF_IMMATERIAL);
             SetDesiredTranslation(FLOAT3D(0.0f, 0.0f, 0.0f));
-            if (m_tmBankingRotation==0) {
+            if (m_tmBankingRotation==0 || m_tmPitchRotation==0 || m_tmHeadingRotation==0) {
               SetDesiredRotation(ANGLE3D(0.0f, 0.0f, 0.0f));
             }
             m_bForceStop = TRUE;
@@ -990,8 +1018,8 @@ procedures:
           // change direction for two ticks
           SetDesiredTranslation(-m_vDesiredTranslation);
           if (m_bRotating) {
-              SetDesiredRotation(-ANGLE3D(0.0f, 0.0f, 360.0f/m_tmBankingRotation));
-            } else if (!m_tmBankingRotation) {
+              SetDesiredRotation(-ANGLE3D(360.0f/m_tmHeadingRotation, 360.0f/m_tmPitchRotation, 360.0f/m_tmBankingRotation));
+            } else if (!m_tmBankingRotation || !m_tmPitchRotation || !m_tmHeadingRotation) {
               SetDesiredRotation(-m_aDesiredRotation);
           }
 

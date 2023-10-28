@@ -154,7 +154,7 @@ void CAnimData::Clear()
 SLONG CAnimData::GetUsedMemory(void)
 {
   SLONG slUsed = sizeof(*this)+sizeof(COneAnim)*ad_NumberOfAnims;
-  slUsed += strlen(GetName())+1;
+  slUsed += strlen(GetName()) + 1;
 
   for(INDEX iAnim=0; iAnim<ad_NumberOfAnims; iAnim++) {
     slUsed += ad_Anims[iAnim].oa_NumberOfFrames*sizeof(INDEX);
@@ -188,7 +188,7 @@ void CAnimData::RemReference_internal(void) {
 void CAnimData::CreateAnimations( INDEX ctAnimations, CTString strName/*="None"*/,
                                   INDEX iDefaultFrame/*=0*/, TIME tmSpeed/*=0.02f*/)
 {
-  ASSERT(strlen(strName)<NAME_SIZE);
+  ASSERT(strlen(strName) < NAME_SIZE);
   // clear existing animations
   Clear();
   // set new number of anims
@@ -456,7 +456,7 @@ void CAnimData::Write_t( CTStream *ostrFile)  // throw char *
 	{
 		// Next block saves all data for one animation
 		ostrFile->Write_t( &ad_Anims[i].oa_Name, sizeof( NAME));
-		ostrFile->Write_t( &ad_Anims[i].oa_SecsPerFrame, sizeof( TIME));
+		ostrFile->Write_t(&ad_Anims[i].oa_SecsPerFrame, sizeof(TIME));
 		ostrFile->Write_t( &ad_Anims[i].oa_NumberOfFrames, sizeof( INDEX));
 		ostrFile->Write_t( ad_Anims[i].oa_FrameIndices,
 							ad_Anims[i].oa_NumberOfFrames * sizeof( INDEX));
@@ -514,7 +514,7 @@ void CAnimData::AddAnimation(void)
 
 // replaces requested animation's name with given one
 void CAnimData::SetName( INDEX iAnimation, CTString strNewName){
-  ASSERT(strlen(strNewName)<NAME_SIZE);
+  ASSERT(strlen(strNewName) < NAME_SIZE);
   strcpy( ad_Anims[iAnimation].oa_Name, strNewName);};
 // replaces requested animation's speed with given one
 void CAnimData::SetSpeed( INDEX iAnimation, TIME tmSpeed){
@@ -568,7 +568,9 @@ void CAnimData::Read_t( CTStream *istrFile) // throw char *
 	{
 		// Next block reads and allocates all data for one animation
 		istrFile->Read_t( &ad_Anims[i].oa_Name, sizeof( NAME));
-		istrFile->Read_t( &ad_Anims[i].oa_SecsPerFrame, sizeof( TIME));
+
+		istrFile->Read_t(&ad_Anims[i].oa_SecsPerFrame, sizeof(TIME));
+
 		istrFile->Read_t( &ad_Anims[i].oa_NumberOfFrames, sizeof( INDEX));
 		ad_Anims[i].oa_FrameIndices = (INDEX *)
 								AllocMemory( ad_Anims[i].oa_NumberOfFrames * sizeof( INDEX));
@@ -1083,7 +1085,7 @@ void CAnimObject::GetFrame( INDEX &iFrame0, INDEX &iFrame1, FLOAT &fRatio) const
 void CAnimObject::Write_t( CTStream *pstr) // throw char *
 {
   (*pstr).WriteID_t("ANOB");
-	(*pstr).WriteRawChunk_t( &ao_tmAnimStart, sizeof( TIME));
+  (*pstr).WriteRawChunk_t(&ao_tmAnimStart, sizeof(TIME));
 	(*pstr).WriteRawChunk_t( &ao_iCurrentAnim, sizeof( INDEX));
 	(*pstr).WriteRawChunk_t( &ao_iLastAnim, sizeof( INDEX));
 	(*pstr).WriteRawChunk_t( &ao_ulFlags, sizeof( INDEX));
@@ -1093,12 +1095,12 @@ void CAnimObject::Read_t( CTStream *pstr) // throw char *
 {
   if ((*pstr).PeekID_t()==CChunkID("ANOB")) {
     (*pstr).ExpectID_t("ANOB");
-	  (*pstr).ReadRawChunk_t( &ao_tmAnimStart, sizeof( TIME));
+	(*pstr).ReadRawChunk_t(&ao_tmAnimStart, sizeof(TIME));
 	  (*pstr).ReadRawChunk_t( &ao_iCurrentAnim, sizeof( INDEX));
 	  (*pstr).ReadRawChunk_t( &ao_iLastAnim, sizeof( INDEX));
 	  (*pstr).ReadRawChunk_t( &ao_ulFlags, sizeof( INDEX));
   } else {
-	  (*pstr).ReadRawChunk_t( &ao_tmAnimStart, sizeof( TIME));
+	  (*pstr).ReadRawChunk_t(&ao_tmAnimStart, sizeof(TIME));
 	  (*pstr).ReadRawChunk_t( &ao_iCurrentAnim, sizeof( INDEX));
     ao_iLastAnim = ao_iCurrentAnim;
     ao_ulFlags = 0;

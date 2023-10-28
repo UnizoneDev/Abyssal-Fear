@@ -162,7 +162,7 @@ functions:
         break;
       case PIT_HAMMER:
         // set appearance
-        AddItem(MODEL_HAMMER, TEXTURE_HAMMER, 0, 0, 0);
+        AddItem(MODEL_HAMMER, TEXTURE_HAMMER, 0, TEX_SPEC_STRONG, 0);
         StretchItem(FLOAT3D(1.0f, 1.0f, 1.0f));
         m_iSoundComponent = SOUND_KEY;
         break;

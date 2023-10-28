@@ -542,6 +542,12 @@
     <ClCompile Include="CustomEnemy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GnawBeast.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UZModelHolder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Flesh\Classes\Acid.ecl">
@@ -1423,6 +1429,12 @@
     <CustomBuild Include="CustomEnemy.es">
       <Filter>Class Files\Enemies</Filter>
     </CustomBuild>
+    <CustomBuild Include="GnawBeast.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="UZModelHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Common.h">
@@ -2299,6 +2311,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CustomEnemy_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GnawBeast.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GnawBeast_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UZModelHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UZModelHolder_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

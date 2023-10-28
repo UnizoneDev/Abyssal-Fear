@@ -227,6 +227,7 @@ properties:
 233 FLOAT m_fBlockAmount = 90.0f,
 234 FLOAT m_fBlockDirAmount = 0.5f,
 235 BOOL m_bBlockFirearms = FALSE,
+236 BOOL m_bUsePainSound = FALSE,
 
 240 INDEX m_ulMovementFlags = 0,
 241 CEntityPointer m_penLastAttacker,
@@ -237,12 +238,12 @@ properties:
 246 BOOL m_bCheckForPits  "Check For Pits" = FALSE,
 247 CEntityPointer m_penSequencer "Sequencer" COLOR(C_GREEN|0xFF),       // enemy sequencer pointer
 
-250 BOOL m_bCoward   "Coward" = FALSE,
-251 BOOL m_bDormant  "Dormant" = FALSE,
-252 BOOL m_bHideBehindCover = FALSE,
-253 BOOL m_bNoIdleSound "Quiet" = FALSE,
-254 BOOL m_bCrouch = FALSE,
-255 BOOL m_bAnosmic "Anosmic" = FALSE,    // anosmic
+248 BOOL m_bCoward   "Coward" = FALSE,
+249 BOOL m_bDormant  "Dormant" = FALSE,
+250 BOOL m_bHideBehindCover = FALSE,
+251 BOOL m_bNoIdleSound "Quiet" = FALSE,
+252 BOOL m_bCrouch = FALSE,
+253 BOOL m_bAnosmic "Anosmic" = FALSE,    // anosmic
 
 //171 INDEX m_iTacticsRetried = 0,
 
@@ -1380,6 +1381,11 @@ functions:
       }
 
       if((this->GetFaction() == FT_WILDLIFE || this->GetFaction() == FT_SHADOW) && (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_GREATER))
+      {
+        return FALSE;
+      }
+
+      if((this->GetFaction() == FT_LESSER || this->GetFaction() == FT_GREATER) && (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_GREATER))
       {
         return FALSE;
       }
@@ -2697,6 +2703,7 @@ functions:
   virtual void WoundSound(void) {};
   virtual void DeathSound(void) {};
   virtual void ActiveSound(void) {}; // Like IdleSound but for comments when hunting down a target
+  virtual void PainSound(void) {};   // Like WoundSound but for everytime an enemy gets hurt
   virtual FLOAT GetLockRotationSpeed(void) { return 2000.0f;};
 
 
@@ -3155,6 +3162,72 @@ procedures:
 
       // take next marker in loop
       m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget;
+
+      CEnemyMarker *pem = (CEnemyMarker *)&*m_penMarker;
+      if(pem->m_penRandomTarget1 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget1; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget2 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget2; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget3 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget3; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget4 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget4; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget5 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget5; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget6 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget6; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget7 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget7; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
+      if(pem->m_penRandomTarget8 != NULL) {
+        switch(IRnd()%2) {
+          case 0: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+          case 1: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penRandomTarget8; break;
+          default: m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget; break;
+        }
+      }
+
     } // when no more markers
 
     // stop where you are
@@ -3714,7 +3787,7 @@ procedures:
     m_fLockStartTime = _pTimer->CurrentTick();
     while (m_fLockStartTime+GetProp(m_fLockOnEnemyTime) > _pTimer->CurrentTick()) {
       // each tick
-      m_fMoveFrequency = 0.05f;
+      m_fMoveFrequency = 0.5f;
       wait (m_fMoveFrequency) {
         on (ETimer) : { stop; }
         on (EBegin) : {
@@ -4212,6 +4285,11 @@ procedures:
           resume;
         }
 
+        if(m_bUsePainSound)
+        {
+          PainSound();
+        }
+
         // if confused
         m_fDamageConfused -= eDamage.fAmount;
         if (m_fDamageConfused < 0.001f)
@@ -4342,6 +4420,9 @@ procedures:
             break;
             case EST_ACTIVE:
             ActiveSound();
+            break;
+            case EST_PAIN:
+            PainSound();
             break;
             default:
             break;
