@@ -85,6 +85,9 @@ properties:
 132 CTStringTrans m_strUnlockedMessage "Unlocked message" = "",
 133 CEntityPointer m_penUnlockedTarget  "Unlocked target" COLOR(C_dMAGENTA|0xFF),   // target to trigger when unlocked
 
+134 CEntityPointer m_penSoundUse    "Sound Use entity",     // sound use entity (doorknob jiggle)
+135 CSoundObject m_soUse,
+
 
 components:
 
@@ -177,6 +180,16 @@ functions:
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundUnlocked;
       m_soUnlocked.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
       PlaySound(m_soUnlocked, sh.m_fnSound, sh.m_iPlayType);
+    }
+  };
+
+  // play use sound
+  void PlayUseSound(void) {
+    // if sound entity exists
+    if (m_penSoundUse!=NULL) {
+      CSoundHolder &sh = (CSoundHolder&)*m_penSoundUse;
+      m_soUse.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
+      PlaySound(m_soUse, sh.m_fnSound, sh.m_iPlayType);
     }
   };
 
@@ -290,7 +303,7 @@ procedures:
                 penPlayer->m_ulKeys&=~ulKey;
                 SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
               } else {
-                SendToTarget(this, EET_LOCK, eTrigger.penCaused);
+                PlayUseSound();
               }
             }
             resume;
@@ -378,7 +391,7 @@ procedures:
                 penPlayer->m_ulKeys&=~ulKey;
                 SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
               } else {
-                SendToTarget(this, EET_LOCK, eTrigger.penCaused);
+                PlayUseSound();
               }
             }
             resume;

@@ -71,6 +71,9 @@ static CStaticStackArray<GFXTexCoord> _uvUVMapForModify;
 static GfxWrap _aShaderTexWrap[2] = { GFX_REPEAT, GFX_REPEAT };
 
 
+// [Uni] OpenGL stuff
+static BOOL _bUseVertexShaders = FALSE;
+static BOOL _bUseFragmentShaders = FALSE;
 // Begin shader using
 void shaBegin(CAnyProjection3D &aprProjection,CShader *pShader)
 {
@@ -741,6 +744,46 @@ void shaSetTextureWrapping( enum GfxWrap eWrapU, enum GfxWrap eWrapV)
   gfxSetTextureWrapping(eWrapU, eWrapV);
 }
 
+
+// [Uni] OpenGL shaders
+BOOL shaUseHWShaders(void)
+{
+    return _bUseVertexShaders && _bUseFragmentShaders;
+}
+
+BOOL shaUseVertexShaders(void)
+{
+    return _bUseVertexShaders;
+}
+
+BOOL shaUseFragmentShaders(void)
+{
+    return _bUseFragmentShaders;
+}
+
+void shaEnableVertexShaders(void)
+{
+    _bUseVertexShaders = TRUE;
+    gfxEnableVertexShaders();
+}
+
+void shaEnableFragmentShaders(void)
+{
+    _bUseFragmentShaders = TRUE;
+    gfxEnableFragmentShaders();
+}
+
+void shaDisableVertexShaders(void)
+{
+    _bUseVertexShaders = FALSE;
+    gfxDisableVertexShaders();
+}
+
+void shaDisableFragmentShaders(void)
+{
+    _bUseFragmentShaders = FALSE;
+    gfxDisableFragmentShaders();
+}
 
 // Set uvmap for fog
 void shaSetFogUVMap(GFXTexCoord *paFogUVMap)

@@ -33,6 +33,9 @@ properties:
   8 FLOAT m_fImpulseFactor        "Damage impulse factor" = 0.01f,      // factor applied to damage ammount
   9 FLOAT m_fTriggerImpulse       "Impulse on trigger" = 10.0f,         // ipulse given on trigger
  10 BOOL m_bActive                "Active" 'A' = TRUE,                  // if pendulum is active by default
+ 11 BOOL m_bAllAxes               "All axes" 'X' = FALSE,               // if pendulum should swing in all directions
+ 12 FLOAT m_fSpeedH = 0.0f,                                             // current heading speed
+ 13 FLOAT m_fSpeedP = 0.0f,                                             // current pitch speed
 
 components:
 functions:
@@ -46,21 +49,36 @@ functions:
     }
     // get vector in direction of oscilation
     FLOAT3D vOscilatingDirection;
+    FLOAT3D vOscilatingPitch;
     GetHeadingDirection( -90.0f, vOscilatingDirection);
+    GetPitchDirection( -90.0f, vOscilatingPitch);
     // project damage direction onto oscilating direction
     FLOAT fImpulse = vDirection%vOscilatingDirection;
+    FLOAT fImpulseP = vDirection%vOscilatingPitch;
     // calculate impulse strength
     fImpulse *= fDamageAmmount*m_fImpulseFactor;
+    fImpulseP *= fDamageAmmount*m_fImpulseFactor;
     // apply impulse
     m_fSpeed += fImpulse;
-    SetDesiredRotation( ANGLE3D(0, 0, m_fSpeed));
+    m_fSpeedH += fImpulse;
+    m_fSpeedP += fImpulseP;
+
+    if(m_bAllAxes) {
+      SetDesiredRotation( ANGLE3D(m_fSpeedH, m_fSpeedP, m_fSpeed));
+    } else {
+      SetDesiredRotation( ANGLE3D(0, 0, m_fSpeed));
+    }
   }
 
   /* Post moving */
   void PostMoving()
   {
     CMovableBrushEntity::PostMoving();
+    ANGLE fCurrentHeading = GetPlacement().pl_OrientationAngle(1);
+    ANGLE fCurrentPitch = GetPlacement().pl_OrientationAngle(2);
     ANGLE fCurrentBanking = GetPlacement().pl_OrientationAngle(3);
+    FLOAT fNewSpeedHeading = m_fSpeedH*m_fDampFactor-m_fPendulumFactor*fCurrentHeading;
+    FLOAT fNewSpeedPitch = m_fSpeedP*m_fDampFactor-m_fPendulumFactor*fCurrentPitch;
     FLOAT fNewSpeed = m_fSpeed*m_fDampFactor-m_fPendulumFactor*fCurrentBanking;
     
     // if maximum angle achieved, stop in place and turn back
@@ -68,12 +86,26 @@ functions:
     {
       fNewSpeed = 0.0f;
     }
+    if( Abs( fCurrentHeading) > m_fMaxAngle && Sgn(fNewSpeedHeading)==Sgn(fCurrentHeading))
+    {
+      fNewSpeedHeading = 0.0f;
+    }
+    if( Abs( fCurrentPitch) > m_fMaxAngle && Sgn(fNewSpeedPitch)==Sgn(fCurrentPitch))
+    {
+      fNewSpeedPitch = 0.0f;
+    }
 
     m_fSpeed = fNewSpeed;
-    SetDesiredRotation( ANGLE3D(0, 0, fNewSpeed));
+    m_fSpeedH = fNewSpeedHeading;
+    m_fSpeedP = fNewSpeedPitch;
+    if(m_bAllAxes) {
+      SetDesiredRotation( ANGLE3D(fNewSpeedHeading, fNewSpeedPitch, fNewSpeed));
+    } else {
+      SetDesiredRotation( ANGLE3D(0, 0, fNewSpeed));
+    }
 
     // if angle is not zero 
-    if (Abs( fCurrentBanking) > 1.0f)
+    if (Abs( fCurrentBanking) > 1.0f || Abs( fCurrentHeading) > 1.0f || Abs( fCurrentPitch) > 1.0f)
     {
       // clear in rendering flag
       SetFlags(GetFlags()&~ENF_INRENDERING);
@@ -114,6 +146,8 @@ procedures:
         {
           // apply impulse
           m_fSpeed += m_fTriggerImpulse;
+          m_fSpeedH += m_fTriggerImpulse;
+          m_fSpeedP += m_fTriggerImpulse;
           AddToMovers();
         }
         resume;

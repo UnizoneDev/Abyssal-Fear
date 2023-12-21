@@ -109,6 +109,7 @@ SHADER_MAIN(Distortion)
 
     // do distortion pass
     FLOAT fMulDistortion = shaGetFloat(DISTORTION_TILING);
+    FLOAT fDistortionAmount = shaGetFloat(DISTORTION_AMOUNT);
     shaBlendFunc(GFX_INV_DST_COLOR, GFX_INV_SRC_COLOR);
     shaSetTexture(DISTORTION_TEXTURE);
     shaSetUVMap(DISTORTION_UVMAP);
@@ -120,12 +121,8 @@ SHADER_MAIN(Distortion)
     {
         for (INDEX itxc = 0; itxc < ctTexCoords; itxc++)
         {
-            FLOAT fDistortionAmount = shaGetFloat(DISTORTION_AMOUNT);
-            FLOAT fRnd = FLOAT(rand()) / RAND_MAX - 0.5f;
-            ptxcNew[itxc].u = ptxcOld[itxc].v * fMulDistortion;
-            ptxcNew[itxc].v = ptxcOld[itxc].u * fMulDistortion;
-            sin(ptxcNew[itxc].u *= fRnd / fDistortionAmount + (_pTimer->GetLerpedCurrentTick() * 0.25f));
-            sin(ptxcNew[itxc].v *= fRnd / fDistortionAmount + (_pTimer->GetLerpedCurrentTick() * 0.25f));
+            ptxcNew[itxc].u = ptxcOld[itxc].v * fMulDistortion * sin((ptxcNew[itxc].u + (_pTimer->GetLerpedCurrentTick() * fDistortionAmount)));
+            ptxcNew[itxc].v = ptxcOld[itxc].u * fMulDistortion * sin((ptxcNew[itxc].v + (_pTimer->GetLerpedCurrentTick() * fDistortionAmount)));
         }
 
         shaSetTexCoords(ptxcNew);

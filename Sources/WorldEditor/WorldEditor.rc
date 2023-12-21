@@ -1649,6 +1649,7 @@ BEGIN
     CONTROL         "Dou&ble sided",IDC_DOUBLESIDED,"Button",BS_AUTO3STATE | WS_TABSTOP,148,24,56,10
     CONTROL         "&Ladder", IDC_LADDER, "Button", BS_AUTO3STATE | WS_TABSTOP, 148, 34, 57, 10
     CONTROL         "&Sticky", IDC_STICKY, "Button", BS_AUTO3STATE | WS_TABSTOP, 148, 44, 56, 10
+    CONTROL         "&Block sight", IDC_BLOCK_SIGHT, "Button", BS_AUTO3STATE | WS_TABSTOP, 148, 54, 57, 10
 END
 
 IDD_AUTO_DELTA_CSG DIALOG 0, 0, 212, 57
@@ -1854,6 +1855,7 @@ BEGIN
     CONTROL         "&Directional",IDC_HAS_DIRECTIONAL_SHADOWS,"Button",BS_AUTO3STATE | WS_TABSTOP,146,4,58,10
     CONTROL         "Dir. a&mbient",IDC_HAS_DIRECTIONAL_AMBIENT,"Button",BS_AUTO3STATE | WS_TABSTOP,146,12,58,10
     CONTROL         "No di&ffusion",IDC_NO_PLANE_DIFFUSION,"Button",BS_AUTO3STATE | WS_TABSTOP,146,20,58,10
+    CONTROL         "Smoothly shaded", IDC_SMOOTHLY_SHADED, "Button", BS_AUTO3STATE | WS_TABSTOP, 146, 32, 58, 10
     RTEXT           "Gradient:",IDC_STATIC_GRADIENT,11,42,30,8
     COMBOBOX        IDC_GRADIENT_COMBO,43,39,51,237,CBS_DROPDOWNLIST | CBS_DISABLENOSCROLL | WS_VSCROLL | WS_TABSTOP
     RTEXT           "Illumination:",IDC_STATIC_ILLUMINATION,1,55,40,8
@@ -3165,6 +3167,7 @@ BEGIN
     IDC_IS_RECEIVING_SHADOWS "If polygons receives shadows"
     IDC_HAS_DIRECTIONAL_SHADOWS "If polygon is lighted with directional light"
     IDC_NO_PLANE_DIFFUSION  "Don't calculate plane diffusion"
+    IDC_SMOOTHLY_SHADED     "If polygon is smoothly shaded"
 END
 
 STRINGTABLE

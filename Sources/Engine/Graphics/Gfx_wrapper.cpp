@@ -136,12 +136,60 @@ extern void (*gfxEnableTruform)( void) = NULL;
 extern void (*gfxDisableTruform)(void) = NULL;
 extern void (*gfxSetColorMask)( ULONG ulColorMask) = NULL; 
 
+// HARDWARE SHADERS
+
+extern void (*gfxEnableVertexShaders)(void) = NULL;
+extern void (*gfxEnableFragmentShaders)(void) = NULL;
+extern void (*gfxDisableVertexShaders)(void) = NULL;
+extern void (*gfxDisableFragmentShaders)(void) = NULL;
+
+extern void (*gfxSetShaderProgram)(const ULONG ulHandle) = NULL;
+extern ULONG (*gfxCreateVertexProgram)(const char* strVertexProgram, ULONG ulProgram) = NULL;
+extern ULONG (*gfxCreateFragmentProgram)(const char* strFragmentProgram, ULONG ulProgram) = NULL;
+extern void (*gfxDeleteShaderProgram)(ULONG ulHandle, ULONG ulShader) = NULL;																 
 
 
 // dummy function (one size fits all:)
 static void none_void(void)
 {
   ASSERT( _pGfx->gl_eCurrentAPI==GAT_NONE);
+}
+
+static void none_int(INDEX iScale)
+{
+  ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
+}
+
+static void none_const_int(const INDEX iScale)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
+}
+
+static void none_ulong(ULONG ulScale)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
+}
+
+static void none_const_ulong(const ULONG ulScale)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
+}
+
+static ULONG none_create_vertex_shader(const char *strVertexProgram, ULONG ulProgram)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
+    return NONE;
+}
+
+static ULONG none_create_fragment_shader(const char *strFragmentProgram, ULONG ulProgram)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
+    return NONE;
+}
+
+static void none_delete_shader_program(ULONG ulProgram, ULONG ulShader)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
 }
 
 
@@ -779,6 +827,15 @@ extern void GFX_SetFunctionPointers( INDEX iAPI)
     gfxFinish               = &ogl_Finish;              
     gfxLockArrays           = &ogl_LockArrays;          
     gfxSetColorMask         = &ogl_SetColorMask;
+	gfxEnableVertexShaders    = &ogl_EnableVertexShaders;
+    gfxEnableFragmentShaders  = &ogl_EnableFragmentShaders;
+    gfxDisableVertexShaders   = &ogl_DisableVertexShaders;
+    gfxDisableFragmentShaders = &ogl_DisableFragmentShaders;
+
+    gfxSetShaderProgram      = &ogl_SetShaderProgram;
+    gfxDeleteShaderProgram   = &ogl_DeleteShaderProgram;
+    gfxCreateVertexProgram   = &ogl_CreateVertexProgram;
+    gfxCreateFragmentProgram = &ogl_CreateFragmentProgram;											  
   }
   // Direct3D?
 #ifdef SE1_D3D
@@ -881,5 +938,15 @@ extern void GFX_SetFunctionPointers( INDEX iAPI)
     gfxFinish               = &none_void;
     gfxLockArrays           = &none_void;
     gfxSetColorMask         = &none_SetColorMask;
+
+    gfxEnableVertexShaders    = &none_void;
+    gfxEnableFragmentShaders  = &none_void;
+    gfxDisableVertexShaders   = &none_void;
+    gfxDisableFragmentShaders = &none_void;
+
+    gfxSetShaderProgram       = &none_const_ulong;
+    gfxDeleteShaderProgram    = &none_delete_shader_program;
+    gfxCreateVertexProgram    = &none_create_vertex_shader;
+    gfxCreateFragmentProgram  = &none_create_fragment_shader;												 
   }
 }

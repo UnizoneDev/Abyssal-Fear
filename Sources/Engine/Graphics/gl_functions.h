@@ -986,6 +986,121 @@ DLLFUNCTION( OGL, void , glCopyTexSubImage3D,( GLenum target, GLint level,
                                              GLsizei height ),0,0);
 
 
+/* [Uni] new OpenGL functions */
+
+DLLFUNCTION(OGL, void, glAttachShader, (GLuint program, GLuint shader), 0, 0);
+
+DLLFUNCTION(OGL, void, glBindAttribLocation, (GLuint program, GLuint index, const GLchar *name), 0, 0);
+
+DLLFUNCTION(OGL, void, glCompileShader, (GLuint shader), 0, 0);
+
+DLLFUNCTION(OGL, GLuint, glCreateProgram, (void), 0, 0);
+
+DLLFUNCTION(OGL, GLuint, glCreateShader, (GLenum type), 0, 0);
+
+DLLFUNCTION(OGL, void, glDeleteProgram, (GLuint program), 0, 0);
+
+DLLFUNCTION(OGL, void, glDeleteShader, (GLuint shader), 0, 0);
+
+DLLFUNCTION(OGL, void, glDetachShader, (GLuint program, GLuint shader), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetActiveUniform, (GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetAttachedShaders, (GLuint program, GLsizei maxCount, GLsizei *count, GLuint *shaders), 0, 0);
+
+DLLFUNCTION(OGL, GLint, glGetAttribLocation, (GLuint program, const GLchar *name), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetProgramiv, (GLuint program, GLenum pname, GLint *params), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetProgramInfoLog, (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetShaderiv, (GLuint shader, GLenum pname, GLint *params), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetShaderInfoLog, (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetShaderSource, (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *source), 0, 0);
+
+DLLFUNCTION(OGL, GLint, glGetUniformLocation, (GLuint program, const GLchar *name), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetUniformfv, (GLuint program, GLint location, GLfloat *params), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetUniformiv, (GLuint program, GLint location, GLint *params), 0, 0);
+
+DLLFUNCTION(OGL, GLboolean, glIsProgram, (GLuint program), 0, 0);
+
+DLLFUNCTION(OGL, GLboolean, glIsShader, (GLuint shader), 0, 0);
+
+DLLFUNCTION(OGL, void, glLinkProgram, (GLuint program), 0, 0);
+
+DLLFUNCTION(OGL, void, glShaderSource, (GLuint shader, GLsizei count, const GLchar **string, const GLint *length), 0, 0);
+
+DLLFUNCTION(OGL, void, glUseProgram, (GLuint program), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform1f, (GLint location, GLfloat v0), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform2f, (GLint location, GLfloat v0, GLfloat v1), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform3f, (GLint location, GLfloat v0, GLfloat v1, GLfloat v2), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform4f, (GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform1i, (GLint location, GLint i0), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform2i, (GLint location, GLint i0, GLint i1), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform3i, (GLint location, GLint i0, GLint i1, GLint i2), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform4i, (GLint location, GLint i0, GLint i1, GLint i2, GLint i3), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform1fv, (GLint location, GLsizei count, const GLfloat *value), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform2fv, (GLint location, GLsizei count, const GLfloat *value), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform3fv, (GLint location, GLsizei count, const GLfloat *value), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform4fv, (GLint location, GLsizei count, const GLfloat *value), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform1iv, (GLint location, GLsizei count, const GLint *value), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform2iv, (GLint location, GLsizei count, const GLint *value), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform3iv, (GLint location, GLsizei count, const GLint *value), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniform4iv, (GLint location, GLsizei count, const GLint *value), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniformMatrix2fv, (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniformMatrix3fv, (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value), 0, 0);
+
+DLLFUNCTION(OGL, void, glUniformMatrix4fv, (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value), 0, 0);
+
+DLLFUNCTION(OGL, void, glValidateProgram, (GLuint program), 0, 0);
+
+DLLFUNCTION(OGL, void, glGenBuffers, (GLsizei n, GLuint *buffers), 0, 0);
+
+DLLFUNCTION(OGL, void, glDeleteBuffers, (GLsizei n, const GLuint *buffers), 0, 0);
+
+DLLFUNCTION(OGL, void, glBindBuffer, (GLenum target, GLuint buffer), 0, 0);
+
+DLLFUNCTION(OGL, void, glBufferData, (GLenum target, GLsizeiptr size, const GLvoid *data, GLenum usage), 0, 0);
+
+DLLFUNCTION(OGL, GLboolean, glIsBuffer, (GLuint buffer), 0, 0);
+
+DLLFUNCTION(OGL, void, glBufferSubData, (GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid *data), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetBufferSubData, (GLenum target, GLintptr offset, GLsizeiptr size, GLvoid *data), 0, 0);
+
+DLLFUNCTION(OGL, void *, glMapBuffer, (GLenum target, GLenum access), 0, 0);
+
+DLLFUNCTION(OGL, GLboolean, glUnmapBuffer, (GLenum target), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetBufferParameteriv, (GLenum target, GLenum pname, GLint *params), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetBufferPointerv, (GLenum target, GLenum pname, void **params), 0, 0);
+
+DLLFUNCTION(OGL, void, glGetActiveAttrib, (GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name), 0, 0);
+
+
 /* !!! FIXME: This needs to move to a GL context abstraction layer. */
 #ifdef PLATFORM_WIN32
 // gdi functions

@@ -38,7 +38,7 @@ extern INDEX ctGameTypeRadioTexts;
 extern CTString astrNoYes[2];
 extern CTString astrWeapon[4];
 extern CTString astrCrosshair[5];
-extern CTString astrMaxPlayersRadioTexts[15];
+extern CTString *astrMaxPlayersRadioTexts;
 extern CTString astrGameTypeRadioTexts[20];
 extern CTString astrDifficultyRadioTexts[6];
 extern CTString astrSplitScreenRadioTexts[4];
@@ -46,7 +46,7 @@ extern CTString astrDisplayPrefsRadioTexts[4];
 extern CTString astrDisplayAPIRadioTexts[2];
 extern CTString astrBitsPerPixelRadioTexts[3];
 extern CTString astrFrequencyRadioTexts[4];
-extern CTString astrSoundAPIRadioTexts[3];
+extern CTString astrSoundAPIRadioTexts[4];
 
 extern PIX apixWidths[20][2];
 

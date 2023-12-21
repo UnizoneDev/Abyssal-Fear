@@ -17,13 +17,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %{
 #include "StdH.h"
 #include "Models/Props/Barrel1/Barrel1.h"
+#include "Models/Props/Barrel2/Barrel2.h"
 %}
 
 uses "EntitiesMP/BasicEffects";
 
 enum ExplosiveBarrelType {
   0 EBT_EXPLOSIVE        "Explosive Barrel",
-  1 EBT_GREY             "Grey Barrel"
+  1 EBT_GREY             "Grey Barrel",
+  2 EBT_WOOD1            "Wooden Barrel 1",
+  3 EBT_WOOD2            "Wooden Barrel 2",
+  4 EBT_WOOD3            "Wooden Barrel 3"
 };
 
 class CExplosiveBarrel: CMovableModelEntity {
@@ -41,16 +45,27 @@ properties:
 components:
   
   1 class   CLASS_BASIC_EFFECT  "Classes\\BasicEffect.ecl",
-  2 model   MODEL_BARREL     "Models\\Props\\Barrel1\\Barrel1.mdl",
-  3 texture TEXTURE_BARREL1   "Models\\Props\\Barrel1\\Barrel1.tex",
-  4 texture TEXTURE_BARREL2   "Models\\Props\\Barrel1\\Barrel1b.tex",
+  2 model   MODEL_BARREL        "Models\\Props\\Barrel1\\Barrel1.mdl",
+  3 texture TEXTURE_BARREL1     "Models\\Props\\Barrel1\\Barrel1.tex",
+  4 texture TEXTURE_BARREL2     "Models\\Props\\Barrel1\\Barrel1b.tex",
+
+  5 model   MODEL_BARRELWOOD      "Models\\Props\\Barrel2\\Barrel2.mdl",
+  6 texture TEXTURE_BARRELWOOD1   "Models\\Props\\Barrel2\\Barrel2.tex",
+  7 texture TEXTURE_BARRELWOOD2   "Models\\Props\\Barrel2\\Barrel2b.tex",
+  8 texture TEXTURE_BARRELWOOD3   "Models\\Props\\Barrel2\\Barrel2c.tex",
 
   // ********** BULLET RICOCHETS **********
  100 sound   SOUND_METAL_BULLET1    "Sounds\\Materials\\Metal\\BulletMetal1.wav",
  101 sound   SOUND_METAL_BULLET2    "Sounds\\Materials\\Metal\\BulletMetal2.wav",
  102 sound   SOUND_METAL_BULLET3    "Sounds\\Materials\\Metal\\BulletMetal3.wav",
  103 sound   SOUND_METAL_BULLET4    "Sounds\\Materials\\Metal\\BulletMetal4.wav",
- 104 sound   SOUND_METAL_BULLET5    "Sounds\\Materials\\Metal\\BulletMetal5.wav"
+ 104 sound   SOUND_METAL_BULLET5    "Sounds\\Materials\\Metal\\BulletMetal5.wav",
+
+ 105 sound   SOUND_WOOD_BULLET1     "Sounds\\Materials\\Wood\\BulletWood1.wav",
+ 106 sound   SOUND_WOOD_BULLET2     "Sounds\\Materials\\Wood\\BulletWood2.wav",
+ 107 sound   SOUND_WOOD_BULLET3     "Sounds\\Materials\\Wood\\BulletWood3.wav",
+ 108 sound   SOUND_WOOD_BULLET4     "Sounds\\Materials\\Wood\\BulletWood4.wav",
+ 109 sound   SOUND_WOOD_BULLET5     "Sounds\\Materials\\Wood\\BulletWood5.wav"
 
 
 functions:
@@ -70,6 +85,11 @@ functions:
     PrecacheSound(SOUND_METAL_BULLET3);
     PrecacheSound(SOUND_METAL_BULLET4);
     PrecacheSound(SOUND_METAL_BULLET5);
+    PrecacheSound(SOUND_WOOD_BULLET1);
+    PrecacheSound(SOUND_WOOD_BULLET2);
+    PrecacheSound(SOUND_WOOD_BULLET3);
+    PrecacheSound(SOUND_WOOD_BULLET4);
+    PrecacheSound(SOUND_WOOD_BULLET5);
     PrecacheClass(CLASS_BASIC_EFFECT, BET_EXPLOSIVEBARREL);
     PrecacheClass(CLASS_BASIC_EFFECT, BET_EXPLOSION_DEBRIS);
     PrecacheClass(CLASS_BASIC_EFFECT, BET_EXPLOSION_SMOKE);
@@ -137,15 +157,19 @@ procedures:
   Main()
   {
     InitAsModel();
-    SetPhysicsFlags(EPF_MODEL_SLIDING);
+    SetPhysicsFlags(EPF_MODEL_PUSHAROUND);
     SetCollisionFlags(ECF_MODEL);
     SetHealth(50.0f);
-    SetModel(MODEL_BARREL);
-    if(m_ebType == EBT_GREY) {
-      SetModelMainTexture(TEXTURE_BARREL2);
-    } else {
-      SetModelMainTexture(TEXTURE_BARREL1);
+
+    switch(m_ebType) {
+      case EBT_EXPLOSIVE: { SetModel(MODEL_BARREL); SetModelMainTexture(TEXTURE_BARREL1); } break;
+      case EBT_GREY: { SetModel(MODEL_BARREL); SetModelMainTexture(TEXTURE_BARREL2); } break;
+      case EBT_WOOD1: { SetModel(MODEL_BARRELWOOD); SetModelMainTexture(TEXTURE_BARRELWOOD1); } break;
+      case EBT_WOOD2: { SetModel(MODEL_BARRELWOOD); SetModelMainTexture(TEXTURE_BARRELWOOD2); } break;
+      case EBT_WOOD3: { SetModel(MODEL_BARRELWOOD); SetModelMainTexture(TEXTURE_BARRELWOOD3); } break;
+      default: break;
     }
+
     ModelChangeNotify();
 
     // spawn in world editor
@@ -157,23 +181,43 @@ procedures:
           resume;
       }
       on (EDamage eDamage) : {
-          switch(IRnd()%5) {
-            case 0: { PlaySound(m_soSound, SOUND_METAL_BULLET1, SOF_3D); } break;
-            case 1: { PlaySound(m_soSound, SOUND_METAL_BULLET2, SOF_3D); } break;
-            case 2: { PlaySound(m_soSound, SOUND_METAL_BULLET3, SOF_3D); } break;
-            case 3: { PlaySound(m_soSound, SOUND_METAL_BULLET4, SOF_3D); } break;
-            case 4: { PlaySound(m_soSound, SOUND_METAL_BULLET5, SOF_3D); } break;
-            default: break;
+          if(m_ebType == EBT_EXPLOSIVE || m_ebType == EBT_GREY) {
+            switch(IRnd()%5) {
+              case 0: { PlaySound(m_soSound, SOUND_METAL_BULLET1, SOF_3D); } break;
+              case 1: { PlaySound(m_soSound, SOUND_METAL_BULLET2, SOF_3D); } break;
+              case 2: { PlaySound(m_soSound, SOUND_METAL_BULLET3, SOF_3D); } break;
+              case 3: { PlaySound(m_soSound, SOUND_METAL_BULLET4, SOF_3D); } break;
+              case 4: { PlaySound(m_soSound, SOUND_METAL_BULLET5, SOF_3D); } break;
+              default: break;
+            }
+          } else {
+            switch(IRnd()%5) {
+              case 0: { PlaySound(m_soSound, SOUND_WOOD_BULLET1, SOF_3D); } break;
+              case 1: { PlaySound(m_soSound, SOUND_WOOD_BULLET2, SOF_3D); } break;
+              case 2: { PlaySound(m_soSound, SOUND_WOOD_BULLET3, SOF_3D); } break;
+              case 3: { PlaySound(m_soSound, SOUND_WOOD_BULLET4, SOF_3D); } break;
+              case 4: { PlaySound(m_soSound, SOUND_WOOD_BULLET5, SOF_3D); } break;
+              default: break;
+            }
           }
+
           resume;
       }
       on (EDeath) : {
-          InflictRangeDamage(this, DMT_EXPLOSION, 100.0f, GetPlacement().pl_PositionVector + FLOAT3D(0.0f, 1.0f, 0.0f), 4.0f, 8.0f, DBPT_GENERIC);
-          BarrelExplosion();
-          SwitchToEditorModel();
-          SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
-          SetCollisionFlags(ECF_IMMATERIAL);
-          Destroy();
+          if(m_ebType == EBT_EXPLOSIVE) {
+            InflictRangeDamage(this, DMT_EXPLOSION, 100.0f, GetPlacement().pl_PositionVector + FLOAT3D(0.0f, 1.0f, 0.0f), 4.0f, 8.0f, DBPT_GENERIC);
+            BarrelExplosion();
+            SwitchToEditorModel();
+            SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
+            SetCollisionFlags(ECF_IMMATERIAL);
+            Destroy();
+          } else {
+            SwitchToEditorModel();
+            SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
+            SetCollisionFlags(ECF_IMMATERIAL);
+            Destroy();
+          }
+          
           stop;
       }
       on (ETimer) : { stop; }

@@ -16,6 +16,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 1041
 %{
 #include "StdH.h"
+
+#include "EntitiesMP/Player.h"
+
 #include "Models/NPCs/Utamahi/Utamahi.h"
 %}
 
@@ -44,10 +47,13 @@ components:
   2 model   MODEL_UTAMAHI		    "Models\\NPCs\\Utamahi\\Utamahi.mdl",
   3 texture TEXTURE_UTAMAHI         "Models\\NPCs\\Utamahi\\Utamahi.tex",
 
-  10 sound   SOUND_HIT1             "Models\\NPCs\\Twitcher\\Sounds\\Slice1.wav",
-  11 sound   SOUND_HIT2             "Models\\NPCs\\Twitcher\\Sounds\\Slice2.wav",
-  12 sound   SOUND_HIT3             "Models\\NPCs\\Twitcher\\Sounds\\Slice3.wav",
+  10 sound   SOUND_SLICE1           "Models\\NPCs\\Twitcher\\Sounds\\Slice1.wav",
+  11 sound   SOUND_SLICE2           "Models\\NPCs\\Twitcher\\Sounds\\Slice2.wav",
+  12 sound   SOUND_SLICE3           "Models\\NPCs\\Twitcher\\Sounds\\Slice3.wav",
   13 sound   SOUND_SWING            "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
+  14 sound   SOUND_CLASH1           "Sounds\\Weapons\\MetalBladeClash1.wav",
+  15 sound   SOUND_CLASH2           "Sounds\\Weapons\\MetalBladeClash2.wav",
+  16 sound   SOUND_CLASH3           "Sounds\\Weapons\\MetalBladeClash3.wav",
 
 functions:
   // describe how this enemy killed player
@@ -70,9 +76,12 @@ functions:
 
   void Precache(void) {
     CEnemyBase::Precache();
-    PrecacheSound(SOUND_HIT1);
-    PrecacheSound(SOUND_HIT2);
-    PrecacheSound(SOUND_HIT3);
+    PrecacheSound(SOUND_SLICE1);
+    PrecacheSound(SOUND_SLICE2);
+    PrecacheSound(SOUND_SLICE3);
+    PrecacheSound(SOUND_CLASH1);
+    PrecacheSound(SOUND_CLASH2);
+    PrecacheSound(SOUND_CLASH3);
     PrecacheSound(SOUND_SWING);
   };
 
@@ -174,16 +183,76 @@ functions:
     
     if (m_bFistHit) {
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
-        switch(IRnd()%3)
-        {
-          case 0: PlaySound(m_soSound, SOUND_HIT1, SOF_3D); break;
-          case 1: PlaySound(m_soSound, SOUND_HIT2, SOF_3D); break;
-          case 2: PlaySound(m_soSound, SOUND_HIT3, SOF_3D); break;
-          default: ASSERTALWAYS("Utamahi unknown melee hit sound");
-        }
+
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+
+        FLOAT3D vProperDamageDir = (vDirection.ManhattanNorm() > m_fBlockDirAmount) ? vDirection : -en_vGravityDir;
+        vProperDamageDir = (vProperDamageDir - en_vGravityDir * m_fBlockDirAmount).Normalize();
+
+        if(IsOfClass(m_penEnemy, "Player")) {
+          CPlayer &pl = (CPlayer&)*m_penEnemy;
+
+          if(pl.m_bIsBlocking == TRUE) {
+            if (pl.GetPlaneFrustumAngle(vProperDamageDir) < Cos(pl.m_fBlockAmount)) {
+              switch(IRnd()%3)
+              {
+                case 0: PlaySound(m_soSound, SOUND_CLASH1, SOF_3D); break;
+                case 1: PlaySound(m_soSound, SOUND_CLASH2, SOF_3D); break;
+                case 2: PlaySound(m_soSound, SOUND_CLASH3, SOF_3D); break;
+                default: ASSERTALWAYS("Twitcher unknown melee hit sound");
+              }
+            } else {
+              switch(IRnd()%3)
+              {
+                case 0: PlaySound(m_soSound, SOUND_SLICE1, SOF_3D); break;
+                case 1: PlaySound(m_soSound, SOUND_SLICE2, SOF_3D); break;
+                case 2: PlaySound(m_soSound, SOUND_SLICE3, SOF_3D); break;
+                default: ASSERTALWAYS("Twitcher unknown melee hit sound");
+              }
+            }
+          } else {
+            switch(IRnd()%3)
+            {
+              case 0: PlaySound(m_soSound, SOUND_SLICE1, SOF_3D); break;
+              case 1: PlaySound(m_soSound, SOUND_SLICE2, SOF_3D); break;
+              case 2: PlaySound(m_soSound, SOUND_SLICE3, SOF_3D); break;
+              default: ASSERTALWAYS("Twitcher unknown melee hit sound");
+            }
+          }
+        } else if(IsDerivedFromClass(m_penEnemy, "Enemy Base")) {
+          CEnemyBase &eb = (CEnemyBase&)*m_penEnemy;
+
+          if(eb.m_bIsBlocking == TRUE) {
+            if (eb.GetPlaneFrustumAngle(vProperDamageDir) < Cos(eb.m_fBlockAmount)) {
+              switch(IRnd()%3)
+              {
+                case 0: PlaySound(m_soSound, SOUND_CLASH1, SOF_3D); break;
+                case 1: PlaySound(m_soSound, SOUND_CLASH2, SOF_3D); break;
+                case 2: PlaySound(m_soSound, SOUND_CLASH3, SOF_3D); break;
+                default: ASSERTALWAYS("Twitcher unknown melee hit sound");
+              }
+            } else {
+              switch(IRnd()%3)
+              {
+                case 0: PlaySound(m_soSound, SOUND_SLICE1, SOF_3D); break;
+                case 1: PlaySound(m_soSound, SOUND_SLICE2, SOF_3D); break;
+                case 2: PlaySound(m_soSound, SOUND_SLICE3, SOF_3D); break;
+                default: ASSERTALWAYS("Twitcher unknown melee hit sound");
+              }
+            }
+          } else {
+            switch(IRnd()%3)
+            {
+              case 0: PlaySound(m_soSound, SOUND_SLICE1, SOF_3D); break;
+              case 1: PlaySound(m_soSound, SOUND_SLICE2, SOF_3D); break;
+              case 2: PlaySound(m_soSound, SOUND_SLICE3, SOF_3D); break;
+              default: ASSERTALWAYS("Twitcher unknown melee hit sound");
+            }
+          }
+        }
+
+        InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
       }
     } else {
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);

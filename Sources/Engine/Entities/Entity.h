@@ -343,6 +343,7 @@ public:
   void PlaySound(CSoundObject &so, SLONG idSoundComponent, SLONG slPlayType);
   void PlaySound(CSoundObject &so, const CTFileName &fnmSound, SLONG slPlayType);
   double GetSoundLength(SLONG idSoundComponent);
+  double GetSoundLength(CSoundObject &so, const CTFileName &fnmSound);																  
 
   // set/get model main blend color
   COLOR GetModelColor(void) const;

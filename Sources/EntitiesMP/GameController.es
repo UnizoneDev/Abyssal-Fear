@@ -27,14 +27,13 @@ enum GameEventType {
   5 GET_CREATETEXTFILE        "Create Text File",
   6 GET_HIDEFILE              "Hide File",
   7 GET_DELETEFILE            "Delete File",
-  8 GET_DISABLECONSOLE        "Disable Console",
-  9 GET_ACTIVATEGOLDENSWITCH  "Activate Golden Switch Check"
+  8 GET_DISABLECONSOLE        "Disable Console"
 };
 
 class CGameController: CRationalEntity {
 name      "GameController";
 thumbnail "Thumbnails\\GameController.tbn";
-features  "HasName", "IsTargetable";
+features  "HasName", "HasDescription", "IsTargetable";
 
 properties:
 
@@ -42,13 +41,11 @@ properties:
   2 enum GameEventType m_getEvent   "Action Type" 'T' = GET_CRASHGAME,        // action to perform
   3 CTString m_strMBTitle           "MessageBox Title" = "Warning",
   4 CTString m_strMBBody            "MessageBox Body" = "Disallowed",
-  5 CTString m_strEXEPath           "Executable Path" = "HiddenEvil\\Misanthropy.exe",
+  5 CTFileName m_fnmFilePath        "File Path" = CTFILENAME(""),
   6 CTString m_strTextTitle         "Text File Title" = "YOU ARE A CORPSE",
   7 CTString m_strTextBody          "Text File Body" = "Your soul has been lost to the ages...",
-  8 CTString m_strHidePath          "Hide File Path" = "HiddenEvil\\Misanthropy.exe",
-  9 CTString m_strDeletePath        "Delete File Path" = "HiddenEvil\\Misanthropy.exe",
- 10 INDEX m_iGoldenSwitchCheck      "Which Golden Switch" = 1,
- 11 INDEX m_iTimeUntilShutdown      "Time until Shutdown" = 3,
+  8 INDEX m_iTimeUntilShutdown      "Time until Shutdown" = 3,
+  9 CTString m_strDescription = "",
 
 
 components:
@@ -58,7 +55,6 @@ components:
 
 
 functions:
-
 
   void ExecuteMagic()
   {
@@ -86,7 +82,7 @@ functions:
       }
       case GET_OPENEXEFILE:
       {
-        SE_ShellExecute(m_strEXEPath);
+        SE_ShellExecute(m_fnmFilePath);
         break;
       }
       case GET_CREATETEXTFILE:
@@ -96,28 +92,17 @@ functions:
       }
       case GET_HIDEFILE:
       {
-        SE_HideFile(m_strHidePath);
+        SE_HideFile(m_fnmFilePath);
         break;
       }
       case GET_DELETEFILE:
       {
-        SE_DeleteFile(m_strDeletePath);
+        SE_DeleteFile(m_fnmFilePath);
         break;
       }
       case GET_DISABLECONSOLE:
       {
         _pShell->SetINDEX("sam_bDisallowConsole", TRUE);
-        break;
-      }
-      case GET_ACTIVATEGOLDENSWITCH:
-      {
-        switch(m_iGoldenSwitchCheck)
-        {
-          case 1: _pShell->SetINDEX("sam_bGoldenSwitch1", TRUE); break;
-          case 2: _pShell->SetINDEX("sam_bGoldenSwitch2", TRUE); break;
-          case 3: _pShell->SetINDEX("sam_bGoldenSwitch3", TRUE); break;
-          case 4: _pShell->SetINDEX("sam_bGoldenSwitch4", TRUE); break;
-        }
         break;
       }
     }
@@ -128,8 +113,6 @@ procedures:
 
   Main()
   {
-    if (m_iGoldenSwitchCheck < 1) { m_iGoldenSwitchCheck = 1; }
-    if (m_iGoldenSwitchCheck > 4) { m_iGoldenSwitchCheck = 4; }
     if (m_iTimeUntilShutdown < 1) { m_iTimeUntilShutdown = 1; }
 
     InitAsEditorModel();

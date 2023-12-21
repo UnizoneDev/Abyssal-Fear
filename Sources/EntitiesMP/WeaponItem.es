@@ -82,7 +82,7 @@ components:
 
 // ************** KNIFE **************
  38 model   MODEL_KNIFEITEM             "Models\\Weapons\\Knife\\KnifeWeapon.mdl",
- 39 texture TEXTURE_KNIFEITEM           "Models\\Weapons\\Knife\\KnifeWeapon.tex",
+ 39 texture TEXTURE_KNIFEITEM           "Models\\Weapons\\Knife\\KnifeWeaponNew.tex",
 
 // ************** PIPE **************
  40 model   MODEL_PIPEITEM               "Models\\Weapons\\MetalPipe\\PipeWeapon.mdl",

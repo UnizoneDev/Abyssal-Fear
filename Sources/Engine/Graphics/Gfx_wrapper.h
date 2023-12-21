@@ -245,6 +245,19 @@ extern void (*gfxEnableColorArray)(void);
 extern void (*gfxDisableColorArray)(void);
 
 
+// HARDWARE SHADERS
+
+extern void (*gfxEnableVertexShaders)(void);
+extern void (*gfxEnableFragmentShaders)(void);
+extern void (*gfxDisableVertexShaders)(void);
+extern void (*gfxDisableFragmentShaders)(void);
+
+extern void (*gfxSetShaderProgram)(const ULONG ulHandle);
+extern ULONG (*gfxCreateVertexProgram)(const char *strVertexProgram, ULONG ulProgram);
+extern ULONG (*gfxCreateFragmentProgram)(const char *strFragmentProgram, ULONG ulProgram);
+extern void (*gfxDeleteShaderProgram)(ULONG ulHandle, ULONG ulShader);
+
+
 // MISC
 
 

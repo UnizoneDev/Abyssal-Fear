@@ -99,7 +99,7 @@ functions:
     FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
     // twitcher can't harm twitcher
-    if (!IsOfClass(penInflictor, "RedDeath")) {
+    if (!IsOfClass(penInflictor, "GnawBeast")) {
       CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       // if died of chainsaw
       if (dmtType==DMT_CHAINSAW && GetHealth()<=0) {
@@ -107,7 +107,7 @@ functions:
         m_fBlowUpAmount = 0;
       }
 
-      if(GetHealth()<=200.0f) {
+      if(GetHealth()<=175.0f) {
         m_bStartsOutSlow = FALSE;
         m_fWalkSpeed = FRnd() + 3.5f;
         m_aWalkRotateSpeed = AngleDeg(FRnd()*10.0f + 500.0f);
@@ -254,7 +254,7 @@ functions:
         PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        if(GetHealth()<=200.0f) {
+        if(GetHealth()<=175.0f) {
           InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         } else {
           InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
@@ -289,8 +289,8 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_GREATER;
-    SetHealth(500.0f);
-    m_fMaxHealth = 500.0f;
+    SetHealth(400.0f);
+    m_fMaxHealth = 400.0f;
     m_fDamageWounded = 190.0f;
     m_iScore = 25000;
     en_tmMaxHoldBreath = 30.0f;

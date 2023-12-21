@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2022 Uni Musuotankarep
+/* Copyright (c) 2021-2023 Uni Musuotankarep
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -72,6 +72,10 @@ void CAchievementsMenu::Initialize_t(void)
 
 void CAchievementsMenu::StartMenu(void)
 {
+    // set default parameters for the list
+    gm_iListOffset = 0;
+    gm_ctListTotal = _lhFilteredAchievements.Count();
+    gm_iListWantedItem = 0;
 	CGameMenu::StartMenu();
 }
 
@@ -79,5 +83,12 @@ void CAchievementsMenu::StartMenu(void)
 void CAchievementsMenu::FillListItems(void)
 {
     CGameMenu::FillListItems();
+
+    //disable all items first
+    for (INDEX i = 0; i < ACHIEVEMENTS_ON_SCREEN; i++) {
+        gm_mgAchievements[i].mg_bEnabled = FALSE;
+        gm_mgAchievements[i].mg_strText = TRANS("<empty>");
+        gm_mgAchievements[i].mg_iInList = -2;
+    }
 }
 

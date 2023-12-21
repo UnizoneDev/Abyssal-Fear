@@ -27,10 +27,10 @@ void CSinglePlayerNewMenu::Initialize_t(void)
   gm_mgTitle.mg_boxOnScreen = BoxTitle();
   gm_lhGadgets.AddTail(gm_mgTitle.mg_lnNode);
 
-  gm_mgTourist.mg_strText = TRANS("PAINLESS");
+  gm_mgTourist.mg_strText = TRANS("NOVICE");
   gm_mgTourist.mg_bfsFontSize = BFS_LARGE;
   gm_mgTourist.mg_boxOnScreen = BoxBigRow(0.0f);
-  gm_mgTourist.mg_strTip = TRANS("You are subhuman");
+  gm_mgTourist.mg_strTip = TRANS("For first time FPS players");
   gm_lhGadgets.AddTail(gm_mgTourist.mg_lnNode);
   gm_mgTourist.mg_pmgUp = &gm_mgSerious;
   gm_mgTourist.mg_pmgDown = &gm_mgEasy;
@@ -39,7 +39,7 @@ void CSinglePlayerNewMenu::Initialize_t(void)
   gm_mgEasy.mg_strText = TRANS("EASY");
   gm_mgEasy.mg_bfsFontSize = BFS_LARGE;
   gm_mgEasy.mg_boxOnScreen = BoxBigRow(1.0f);
-  gm_mgEasy.mg_strTip = TRANS("I will end you");
+  gm_mgEasy.mg_strTip = TRANS("For average FPS players");
   gm_lhGadgets.AddTail(gm_mgEasy.mg_lnNode);
   gm_mgEasy.mg_pmgUp = &gm_mgTourist;
   gm_mgEasy.mg_pmgDown = &gm_mgMedium;
@@ -48,7 +48,7 @@ void CSinglePlayerNewMenu::Initialize_t(void)
   gm_mgMedium.mg_strText = TRANS("NORMAL");
   gm_mgMedium.mg_bfsFontSize = BFS_LARGE;
   gm_mgMedium.mg_boxOnScreen = BoxBigRow(2.0f);
-  gm_mgMedium.mg_strTip = TRANS("Fear me");
+  gm_mgMedium.mg_strTip = TRANS("For knowledgeable FPS players");
   gm_lhGadgets.AddTail(gm_mgMedium.mg_lnNode);
   gm_mgMedium.mg_pmgUp = &gm_mgEasy;
   gm_mgMedium.mg_pmgDown = &gm_mgHard;
@@ -57,7 +57,7 @@ void CSinglePlayerNewMenu::Initialize_t(void)
   gm_mgHard.mg_strText = TRANS("HARD");
   gm_mgHard.mg_bfsFontSize = BFS_LARGE;
   gm_mgHard.mg_boxOnScreen = BoxBigRow(3.0f);
-  gm_mgHard.mg_strTip = TRANS("You will not win");
+  gm_mgHard.mg_strTip = TRANS("For experienced FPS players");
   gm_lhGadgets.AddTail(gm_mgHard.mg_lnNode);
   gm_mgHard.mg_pmgUp = &gm_mgMedium;
   gm_mgHard.mg_pmgDown = &gm_mgSerious;
@@ -66,7 +66,7 @@ void CSinglePlayerNewMenu::Initialize_t(void)
   gm_mgSerious.mg_strText = TRANS("EXTREME");
   gm_mgSerious.mg_bfsFontSize = BFS_LARGE;
   gm_mgSerious.mg_boxOnScreen = BoxBigRow(4.0f);
-  gm_mgSerious.mg_strTip = TRANS("Are you prepared for agony?");
+  gm_mgSerious.mg_strTip = TRANS("For hardcore FPS players");
   gm_lhGadgets.AddTail(gm_mgSerious.mg_lnNode);
   gm_mgSerious.mg_pmgUp = &gm_mgHard;
   gm_mgSerious.mg_pmgDown = &gm_mgTourist;
@@ -75,7 +75,7 @@ void CSinglePlayerNewMenu::Initialize_t(void)
   gm_mgMental.mg_strText = TRANS("NIGHTMARE");
   gm_mgMental.mg_bfsFontSize = BFS_LARGE;
   gm_mgMental.mg_boxOnScreen = BoxBigRow(5.0f);
-  gm_mgMental.mg_strTip = TRANS("I won't let you escape");
+  gm_mgMental.mg_strTip = TRANS("Are you prepared for agony?");
   gm_lhGadgets.AddTail(gm_mgMental.mg_lnNode);
   gm_mgMental.mg_pmgUp = &gm_mgSerious;
   gm_mgMental.mg_pmgDown = &gm_mgTourist;

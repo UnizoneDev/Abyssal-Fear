@@ -59,7 +59,7 @@ properties:
   6 FLOAT m_fCustomWalkSpeed "Custom Walk Speed" = 3.0f,
   7 FLOAT m_fCustomAttackRunSpeed "Custom Attack Run Speed" = 5.0f,
   8 FLOAT m_fCustomCloseRunSpeed "Custom Close Run Speed" = 5.0f,
-  9 FLOAT m_fCustomDensity "Custom Density" = 2000.0f,
+  9 FLOAT m_fCustomDensity "Custom Density" = 1000.0f,
  10 FLOAT m_fCustomBreathHoldTime "Custom Breath Hold Time" = 30.0f,
  11 enum FactionType m_ftCustomFactionType "Faction Type" = FT_NONE,
 
@@ -115,7 +115,8 @@ properties:
  57 FLOAT m_fCustomBlowUpSize      "Custom Blow Up Size" = 4,
  58 FLOAT m_fCustomBlowUpAmount    "Custom Blow Up Amount" = 190.0f,
  59 INDEX m_fCustomBlowUpParts     "Custom Blow Up Parts" = 4,
- 60 INDEX m_iStrafeChance          "Strafe Chance" = 2,
+ 61 INDEX m_iStrafeChance          "Strafe Chance" = 2,
+ 62 INDEX m_iRandomMovementChoice = 0,
 
   {
     CTextureObject m_toCustomTexture;
@@ -358,6 +359,10 @@ functions:
     PlaySound(m_soSound, m_fnmActiveSound, SOF_3D);
   };
 
+  void PainSound(void) {
+    PlaySound(m_soSound, m_fnmPainSound, SOF_3D);
+  };
+
   // --------------------------------------------------------------------------------------
   // Check if an entity is valid for being your new enemy.
   // --------------------------------------------------------------------------------------
@@ -451,9 +456,9 @@ functions:
     if(m_cebtAIType == CEBT_TACTICAL) {
       m_fLockOnEnemyTime = 1.0f;
 
-      INDEX iRandomMovementChoice = IRnd()%m_iStrafeChance;
+      m_iRandomMovementChoice = IRnd()%m_iStrafeChance;
 
-      if(iRandomMovementChoice == 1) {
+      if(m_iRandomMovementChoice == 1) {
         autocall CEnemyBase::StrafeLeftOrRightRandom() EReturn;
       }
     }
@@ -479,10 +484,12 @@ functions:
     if(m_cebtAIType == CEBT_STRAFE || m_cebtAIType == CEBT_TACTICAL || m_cebtAIType == CEBT_COMBAT) {
       m_fLockOnEnemyTime = 1.0f;
 
-      INDEX iRandomMovementChoice = IRnd()%m_iStrafeChance;
+      m_iRandomMovementChoice = IRnd()%m_iStrafeChance;
 
-      if(iRandomMovementChoice == 1) {
+      if(m_iRandomMovementChoice == 1) {
         autocall CEnemyBase::StepBackwards() EReturn;
+      } else if(m_iRandomMovementChoice == 3) {
+        autocall CEnemyBase::StrafeLeftOrRightRandom() EReturn;
       }
     }
 

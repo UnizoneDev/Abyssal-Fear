@@ -351,8 +351,10 @@ public:
    BPOF_DETAILPOLYGON|BPOF_PORTAL|BPOF_ACCURATESHADOWS|BPOF_HASDIRECTIONALAMBIENT|\
    BPOF_DYNAMICLIGHTSONLY|BPOF_DOESNOTRECEIVESHADOW|BPOF_NODYNAMICLIGHTS|BPOF_DARKCORNERS|BPOF_OCCLUDER)
 
-#define BPOF2_LADDER (1UL<<0)  // polygon can be climbed
-#define BPOF2_STICKY (1UL<<1)  // polygon can be used for pseudo-parkour
+#define BPOF2_LADDER          (1UL<<0)  // polygon can be climbed
+#define BPOF2_STICKY          (1UL<<1)  // polygon can be used for pseudo-parkour
+#define BPOF2_SMOOTHLYSHADED  (1UL<<2)  // polygon will be smoothly shaded
+#define BPOF2_BLOCKSIGHT      (1UL<<3)  // polygon will block sight
 
 // properties that are retained in conversions to/from CObjectPolygon
 struct CBrushPolygonProperties {

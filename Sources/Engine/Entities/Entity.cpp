@@ -1051,6 +1051,7 @@ void CEntity::FallDownToFloor( void)
     CCastRay crRay( this, vSource, vTarget);
     crRay.cr_ttHitModels = CCastRay::TT_NONE; // CCastRay::TT_FULLSEETHROUGH;
     crRay.cr_bHitTranslucentPortals = TRUE;
+	crRay.cr_bHitBlockSightPortals = FALSE;									   
     crRay.cr_bPhysical = TRUE;
     GetWorld()->CastRay(crRay);
     if( (crRay.cr_penHit != NULL) && (crRay.cr_vHit(2) > fMaxY)) {
@@ -3017,6 +3018,12 @@ double CEntity::GetSoundLength(SLONG idSoundComponent)
   return pecSound->ec_psdSound->GetSecondsLength();
 }
 
+double CEntity::GetSoundLength(CSoundObject &so, const CTFileName &fnmSound)
+{
+    CSoundData *psdSound = so.so_pCsdLink;
+    return psdSound->GetSecondsLength();
+}
+
 void CEntity::PlaySound(CSoundObject &so, const CTFileName &fnmSound, SLONG slPlayType)
 {
   // try to
@@ -3109,6 +3116,7 @@ static BOOL CheckModelRangeDamage(
     CCastRay crRay( &en, avPoints[i], vCenter);
     crRay.cr_ttHitModels = CCastRay::TT_NONE;     // only brushes block the damage
     crRay.cr_bHitTranslucentPortals = FALSE;
+	crRay.cr_bHitBlockSightPortals = FALSE;									   
     crRay.cr_bPhysical = TRUE;
     en.en_pwoWorld->CastRay(crRay);
     if (crRay.cr_penHit==NULL) {

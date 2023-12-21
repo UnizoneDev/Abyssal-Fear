@@ -57,6 +57,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define SURFACE_GRAVEL_NOIMPACT 51
 #define SURFACE_GLITCH 52
 #define SURFACE_GLITCH_NOIMPACT 53
+#define SURFACE_CEMENT 54
+#define SURFACE_CEMENT_NOIMPACT 55
 
 // Max ammo
 #define MAX_BULLETS INDEX(100)
@@ -82,10 +84,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define BLOOD_SPILL_RED RGBAToColor(250,20,20,255)
 #define BLOOD_SPILL_GREEN RGBAToColor(0,250,0,255)
+#define BLOOD_SPILL_ORANGE RGBAToColor(250,127,30,255)
+#define BLOOD_SPILL_BLACK RGBAToColor(0,0,0,255)
+#define BLOOD_SPILL_YELLOW RGBAToColor(250,250,40,255)
 
-// [Cecil] Own definitions
+// [Cecil] [Uni] Own definitions
 #define ONE_TICK _pTimer->TickQuantum
 #define ENEMY_STEP_VAL INDEX(-123) // Reminder value for calling enemy step function
+#define ENEMY_PATROL_VAL INDEX(0)
+#define ENEMY_JUMPANIM_VAL INDEX(1)
 
 // Ammo mana Value
 #define AV_BULLETS        INDEX(10)

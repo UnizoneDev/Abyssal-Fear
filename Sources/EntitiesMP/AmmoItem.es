@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "Models/Items/Ammo/PistolClip/PistolClip.h"
 #include "Models/Items/Ammo/SMGClip/SMGAmmo.h"
 #include "Models/Items/Ammo/ShotgunShells/ShotgunAmmo.h"
+#include "Models/Items/Ammo/StrongPistolClip/StrongPistolClip.h"
 %}
 
 uses "EntitiesMP/Item";
@@ -58,6 +59,9 @@ components:
 
   5 model   MODEL_MEDIUM_BULLETS         "Models\\Items\\Ammo\\SMGClip\\SMGAmmo.mdl",
   6 texture TEXTURE_MEDIUM_BULLETS       "Models\\Weapons\\SMG\\SMG.tex",
+
+  7 model   MODEL_STRONG_BULLETS         "Models\\Items\\Ammo\\StrongPistolClip\\StrongPistolClip.mdl",
+  8 texture TEXTURE_STRONG_BULLETS       "Models\\Weapons\\StrongPistol\\StrongPistol.tex",
 
 // ************** REFLECTIONS **************
 200 texture TEX_REFL_BWRIPLES01         "Models\\ReflectionTextures\\BWRiples01.tex",
@@ -162,7 +166,7 @@ functions:
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 30.0f; 
         m_strDescription.PrintF("Strong Bullets: %d", (int) m_fValue);
         // set appearance
-        AddItem(MODEL_MEDIUM_BULLETS, TEXTURE_MEDIUM_BULLETS, 0, 0, 0);
+        AddItem(MODEL_STRONG_BULLETS, TEXTURE_STRONG_BULLETS, 0, 0, 0);
         StretchItem(FLOAT3D(4.5f, 4.5f, 4.5f));
         break;
       default: ASSERTALWAYS("Uknown ammo");

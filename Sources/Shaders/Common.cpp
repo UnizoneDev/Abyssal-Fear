@@ -19,6 +19,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 void DoSpecularLayer(INDEX iSpecularTexture,INDEX iSpecularColor)
 {
+  if(shaUseHWShaders())
+  {
+    return;
+  }
+
   GFXVertex4 *paVertices = shaGetVertexArray();
   GFXNormal *paNormals = shaGetNormalArray();
   INDEX ctVertices = shaGetVertexCount();
@@ -101,6 +106,11 @@ void DoSpecularLayer(INDEX iSpecularTexture,INDEX iSpecularColor)
 
 void DoReflectionLayer(INDEX iReflectionTexture,INDEX iReflectionColor,BOOL bFullBright)
 {
+  if (shaUseHWShaders())
+  {
+    return;
+  }
+
   GFXVertex4 *paVertices = NULL;
   GFXNormal *paNormals = NULL;
   paVertices = shaGetVertexArray();

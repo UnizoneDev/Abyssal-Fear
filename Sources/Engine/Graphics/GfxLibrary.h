@@ -106,6 +106,7 @@ enum VtxType
 #define GLF_EXT_CLIPHINT            (1UL<<22)   // GL_EXT_clip_volume_hint
 #define GLF_EXT_OCCLUSIONTEST       (1UL<<23)   // GL_HP_occlusion_test
 #define GLF_EXT_OCCLUSIONQUERY      (1UL<<24)   // GL_NV_occlusion_query
+#define GLF_EXT_TEXTURERECTANGLE    (1UL<<25)   // GL_TEXTURE_RECTANGLE_NV
 	
 #define GLF_EXTC_ARB    (1UL<<27)   // GL_ARB_texture_compression
 #define GLF_EXTC_S3TC   (1UL<<28)   // GL_EXT_texture_compression_s3tc

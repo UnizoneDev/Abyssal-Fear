@@ -1176,3 +1176,109 @@ static void ogl_LockArrays(void)
   OGL_CHECKERROR;
  _bCVAReallyLocked = TRUE;
 }
+
+
+// [Uni] Hardware Shaders
+
+static void ogl_SetShaderProgram(const ULONG ulHandle)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    pglUseProgram(ulHandle);
+}
+
+static void ogl_DeleteShaderProgram(ULONG ulHandle, ULONG ulShader)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    if (pglIsProgram(ulHandle)) {
+      pglDeleteProgram(ulHandle);
+      pglDetachShader(ulHandle, ulShader);
+      pglDeleteShader(ulShader);
+    }
+}
+
+static ULONG ogl_CreateVertexProgram(const char *strVertexProgram, ULONG ulProgram)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+
+    ulProgram = pglCreateProgram();
+    GLuint ulVertexShader = pglCreateShader(GL_VERTEX_SHADER);
+    GLint slProgramStatus = GL_TRUE;
+
+    pglShaderSource(ulVertexShader, 1, &strVertexProgram, NULL);
+    pglCompileShader(ulVertexShader);
+
+    GLint vShaderCompiled = GL_FALSE;
+    pglGetShaderiv(ulVertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
+    if (vShaderCompiled != GL_TRUE)
+    {
+        ASSERTALWAYS("Failed to compile vertex shader!");
+        return FALSE;
+    }
+
+    pglAttachShader(ulProgram, ulVertexShader);
+    pglLinkProgram(ulProgram);
+
+    pglGetProgramiv(ulProgram, GL_LINK_STATUS, &slProgramStatus);
+    if (slProgramStatus != GL_TRUE) {
+        ASSERTALWAYS("Failed to link program!");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static ULONG ogl_CreateFragmentProgram(const char *strFragmentProgram, ULONG ulProgram)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+
+    ulProgram = pglCreateProgram();
+    GLuint ulFragmentShader = pglCreateShader(GL_FRAGMENT_SHADER);
+    GLint slProgramStatus = GL_TRUE;
+
+    pglShaderSource(ulFragmentShader, 1, &strFragmentProgram, NULL);
+    pglCompileShader(ulFragmentShader);
+
+    GLint vShaderCompiled = GL_FALSE;
+    pglGetShaderiv(ulFragmentShader, GL_COMPILE_STATUS, &vShaderCompiled);
+    if (vShaderCompiled != GL_TRUE)
+    {
+        ASSERTALWAYS("Failed to compile fragment shader!");
+        return FALSE;
+    }
+
+    pglAttachShader(ulProgram, ulFragmentShader);
+    pglLinkProgram(ulProgram);
+
+    pglGetProgramiv(ulProgram, GL_LINK_STATUS, &slProgramStatus);
+    if (slProgramStatus != GL_TRUE) {
+        ASSERTALWAYS("Failed to link program!");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static void ogl_EnableVertexShaders(void)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    ASSERTALWAYS("Not implemented yet");
+}
+
+static void ogl_EnableFragmentShaders(void)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    ASSERTALWAYS("Not implemented yet");
+}
+
+static void ogl_DisableVertexShaders(void)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    ASSERTALWAYS("Not implemented yet");
+}
+
+static void ogl_DisableFragmentShaders(void)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    ASSERTALWAYS("Not implemented yet");
+}
+		

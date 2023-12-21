@@ -40,7 +40,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/ArmorItem.h"
 #include "EntitiesMP/WeaponItem.h"
 #include "EntitiesMP/AmmoItem.h"
-#include "EntitiesMP/PowerUpItem.h"
+#include "EntitiesMP/InventoryItem.h"
 #include "EntitiesMP/MessageItem.h"
 #include "EntitiesMP/KeyItem.h"
 #include "EntitiesMP/PuzzleItem.h"
@@ -271,7 +271,7 @@ static void KillAllEnemies(CEntity *penKiller)
 #define PLACT_SNIPER_ZOOMIN       (1L<<9)
 #define PLACT_SNIPER_ZOOMOUT      (1L<<10)
 #define PLACT_SNIPER_USE          (1L<<11)
-#define PLACT_FIREBOMB            (1L<<12)
+#define PLACT_PAINKILLERS_USE     (1L<<12)
 #define PLACT_ALTFIRE             (1L<<13)
 #define PLACT_HOLSTER             (1L<<14)
 #define PLACT_DROP_WEAPON         (1L<<15)
@@ -331,7 +331,7 @@ struct PlayerControls {
 
   BOOL bSniperZoomIn;
   BOOL bSniperZoomOut;
-  BOOL bFireBomb;
+  BOOL bUsePainkillers;
 };
 
 static struct PlayerControls pctlCurrent;
@@ -429,10 +429,6 @@ static FLOAT ctl_fAxisStrafingModifier = 1.0f;
 
 extern INDEX sam_bDisallowExit = FALSE;
 extern INDEX sam_bDisallowConsole = FALSE;
-extern INDEX sam_bGoldenSwitch1 = FALSE;
-extern INDEX sam_bGoldenSwitch2 = FALSE;
-extern INDEX sam_bGoldenSwitch3 = FALSE;
-extern INDEX sam_bGoldenSwitch4 = FALSE;
 
 // game sets this for player hud and statistics and hiscore sound playing
 DECL_DLL extern INDEX plr_iHiScore = 0.0f;
@@ -553,11 +549,11 @@ DECL_DLL void ctl_ComposeActionPacket(const CPlayerCharacter &pc, CPlayerAction 
   if(pctlCurrent.b3rdPersonView) paAction.pa_ulButtons |= PLACT_3RD_PERSON_VIEW;
   if(pctlCurrent.bCenterView)    paAction.pa_ulButtons |= PLACT_CENTER_VIEW;
   // is 'use' being held?
-  if(pctlCurrent.bSniperZoomIn)  paAction.pa_ulButtons |= PLACT_SNIPER_ZOOMIN;
-  if(pctlCurrent.bSniperZoomOut) paAction.pa_ulButtons |= PLACT_SNIPER_ZOOMOUT;
-  if(pctlCurrent.bFireBomb)      paAction.pa_ulButtons |= PLACT_FIREBOMB;
-  if(pctlCurrent.bHolster)       paAction.pa_ulButtons |= PLACT_HOLSTER;
-  if(pctlCurrent.bDropWeapon)    paAction.pa_ulButtons |= PLACT_DROP_WEAPON;
+  if(pctlCurrent.bSniperZoomIn)   paAction.pa_ulButtons |= PLACT_SNIPER_ZOOMIN;
+  if(pctlCurrent.bSniperZoomOut)  paAction.pa_ulButtons |= PLACT_SNIPER_ZOOMOUT;
+  if(pctlCurrent.bUsePainkillers) paAction.pa_ulButtons |= PLACT_PAINKILLERS_USE;
+  if(pctlCurrent.bHolster)        paAction.pa_ulButtons |= PLACT_HOLSTER;
+  if(pctlCurrent.bDropWeapon)     paAction.pa_ulButtons |= PLACT_DROP_WEAPON;
 };
 
 void CPlayer_Precache(void)
@@ -631,6 +627,8 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_SILENCE            );
   pdec->PrecacheSound(SOUND_BLOWUP             );
   pdec->PrecacheSound(SOUND_EFFECT_STING       );
+  pdec->PrecacheSound(SOUND_PAINKILLERS        );
+  
 
   pdec->PrecacheSound(SOUND_CONCRETE_STEP1     );
   pdec->PrecacheSound(SOUND_CONCRETE_STEP2     );
@@ -673,6 +671,36 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_GRAVEL_STEP3          );
   pdec->PrecacheSound(SOUND_GRAVEL_STEP4          );
   pdec->PrecacheSound(SOUND_GRAVEL_LAND           );
+
+  pdec->PrecacheSound(SOUND_SAND_STEP1          );
+  pdec->PrecacheSound(SOUND_SAND_STEP2          );
+  pdec->PrecacheSound(SOUND_SAND_STEP3          );
+  pdec->PrecacheSound(SOUND_SAND_STEP4          );
+  pdec->PrecacheSound(SOUND_SAND_LAND           );
+
+  pdec->PrecacheSound(SOUND_GRASS_STEP1          );
+  pdec->PrecacheSound(SOUND_GRASS_STEP2          );
+  pdec->PrecacheSound(SOUND_GRASS_STEP3          );
+  pdec->PrecacheSound(SOUND_GRASS_STEP4          );
+  pdec->PrecacheSound(SOUND_GRASS_LAND           );
+
+  pdec->PrecacheSound(SOUND_WATER_STEP1          );
+  pdec->PrecacheSound(SOUND_WATER_STEP2          );
+  pdec->PrecacheSound(SOUND_WATER_STEP3          );
+  pdec->PrecacheSound(SOUND_WATER_STEP4          );
+  pdec->PrecacheSound(SOUND_WATER_LAND           );
+
+  pdec->PrecacheSound(SOUND_CEMENT_STEP1     );
+  pdec->PrecacheSound(SOUND_CEMENT_STEP2     );
+  pdec->PrecacheSound(SOUND_CEMENT_STEP3     );
+  pdec->PrecacheSound(SOUND_CEMENT_STEP4     );
+  pdec->PrecacheSound(SOUND_CEMENT_LAND      );
+
+  pdec->PrecacheSound(SOUND_SNOW_STEP1     );
+  pdec->PrecacheSound(SOUND_SNOW_STEP2     );
+  pdec->PrecacheSound(SOUND_SNOW_STEP3     );
+  pdec->PrecacheSound(SOUND_SNOW_STEP4     );
+  pdec->PrecacheSound(SOUND_SNOW_LAND      );
 
   pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_TELEPORT);
   pdec->PrecacheClass(CLASS_SERIOUSBOMB);
@@ -731,7 +759,7 @@ void CPlayer_OnInitClass(void)
   //new
   _pShell->DeclareSymbol("user INDEX ctl_bSniperZoomIn;",         &pctlCurrent.bSniperZoomIn);
   _pShell->DeclareSymbol("user INDEX ctl_bSniperZoomOut;",        &pctlCurrent.bSniperZoomOut);
-  _pShell->DeclareSymbol("user INDEX ctl_bFireBomb;",             &pctlCurrent.bFireBomb);
+  _pShell->DeclareSymbol("user INDEX ctl_bUsePainkillers;",       &pctlCurrent.bUsePainkillers);
 
   _pShell->DeclareSymbol("user FLOAT plr_fSwimSoundDelay;", &plr_fSwimSoundDelay);
   _pShell->DeclareSymbol("user FLOAT plr_fDiveSoundDelay;", &plr_fDiveSoundDelay);
@@ -822,10 +850,6 @@ void CPlayer_OnInitClass(void)
 
   _pShell->DeclareSymbol("INDEX sam_bDisallowExit;", &sam_bDisallowExit);
   _pShell->DeclareSymbol("INDEX sam_bDisallowConsole;", &sam_bDisallowConsole);
-  _pShell->DeclareSymbol("INDEX sam_bGoldenSwitch1;", &sam_bGoldenSwitch1);
-  _pShell->DeclareSymbol("INDEX sam_bGoldenSwitch2;", &sam_bGoldenSwitch2);
-  _pShell->DeclareSymbol("INDEX sam_bGoldenSwitch3;", &sam_bGoldenSwitch3);
-  _pShell->DeclareSymbol("INDEX sam_bGoldenSwitch4;", &sam_bGoldenSwitch4);
 
   // call player weapons persistant variable initialization
   extern void CPlayerWeapons_Init(void);
@@ -1068,6 +1092,7 @@ properties:
  64 CSoundObject m_soWeaponAmbient,
  65 CSoundObject m_soPowerUpBeep,
 
+ 66 CSoundObject m_soFootJump,
  70 CSoundObject m_soMouth,     // breating, yelling etc.
  71 CSoundObject m_soFootL,     // walking etc.
  72 CSoundObject m_soFootR,
@@ -1138,25 +1163,15 @@ properties:
  155 ANGLE3D m_aLocalViewRotation = FLOAT3D(0,0,0),
  156 FLOAT3D m_vLocalTranslation = FLOAT3D(0,0,0),
 
- // powerups (DO NOT CHANGE ORDER!) - needed by HUD.cpp
- 160 FLOAT m_tmInvisibility    = 0.0f, 
- 161 FLOAT m_tmInvulnerability = 0.0f, 
- 162 FLOAT m_tmSeriousDamage   = 0.0f, 
- 163 FLOAT m_tmSeriousSpeed    = 0.0f, 
- 166 FLOAT m_tmInvisibilityMax    = 30.0f,
- 167 FLOAT m_tmInvulnerabilityMax = 30.0f,
- 168 FLOAT m_tmSeriousDamageMax   = 40.0f,
- 169 FLOAT m_tmSeriousSpeedMax    = 20.0f,
-
  180 FLOAT m_tmChainShakeEnd = 0.0f, // used to determine when to stop shaking due to chainsaw damage
  181 FLOAT m_fChainShakeStrength = 1.0f, // strength of shaking
  182 FLOAT m_fChainShakeFreqMod = 1.0f,  // shaking frequency modifier
  183 FLOAT m_fChainsawShakeDX = 0.0f, 
  184 FLOAT m_fChainsawShakeDY = 0.0f,
 
- 190 INDEX m_iSeriousBombCount = 0,      // ammount of serious bombs player owns
- 191 INDEX m_iLastSeriousBombCount = 0,  // ammount of serious bombs player had before firing
- 192 FLOAT m_tmSeriousBombFired = -10.0f,  // when the bomb was last fired
+ 190 INDEX m_iPainkillerCount = 0,      // ammount of painkillers player owns
+ 191 INDEX m_iLastPainkillerCount = 0,  // ammount of painkillers player had before firing
+ 192 FLOAT m_tmPainkillerUsed = -1.0f,  // when the painkillers were last used
 
  201 FLOAT m_fMessagePosX = 0.0f,
  202 FLOAT m_fMessagePosY = 0.0f,
@@ -1277,6 +1292,7 @@ components:
 134 sound SOUND_LAND_GRAVEL     "Sounds\\Player\\LandGravel.wav",
 135 sound SOUND_LAND_GLITCH     "Sounds\\Player\\LandGlitch.wav",
 114 sound SOUND_BLOWUP          "Sounds\\Player\\BlowUp.wav",
+290 sound SOUND_PAINKILLERS     "Sounds\\Player\\UsePainkillers.wav",
 
 // gender-independent sounds
 214 sound SOUND_SILENCE         "Sounds\\Misc\\Silence.wav",
@@ -1334,6 +1350,36 @@ components:
 272 sound SOUND_GRAVEL_STEP3       "Sounds\\Materials\\Gravel\\StepGravel3.wav",
 273 sound SOUND_GRAVEL_STEP4       "Sounds\\Materials\\Gravel\\StepGravel4.wav",
 274 sound SOUND_GRAVEL_LAND        "Sounds\\Materials\\Gravel\\LandGravel.wav",
+
+275 sound SOUND_SAND_STEP1       "Sounds\\Materials\\Sand\\StepSand1.wav",
+276 sound SOUND_SAND_STEP2       "Sounds\\Materials\\Sand\\StepSand2.wav",
+277 sound SOUND_SAND_STEP3       "Sounds\\Materials\\Sand\\StepSand3.wav",
+278 sound SOUND_SAND_STEP4       "Sounds\\Materials\\Sand\\StepSand4.wav",
+279 sound SOUND_SAND_LAND        "Sounds\\Materials\\Sand\\LandSand.wav",
+
+280 sound SOUND_GRASS_STEP1       "Sounds\\Materials\\Grass\\StepGrass1.wav",
+281 sound SOUND_GRASS_STEP2       "Sounds\\Materials\\Grass\\StepGrass2.wav",
+282 sound SOUND_GRASS_STEP3       "Sounds\\Materials\\Grass\\StepGrass3.wav",
+283 sound SOUND_GRASS_STEP4       "Sounds\\Materials\\Grass\\StepGrass4.wav",
+284 sound SOUND_GRASS_LAND        "Sounds\\Materials\\Grass\\LandGrass.wav",
+
+285 sound SOUND_WATER_STEP1       "Sounds\\Materials\\Water\\StepWater1.wav",
+286 sound SOUND_WATER_STEP2       "Sounds\\Materials\\Water\\StepWater2.wav",
+287 sound SOUND_WATER_STEP3       "Sounds\\Materials\\Water\\StepWater3.wav",
+288 sound SOUND_WATER_STEP4       "Sounds\\Materials\\Water\\StepWater4.wav",
+289 sound SOUND_WATER_LAND        "Sounds\\Materials\\Water\\LandWater.wav",
+
+291 sound SOUND_CEMENT_STEP1      "Sounds\\Materials\\Cement\\StepCement1.wav",
+292 sound SOUND_CEMENT_STEP2      "Sounds\\Materials\\Cement\\StepCement2.wav",
+293 sound SOUND_CEMENT_STEP3      "Sounds\\Materials\\Cement\\StepCement3.wav",
+294 sound SOUND_CEMENT_STEP4      "Sounds\\Materials\\Cement\\StepCement4.wav",
+295 sound SOUND_CEMENT_LAND       "Sounds\\Materials\\Cement\\LandCement.wav",
+
+296 sound SOUND_SNOW_STEP1      "Sounds\\Materials\\Snow\\StepSnow1.wav",
+297 sound SOUND_SNOW_STEP2      "Sounds\\Materials\\Snow\\StepSnow2.wav",
+298 sound SOUND_SNOW_STEP3      "Sounds\\Materials\\Snow\\StepSnow3.wav",
+299 sound SOUND_SNOW_STEP4      "Sounds\\Materials\\Snow\\StepSnow4.wav",
+300 sound SOUND_SNOW_LAND       "Sounds\\Materials\\Snow\\LandSnow.wav",
 
 
 functions:
@@ -2116,23 +2162,6 @@ functions:
     if (m_ulFlags&PLF_NOTCONNECTED) {
       // pulse slowly
       fFading *= 0.25f+0.25f*Sin(tmNow/2.0f*360);
-    // if invisible
-    } else if (m_tmInvisibility>tmNow) {
-      FLOAT fIntensity=0.0f;
-      if((m_tmInvisibility-tmNow)<3.0f)
-      {
-        fIntensity = 0.5f-0.5f*cos((m_tmInvisibility-tmNow)*(6.0f*3.1415927f/3.0f));
-      }
-      if (_ulPlayerRenderingMask == 1<<GetMyPlayerIndex()) {
-        colAlpha = (colAlpha&0xffffff00)|(INDEX)(INVISIBILITY_ALPHA_LOCAL+(FLOAT)(254-INVISIBILITY_ALPHA_LOCAL)*fIntensity);
-      } else if (TRUE) {
-        if ((m_tmInvisibility-tmNow)<1.28f) {
-          colAlpha = (colAlpha&0xffffff00)|(INDEX)(INVISIBILITY_ALPHA_REMOTE+(FLOAT)(254-INVISIBILITY_ALPHA_REMOTE)*fIntensity);
-        } else if (TRUE) {
-          colAlpha = (colAlpha&0xffffff00)|INVISIBILITY_ALPHA_REMOTE;
-        }
-      }
-      m_moRender.mo_colBlendColor = colAlpha;
     }
 
     // use the appearance for rendering
@@ -3068,10 +3097,6 @@ functions:
     // god mode -> no one can harm you
     if( cht_bGod && CheatsEnabled() ) { return; }
 
-    // if invulnerable, nothing can harm you except telefrag or abyss
-    const TIME tmDelta = m_tmInvulnerability - _pTimer->CurrentTick();
-    if( tmDelta>0 && dmtType!=DMT_ABYSS && dmtType!=DMT_TELEPORT) { return; }
-
     // if invunerable after spawning
     FLOAT tmSpawnInvulnerability = GetSP()->sp_tmSpawnInvulnerability;
     if (tmSpawnInvulnerability>0 && _pTimer->CurrentTick()-m_tmSpawned<tmSpawnInvulnerability) {
@@ -3422,25 +3447,13 @@ functions:
       }
     }
 
-    // *********** POWERUPS ***********
-    else if( ee.ee_slEvent == EVENTCODE_EPowerUp) {
+    // *********** INVENTORY ITEMS ***********
+    else if( ee.ee_slEvent == EVENTCODE_EInventoryItem) {
       const FLOAT tmNow = _pTimer->CurrentTick();
-      switch( ((EPowerUp&)ee).puitType) {
-      case PUIT_INVISIB :  m_tmInvisibility    = tmNow + m_tmInvisibilityMax;
-        ItemPicked(TRANS("^cABE3FFInvisibility"), 0);
-        return TRUE;
-      case PUIT_INVULNER:  m_tmInvulnerability = tmNow + m_tmInvulnerabilityMax;
-        ItemPicked(TRANS("^c00B440Invulnerability"), 0);
-        return TRUE;
-      case PUIT_DAMAGE  :  m_tmSeriousDamage   = tmNow + m_tmSeriousDamageMax;
-        ItemPicked(TRANS("^cFF0000Serious Damage!"), 0);
-        return TRUE;
-      case PUIT_SPEED   :  m_tmSeriousSpeed    = tmNow + m_tmSeriousSpeedMax;
-        ItemPicked(TRANS("^cFF9400Serious Speed"), 0);
-        return TRUE;
-      case PUIT_BOMB    :
-        m_iSeriousBombCount++;
-        ItemPicked(TRANS("^cFF0000Serious Bomb!"), 0);
+      switch( ((EInventoryItem&)ee).iitType) {
+      case IIT_PAINKILLERS    :
+        m_iPainkillerCount++;
+        ItemPicked(TRANS("Painkillers"), 0);
         return TRUE;              
       }
     }
@@ -3817,7 +3830,7 @@ functions:
     }
 
     // if the sting time has passed
-    FLOAT tmSinceStinging = m_tmStungTime - _pTimer->CurrentTick();
+    FLOAT tmSinceStinging = _pTimer->CurrentTick() - m_tmStungTime;
     if(tmSinceStinging<0.0f) {
       m_bIsStung = FALSE;
     }
@@ -3946,13 +3959,6 @@ functions:
     // turbo speed cheat
     if (cht_fTranslationMultiplier && CheatsEnabled()) { 
       vTranslation *= cht_fTranslationMultiplier;
-    }
-
-    // enable faster moving (but not higher jumping!) if having SerousSpeed powerup
-    const TIME tmDelta = m_tmSeriousSpeed - _pTimer->CurrentTick();
-    if( tmDelta>0 && m_fAutoSpeed==0.0f) { 
-      vTranslation(1) *= 2.0f;
-      vTranslation(3) *= 2.0f;
     }
     
     en_fAcceleration = plr_fAcceleration;
@@ -4111,13 +4117,15 @@ functions:
           INDEX iSoundLand = SOUND_CONCRETE_LAND;
           if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND ||
-             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND_NOIMPACT)) {
-             iSoundLand = SOUND_LAND_SAND;
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND_NOIMPACT ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND_NOIMPACT)) {
+             iSoundLand = SOUND_SAND_LAND;
           } else if (en_pbpoStandOn!=NULL && 
            (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS ||
             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_SLIDING ||
             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_NOIMPACT)) {
-             iSoundLand = SOUND_LAND_GRASS;
+             iSoundLand = SOUND_GRASS_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT)) {
@@ -4125,7 +4133,7 @@ functions:
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW_NOIMPACT)) {
-             iSoundLand = SOUND_LAND_SNOW;
+             iSoundLand = SOUND_SNOW_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT)) {
@@ -4178,6 +4186,12 @@ functions:
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH_NOIMPACT) ) {
              iSoundLand = SOUND_LAND_GLITCH;
+          } else if (en_pbpoStandOn!=NULL && 
+            (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT_NOIMPACT) ) {
+             iSoundLand = SOUND_CEMENT_LAND;
+          } else if ((ctDn.ct_ulFlags&CTF_SWIMABLE) && en_fImmersionFactor>=0.1f) {
+            iSoundLand = SOUND_WATER_LAND;
           }
           else {
           }
@@ -4199,7 +4213,7 @@ functions:
           en_tmJumped<=_pTimer->CurrentTick() && en_penReference==NULL) {
         // play jump sound
         SetDefaultMouthPitch();
-        PlaySound(m_soMouth, SOUND_JUMP, SOF_3D);
+        PlaySound(m_soFootJump, SOUND_JUMP, SOF_3D);
         if(_pNetwork->IsPlayerLocal(this)) {IFeel_PlayEffect("Jump");}
         // disallow jumping
         m_ulFlags&=~PLF_JUMPALLOWED;
@@ -4277,15 +4291,13 @@ functions:
         vTranslation(2) = 0.0f;
       }
 
-      // check for ladders
+      // TODO: check for ladders
+      /*
       if(en_ulPhysicsFlags&EPF_ONLADDER) {
-        // translate up/down with view pitch
-        FLOATmatrix3D mPitch;
-        MakeRotationMatrixFast(mPitch, FLOAT3D(0,en_plViewpoint.pl_OrientationAngle(2),0));
         FLOAT fZ = vTranslation(3);
-        vTranslation(3) = 0.0f;
-        vTranslation += FLOAT3D(0,0,fZ)*mPitch;
+        vTranslation += FLOAT3D(0,fZ,0);
       }
+      */
 
       // set translation
       SetDesiredTranslation(vTranslation);
@@ -4340,24 +4352,32 @@ functions:
       INDEX iSoundWalkR  = SOUND_CONCRETE_STEP3;
       INDEX iSoundWalkR2 = SOUND_CONCRETE_STEP4;
       if ((ctDn.ct_ulFlags&CTF_SWIMABLE) && en_fImmersionFactor>=0.1f) {
-        iSoundWalkL = SOUND_WATERWALK_L;
-        iSoundWalkR = SOUND_WATERWALK_R;
+        iSoundWalkL  = SOUND_WATER_STEP1;
+        iSoundWalkL2 = SOUND_WATER_STEP2;
+        iSoundWalkR  = SOUND_WATER_STEP3;
+        iSoundWalkR2 = SOUND_WATER_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND_NOIMPACT)) {
-        iSoundWalkL = SOUND_WALK_SAND_L;
-        iSoundWalkR = SOUND_WALK_SAND_R;
+        iSoundWalkL  = SOUND_SAND_STEP1;
+        iSoundWalkL2 = SOUND_SAND_STEP2;
+        iSoundWalkR  = SOUND_SAND_STEP3;
+        iSoundWalkR2 = SOUND_SAND_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND_NOIMPACT)) {
-        iSoundWalkL = SOUND_WALK_SAND_L;
-        iSoundWalkR = SOUND_WALK_SAND_R;
+        iSoundWalkL  = SOUND_SAND_STEP1;
+        iSoundWalkL2 = SOUND_SAND_STEP2;
+        iSoundWalkR  = SOUND_SAND_STEP3;
+        iSoundWalkR2 = SOUND_SAND_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_SLIDING ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_NOIMPACT )) {
-        iSoundWalkL = SOUND_WALK_GRASS_L;
-        iSoundWalkR = SOUND_WALK_GRASS_R;
+        iSoundWalkL  = SOUND_GRASS_STEP1;
+        iSoundWalkL2 = SOUND_GRASS_STEP2;
+        iSoundWalkR  = SOUND_GRASS_STEP3;
+        iSoundWalkR2 = SOUND_GRASS_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT) ) {
@@ -4368,8 +4388,10 @@ functions:
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW_NOIMPACT)) {
-        iSoundWalkL = SOUND_WALK_SNOW_L;
-        iSoundWalkR = SOUND_WALK_SNOW_R;
+        iSoundWalkL  = SOUND_SNOW_STEP1;
+        iSoundWalkL2 = SOUND_SNOW_STEP2;
+        iSoundWalkR  = SOUND_SNOW_STEP3;
+        iSoundWalkR2 = SOUND_SNOW_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT) ) {
@@ -4445,6 +4467,13 @@ functions:
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLITCH_NOIMPACT) ) {
         iSoundWalkL = SOUND_WALK_GLITCH_L;
         iSoundWalkR = SOUND_WALK_GLITCH_R;
+      } else if (en_pbpoStandOn!=NULL && 
+        (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT ||
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT_NOIMPACT)) {
+        iSoundWalkL  = SOUND_CEMENT_STEP1;
+        iSoundWalkL2 = SOUND_CEMENT_STEP2;
+        iSoundWalkR  = SOUND_CEMENT_STEP3;
+        iSoundWalkR2 = SOUND_CEMENT_STEP4;
       } else if(en_pbpoStandOn == NULL) {
         m_soFootL.Stop();
         m_soFootR.Stop();
@@ -4459,10 +4488,19 @@ functions:
             if(en_pbpoStandOn!=NULL && 
               (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_SLIDING ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
@@ -4470,7 +4508,10 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT_NOIMPACT) ||
+               (ctDn.ct_ulFlags&CTF_SWIMABLE) && en_fImmersionFactor>=0.1f) {
                  switch(IRnd()%2) {
                    case 0: PlaySound(m_soFootL, iSoundWalkL, SOF_3D); break;
                    case 1: PlaySound(m_soFootL, iSoundWalkL2, SOF_3D); break;
@@ -4483,10 +4524,19 @@ functions:
             if(en_pbpoStandOn!=NULL && 
               (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_SLIDING ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
@@ -4494,7 +4544,10 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT_NOIMPACT) ||
+               (ctDn.ct_ulFlags&CTF_SWIMABLE) && en_fImmersionFactor>=0.1f) {
                  switch(IRnd()%2) {
                    case 0: PlaySound(m_soFootR, iSoundWalkR, SOF_3D); break;
                    case 1: PlaySound(m_soFootR, iSoundWalkR2, SOF_3D); break;
@@ -4513,10 +4566,19 @@ functions:
             if(en_pbpoStandOn!=NULL && 
               (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_SLIDING ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
@@ -4524,7 +4586,10 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT_NOIMPACT) ||
+               (ctDn.ct_ulFlags&CTF_SWIMABLE) && en_fImmersionFactor>=0.1f) {
                  switch(IRnd()%2) {
                    case 0: PlaySound(m_soFootL, iSoundWalkL, SOF_3D); break;
                    case 1: PlaySound(m_soFootL, iSoundWalkL2, SOF_3D); break;
@@ -4537,10 +4602,19 @@ functions:
             if(en_pbpoStandOn!=NULL && 
               (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==0 ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==11 ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SAND_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_RED_SAND_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_SLIDING ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
@@ -4548,7 +4622,10 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
-               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT) ) {
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CEMENT_NOIMPACT) ||
+               (ctDn.ct_ulFlags&CTF_SWIMABLE) && en_fImmersionFactor>=0.1f) {
                  switch(IRnd()%2) {
                    case 0: PlaySound(m_soFootR, iSoundWalkR, SOF_3D); break;
                    case 1: PlaySound(m_soFootR, iSoundWalkR2, SOF_3D); break;
@@ -4731,6 +4808,32 @@ functions:
     if (ulNewButtons&PLACT_DROP_WEAPON) {
       ((CPlayerWeapons&)*m_penWeapons).SendEvent(EDropWeapon());
     }
+    // if use painkillers is pressed
+    if (ulNewButtons&PLACT_PAINKILLERS_USE) {
+      if(GetHealth() != MaxHealth()) {
+      if (m_iPainkillerCount>0 && m_tmPainkillerUsed+0.125f<_pTimer->CurrentTick()) {
+        SetDefaultMouthPitch();
+        PlaySound(m_soMouth, SOUND_PAINKILLERS, SOF_3D);
+        m_iLastPainkillerCount = m_iPainkillerCount;
+        m_iPainkillerCount--;
+        m_tmPainkillerUsed = _pTimer->CurrentTick();
+
+          // determine old and new health values
+          FLOAT fHealthOld = GetHealth();
+          FLOAT fHealthNew = fHealthOld + 10.0f;
+        
+          fHealthNew = ClampUp( fHealthNew, TopHealth());
+
+          // if value can be changed
+          if( ceil(fHealthNew) > ceil(fHealthOld)) {
+            // receive it
+            SetHealth(fHealthNew);
+            m_iMana += (INDEX) 10.0f;
+            m_fPickedMana   += 10.0f;
+          }
+        }
+      }
+    }
     
 
     // if use is pressed
@@ -4789,8 +4892,7 @@ functions:
     }
 
     // invisible mode
-    const TIME tmDelta = m_tmInvisibility - _pTimer->CurrentTick();
-    if (cht_bInvisible || tmDelta>0) {
+    if (cht_bInvisible) {
       SetFlags(GetFlags() | ENF_INVISIBLE);
     } else {
       SetFlags(GetFlags() & ~ENF_INVISIBLE);
@@ -5005,13 +5107,13 @@ functions:
     // do screen blending
     ULONG ulR=255, ulG=0, ulB=0; // red for wounding
     ULONG ulA = pen->m_fDamageAmmount*5.0f;
-
+    
     // if player got stung by an abomination
     if(m_bIsStung) {
       ulR=64, ulG=0, ulB=0; // dark red for stinging
       ulA=112;
     }
-    
+
     // if less than few seconds elapsed since last damage
     FLOAT tmSinceWounding = _pTimer->CurrentTick() - pen->m_tmWoundedTime;
     if( tmSinceWounding<4.0f) {
@@ -5154,10 +5256,6 @@ functions:
     m_pstState = PST_STAND;
     m_fDamageAmmount = 0.0f;
     m_tmWoundedTime  = 0.0f;
-    m_tmInvisibility    = 0.0f, 
-    m_tmInvulnerability = 0.0f, 
-    m_tmSeriousDamage   = 0.0f, 
-    m_tmSeriousSpeed    = 0.0f,
     m_tmStungTime       = 0.0f,
     m_bIsStung          = FALSE,
     m_bIsBlocking       = FALSE,
@@ -5539,16 +5637,6 @@ functions:
       RenderChainsawParticles(TRUE);
       // glowing powerups
       if (GetFlags()&ENF_ALIVE){
-        if (m_tmSeriousDamage>tmNow && m_tmInvulnerability>tmNow) {
-          Particles_ModelGlow(this, Max(m_tmSeriousDamage,m_tmInvulnerability),PT_STAR08, 0.15f, 2, 0.03f, 0xff00ff00);
-        } else if (m_tmInvulnerability>tmNow) {
-          Particles_ModelGlow(this, m_tmInvulnerability, PT_STAR05, 0.15f, 2, 0.03f, 0x3333ff00);
-        } else if (m_tmSeriousDamage>tmNow) {
-          Particles_ModelGlow(this, m_tmSeriousDamage, PT_STAR08, 0.15f, 2, 0.03f, 0xff777700);
-        }
-        if (m_tmSeriousSpeed>tmNow) {
-          Particles_RunAfterBurner(this, m_tmSeriousSpeed, 0.3f, 0);
-        }
         if (!GetSP()->sp_bCooperative) {
           CPlayerWeapons *wpn = GetPlayerWeapons();
         }
@@ -6664,6 +6752,7 @@ procedures:
     m_soMouth.Set3DParameters(50.0f, 10.0f, 1.0f, 1.0f);
     m_soFootL.Set3DParameters(20.0f, 2.0f, 1.0f, 1.0f);
     m_soFootR.Set3DParameters(20.0f, 2.0f, 1.0f, 1.0f);
+    m_soFootJump.Set3DParameters(20.0f, 2.0f, 1.0f, 1.0f);
     m_soBody.Set3DParameters(25.0f, 5.0f, 1.0f, 1.0f);
     m_soMessage.Set3DParameters(25.0f, 5.0f, 1.0f, 1.0f);
     m_soSniperZoom.Set3DParameters(25.0f, 5.0f, 1.0f, 1.0f);
@@ -6783,7 +6872,7 @@ procedures:
           JumpFromBouncer(this, eTouch.penOther);
           // play jump sound
           SetDefaultMouthPitch();
-          PlaySound(m_soMouth, SOUND_JUMP, SOF_3D);
+          PlaySound(m_soFootJump, SOUND_JUMP, SOF_3D);
           if(_pNetwork->IsPlayerLocal(this)) {IFeel_PlayEffect("Jump");}
         }
 

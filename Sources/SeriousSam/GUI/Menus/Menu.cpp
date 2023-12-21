@@ -300,7 +300,6 @@ void InitializeMenus(void)
     TRANSLATERADIOARRAY(astrFrequencyRadioTexts);
     TRANSLATERADIOARRAY(astrSoundAPIRadioTexts);
     TRANSLATERADIOARRAY(astrDifficultyRadioTexts);
-    TRANSLATERADIOARRAY(astrMaxPlayersRadioTexts);
     TRANSLATERADIOARRAY(astrWeapon);
     TRANSLATERADIOARRAY(astrSplitScreenRadioTexts);
 
@@ -937,6 +936,9 @@ void ChangeToMenu( CGameMenu *pgmNewMenu)
 {
   // auto-clear old thumbnail when going out of menu
   ClearThumbnail();
+
+  // [Cecil] Reset gadget under the cursor
+  _pmgUnderCursor = NULL;
 
   if( pgmCurrentMenu != NULL) {
     if (!pgmNewMenu->gm_bPopup) {

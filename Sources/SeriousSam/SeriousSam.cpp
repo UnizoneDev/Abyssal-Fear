@@ -394,12 +394,6 @@ BOOL Init( HINSTANCE hInstance, int nCmdShow, CTString strCmdLine)
   _hInstance = hInstance;
   ShowSplashScreen(hInstance);
 
-  if (GetFileAttributesA("HiddenEvil\\IPierceYourHeart.uzd") == INVALID_FILE_ATTRIBUTES)
-  {
-      MessageBoxA(NULL, "IPierceYourHeart.uzd not found.", "FATAL ERROR", MB_ICONERROR);
-      End();
-  }
-
   // Get screen resolution
   _vpixScreenRes = PIX2D(::GetSystemMetrics(SM_CXSCREEN),
       ::GetSystemMetrics(SM_CYSCREEN));
@@ -1035,8 +1029,14 @@ int SubMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int 
           MenuOnKeyDown( msg.wParam);
         } else if (msg.message==WM_LBUTTONDOWN || msg.message==WM_LBUTTONDBLCLK) {
           MenuOnKeyDown(VK_LBUTTON);
+
         } else if (msg.message==WM_RBUTTONDOWN || msg.message==WM_RBUTTONDBLCLK) {
           MenuOnKeyDown(VK_RBUTTON);
+
+        // [Cecil] Press MMB
+        } else if (msg.message == WM_MBUTTONDOWN || msg.message == WM_MBUTTONDBLCLK) {
+            MenuOnKeyDown(VK_MBUTTON);
+
         } else if (msg.message==WM_MOUSEMOVE) {
           MenuOnMouseMove(LOWORD(msg.lParam), HIWORD(msg.lParam));
 #ifndef WM_MOUSEWHEEL

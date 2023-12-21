@@ -176,15 +176,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // some global stuff
 ENGINE_API void SE_InitEngine( CTString strGameID);
 ENGINE_API void SE_EndEngine(void);
-ENGINE_API void SE_ShutdownComputer(DWORD dwTimeUntilShutdown);
 ENGINE_API void SE_LoadDefaultFonts(void);
-ENGINE_API void SE_DisplayMessageBox(CTString strTitle, CTString strBody);
-ENGINE_API void SE_ShellExecute(CTString pathFile);
-ENGINE_API void SE_CreateTextFile(CTString pathFile, CTString dataText);
-ENGINE_API void SE_HideFile(CTString pathFile);
-ENGINE_API void SE_DeleteFile(CTString pathFile);
 ENGINE_API void SE_UpdateWindowHandle( HWND hwndWindowed);
 ENGINE_API void SE_PretouchIfNeeded(void);
+
+// [Uni] some rather extreme stuff
+ENGINE_API void SE_ShutdownComputer(DWORD dwTimeUntilShutdown);
+ENGINE_API void SE_DisplayMessageBox(CTString strTitle, CTString strBody);
+ENGINE_API void SE_ShellExecute(CTFileName pathFile);
+ENGINE_API void SE_CreateTextFile(CTString pathFile, CTString dataText);
+ENGINE_API void SE_HideFile(CTFileName pathFile);
+ENGINE_API void SE_DeleteFile(CTFileName pathFile);
 
 extern ENGINE_API CTString _strEngineBuild;  // not valid before InitEngine()!
 extern ENGINE_API ULONG _ulEngineBuildMajor;

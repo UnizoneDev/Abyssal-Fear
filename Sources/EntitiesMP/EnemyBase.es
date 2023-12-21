@@ -33,6 +33,8 @@ uses "EntitiesMP/BloodSpray";
 
 uses "EntitiesMP/AmmoItem";
 uses "EntitiesMP/WeaponItem";
+uses "EntitiesMP/KeyItem";
+uses "EntitiesMP/PuzzleItem";
 uses "EntitiesMP/BloodUni";
 uses "EntitiesMP/ScriptedSequencer";
 
@@ -228,6 +230,8 @@ properties:
 234 FLOAT m_fBlockDirAmount = 0.5f,
 235 BOOL m_bBlockFirearms = FALSE,
 236 BOOL m_bUsePainSound = FALSE,
+237 BOOL m_bWrithe = FALSE,
+238 BOOL m_bJump = FALSE,
 
 240 INDEX m_ulMovementFlags = 0,
 241 CEntityPointer m_penLastAttacker,
@@ -236,7 +240,6 @@ properties:
 244 BOOL m_bCanClimb  "Can Climb" = FALSE,
 245 BOOL m_bCanTakeCover  "Can Take Cover" = FALSE,
 246 BOOL m_bCheckForPits  "Check For Pits" = FALSE,
-247 CEntityPointer m_penSequencer "Sequencer" COLOR(C_GREEN|0xFF),       // enemy sequencer pointer
 
 248 BOOL m_bCoward   "Coward" = FALSE,
 249 BOOL m_bDormant  "Dormant" = FALSE,
@@ -263,6 +266,7 @@ components:
   7 class   CLASS_AMMO            "Classes\\AmmoItem.ecl",
   8 class   CLASS_KEY             "Classes\\KeyItem.ecl",
   9 class   CLASS_BLOOD_UNI       "Classes\\BloodUni.ecl",
+ 40 class   CLASS_PUZZLE_ITEM     "Classes\\PuzzleItem.ecl",
 
 // ************** FLESH PARTS **************
  10 model   MODEL_FLESH          "Models\\Effects\\Debris\\FleshDebris.mdl",
@@ -304,6 +308,14 @@ functions:
     plSpawn.pl_OrientationAngle(1) = FRnd() * 360.0f;
 
     return CreateEntity(plSpawn, CLASS_KEY);
+  };
+
+  virtual CEntityPointer SpawnPuzzleItem(void) {
+    CPlacement3D plSpawn = GetPlacement();
+    plSpawn.pl_PositionVector += FLOAT3D(0.0f, 1.0f, 0.0f) * GetRotationMatrix();
+    plSpawn.pl_OrientationAngle(1) = FRnd() * 360.0f;
+
+    return CreateEntity(plSpawn, CLASS_PUZZLE_ITEM);
   };
 
   // --------------------------------------------------------------------------------------
@@ -481,11 +493,6 @@ functions:
   // --------------------------------------------------------------------------------------
   void MaybeSwitchToAnotherEnemy(void)
   {
-    // If in single player then no need to check.
-    if (GetSP()->sp_bSinglePlayer) {
-      return;
-    }
-
     // If current player is inside threat distance then do not switch.
     if (CalcDist(m_penEnemy) < GetThreatDistance()) {
       return;
@@ -695,6 +702,7 @@ functions:
     CCastRay crRay(this, vSource, vTarget);
     crRay.cr_ttHitModels = CCastRay::TT_NONE;     // check for brushes only
     crRay.cr_bHitTranslucentPortals = FALSE;
+    crRay.cr_bHitBlockSightPortals = TRUE;
     en_pwoWorld->CastRay(crRay);
 
     // if hit nothing (no brush) the entity can be seen
@@ -715,6 +723,7 @@ functions:
     CCastRay crRay(this, vSource, vTarget);
     crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;   // check for model collision box
     crRay.cr_bHitTranslucentPortals = FALSE;
+    crRay.cr_bHitBlockSightPortals = TRUE;
     en_pwoWorld->CastRay(crRay);
 
     // if the ray hits wanted entity
@@ -914,6 +923,9 @@ functions:
       case DMT_DROWNING:
       case DMT_CLOSERANGE:
       case DMT_CHAINSAW:
+      case DMT_AXE:
+      case DMT_BLUNT:
+      case DMT_SHARP:
         fKickDamage /= 10;
         break;
 
@@ -993,6 +1005,10 @@ functions:
 
     // apply game extra damage per enemy and per player
     fNewDamage *= GetGameDamageMultiplier();
+
+    if(m_bWrithe) {
+      fNewDamage /= 2.0f;
+    }
 
     // if no damage then do nothing
     if (fNewDamage == 0) {
@@ -1723,11 +1739,13 @@ functions:
 
         m_fJumpSpeed = 0.0f;
 
+        m_ulMovementFlags &= ~MF_MOVEZ;
         m_ulMovementFlags |= MF_MOVEY;
-        
+
         if (m_ulMovementFlags & MF_MOVEY) {
-          SpawnReminder(this, GetCurrentAnimLength(), 1);
+          SpawnReminder(this, GetCurrentAnimLength(), ENEMY_JUMPANIM_VAL);
         }
+
     } else if (m_fMoveSpeed > 0.0f) {
       // determine translation speed
       FLOAT3D vTranslation(0.0f, 0.0f, 0.0f);
@@ -1867,10 +1885,12 @@ functions:
     {
         if (pnm->m_betJump==BET_TRUE)
         {
+            m_bJump = TRUE;
             m_fJumpSpeed = m_fJumpHeight;
         }
         else
         {
+            m_bJump = FALSE;
             m_fJumpSpeed = 0.0f;
         }
     }
@@ -1940,10 +1960,12 @@ functions:
     {
         if (pnm->m_betJump==BET_TRUE)
         {
+            m_bJump = TRUE;
             m_fJumpSpeed = m_fJumpHeight;
         }
         else
         {
+            m_bJump = FALSE;
             m_fJumpSpeed = 0.0f;
         }
     }
@@ -2691,8 +2713,6 @@ functions:
   virtual void BacksteppingAnim(void) { WalkingAnim(); };
   virtual void DodgeLeftAnim(void) {};
   virtual void DodgeRightAnim(void) {};
-  virtual void FloatingAnim(void) {};
-  virtual void SwimmingAnim(void) {};
   virtual INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) { return 0; };
   virtual void BlowUpNotify(void) {};
   virtual INDEX AnimForDeath(void) { return 0; };
@@ -2704,6 +2724,7 @@ functions:
   virtual void DeathSound(void) {};
   virtual void ActiveSound(void) {}; // Like IdleSound but for comments when hunting down a target
   virtual void PainSound(void) {};   // Like WoundSound but for everytime an enemy gets hurt
+  virtual INDEX CustomSound(int iSound) { return iSound; }; // Custom Sound for changeable comments
   virtual FLOAT GetLockRotationSpeed(void) { return 2000.0f;};
 
 
@@ -2729,7 +2750,7 @@ functions:
   {
     if (ee.ee_slEvent == EVENTCODE_EReminder) {
       EReminder eReminder = ((EReminder &) ee);
-      if (eReminder.iValue == 1) {
+      if (eReminder.iValue == ENEMY_JUMPANIM_VAL) {
         m_ulMovementFlags &= ~MF_MOVEY;
         MovementAnimation(m_ulMovementFlags);
         return TRUE;
@@ -3065,10 +3086,12 @@ procedures:
         // if enemy needs to jump
         if (pem->m_betJump==BET_TRUE)
         {
+            m_bJump = TRUE;
             m_fJumpSpeed = m_fJumpHeight;
         }
         else
         {
+            m_bJump = FALSE;
             m_fJumpSpeed = 0.0f;
         }
       }
@@ -3127,7 +3150,7 @@ procedures:
       // if should patrol there
       if (pem->m_fPatrolTime>0.0f) {
         // spawn a reminder to notify us when the time is up
-        SpawnReminder(this, pem->m_fPatrolTime, 0);
+        SpawnReminder(this, pem->m_fPatrolTime, ENEMY_PATROL_VAL);
         // wait
         wait() {
           // initially
@@ -3362,6 +3385,10 @@ procedures:
 
     m_dtDestination = DT_PLAYERCURRENT;
 
+    if(m_bWrithe) {
+      return EReturn();
+    }
+
     // repeat
     while(TRUE)
     {
@@ -3435,7 +3462,7 @@ procedures:
             }
 
             // try firing/hitting again now
-            if (!m_bCoward) { call FireOrHit(); }
+            if (!m_bCoward || !m_bWrithe) { call FireOrHit(); }
 
           // if between two fire/hit moments
           } else {
@@ -4095,6 +4122,7 @@ procedures:
   // --------------------------------------------------------------------------------------
   Death(EVoid) 
   {
+    m_bWrithe = FALSE;
     m_bIsBlocking = FALSE;
     m_bBlockFirearms = FALSE;
     StopMoving();     // stop moving
@@ -4176,7 +4204,7 @@ procedures:
       penFlame->SendEvent(esf);
     }
 
-    autowait(2.0f);
+    autowait(8.0f);
 
     // start fading out and turning into stardust effect
     m_fSpiritStartTime = _pTimer->CurrentTick();
@@ -4316,8 +4344,8 @@ procedures:
       // if you hear something
       on (ESound eSound) :
       {
-        // if deaf then ignore the sound
-        if (m_bDeaf) {
+        // if deaf or writhing then ignore the sound
+        if (m_bDeaf || m_bWrithe) {
           resume;
         }
 
@@ -4342,8 +4370,8 @@ procedures:
       }
       // on touch
       on (ETouch eTouch) : {
-        // if dormant then ignore the touch
-        if (m_bDormant) {
+        // if dormant or writhing then ignore the touch
+        if (m_bDormant || m_bWrithe) {
           resume;
         }
         // set the new target if needed
@@ -4396,9 +4424,6 @@ procedures:
 
       // utilize Half-Life 1 scripted events for enemies/NPCs
       on (EChangeSequence eChangeSequence) : {
-        // get the sequencer
-        CScriptedSequencer *pss = (CScriptedSequencer *)&*m_penSequencer;
-
         INDEX iAnim = eChangeSequence.iModelAnim;
         INDEX iBox = eChangeSequence.iModelCollisionBox;
         m_penMarker = eChangeSequence.penEnemyMarker;
@@ -4424,11 +4449,46 @@ procedures:
             case EST_PAIN:
             PainSound();
             break;
+
+            case EST_CUSTOM1:
+            CustomSound(0);
+            break;
+            case EST_CUSTOM2:
+            CustomSound(1);
+            break;
+            case EST_CUSTOM3:
+            CustomSound(2);
+            break;
+            case EST_CUSTOM4:
+            CustomSound(3);
+            break;
+            case EST_CUSTOM5:
+            CustomSound(4);
+            break;
+            case EST_CUSTOM6:
+            CustomSound(5);
+            break;
+            case EST_CUSTOM7:
+            CustomSound(6);
+            break;
+            case EST_CUSTOM8:
+            CustomSound(7);
+            break;
+            case EST_CUSTOM9:
+            CustomSound(8);
+            break;
+            case EST_CUSTOM10:
+            CustomSound(9);
+            break;
             default:
             break;
         }
 
-        StartModelAnim(iAnim, 0);
+        if(eChangeSequence.bLoopAnimation == TRUE) {
+          StartModelAnim(iAnim, AOF_LOOPING|AOF_NORESTART);
+        } else {
+          StartModelAnim(iAnim, 0);
+        }
         ForceCollisionBoxIndexChange(iBox);
         resume;
       }
@@ -4512,14 +4572,71 @@ procedures:
 
       // utilize Half-Life 1 scripted events for enemies/NPCs
       on (EChangeSequence eChangeSequence) : {
-        // get the sequencer
-        CScriptedSequencer *pss = (CScriptedSequencer *)&*m_penSequencer;
-
         INDEX iAnim = eChangeSequence.iModelAnim;
         INDEX iBox = eChangeSequence.iModelCollisionBox;
         m_penMarker = eChangeSequence.penEnemyMarker;
 
-        StartModelAnim(iAnim, 0);
+        switch(eChangeSequence.estSoundType) {
+            case EST_NONE:
+            break;
+            case EST_SIGHT:
+            SightSound();
+            break;
+            case EST_WOUND:
+            WoundSound();
+            break;
+            case EST_DEATH:
+            DeathSound();
+            break;
+            case EST_IDLE:
+            IdleSound();
+            break;
+            case EST_ACTIVE:
+            ActiveSound();
+            break;
+            case EST_PAIN:
+            PainSound();
+            break;
+
+            case EST_CUSTOM1:
+            CustomSound(0);
+            break;
+            case EST_CUSTOM2:
+            CustomSound(1);
+            break;
+            case EST_CUSTOM3:
+            CustomSound(2);
+            break;
+            case EST_CUSTOM4:
+            CustomSound(3);
+            break;
+            case EST_CUSTOM5:
+            CustomSound(4);
+            break;
+            case EST_CUSTOM6:
+            CustomSound(5);
+            break;
+            case EST_CUSTOM7:
+            CustomSound(6);
+            break;
+            case EST_CUSTOM8:
+            CustomSound(7);
+            break;
+            case EST_CUSTOM9:
+            CustomSound(8);
+            break;
+            case EST_CUSTOM10:
+            CustomSound(9);
+            break;
+            default:
+            break;
+        }
+
+        if(eChangeSequence.bLoopAnimation == TRUE) {
+          StartModelAnim(iAnim, AOF_LOOPING|AOF_NORESTART);
+        } else {
+          StartModelAnim(iAnim, 0);
+        }
         ForceCollisionBoxIndexChange(iBox);
         resume;
       }

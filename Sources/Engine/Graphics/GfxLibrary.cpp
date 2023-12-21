@@ -205,7 +205,6 @@ extern INDEX mdl_iLODDisappear     = 1; // 0=never, 1=ignore bias, 2=with bias
 // ska controls
 extern INDEX ska_bShowSkeleton     = FALSE;
 extern INDEX ska_bShowColision     = FALSE;
-extern INDEX ska_bReplaceSmcWithBmc = FALSE;
 extern FLOAT ska_fLODMul           = 1.0f;
 extern FLOAT ska_fLODAdd           = 0.0f;
 // terrain controls
@@ -1127,7 +1126,6 @@ void CGfxLibrary::Init(void)
   
   _pShell->DeclareSymbol("           user INDEX ska_bShowSkeleton;",   &ska_bShowSkeleton);
   _pShell->DeclareSymbol("           user INDEX ska_bShowColision;",   &ska_bShowColision);
-  _pShell->DeclareSymbol("           user INDEX ska_bReplaceSmcWithBmc;", &ska_bReplaceSmcWithBmc);
   _pShell->DeclareSymbol("persistent user FLOAT ska_fLODMul;",         &ska_fLODMul);
   _pShell->DeclareSymbol("persistent user FLOAT ska_fLODAdd;",         &ska_fLODAdd);
   

@@ -112,6 +112,8 @@ enum BasicEffectType {
  75 BET_BULLETSTAINICENOSOUND  "Bullet stain ice no sound",
  76 BET_BULLETSTAINLAVA    "Bullet stain lava", 
  77 BET_BULLETSTAINLAVANOSOUND  "Bullet stain lava no sound",
+ 78 BET_BULLETSTAINCEMENT    "Bullet stain cement", 
+ 79 BET_BULLETSTAINCEMENTNOSOUND  "Bullet stain cement no sound",
 };
 
 
@@ -194,6 +196,8 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
   case BET_BULLETSTAINICENOSOUND:
   case BET_BULLETSTAINLAVA:
   case BET_BULLETSTAINLAVANOSOUND:
+  case BET_BULLETSTAINCEMENT:
+  case BET_BULLETSTAINCEMENTNOSOUND:
     pdec->PrecacheModel(MODEL_BULLET_HIT);
     pdec->PrecacheTexture(TEXTURE_BULLET_HIT);
     pdec->PrecacheTexture(TEXTURE_BULLET_SAND);
@@ -277,6 +281,8 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheTexture(TEXTURE_BLOOD_STAIN1);
     pdec->PrecacheTexture(TEXTURE_BLOOD_STAIN2);
     pdec->PrecacheTexture(TEXTURE_BLOOD_STAIN3);
+    pdec->PrecacheTexture(TEXTURE_BLOOD_STAIN4);
+    pdec->PrecacheTexture(TEXTURE_BLOOD_STAIN5);
     pdec->PrecacheTexture(TEXTURE_BLOOD_SPILL1);
     pdec->PrecacheTexture(TEXTURE_BLOOD_SPILL2);
     break;
@@ -415,6 +421,8 @@ components:
  24 texture TEXTURE_BLOOD_STAIN1  "Models\\Effects\\BloodOnTheWall01\\BloodStain01.tex",
  25 texture TEXTURE_BLOOD_STAIN2  "Models\\Effects\\BloodOnTheWall01\\BloodStain02.tex",
  26 texture TEXTURE_BLOOD_STAIN3  "Models\\Effects\\BloodOnTheWall01\\BloodStain03.tex",
+172 texture TEXTURE_BLOOD_STAIN4  "Models\\Effects\\BloodOnTheWall01\\BloodStain04.tex",
+173 texture TEXTURE_BLOOD_STAIN5  "Models\\Effects\\BloodOnTheWall01\\BloodStain05.tex",
  28 texture TEXTURE_BLOOD_SPILL1  "Models\\Effects\\BloodOnTheWall01\\BloodSpill02.tex",
  29 texture TEXTURE_BLOOD_SPILL2  "Models\\Effects\\BloodOnTheWall01\\BloodSpill05.tex",
  
@@ -1465,7 +1473,7 @@ functions:
     CModelObject &moHole = *GetModelObject();
     moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
     ModelChangeNotify();
-    moHole.mo_colBlendColor = 0xCCCCCCFF;
+    moHole.mo_colBlendColor = 0xFFFFFFFF;
 
     SetNormalWithRandomBanking();
     m_fWaitTime = 2.0f;
@@ -1675,7 +1683,7 @@ functions:
     CModelObject &moHole = *GetModelObject();
     moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
     ModelChangeNotify();
-    moHole.mo_colBlendColor = 0xCCCCCCFF;
+    moHole.mo_colBlendColor = 0xFFFFFFFF;
 
     SetNormalWithRandomBanking();
     m_fWaitTime = 2.0f;
@@ -1878,6 +1886,48 @@ functions:
     m_vStretch = vTemp;
   }
 
+  void BulletStainCement(BOOL bSound)
+  {
+    if( bSound)
+    {
+      m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
+      switch(IRnd()%4) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_CONCRETE_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_CONCRETE_BULLET4);
+        } break;
+        default: break;
+      }
+    }
+    
+    SetModel(MODEL_BULLET_STAIN);
+    SetModelMainTexture(TEXTURE_BULLET_HIT);
+    CModelObject &moHole = *GetModelObject();
+    moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
+    ModelChangeNotify();
+
+    SetNormalWithRandomBanking();
+    m_fWaitTime = 2.0f;
+    m_fFadeTime = 2.0f;
+    m_bLightSource = FALSE;
+    m_eptType = EPT_BULLET_CEMENT;
+    FLOAT3D vTemp = m_vStretch;
+    ParentToNearestPolygonAndStretch();
+    m_vStretch = vTemp;
+  }
+
 /************************************************************
  *                  BLOOD SPILL / STAIN                     *
  ************************************************************/
@@ -1918,10 +1968,12 @@ functions:
     Stretch();
     SetModel(MODEL_BLOOD_STAIN);
     
-    switch( IRnd()&2) {
+    switch( IRnd()&4) {
     case 1:  { SetModelMainTexture(TEXTURE_BLOOD_STAIN1);   break; }
     case 2:  { SetModelMainTexture(TEXTURE_BLOOD_STAIN2);   break; }
-    default: { SetModelMainTexture(TEXTURE_BLOOD_STAIN3);   break; }
+    case 3:  { SetModelMainTexture(TEXTURE_BLOOD_STAIN3);   break; }
+    case 4:  { SetModelMainTexture(TEXTURE_BLOOD_STAIN4);   break; }
+    default: { SetModelMainTexture(TEXTURE_BLOOD_STAIN5);   break; }
     }
     if( iBloodType==2) { SetModelColor( RGBAToColor( 250,20,20,255)); }
     else               { SetModelColor( RGBAToColor( 0,250,0,255)); }
@@ -2106,6 +2158,8 @@ procedures:
       case BET_BULLETSTAINICENOSOUND: BulletStainIce(FALSE); break;
       case BET_BULLETSTAINLAVA: BulletStainLava(TRUE); break;
       case BET_BULLETSTAINLAVANOSOUND: BulletStainLava(FALSE); break;
+      case BET_BULLETSTAINCEMENT: BulletStainCement(TRUE); break;
+      case BET_BULLETSTAINCEMENTNOSOUND: BulletStainCement(FALSE); break;
       default:
         ASSERTALWAYS("Unknown effect type");
     }

@@ -31,7 +31,7 @@ name      "Enemy Marker";
 thumbnail "Thumbnails\\EnemyMarker.tbn";
 
 properties:
-  1 FLOAT m_fWaitTime = 0.0f,     // time to wait(or do anything) until go to another marker
+  1 FLOAT m_fWaitTime "Wait Time" 'W' = 0.0f,     // time to wait(or do anything) until go to another marker
   3 RANGE m_fMarkerRange        "Marker Range" 'M' = 0.0f,  // range around marker (marker doesn't have to be hit directly)
 
  11 RANGE m_fPatrolAreaInner    "Patrol Area Inner" 'R' = 0.0f,     // patrol area inner circle

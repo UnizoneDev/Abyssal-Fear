@@ -658,6 +658,8 @@ void CGfxLibrary::InitContext_OGL(void)
 
   // test for clip volume hint
   TestExtension_OGL( GLF_EXT_CLIPHINT, "GL_EXT_clip_volume_hint");
+  // test for rectangle textures
+  TestExtension_OGL(GLF_EXT_TEXTURERECTANGLE, "GL_NV_texture_rectangle");							
   /*
   // test for occlusion culling
   TestExtension_OGL( GLF_EXT_OCCLUSIONTEST, "GL_HP_occlusion_test");

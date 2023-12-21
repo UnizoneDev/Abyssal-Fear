@@ -75,6 +75,7 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
     m_bDontReceiveShadows.EnableWindow( bSelectionExists);
     m_bNoDynamicLights.EnableWindow( bSelectionExists);
     m_NoShadow.EnableWindow( bSelectionExists);
+    m_bSmoothShading.EnableWindow(bSelectionExists);
 	  m_ctrlComboClusterSize.EnableWindow( bSelectionExists);
 	  m_comboShadowBlend.EnableWindow( bSelectionExists);
 	  m_ComboIllumination.EnableWindow( bSelectionExists);
@@ -101,6 +102,8 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
 
       ULONG ulFlagsOn = MAX_ULONG;
       ULONG ulFlagsOff = MAX_ULONG;
+      ULONG ulFlags2On = MAX_ULONG;
+      ULONG ulFlags2Off = MAX_ULONG;
 
       INDEX iPolygon = 0;
       // for each of the selected polygons
@@ -108,6 +111,8 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
       {
         ulFlagsOn &= itbpo->bpo_ulFlags;
         ulFlagsOff &= ~itbpo->bpo_ulFlags;
+        ulFlags2On &= itbpo->bpo_ulFlags2;
+        ulFlags2Off &= ~itbpo->bpo_ulFlags2;
 
         if( iPolygon == 0)
         {
@@ -137,6 +142,11 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
   else if(!(ulFlagsOn & flag) && (ulFlagsOff & flag)) ctrl.SetCheck( 0);\
   else ctrl.SetCheck( 2);
 
+#define SET_TRI_STATE_TO_CTRL2( ctrl, flag)\
+  if((ulFlags2On & flag) && !(ulFlags2Off & flag)) ctrl.SetCheck( 1);\
+  else if(!(ulFlags2On & flag) && (ulFlags2Off & flag)) ctrl.SetCheck( 0);\
+  else ctrl.SetCheck( 2);
+
       SET_TRI_STATE_TO_CTRL( m_bHasDirectionalShadows, BPOF_HASDIRECTIONALLIGHT);
       SET_TRI_STATE_TO_CTRL( m_bHasPreciseShadows, BPOF_ACCURATESHADOWS);      
       SET_TRI_STATE_TO_CTRL( m_bHasDirectionalAmbient, BPOF_HASDIRECTIONALAMBIENT);      
@@ -147,6 +157,7 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
       SET_TRI_STATE_TO_CTRL( m_bDontReceiveShadows, BPOF_DOESNOTRECEIVESHADOW);
       SET_TRI_STATE_TO_CTRL( m_bNoDynamicLights, BPOF_NODYNAMICLIGHTS);
       SET_TRI_STATE_TO_CTRL( m_NoShadow, BPOF_FULLBRIGHT);
+      SET_TRI_STATE_TO_CTRL2(m_bSmoothShading, BPOF2_SMOOTHLYSHADED);
 
       if( bSameIllumination)
       {
@@ -184,6 +195,7 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_HAS_DIRECTIONAL_SHADOWS, m_bHasDirectionalShadows);
 	DDX_Control(pDX, IDC_NO_SHADOW, m_NoShadow);
 	DDX_Control(pDX, IDC_IS_LIGHT_BEAM_PASSABLLE, m_IsLightBeamPassable);
+    DDX_Control(pDX, IDC_SMOOTHLY_SHADED, m_bSmoothShading);
 	DDX_Control(pDX, ID_SHADOW_COLOR, m_ctrlShadowColor);
 	DDX_Control(pDX, IDC_SHADOW_BLEND_COMBO, m_comboShadowBlend);
 	DDX_Control(pDX, IDC_CLUSTER_SIZE_COMBO, m_ctrlComboClusterSize);
@@ -255,6 +267,22 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
     bFindShadowLayers |= bfindshadowlayers;\
     bOnlySelected &= bonlyselected ;\
   }
+
+#define TRI_STATE_CTRL_TO_FLAGS2( ctrl, flag, buncache, bdiscardshadows, bfindshadowlayers, bonlyselected)\
+  if( (ctrl.GetCheck() == 1) && !(itbpo->bpo_ulFlags2 & flag) ) {\
+    itbpo->bpo_ulFlags2 |= flag;\
+    if( buncache) itbpo->bpo_smShadowMap.Uncache();\
+    if( bdiscardshadows) itbpo->DiscardShadows();\
+    bFindShadowLayers |= bfindshadowlayers;\
+    bOnlySelected &= bonlyselected ;\
+  } else if( (ctrl.GetCheck() == 0) && (itbpo->bpo_ulFlags2 & flag) ) {\
+    itbpo->bpo_ulFlags2 &= ~flag;\
+    if( buncache) itbpo->bpo_smShadowMap.Uncache();\
+    if( bdiscardshadows) itbpo->DiscardShadows();\
+    bFindShadowLayers |= bfindshadowlayers;\
+    bOnlySelected &= bonlyselected ;\
+  }
+
       TRI_STATE_CTRL_TO_FLAGS( m_bNoPlaneDiffusion, BPOF_NOPLANEDIFFUSION, TRUE, FALSE, FALSE, FALSE);
       TRI_STATE_CTRL_TO_FLAGS( m_bDarkCorners, BPOF_DARKCORNERS, TRUE, TRUE, TRUE, TRUE);
       TRI_STATE_CTRL_TO_FLAGS( m_bDynamicLightsOnly, BPOF_DYNAMICLIGHTSONLY, TRUE, FALSE, FALSE, FALSE);
@@ -265,6 +293,7 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
       TRI_STATE_CTRL_TO_FLAGS( m_bDontReceiveShadows, BPOF_DOESNOTRECEIVESHADOW, TRUE, TRUE, TRUE, TRUE);
       TRI_STATE_CTRL_TO_FLAGS( m_bNoDynamicLights, BPOF_NODYNAMICLIGHTS, FALSE, FALSE, FALSE, TRUE);
       TRI_STATE_CTRL_TO_FLAGS( m_NoShadow, BPOF_FULLBRIGHT, TRUE, TRUE, TRUE, TRUE);
+      TRI_STATE_CTRL_TO_FLAGS2( m_bSmoothShading, BPOF2_SMOOTHLYSHADED, TRUE, TRUE, TRUE, TRUE);
 
       if( m_ctrlShadowColor.IsColorValid()) {
         itbpo->bpo_colShadow = m_ctrlShadowColor.GetColor();
@@ -430,6 +459,7 @@ BOOL CDlgPgShadow::OnInitDialog()
 	m_IsLightBeamPassable.SetDialogPtr( this);
   m_bDontReceiveShadows.SetDialogPtr( this);
   m_bNoDynamicLights.SetDialogPtr( this);
+  m_bSmoothShading.SetDialogPtr(this);
   return TRUE;
 }
 

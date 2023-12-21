@@ -53,6 +53,7 @@ properties:
 
   10 BOOL m_bLocked = FALSE,  // for lock/unlock door
   11 CEntityPointer m_penCaused,    // for trigger relaying
+  16 BOOL m_bEnemiesOnly         "Enemies Only" 'E' = FALSE,
 
 
 components:
@@ -91,6 +92,10 @@ functions:
     }
 
     if (m_bPlayersOnly && !IsDerivedFromClass(pen, "Player")) {
+      return FALSE;
+    }
+
+    if (m_bEnemiesOnly && !IsDerivedFromClass(pen, "Enemy Base")) {
       return FALSE;
     }
 

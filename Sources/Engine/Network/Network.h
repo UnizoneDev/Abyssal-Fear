@@ -26,9 +26,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Network/MessageDispatcher.h>
 #include <Engine/Templates/StaticArray.h>
 
-#define NET_MAXGAMECOMPUTERS SERVER_CLIENTS    // max overall computers in game
-#define NET_MAXGAMEPLAYERS   16                // max overall players in game
-#define NET_MAXLOCALPLAYERS   4                // max players on a single machine
+#define SERVER_CLIENTS 32 // [Cecil] 16 -> 32
+#define NET_MAXGAMECOMPUTERS SERVER_CLIENTS      // max overall computers in game
+#define NET_MAXGAMEPLAYERS NET_MAXGAMECOMPUTERS  // max overall players in game
+#define NET_MAXLOCALPLAYERS   4                  // max players on a single machine
 
 #define NET_WAITMESSAGE_DELAY     50       // wait time between receive message attempts
 

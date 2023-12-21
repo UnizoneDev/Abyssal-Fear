@@ -68,11 +68,15 @@ functions:
     }
   }
 
-  // diving enemies never use pathfinding
+  // diving enemies only use pathfinding when not in liquid
   void StartPathFinding(void)
   {
-    m_dtDestination=DT_PLAYERSPOTTED;
-    m_vPlayerSpotted = PlayerDestinationPos();
+    if (!m_bInLiquid) {
+      CEnemyBase::StartPathFinding();
+    } else {
+      m_dtDestination=DT_PLAYERSPOTTED;
+      m_vPlayerSpotted = PlayerDestinationPos();
+    }
   }
 
   virtual void AdjustDifficulty(void)

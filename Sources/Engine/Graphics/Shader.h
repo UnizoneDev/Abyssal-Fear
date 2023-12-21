@@ -205,6 +205,16 @@ ENGINE_API void shaDepthFunc(GfxComp eComp);
 // Set texture wrapping 
 ENGINE_API void shaSetTextureWrapping( enum GfxWrap eWrapU, enum GfxWrap eWrapV);
 
+// Set if shaders are used
+ENGINE_API BOOL shaUseHWShaders(void);
+ENGINE_API BOOL shaUseVertexShaders(void);
+ENGINE_API BOOL shaUseFragmentShaders(void);
+
+// Enable/Disable vertex and fragment shaders
+ENGINE_API void shaEnableVertexShaders(void);
+ENGINE_API void shaEnableFragmentShaders(void);
+ENGINE_API void shaDisableVertexShaders(void);
+ENGINE_API void shaDisableFragmentShaders(void);								
 // Set uvmap for fog
 ENGINE_API void shaSetFogUVMap(GFXTexCoord *paFogUVMap);
 // Set uvmap for haze

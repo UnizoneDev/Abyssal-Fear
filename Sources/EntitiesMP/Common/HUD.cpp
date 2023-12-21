@@ -128,7 +128,7 @@ static CTextureObject _toWStrongPistol;
 
 // powerup textures (ORDER IS THE SAME AS IN PLAYER.ES!)
 #define MAX_POWERUPS 4
-static CTextureObject _atoPowerups[MAX_POWERUPS];
+static CTextureObject _toIPainkillers;
 // tile texture (one has corners, edges and center)
 static CTextureObject _toTile;
 
@@ -800,6 +800,31 @@ extern void DrawHUD( const CPlayer *penPlayerCurrent, CDrawPort *pdpCurrent, BOO
   const FLOAT fBarPos = fHalfUnitS*0.7f;
   FillWeaponAmmoTables();
 
+  FLOAT fPainkillerCount = penPlayerCurrent->m_iPainkillerCount;
+  BOOL  bPainkillerUsing = FALSE;
+  if (penPlayerCurrent->m_tmPainkillerUsed + 0.125f > _pTimer->GetLerpedCurrentTick()) {
+      fPainkillerCount++;
+      if (fPainkillerCount > 8) { fPainkillerCount = 8; }
+      bPainkillerUsing = TRUE;
+  }
+  if (fPainkillerCount > 0) {
+      fNormValue = (FLOAT)fPainkillerCount / 8.0f;
+      COLOR colBombBorder = _colHUD;
+      COLOR colBombIcon = C_WHITE;
+      COLOR colBombBar = _colHUDText; if (fPainkillerCount == 1) { colBombBar = C_RED; }
+      if (bPainkillerUsing) {
+          FLOAT fFactor = (_pTimer->GetLerpedCurrentTick() - penPlayerCurrent->m_tmPainkillerUsed) / 0.5f;
+          colBombBorder = LerpColor(colBombBorder, C_RED, fFactor);
+          colBombIcon = LerpColor(colBombIcon, C_RED, fFactor);
+          colBombBar = LerpColor(colBombBar, C_RED, fFactor);
+      }
+      HUD_DrawBorder(fCol, fRow, fOneUnitS, fOneUnitS, colBombBorder);
+      HUD_DrawIcon(fCol, fRow, _toIPainkillers, colBombIcon, fNormValue, FALSE);
+      HUD_DrawBar(fCol + fBarPos, fRow, fOneUnitS / 5, fOneUnitS - 2, BO_DOWN, colBombBar, fNormValue);
+      // make space for serious bomb
+      fCol -= fAdvUnitS;
+  }
+
   // loop thru all ammo types
   if (!GetSP()->sp_bInfiniteAmmo) {
     for( INDEX ii=3; ii>=0; ii--) {
@@ -835,34 +860,6 @@ extern void DrawHUD( const CPlayer *penPlayerCurrent, CDrawPort *pdpCurrent, BOO
       // advance to next position
       fCol -= fAdvUnitS;
     }
-  }
-
-  // draw powerup(s) if needed
-  PrepareColorTransitions( colMax, colTop, colMid, C_RED, 0.66f, 0.33f, FALSE);
-  TIME *ptmPowerups = (TIME*)&_penPlayer->m_tmInvisibility;
-  TIME *ptmPowerupsMax = (TIME*)&_penPlayer->m_tmInvisibilityMax;
-  fRow = pixBottomBound-fOneUnitS-fAdvUnitS;
-  fCol = pixRightBound -fHalfUnitS;
-  for( i=0; i<MAX_POWERUPS; i++)
-  {
-    // skip if not active
-    const TIME tmDelta = ptmPowerups[i] - _tmNow;
-    if( tmDelta<=0) continue;
-    fNormValue = tmDelta / ptmPowerupsMax[i];
-    // draw icon and a little bar
-    HUD_DrawIcon(   fCol,         fRow, _atoPowerups[i], C_WHITE /*_colHUD*/, fNormValue, TRUE);
-    HUD_DrawBar(    fCol+fBarPos, fRow, fOneUnitS/5, fOneUnitS-2, BO_DOWN, NONE, fNormValue);
-    // play sound if icon is flashing
-    if(fNormValue<=(_cttHUD.ctt_fLowMedium/2)) {
-      // activate blinking only if value is <= half the low edge
-      INDEX iLastTime = (INDEX)(_tmLast*4);
-      INDEX iCurrentTime = (INDEX)(_tmNow*4);
-      if(iCurrentTime&1 & !(iLastTime&1)) {
-        ((CPlayer *)penPlayerCurrent)->PlayPowerUpSound();
-      }
-    }
-    // advance to next position
-    fCol -= fAdvUnitS;
   }
 
   _fCustomScaling = hud_fScaling * _fWideAdjustment;
@@ -1199,12 +1196,7 @@ extern void InitHUD(void)
     _toWSMG.SetData_t(             CTFILENAME("Textures\\Interface\\WSMG.tex"));
     _toWPipe.SetData_t(            CTFILENAME("Textures\\Interface\\WPipe.tex"));
     _toWStrongPistol.SetData_t(    CTFILENAME("Textures\\Interface\\WStrongPistol.tex"));
-        
-    // initialize powerup textures (DO NOT CHANGE ORDER!)
-    _atoPowerups[0].SetData_t( CTFILENAME("TexturesMP\\Interface\\PInvisibility.tex"));
-    _atoPowerups[1].SetData_t( CTFILENAME("TexturesMP\\Interface\\PInvulnerability.tex"));
-    _atoPowerups[2].SetData_t( CTFILENAME("TexturesMP\\Interface\\PSeriousDamage.tex"));
-    _atoPowerups[3].SetData_t( CTFILENAME("TexturesMP\\Interface\\PSeriousSpeed.tex"));
+    _toIPainkillers.SetData_t(     CTFILENAME("Textures\\Interface\\IPainkillers.tex"));
 
     // initialize tile texture
     _toTile.SetData_t( CTFILENAME("Textures\\Interface\\Tile.tex"));
@@ -1240,10 +1232,7 @@ extern void InitHUD(void)
     ((CTextureData*)_toWPipe.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toWStrongPistol.GetData())->Force(TEX_CONSTANT);
     
-    ((CTextureData*)_atoPowerups[0].GetData())->Force(TEX_CONSTANT);
-    ((CTextureData*)_atoPowerups[1].GetData())->Force(TEX_CONSTANT);
-    ((CTextureData*)_atoPowerups[2].GetData())->Force(TEX_CONSTANT);
-    ((CTextureData*)_atoPowerups[3].GetData())->Force(TEX_CONSTANT);
+    ((CTextureData*)_toIPainkillers.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toTile      .GetData())->Force(TEX_CONSTANT);
 
   }

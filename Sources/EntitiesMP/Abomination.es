@@ -38,7 +38,7 @@ static EntityInfo eiAbomination = {
 
 // info structure
 static EntityInfo eiAbominationGlutton = {
-  EIBT_FLESH, 1250.0f,
+  EIBT_FLESH, 1500.0f,
   0.0f, 2.5f, 0.0f,     // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };
@@ -166,7 +166,7 @@ functions:
 
   void DeathNotify(void) {
     ChangeCollisionBoxIndexWhenPossible(ABOMINATION_COLLISION_BOX_DEATH_BOX);
-    en_fDensity = 500.0f;
+    en_fDensity = 700.0f;
   };
 
   // virtual anim functions
@@ -241,7 +241,7 @@ functions:
         case 1: jump SlamEnemy(); break;
         default: ASSERTALWAYS("Abomination unknown melee attack");
       }
-    } else if (CalcDist(m_penEnemy) < 16.0f && m_bCanCharge) {
+    } else if (CalcDist(m_penEnemy) < 16.0f && m_bCanCharge && IsInPlaneFrustum(m_penEnemy, CosFast(30.0f))) {
       jump JumpOnEnemy();
     }
     return EReturn();
@@ -262,9 +262,9 @@ functions:
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         if (m_abChar==ABC_GLUTTON) {
-          InflictDirectDamage(m_penEnemy, this, DMT_STING, 50.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
-        } else {
           InflictDirectDamage(m_penEnemy, this, DMT_STING, 30.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        } else {
+          InflictDirectDamage(m_penEnemy, this, DMT_STING, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {
@@ -291,9 +291,9 @@ functions:
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         if (m_abChar==ABC_GLUTTON) {
-          InflictDirectDamage(m_penEnemy, this, DMT_BLUNT, 40.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 25.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         } else {
-          InflictDirectDamage(m_penEnemy, this, DMT_BLUNT, 20.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {
@@ -322,7 +322,7 @@ functions:
     m_fChargeHitDamage = 35.0f;
     m_fChargeHitAngle = 0.0f;
     m_fChargeHitSpeed = 8.0f;
-    autocall CEnemyBase::ChargeHitEnemy() EReturn;
+    autocall ChargeHitEnemy() EReturn;
     autowait(0.35f);
     return EReturn();
   };
@@ -348,6 +348,71 @@ functions:
     autowait(0.5f + FRnd()/3);
     MaybeSwitchToAnotherPlayer();
     return EEnd();
+  };
+
+  // --------------------------------------------------------------------------------------
+  // Call this to jump onto player - set charge properties before calling and spawn a reminder.
+  // --------------------------------------------------------------------------------------
+  ChargeHitEnemy(EVoid) : CEnemyBase::ChargeHitEnemy
+  {
+    m_tmChargeHitStarted = _pTimer->CurrentTick(); // Remember startup time.
+
+    // wait for length of hit animation
+    // TODO: Make it better!
+    wait(ClampUp(GetAnimLength(m_iChargeHitAnimation), m_tmMaxChargeHitLength)) // [SSE] Charge Hit Restriction
+    {
+      on (EBegin) : { resume; }
+      on (ETimer) : { stop; }
+      // ignore damages
+      on (EDamage) : { resume; }
+      // if user-set reminder expired
+      on (EReminder) : {
+        // stop moving
+        StopMoving();
+        resume;
+      }
+      // if you touch some entity
+      on (ETouch etouch) :
+      {
+        // if it is alive and in front
+        if ((etouch.penOther->GetFlags()&ENF_ALIVE) && IsInPlaneFrustum(etouch.penOther, CosFast(60.0f))) {
+          PlaySound(m_soSound, SOUND_HIT, SOF_3D);
+          // get your direction
+          FLOAT3D vSpeed;
+          GetHeadingDirection(m_fChargeHitAngle, vSpeed);
+          // damage entity in that direction
+          InflictDirectDamage(etouch.penOther, this, DMT_CLOSERANGE, m_fChargeHitDamage, FLOAT3D(0, 0, 0), vSpeed, DBPT_GENERIC);
+          // push it away
+          vSpeed = vSpeed * m_fChargeHitSpeed;
+          KickEntity(etouch.penOther, vSpeed);
+          // stop waiting
+          stop;
+        }
+        pass;
+      }
+    }
+
+    // if the anim is not yet finished
+    if (!IsAnimFinished()) 
+    {
+      FLOAT tmDelta = _pTimer->CurrentTick() - m_tmChargeHitStarted;
+  
+      // wait the rest of time till the anim end
+      wait(tmDelta <= m_tmMaxChargeHitLength ? ClampUp(GetCurrentAnimLength(), m_tmMaxChargeHitLength) - tmDelta : _pTimer->TickQuantum) // [SSE] Charge Hit Restriction
+      {
+        on (EBegin) : { resume; }
+        on (ETimer) : { stop; }
+        // if timer expired
+        on (EReminder) : {
+          // stop moving
+          StopMoving();
+          resume;
+        }
+      }
+    }
+
+    // return to caller
+    return EReturn();
   };
 
 
@@ -378,7 +443,7 @@ functions:
       m_fBodyParts = 8;
       m_fBlowUpSize = 3.0f;
       m_fDamageWounded = 190.0f;
-      en_fDensity = 3000.0f;
+      en_fDensity = 2750.0f;
     }
 
         // set your appearance

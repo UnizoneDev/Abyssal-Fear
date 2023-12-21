@@ -74,13 +74,6 @@ virtual void DrinkingSound(void) {};
       return;
     }
 
-    // If current player is inside threat distance then do not switch.
-    if ( IsOfClass(m_penEnemy, "Player") || IsDerivedFromClass(m_penEnemy, "Enemy Base") ) {
-      if (CalcDist(m_penEnemy) < GetThreatDistance()) {
-        return;
-      }
-    }
-
     // maybe switch
     CEntity *penNewEnemy = GetWatcher()->CheckAnotherFood(m_penEnemy);
     if (penNewEnemy!=m_penEnemy && penNewEnemy != NULL) {
@@ -187,10 +180,10 @@ procedures:
       if(!CheckIfFull()) {
         StopMoving();
         EatingAnim();
-        autowait(0.2f);
+        autowait(0.25f);
         EatingSound();
         InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, GetPlacement().pl_PositionVector, -en_vGravityDir, DBPT_GENERIC);
-        autowait(0.4f);
+        autowait(0.5f);
         m_iFullFromHunger++;
       }
     }

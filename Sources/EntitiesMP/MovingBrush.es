@@ -55,6 +55,19 @@ enum BrushDebrisType {
  17 BDT_CRETE5       "Brown Concrete",
 };
 
+enum BrushMaterialType {
+  0 BMT_GENERIC      "Generic",
+  1 BMT_CONCRETE     "Concrete",
+  2 BMT_WOOD         "Wood",
+  3 BMT_METAL        "Metal",
+  4 BMT_GLASS        "Glass",
+  5 BMT_CHAINLINK    "Chainlink",
+  6 BMT_GRASS        "Grass",
+  7 BMT_FLESH        "Flesh",
+  8 BMT_ICE          "Ice",
+  9 BMT_SNOW         "Snow",
+};
+
 enum TouchOrDamageEvent {
   0 TDE_TOUCHONLY   "Touch Only", 
   1 TDE_DAMAGEONLY  "Damage Only", 
@@ -167,6 +180,8 @@ properties:
 
  100 enum BrushDebrisType m_bdtDebrisType "Debris Type" = BDT_STONE1,
  101 BOOL m_bBlowupByAnything "Blowup by anything" = FALSE,
+ 102 enum BrushMaterialType m_bmtBrushMaterialType "Brush material type" = BMT_GENERIC,
+ 103 CTFileName m_fnmConfig "Brush Config" = CTString(""),
 
 
 components:
@@ -204,6 +219,60 @@ components:
 
 
 functions:
+
+  // --------------------------------------------------------------------------------------
+  // The config checkers
+  // --------------------------------------------------------------------------------------
+
+  // Set string properties
+  virtual void SetStringProperty(const CTString &strProp, const CTString &strValue) {
+       if (strProp == "name")       { m_strName = strValue; }
+       else if (strProp == "description") { m_strDescription = strValue; }
+  };
+
+  // Set number properties
+  virtual void SetNumberProperty(const CTString &strProp, const FLOAT fValue) {
+       if (strProp == "fCubeFactor") { m_fCubeFactor = fValue; }
+       else if (strProp == "fBlockDamage") { m_fBlockDamage = fValue; }
+       else if (strProp == "fTouchDamage") { m_fTouchDamage = fValue; }
+       else if (strProp == "fHealth") { m_fHealth = fValue; }
+       else if (strProp == "fCandyEffect") { m_fCandyEffect = fValue; }
+       else if (strProp == "fSpeed") { m_fSpeed = fValue; }
+       else if (strProp == "tmBankingRotation") { m_tmBankingRotation = fValue; }
+       else if (strProp == "tmHeadingRotation") { m_tmHeadingRotation = fValue; }
+       else if (strProp == "tmPitchRotation")   { m_tmPitchRotation = fValue; }
+       else if (strProp == "fWaitTime") { m_fWaitTime = fValue; }
+  };
+
+  // Set index properties
+  virtual void SetIndexProperty(const CTString &strProp, const INDEX iValue) {
+       if (strProp == "colDebrises") { m_colDebrises = iValue; }
+       else if (strProp == "ctDebrises") { m_ctDebrises = iValue; }
+  };
+
+  void LoadBrushConfig(void) {
+    if (m_fnmConfig == "") {
+      return;
+    }
+
+    // Load variables into this stack
+    CConfigPairs aConfig;
+    LoadConfigFile(m_fnmConfig, aConfig);
+
+    // Iterate through it
+    for (INDEX i = 0; i < aConfig.Count(); i++) {
+        const ConfigPair &pair = aConfig[i];
+  
+        // Set string or number value
+        if (pair.val.bString) {
+            SetStringProperty(pair.key, pair.val.strValue);
+        } else if (pair.val.bFloat) {
+            SetNumberProperty(pair.key, pair.val.fValue);
+        } else {
+            SetIndexProperty(pair.key, pair.val.iValue);
+        }
+    }
+  };
 
  // get visibility tweaking bits
   ULONG GetVisTweaks(void)
@@ -268,6 +337,81 @@ functions:
       return;
     }
 
+    switch(m_bmtBrushMaterialType)
+    {
+      default:
+      break;
+      case BMT_CONCRETE:
+      {
+        if(dmtType == DMT_BLUNT || dmtType == DMT_PUNCH || dmtType == DMT_EXPLOSION)
+        {
+          fDamageAmmount *= 1.5f;
+        }
+      }
+      break;
+      case BMT_WOOD:
+      {
+        if(dmtType == DMT_BURNING || dmtType == DMT_SHARP || dmtType == DMT_SHARPSTRONG || dmtType == DMT_AXE)
+        {
+          fDamageAmmount *= 2.0f;
+        }
+        else if(dmtType == DMT_FREEZING)
+        {
+          fDamageAmmount = 0;
+        }
+      }
+      break;
+      case BMT_METAL:
+      case BMT_CHAINLINK:
+      {
+        if(dmtType == DMT_BURNING || dmtType == DMT_FREEZING)
+        {
+          fDamageAmmount = 0;
+        }
+      }
+      break;
+      case BMT_GLASS:
+      {
+        if(dmtType == DMT_BLUNT || dmtType == DMT_PUNCH || dmtType == DMT_BULLET || dmtType == DMT_PELLET ||
+           dmtType == DMT_RIFLE)
+        {
+          fDamageAmmount *= 2.0f;
+        }
+      }
+      break;
+      case BMT_ICE:
+      case BMT_SNOW:
+      {
+        if(dmtType == DMT_BURNING || dmtType == DMT_BLUNT || dmtType == DMT_PUNCH || dmtType == DMT_BULLET ||
+           dmtType == DMT_PELLET || dmtType == DMT_RIFLE || dmtType == DMT_EXPLOSION)
+        {
+          fDamageAmmount *= 2.0f;
+        }
+        else if(dmtType == DMT_FREEZING || dmtType == DMT_DROWNING)
+        {
+          fDamageAmmount = 0;
+        }
+      }
+      break;
+      case BMT_GRASS:
+      {
+        if(dmtType == DMT_BURNING || dmtType == DMT_SHARP || dmtType == DMT_SHARPSTRONG || dmtType == DMT_EXPLOSION ||
+           dmtType == DMT_AXE)
+        {
+          fDamageAmmount *= 2.0f;
+        }
+      }
+      break;
+      case BMT_FLESH:
+      {
+        if(dmtType == DMT_BURNING || dmtType == DMT_SHARP || dmtType == DMT_SHARPSTRONG || dmtType == DMT_EXPLOSION)
+        {
+          fDamageAmmount *= 1.75f;
+        }
+      }
+      break;
+    }
+
     // if special feature for damager entity
     if(m_bBlowupByDamager)
     {
@@ -280,6 +424,7 @@ functions:
     {
       // react to weapon damage
       if( (dmtType == DMT_EXPLOSION)  ||
+          (dmtType == DMT_BURNING) ||
           (dmtType == DMT_PROJECTILE) ||
           (dmtType == DMT_CANNONBALL) ||
           (dmtType == DMT_CLOSERANGE) ||
@@ -289,7 +434,9 @@ functions:
           (dmtType == DMT_AXE)    ||
           (dmtType == DMT_BLUNT)  ||
           (dmtType == DMT_SHARP)  ||
-          (dmtType == DMT_RIFLE) )
+          (dmtType == DMT_RIFLE)  ||
+          (dmtType == DMT_PUNCH)  ||
+          (dmtType == DMT_SHARPSTRONG) )
       {
         CMovableBrushEntity::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       }
@@ -956,6 +1103,9 @@ procedures:
     } else {
       SetFlags(GetFlags()&~ENF_DYNAMICSHADOWS);
     }
+
+    // load config file
+    LoadBrushConfig();
 
     // stop moving brush
     ForceFullStop();

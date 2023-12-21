@@ -177,11 +177,16 @@ functions:
        dmtType==DMT_IMPACT ||
        dmtType==DMT_CHAINSAW ||
        dmtType==DMT_EXPLOSION ||
-       dmtType==DMT_PROJECTILE||
-       dmtType==DMT_CANNONBALL||
-       dmtType==DMT_CANNONBALL_EXPLOSION||
-       dmtType==DMT_PELLET||
-       dmtType==DMT_AXE)
+       dmtType==DMT_PROJECTILE ||
+       dmtType==DMT_CANNONBALL ||
+       dmtType==DMT_CANNONBALL_EXPLOSION ||
+       dmtType==DMT_PELLET ||
+       dmtType==DMT_AXE ||
+       dmtType==DMT_BLUNT ||
+       dmtType==DMT_SHARP ||
+       dmtType==DMT_STING ||
+       dmtType==DMT_RIFLE ||
+       dmtType==DMT_PUNCH)
     {
       return;
     }
@@ -242,6 +247,10 @@ functions:
 
   void RotatingAnim(void) {
     RunningAnim();
+  };
+
+  void JumpingAnim(void) {
+    StartModelAnim(BLACKSTICKMAN_ANIM_JUMP, AOF_LOOPING|AOF_NORESTART);
   };
 
 

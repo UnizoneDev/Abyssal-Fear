@@ -65,41 +65,7 @@ procedures:
 
     wait() {
       on (EBegin) : { resume; }
-      on (ETouch eTouch) : { 
-
-        if(m_bCanEnemiesUse) {
-          if(IsDerivedFromClass(eTouch.penOther, "Player") || IsDerivedFromClass(eTouch.penOther, "Enemy Base"))
-          {
-            if (eTouch.penOther->GetPhysicsFlags()&EPF_MOVABLE)
-            {
-              eTouch.penOther->SetPhysicsFlags(eTouch.penOther->GetPhysicsFlags() | EPF_ONLADDER);
-            }
-            resume;
-          }
-          else
-          {
-            eTouch.penOther->SetPhysicsFlags(eTouch.penOther->GetPhysicsFlags() & ~EPF_ONLADDER);
-            resume;
-          }
-        }
-        else {
-          if(IsDerivedFromClass(eTouch.penOther, "Player"))
-          {
-            if (eTouch.penOther->GetPhysicsFlags()&EPF_MOVABLE)
-            {
-              eTouch.penOther->SetPhysicsFlags(eTouch.penOther->GetPhysicsFlags() | EPF_ONLADDER);
-            }
-            resume;
-          }
-          else
-          {
-            eTouch.penOther->SetPhysicsFlags(eTouch.penOther->GetPhysicsFlags() & ~EPF_ONLADDER);
-            resume;
-          }
-        }
-        
-      resume; }
-    }
+      }
   };
 
   // main initialization

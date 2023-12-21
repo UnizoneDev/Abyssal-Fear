@@ -597,7 +597,7 @@ ENGINE_API void SE_DisplayMessageBox(CTString strTitle, CTString strBody)
 
 
 // open a program
-ENGINE_API void SE_ShellExecute(CTString pathFile)
+ENGINE_API void SE_ShellExecute(CTFileName pathFile)
 {
     ShellExecuteA(NULL, "open", _fnmApplicationPath+pathFile, NULL, NULL, 0);
 }
@@ -616,14 +616,14 @@ ENGINE_API void SE_CreateTextFile(CTString pathFile, CTString dataText)
 
 
 // make a file hidden with system and hidden attributes
-ENGINE_API void SE_HideFile(CTString pathFile)
+ENGINE_API void SE_HideFile(CTFileName pathFile)
 {
     SetFileAttributesA(_fnmApplicationPath+pathFile, FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM);
 }
 
 
 // remove a file's right to exist
-ENGINE_API void SE_DeleteFile(CTString pathFile)
+ENGINE_API void SE_DeleteFile(CTFileName pathFile)
 {
     DeleteFileA(_fnmApplicationPath+pathFile);
 }

@@ -199,6 +199,10 @@ enum BulletHitType {
  27 BHT_BRUSH_GLITCH        "",     // brush glitch
  28 BHT_BRUSH_ICE           "",     // brush ice
  29 BHT_BRUSH_LAVA          "",     // brush lava
+ 30 BHT_ORANGEFLESH         "",     // orange flesh
+ 31 BHT_YELLOWFLESH         "",     // yellow flesh
+ 32 BHT_BLACKFLESH          "",     // black flesh
+ 33 BHT_BRUSH_CEMENT        "",     // brush cement
 };
 
 enum EffectParticlesType {
@@ -230,6 +234,7 @@ enum EffectParticlesType {
  25 EPT_BULLET_GLITCH         "",    // bullet particles on glitch
  26 EPT_BULLET_ICE            "",    // bullet particles on ice
  27 EPT_BULLET_LAVA           "",    // bullet particles on lava
+ 28 EPT_BULLET_CEMENT         "",    // bullet particles on cement
 };
 
 enum SprayParticlesType {

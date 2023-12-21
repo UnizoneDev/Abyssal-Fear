@@ -209,7 +209,7 @@ functions:
     SetHealth(150.0f);
     m_fMaxHealth = 150.0f;
     en_tmMaxHoldBreath = 5.0f;
-    en_fDensity = 2000.0f;
+    en_fDensity = 1000.0f;
     m_fBlowUpSize = 2.0f;
 
     // set your appearance

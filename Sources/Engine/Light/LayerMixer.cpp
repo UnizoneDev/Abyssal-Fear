@@ -118,10 +118,8 @@ public:
     void AddOneLayerGradient(CGradientParameters& gp);
 
     // add one spot layer to the shadow map
-    void AddAmbientSpot(void);
-    void AddAmbientMaskSpot(UBYTE* pubMask, UBYTE ubMask);
-    void AddDiffusionSpot(void);
-    void AddDiffusionMaskSpot(UBYTE* pubMask, UBYTE ubMask);
+    void AddSpot(void);
+    void AddMaskSpot(UBYTE* pubMask, UBYTE ubMask);
     BOOL PrepareOneLayerSpot(CBrushShadowLayer* pbsl, BOOL bNoMask);
     void AddOneLayerSpot(CBrushShadowLayer* pbsl, UBYTE* pub, UBYTE ubMask = 0);
 
@@ -828,6 +826,314 @@ void CLayerMixer::AddOneLayerPoint(CBrushShadowLayer* pbsl, UBYTE* pubMask, UBYT
 }
 
 
+// add one layer spot light without diffusion and mask
+void CLayerMixer::AddSpot(void)
+{
+    // prepare some local variables
+    __int64 mmDDL2oDU = _slDDL2oDU;
+    __int64 mmDDL2oDV = _slDDL2oDV;
+    ULONG ulLightRGB = ByteSwap32(lm_colLight);
+    _slLightMax <<= 7;
+    _slLightStep >>= 1;
+
+    // prepare color
+    __m64 tmp_mm7;
+    PrepareColorMMX(tmp_mm7, ulLightRGB);
+
+    PIX pixV = _iRowCt;
+    UBYTE* pubLayer = (UBYTE*)_pulLayer; // temp carret
+
+    // row loop
+    do {
+        PIX pixU = _iPixCt;
+
+        SLONG slL2Point = _slL2Row;
+        SLONG slDL2oDU = _slDL2oDURow;
+
+        // pixel loop
+        do {
+            // if the point is not masked
+            if (slL2Point < FTOX)
+            {
+                SLONG slL = (slL2Point >> SHIFTX) & (SQRTTABLESIZE - 1);  // and is just for degenerate cases
+                SLONG slIntensity = _slLightMax;
+                slL = aubSqrt[slL];
+                if (slL > _slHotSpot) {
+                    slIntensity = ((255 - slL) * _slLightStep);
+                }
+
+                ULONG* pulPixel = (ULONG*)pubLayer;
+                ULONG ulPixel = *pulPixel;
+
+                MixPixelMMX(ulPixel, slIntensity, tmp_mm7);
+                *pulPixel = ulPixel;
+            }
+
+            // advance to next pixel
+            // add     edi, 4
+            pubLayer += 4;
+
+            // movd    eax, mm3
+            // add     ebx, eax
+            slL2Point += slDL2oDU;
+
+            // paddd   mm3, Q [mmDDL2oDU]
+            slDL2oDU += _slDDL2oDU;
+            pixU--;
+        } while (pixU > 0);
+
+        // advance to the next row
+        pubLayer += _slModulo; // add     edi, D [_slModulo]
+
+        // paddd   mm1, mm2
+        // MM1 = _slDL2oDURow | _slL2Row
+        // MM2 = _slDDL2oDUoDV | _slDL2oDV
+        _slL2Row += _slDL2oDV;
+        _slDL2oDURow += _slDDL2oDUoDV;
+
+        // paddd   mm2, Q [mmDDL2oDV]
+        _slDL2oDV += _slDDL2oDV;
+
+        pixV--;
+    } while (pixV > 0);
+}
+
+// add one layer spot light without diffusion and with mask
+void CLayerMixer::AddMaskSpot(UBYTE* pubMask, UBYTE ubMask)
+{
+    // prepare some local variables
+    __int64 mmDDL2oDU = _slDDL2oDU;
+    __int64 mmDDL2oDV = _slDDL2oDV;
+    ULONG ulLightRGB = ByteSwap32(lm_colLight);
+    _slLightMax <<= 7;
+    _slLightStep >>= 1;
+
+    // prepare color
+    __m64 tmp_mm7;
+    PrepareColorMMX(tmp_mm7, ulLightRGB);
+
+    PIX pixV = _iRowCt;
+    UBYTE* pubLayer = (UBYTE*)_pulLayer; // temp carret
+
+    // row loop
+    do {
+        PIX pixU = _iPixCt;
+
+        SLONG slL2Point = _slL2Row;
+        SLONG slDL2oDU = _slDL2oDURow;
+
+        // pixel loop
+        do {
+            // if the point is not masked
+            if ((*pubMask & ubMask) && (slL2Point < FTOX))
+            {
+                // calculate intensities and do actual drawing of shadow pixel ARGB
+                SLONG slL = (slL2Point >> SHIFTX) & (SQRTTABLESIZE - 1);  // and is just for degenerate cases
+                SLONG slIntensity = _slLightMax;
+                slL = aubSqrt[slL];
+
+                if (slL > _slHotSpot) {
+                    slIntensity = ((255 - slL) * _slLightStep);
+                }
+
+                ULONG* pulPixel = (ULONG*)pubLayer;
+                ULONG ulPixel = *pulPixel;
+
+                MixPixelMMX(ulPixel, slIntensity, tmp_mm7);
+                *pulPixel = ulPixel;
+            }
+
+            // advance to next pixel
+            // add     edi, 4
+            pubLayer += 4;
+
+            // movd    eax, mm3
+            // add     ebx, eax
+            slL2Point += slDL2oDU;
+
+            // paddd   mm3, Q [mmDDL2oDU]
+            slDL2oDU += _slDDL2oDU;
+
+            ubMask <<= 1;
+            if (ubMask == 0)
+            {
+                pubMask++;
+                ubMask = 1;
+            }
+
+            pixU--;
+        } while (pixU > 0);
+
+        // advance to the next row
+        pubLayer += _slModulo; // add     edi, D [_slModulo]
+
+        // paddd   mm1, mm2
+        // MM1 = _slDL2oDURow | _slL2Row
+        // MM2 = _slDDL2oDUoDV | _slDL2oDV
+        _slL2Row += _slDL2oDV;
+        _slDL2oDURow += _slDDL2oDUoDV;
+
+        // paddd   mm2, Q [mmDDL2oDV]
+        _slDL2oDV += _slDDL2oDV;
+
+        pixV--;
+    } while (pixV > 0);
+}
+
+
+// prepares spot light that creates layer (returns TRUE if there is infulence)
+BOOL CLayerMixer::PrepareOneLayerSpot(CBrushShadowLayer* pbsl, BOOL bNoMask)
+{
+    // determine light infulence dimensions
+    _iPixCt = pbsl->bsl_pixSizeU >> lm_iMipShift;
+    _iRowCt = pbsl->bsl_pixSizeV >> lm_iMipShift;
+    PIX pixMinU = pbsl->bsl_pixMinU >> lm_iMipShift;
+    PIX pixMinV = pbsl->bsl_pixMinV >> lm_iMipShift;
+    // clamp influence to polygon size
+    if ((pixMinU + _iPixCt) > lm_pixPolygonSizeU && bNoMask) _iPixCt = lm_pixPolygonSizeU - pixMinU;
+    if ((pixMinV + _iRowCt) > lm_pixPolygonSizeV)            _iRowCt = lm_pixPolygonSizeV - pixMinV;
+    _slModulo = (lm_pixCanvasSizeU - _iPixCt) * BYTES_PER_TEXEL;
+    _pulLayer = lm_pulShadowMap + (pixMinV * lm_pixCanvasSizeU) + pixMinU;
+    ASSERT(pixMinU >= 0 && pixMinU < lm_pixCanvasSizeU&& pixMinV >= 0 && pixMinV < lm_pixCanvasSizeV);
+
+    // get the light source properties of the layer
+    lm_plsLight = pbsl->bsl_plsLightSource;
+    _vLight = &lm_plsLight->ls_penEntity->GetPlacement().pl_PositionVector;
+    _fMinLightDistance = lm_pbpoPolygon->bpo_pbplPlane->bpl_plAbsolute.PointDistance(*_vLight);
+    _f1oFallOff = 1.0f / lm_plsLight->ls_rFallOff;
+    _ulLightFlags = lm_plsLight->ls_ulFlags;
+    _ulPolyFlags = lm_pbpoPolygon->bpo_ulFlags;
+    lm_colLight = lm_plsLight->GetLightColor();
+    pbsl->bsl_colLastAnim = lm_colLight;
+
+    // if there is no influence, do nothing
+    if ((pbsl->bsl_pixSizeU >> lm_iMipShift) == 0 || (pbsl->bsl_pixSizeV >> lm_iMipShift) == 0
+        || _iPixCt <= 0 || _iRowCt <= 0) return FALSE;
+
+    // adjust for sector ambient
+    if (_ulLightFlags & LSF_SUBSTRACTSECTORAMBIENT) {
+        COLOR colAmbient = lm_pbpoPolygon->bpo_pbscSector->bsc_colAmbient;
+        IncrementByteWithClip(((UBYTE*)&lm_colLight)[1], -((UBYTE*)&colAmbient)[1]);
+        IncrementByteWithClip(((UBYTE*)&lm_colLight)[2], -((UBYTE*)&colAmbient)[2]);
+        IncrementByteWithClip(((UBYTE*)&lm_colLight)[3], -((UBYTE*)&colAmbient)[3]);
+        if (_ulPolyFlags & BPOF_HASDIRECTIONALAMBIENT)
+        { // find directional layers for each shadow layer
+            FOREACHINLIST(CBrushShadowLayer, bsl_lnInShadowMap, lm_pbsmShadowMap->bsm_lhLayers, itbsl)
+            { // loop thru layers
+                CBrushShadowLayer& bsl = *itbsl;
+                if (bsl.bsl_plsLightSource->ls_ulFlags & LSF_DIRECTIONAL)
+                { // skip if no ambient color
+                    colAmbient = bsl.bsl_plsLightSource->ls_colAmbient & 0xFFFFFF00;
+                    if (IsBlack(colAmbient)) continue;
+                    // substract ambient
+                    IncrementByteWithClip(((UBYTE*)&lm_colLight)[1], -((UBYTE*)&colAmbient)[1]);
+                    IncrementByteWithClip(((UBYTE*)&lm_colLight)[2], -((UBYTE*)&colAmbient)[2]);
+                    IncrementByteWithClip(((UBYTE*)&lm_colLight)[3], -((UBYTE*)&colAmbient)[3]);
+                }
+            }
+        }
+    }
+
+    // prepare intermediate light interpolants
+    FLOAT3D v00 = (lm_vO + lm_vStepU * pixMinU + lm_vStepV * pixMinV) - *_vLight;
+    FLOAT fFactor = FTOX * _f1oFallOff * _f1oFallOff;
+    FLOAT fL2Row = v00 % v00;
+    FLOAT fDDL2oDU = lm_vStepU % lm_vStepU;
+    FLOAT fDDL2oDV = lm_vStepV % lm_vStepV;
+    FLOAT fDDL2oDUoDV = lm_vStepU % lm_vStepV;
+    FLOAT fDL2oDURow = fDDL2oDU + 2 * (lm_vStepU % v00);
+    FLOAT fDL2oDV = fDDL2oDV + 2 * (lm_vStepV % v00);
+    //_v00 = v00;
+
+    fDDL2oDU *= 2;
+    fDDL2oDV *= 2;
+    fDDL2oDUoDV *= 2;
+    _slL2Row = FloatToInt(fL2Row * fFactor);
+    _slDDL2oDU = FloatToInt(fDDL2oDU * fFactor);
+    _slDDL2oDV = FloatToInt(fDDL2oDV * fFactor);
+    _slDDL2oDUoDV = FloatToInt(fDDL2oDUoDV * fFactor);
+    _slDL2oDURow = FloatToInt(fDL2oDURow * fFactor);
+    _slDL2oDV = FloatToInt(fDL2oDV * fFactor);
+
+    // prepare final light interpolants
+    _slLightMax = 255;
+    _slHotSpot = FloatToInt(255.0f * lm_plsLight->ls_rHotSpot * _f1oFallOff);
+    _slLightStep = FloatToInt(65535.0f / (255.0f - _slHotSpot));
+    // dark light inverts parameters
+    if (_ulLightFlags & LSF_DARKLIGHT) {
+        _slLightMax = -_slLightMax;
+        _slLightStep = -_slLightStep;
+    }
+
+    // saturate light color
+    lm_colLight = AdjustColor(lm_colLight, _slShdHueShift, _slShdSaturation);
+    // all done
+    return TRUE;
+}
+
+
+// add one layer to the shadow map (pubMask=NULL for no mask)
+void CLayerMixer::AddOneLayerSpot(CBrushShadowLayer* pbsl, UBYTE* pubMask, UBYTE ubMask)
+{
+    // try to prepare layer for this point light
+    _pfWorldEditingProfile.StartTimer(CWorldEditingProfile::PTI_ADDONELAYERSPOT);
+    if (!PrepareOneLayerSpot(pbsl, pubMask == NULL)) {
+        _pfWorldEditingProfile.StopTimer(CWorldEditingProfile::PTI_ADDONELAYERSPOT);
+        return;
+    }
+
+    // determine light influence dimensions
+    _iPixCt = pbsl->bsl_pixSizeU >> lm_iMipShift;
+    _iRowCt = pbsl->bsl_pixSizeV >> lm_iMipShift;
+    PIX pixMinU = pbsl->bsl_pixMinU >> lm_iMipShift;
+    PIX pixMinV = pbsl->bsl_pixMinV >> lm_iMipShift;
+    ASSERT(pixMinU == 0 && pixMinV == 0);
+    // clamp influence to polygon size
+    if (_iPixCt > lm_pixPolygonSizeU && pubMask == NULL) _iPixCt = lm_pixPolygonSizeU;
+    if (_iRowCt > lm_pixPolygonSizeV)                  _iRowCt = lm_pixPolygonSizeV;
+    _slModulo = (lm_pixCanvasSizeU - _iPixCt) * BYTES_PER_TEXEL;
+    _pulLayer = lm_pulShadowMap;
+
+    // if there is no influence, do nothing
+    if ((pbsl->bsl_pixSizeU >> lm_iMipShift) == 0 || (pbsl->bsl_pixSizeV >> lm_iMipShift) == 0
+        || _iPixCt <= 0 || _iRowCt <= 0) {
+        _pfWorldEditingProfile.StopTimer(CWorldEditingProfile::PTI_ADDONELAYERSPOT);
+        return;
+    }
+
+    // get the light source of the layer
+    lm_plsLight = pbsl->bsl_plsLightSource;
+    const FLOAT3D& vLight = lm_plsLight->ls_penEntity->GetPlacement().pl_PositionVector;
+    AnglesToDirectionVector(lm_plsLight->ls_penEntity->GetPlacement().pl_OrientationAngle,
+        lm_vLightDirection);
+    // calculate intensity
+    FLOAT fIntensity = 1.0f;
+    if (!(lm_pbpoPolygon->bpo_ulFlags & BPOF_NOPLANEDIFFUSION)) {
+        fIntensity = -((lm_pbpoPolygon->bpo_pbplPlane->bpl_plAbsolute) % lm_vLightDirection);
+        fIntensity = ClampDn(fIntensity, 0.0f);
+    }
+    // calculate light color and ambient
+    lm_colLight = lm_plsLight->GetLightColor();
+    pbsl->bsl_colLastAnim = lm_colLight;
+    ULONG ulIntensity = NormFloatToByte(fIntensity);
+    ulIntensity = (ulIntensity << CT_RSHIFT) | (ulIntensity << CT_GSHIFT) | (ulIntensity << CT_BSHIFT);
+    lm_colLight = MulColors(lm_colLight, ulIntensity);
+    lm_colLight = AdjustColor(lm_colLight, _slShdHueShift, _slShdSaturation);
+
+    // masked or non-masked?
+    if (pubMask == NULL) {
+        AddSpot();
+    }
+    else {
+        // masked
+        AddMaskSpot(pubMask, ubMask);
+    }
+
+    // all done
+    _pfWorldEditingProfile.StopTimer(CWorldEditingProfile::PTI_ADDONELAYERSPOT);
+}
+
+
 
 // apply gradient to layer
 void CLayerMixer::AddOneLayerGradient(CGradientParameters& gp)
@@ -1135,6 +1441,9 @@ void CLayerMixer::MixOneMipmap(CBrushShadowMap* pbsm, INDEX iMipmap)
             if (ls.ls_ulFlags & LSF_DIRECTIONAL) {
                 AddOneLayerDirectional(itbsl, pub, ubMask);
             }
+			else if (ls.ls_ulFlags & LSF_SPOT) {
+                AddOneLayerSpot(itbsl, pub, ubMask);
+            }
             else {
                 AddOneLayerPoint(itbsl, pub, ubMask);
             }
@@ -1145,6 +1454,9 @@ void CLayerMixer::MixOneMipmap(CBrushShadowMap* pbsm, INDEX iMipmap)
             // add the layer to the shadow map without masking
             if (ls.ls_ulFlags & LSF_DIRECTIONAL) {
                 AddOneLayerDirectional(itbsl, NULL);
+            }
+			else if (ls.ls_ulFlags & LSF_SPOT) {
+                AddOneLayerSpot(itbsl, NULL);
             }
             else {
                 AddOneLayerPoint(itbsl, NULL);

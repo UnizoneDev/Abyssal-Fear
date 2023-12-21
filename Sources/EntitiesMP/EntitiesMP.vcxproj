@@ -209,6 +209,7 @@
     <ClCompile Include="GnawBeast.cpp" />
     <ClCompile Include="Gunman.cpp" />
     <ClCompile Include="HungCorpse.cpp" />
+	<ClCompile Include="InventoryItem.cpp" />										 
     <ClCompile Include="Kahari.cpp" />
     <ClCompile Include="Korotuprok.cpp" />
     <ClCompile Include="LadderBrush.cpp" />
@@ -349,7 +350,6 @@
     <ClCompile Include="PlayerView.cpp" />
     <ClCompile Include="PlayerWeapons.cpp" />
     <ClCompile Include="PlayerWeaponsEffects.cpp" />
-    <ClCompile Include="PowerUpItem.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="PyramidSpaceShip.cpp" />
     <ClCompile Include="PyramidSpaceShipMarker.cpp" />
@@ -385,6 +385,7 @@
     <ClCompile Include="UZModelHolder.cpp" />
     <ClCompile Include="VariableChecker.cpp" />
     <ClCompile Include="VoiceHolder.cpp" />
+	<ClCompile Include="WastePerson.cpp" />									   
     <ClCompile Include="Watcher.cpp" />
     <ClCompile Include="WatchPlayers.cpp" />
     <ClCompile Include="Water.cpp" />
@@ -939,6 +940,8 @@
     <ClInclude Include="HudPicHolder_tables.h" />
     <ClInclude Include="HungCorpse.h" />
     <ClInclude Include="HungCorpse_tables.h" />
+	<ClInclude Include="InventoryItem.h" />
+    <ClInclude Include="InventoryItem_tables.h" />											  
     <ClInclude Include="Item.h" />
     <ClInclude Include="Item_tables.h" />
     <ClInclude Include="Kahari.h" />
@@ -1011,8 +1014,6 @@
     <ClInclude Include="PlayerWeaponsEffects_tables.h" />
     <ClInclude Include="PlayerWeapons_tables.h" />
     <ClInclude Include="Player_tables.h" />
-    <ClInclude Include="PowerUpItem.h" />
-    <ClInclude Include="PowerUpItem_tables.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="Projectile_tables.h" />
     <ClInclude Include="PuzzleChecker.h" />
@@ -1084,6 +1085,8 @@
     <ClInclude Include="VariableChecker_tables.h" />
     <ClInclude Include="VoiceHolder.h" />
     <ClInclude Include="VoiceHolder_tables.h" />
+	<ClInclude Include="WastePerson.h" />
+    <ClInclude Include="WastePerson_tables.h" />										
     <ClInclude Include="Watcher.h" />
     <ClInclude Include="Watcher_tables.h" />
     <ClInclude Include="WatchPlayers.h" />
@@ -2070,7 +2073,7 @@ ecc EntitiesMP/%(Filename).es </Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
 ecc EntitiesMP/%(Filename).es </Command>
     </CustomBuild>
-    <CustomBuild Include="PowerUpItem.es">
+    <CustomBuild Include="InventoryItem.es">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
 ecc EntitiesMP/%(Filename).es </Command>
@@ -2747,6 +2750,19 @@ ecc EntitiesMP/%(Filename).es</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
+<ItemGroup>
+    <CustomBuild Include="WastePerson.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>																							 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

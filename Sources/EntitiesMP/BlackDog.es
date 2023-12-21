@@ -293,7 +293,7 @@ functions:
       m_iScore = 2500;
     }
     en_tmMaxHoldBreath = 30.0f;
-    en_fDensity = 1750.0f;
+    en_fDensity = 800.0f;
     m_fBlowUpSize = 2.0f;
 
     // set your appearance and texture

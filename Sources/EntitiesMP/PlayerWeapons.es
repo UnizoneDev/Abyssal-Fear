@@ -239,6 +239,7 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
   if ( ulAvailable&(1<<(WEAPON_AXE-1)) ) {
     pdec->PrecacheModel(MODEL_AXE                 );
     pdec->PrecacheModel(MODEL_AXEITEM             );
+    pdec->PrecacheTexture(TEXTURE_AXEITEM         );
     pdec->PrecacheSound(SOUND_KNIFE_SWING         );
     pdec->PrecacheSound(SOUND_KNIFE_SLASH         );
     pdec->PrecacheSound(SOUND_KNIFE_HIT           );
@@ -399,6 +400,8 @@ properties:
 277 BOOL m_bMeleeHitEnemy = FALSE,
 278 BOOL m_bMeleeHitModel = FALSE,
 279 BOOL m_bMeleeHitBrush = FALSE,
+280 BOOL m_bMeleeHitBlockingEnemy = FALSE,
+281 BOOL m_bMeleeHitBlockingEnemyFlesh = FALSE,
 
 {
   CEntity *penBullet;
@@ -421,7 +424,7 @@ components:
 
 // ************** KNIFE **************
  20 model   MODEL_KNIFEITEM             "Models\\Weapons\\Knife\\KnifeWeapon.mdl",
- 21 texture TEXTURE_KNIFEITEM           "Models\\Weapons\\Knife\\KnifeWeapon.tex",
+ 21 texture TEXTURE_KNIFEITEM           "Models\\Weapons\\Knife\\KnifeWeaponNew.tex",
  22 model   MODEL_KNIFE                 "Models\\Weapons\\Knife\\KnifeViewmodel.mdl",
  23 sound   SOUND_KNIFE_SWING           "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
  24 sound   SOUND_KNIFE_SLASH           "Models\\Weapons\\Knife\\Sounds\\Slash.wav",
@@ -438,6 +441,7 @@ components:
 // ************** AXE **************
  40 model   MODEL_AXEITEM             "Models\\Weapons\\Axe\\AxeWeapon.mdl",
  41 model   MODEL_AXE                 "Models\\Weapons\\Axe\\AxeViewmodel.mdl",
+ 42 texture TEXTURE_AXEITEM           "Models\\Weapons\\Knife\\KnifeWeapon.tex",
 
 // ************** SHOTGUN **************
  50 model   MODEL_SHOTGUN                "Models\\Weapons\\Shotgun\\ShotgunViewmodel.mdl",
@@ -581,19 +585,6 @@ functions:
     const COLOR colAmbient = RGBToColor( ubAR,ubAG,ubAB);
     const FLOAT tmNow = _pTimer->GetLerpedCurrentTick();
 
-    UBYTE ubBlend = INVISIBILITY_ALPHA_LOCAL;
-    FLOAT tmInvisibility = ((CPlayer *)&*m_penPlayer)->m_tmInvisibility;
-    //FLOAT tmSeriousDamage = ((CPlayer *)&*m_penPlayer)->m_tmSeriousDamage;
-    //FLOAT tmInvulnerability = ((CPlayer *)&*m_penPlayer)->m_tmInvulnerability;
-    if (tmInvisibility>tmNow) {
-      FLOAT fIntensity=0.0f;      
-      if((tmInvisibility-tmNow)<3.0f)
-      {
-        fIntensity = 0.5f-0.5f*cos((tmInvisibility-tmNow)*(6.0f*3.1415927f/3.0f));
-        ubBlend =(INDEX)(INVISIBILITY_ALPHA_LOCAL+(FLOAT)(254-INVISIBILITY_ALPHA_LOCAL)*fIntensity);      
-      }      
-    }
-
     // prepare render model structure
     CRenderModel rmMain;
     prProjection.ViewerPlacementL() =  plView;
@@ -614,10 +605,7 @@ functions:
     rmMain.rm_colLight   = colLight;  
     rmMain.rm_colAmbient = colAmbient;
     rmMain.rm_vLightDirection = vViewerLightDirection;
-    rmMain.rm_ulFlags |= RMF_WEAPON; // TEMP: for Truform
-    if (tmInvisibility>tmNow) {
-      rmMain.rm_colBlend = (rmMain.rm_colBlend&0xffffff00)|ubBlend;
-    }      
+    rmMain.rm_ulFlags |= RMF_WEAPON; // TEMP: for Truform   
     
     m_moWeapon.SetupModelRendering(rmMain);
     m_moWeapon.RenderModel(rmMain);
@@ -715,6 +703,7 @@ functions:
     // cast ray
     CCastRay crRay( m_penPlayer, plCrosshair);
     crRay.cr_bHitTranslucentPortals = FALSE;
+    crRay.cr_bHitBlockSightPortals = FALSE;
     crRay.cr_bPhysical = FALSE;
     crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;
     GetWorld()->CastRay(crRay);
@@ -1068,7 +1057,7 @@ functions:
       case WEAPON_AXE: {
         SetComponents(this, m_moWeapon, MODEL_AXE, TEXTURE_HAND, 0, 0, 0);
         AddAttachmentToModel(this, m_moWeapon, AXEVIEWMODEL_ATTACHMENT_THEAXE, MODEL_AXEITEM, 
-                             TEXTURE_KNIFEITEM, 0, 0, 0);
+                             TEXTURE_AXEITEM, 0, 0, 0);
         m_moWeapon.PlayAnim(AXEVIEWMODEL_ANIM_IDLE, 0);
         break; }
       // pistol
@@ -1267,6 +1256,7 @@ functions:
       // cast a ray to find if any model
       CCastRay crRay( m_penPlayer, vBase, vDest[i]);
       crRay.cr_bHitTranslucentPortals = FALSE;
+      crRay.cr_bHitBlockSightPortals = FALSE;
       crRay.cr_fTestR = fThickness;
       crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;
       GetWorld()->CastRay(crRay);
@@ -1311,7 +1301,43 @@ functions:
             }
             else if( IsDerivedFromClass(crRay.cr_penHit, "Enemy Base"))
             {
-              m_bMeleeHitEnemy = TRUE;
+              CEnemyBase &eb = (CEnemyBase&)*crRay.cr_penHit;
+
+              FLOAT3D vDirection = eb.GetPlacement().pl_PositionVector-GetPlayer()->GetPlacement().pl_PositionVector;
+              vDirection.Normalize();
+
+              FLOAT3D vProperDamageDir = (vDirection.ManhattanNorm() > eb.m_fBlockDirAmount) ? vDirection : -GetPlayer()->en_vGravityDir;
+              vProperDamageDir = (vProperDamageDir - GetPlayer()->en_vGravityDir * eb.m_fBlockDirAmount).Normalize();
+
+              if(eb.m_bIsBlocking == TRUE) {
+                if(eb.GetPlaneFrustumAngle(vProperDamageDir) < Cos(eb.m_fBlockAmount)) {
+                  m_bMeleeHitBlockingEnemy = TRUE;
+                } else {
+                  m_bMeleeHitBlockingEnemyFlesh = TRUE;
+                }
+              } else {
+                m_bMeleeHitEnemy = TRUE;
+              }
+            }
+            else if( IsOfClass(crRay.cr_penHit, "Player"))
+            {
+              CPlayer &pl = (CPlayer&)*crRay.cr_penHit;
+
+              FLOAT3D vDirection = pl.GetPlacement().pl_PositionVector-GetPlayer()->GetPlacement().pl_PositionVector;
+              vDirection.Normalize();
+
+              FLOAT3D vProperDamageDir = (vDirection.ManhattanNorm() > pl.m_fBlockDirAmount) ? vDirection : -GetPlayer()->en_vGravityDir;
+              vProperDamageDir = (vProperDamageDir - GetPlayer()->en_vGravityDir * pl.m_fBlockDirAmount).Normalize();
+
+              if(pl.m_bIsBlocking == TRUE) {
+                if(pl.GetPlaneFrustumAngle(vProperDamageDir) < Cos(pl.m_fBlockAmount)) {
+                  m_bMeleeHitBlockingEnemy = TRUE;
+                } else {
+                  m_bMeleeHitBlockingEnemyFlesh = TRUE;
+                }
+              } else {
+                m_bMeleeHitEnemy = TRUE;
+              }
             }
             FLOATaabbox3D boxCutted=FLOATaabbox3D(FLOAT3D(0,0,0),FLOAT3D(1,1,1));
             if(bRender)
@@ -2476,18 +2502,17 @@ procedures:
     
     m_moWeapon.PlayAnim(m_iAnim, 0);
     m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitBlockingEnemy = FALSE;
+    m_bMeleeHitBlockingEnemyFlesh = FALSE;
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.15f);
 
     if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP)) {
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
       }
@@ -2496,13 +2521,10 @@ procedures:
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
       CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP);
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
       }
@@ -2522,24 +2544,23 @@ procedures:
     // sound
     CPlayer &pl = (CPlayer&)*m_penPlayer;
     // depending on stand choose random attack
-    m_iAnim = KNIFEVIEWMODEL_ANIM_STAB; m_fAnimWaitTime = 0.25f;
+    m_iAnim = KNIFEVIEWMODEL_ANIM_STAB; m_fAnimWaitTime = 0.35f;
     PlaySound(pl.m_soWeapon0, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
     if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("Knife_back");}
     
     m_moWeapon.PlayAnim(m_iAnim, 0);
     m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitBlockingEnemy = FALSE;
+    m_bMeleeHitBlockingEnemyFlesh = FALSE;
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.15f);
 
     if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP)) {
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
       }
@@ -2547,13 +2568,10 @@ procedures:
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
       CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP);
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
       }
@@ -2579,17 +2597,16 @@ procedures:
         {IFeel_PlayEffect("Knife_back");}
     m_moWeapon.PlayAnim(m_iAnim, 0);
     m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitBlockingEnemy = FALSE;
+    m_bMeleeHitBlockingEnemyFlesh = FALSE;
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.175f);
     if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 50.0f : 30.0f), DMT_AXE)) {
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
       }
@@ -2597,13 +2614,10 @@ procedures:
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
       CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 50.0f : 30.0f), DMT_AXE);
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
       }
@@ -2646,7 +2660,7 @@ procedures:
 
     // fire bullet
     FireOneBullet(wpn_fFX[WEAPON_PISTOL], wpn_fFY[WEAPON_PISTOL], 500.0f,
-    ((GetSP()->sp_bCooperative) ? 40.0f : 25.0f), DMT_BULLET);
+    ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_BULLET);
 
     if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("Pistol_fire");}
     DoRecoil();
@@ -2720,12 +2734,13 @@ procedures:
         {IFeel_PlayEffect("Knife_back");}
     m_moWeapon.PlayAnim(m_iAnim, 0);
     m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitBlockingEnemy = FALSE;
+    m_bMeleeHitBlockingEnemyFlesh = FALSE;
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.25f);
     if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_BLUNT)) {
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
         {
@@ -2735,9 +2750,7 @@ procedures:
           case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
           default: ASSERTALWAYS("MetalPipe unknown hit sound");
         }
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon3, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
       }
@@ -2745,8 +2758,7 @@ procedures:
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
       CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_BLUNT);
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
         {
@@ -2756,9 +2768,7 @@ procedures:
           case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
           default: ASSERTALWAYS("MetalPipe unknown hit sound");
         }
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon3, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
       }
@@ -2842,16 +2852,16 @@ procedures:
         return EEnd();
     }
 
-    m_moWeapon.PlayAnim(SHOTGUNVIEWMODEL_ANIM_LOWER, 0);
-    autowait(m_moWeapon.GetAnimLength(SHOTGUNVIEWMODEL_ANIM_LOWER)+0.125f);
+    m_moWeapon.PlayAnim(SHOTGUNVIEWMODEL_ANIM_RELOADLOWER, 0);
+    autowait(m_moWeapon.GetAnimLength(SHOTGUNVIEWMODEL_ANIM_RELOADLOWER)+0.125f);
     if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("Shotgun_reload");}
 
     while(m_iShotgunShells < 8)
     {
       if(m_iShells <= 0)
       {
-        m_moWeapon.PlayAnim(SHOTGUNVIEWMODEL_ANIM_RAISE, 0);
-        autowait(m_moWeapon.GetAnimLength(SHOTGUNVIEWMODEL_ANIM_RAISE));
+        m_moWeapon.PlayAnim(SHOTGUNVIEWMODEL_ANIM_RELOADRAISE, 0);
+        autowait(m_moWeapon.GetAnimLength(SHOTGUNVIEWMODEL_ANIM_RELOADRAISE));
 
         return EEnd();
       }
@@ -2871,8 +2881,8 @@ procedures:
       }
     }
 
-    m_moWeapon.PlayAnim(SHOTGUNVIEWMODEL_ANIM_RAISE, 0);
-    autowait(m_moWeapon.GetAnimLength(SHOTGUNVIEWMODEL_ANIM_RAISE));
+    m_moWeapon.PlayAnim(SHOTGUNVIEWMODEL_ANIM_RELOADRAISE, 0);
+    autowait(m_moWeapon.GetAnimLength(SHOTGUNVIEWMODEL_ANIM_RELOADRAISE));
 
     return EEnd();
   };
@@ -2900,7 +2910,7 @@ procedures:
     // fire one bullet
     if (m_iSMGBullets>0) {
       FireMachineBullet(wpn_fFX[WEAPON_SMG], wpn_fFY[WEAPON_SMG], 
-        500.0f, 8.0f, ((GetSP()->sp_bCooperative) ? 0.01f : 0.03f),
+        500.0f, 9.0f, ((GetSP()->sp_bCooperative) ? 0.01f : 0.03f),
         ((GetSP()->sp_bCooperative) ? 0.5f : 0.0f), DMT_BULLET);
       SpawnRangeSound(50.0f);
       if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("SMG_fire");}
@@ -2980,12 +2990,13 @@ procedures:
         {IFeel_PlayEffect("Knife_back");}
     m_moWeapon.PlayAnim(m_iAnim, 0);
     m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitBlockingEnemy = FALSE;
+    m_bMeleeHitBlockingEnemyFlesh = FALSE;
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.25f);
     if (CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT)) {
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
         {
@@ -2995,9 +3006,7 @@ procedures:
           case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
           default: ASSERTALWAYS("MetalPipe unknown hit sound");
         }
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
       }
@@ -3005,8 +3014,7 @@ procedures:
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
       CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT);
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
         {
@@ -3016,9 +3024,7 @@ procedures:
           case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
           default: ASSERTALWAYS("MetalPipe unknown hit sound");
         }
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon1, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
       }
@@ -3083,7 +3089,7 @@ procedures:
 
     // fire bullet
     FireOneBullet(wpn_fFX[WEAPON_STRONGPISTOL], wpn_fFY[WEAPON_STRONGPISTOL], 500.0f,
-    ((GetSP()->sp_bCooperative) ? 50.0f : 30.0f), DMT_BULLET);
+    ((GetSP()->sp_bCooperative) ? 80.0f : 40.0f), DMT_BULLET);
 
     if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("StrongPistol_fire");}
     DoRecoil();
@@ -3099,7 +3105,7 @@ procedures:
     // pistol fire
     INDEX iAnim = STRONGPISTOLVIEWMODEL_ANIM_FIRE;
     m_moWeapon.PlayAnim(iAnim, 0);
-    autowait(m_moWeapon.GetAnimLength(iAnim));
+    autowait(m_moWeapon.GetAnimLength(iAnim)+0.35f);
     m_bFireWeapon = FALSE;
     m_moWeapon.PlayAnim(STRONGPISTOLVIEWMODEL_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART|AOF_SMOOTHCHANGE);
     }
@@ -3157,12 +3163,13 @@ procedures:
         {IFeel_PlayEffect("Knife_back");}
     m_moWeapon.PlayAnim(m_iAnim, 0);
     m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitBlockingEnemy = FALSE;
+    m_bMeleeHitBlockingEnemyFlesh = FALSE;
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.25f);
     if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 10.0f), DMT_BLUNT)) {
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
         {
@@ -3172,9 +3179,7 @@ procedures:
           case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
           default: ASSERTALWAYS("MetalPipe unknown hit sound");
         }
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon3, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
       }
@@ -3182,8 +3187,7 @@ procedures:
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
       CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 10.0f), DMT_BLUNT);
-      if (m_bMeleeHitEnemy)
-      {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
         {
@@ -3193,9 +3197,7 @@ procedures:
           case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
           default: ASSERTALWAYS("MetalPipe unknown hit sound");
         }
-      }
-      if (m_bMeleeHitModel || m_bMeleeHitBrush)
-      {
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         PlaySound(pl.m_soWeapon3, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
       }

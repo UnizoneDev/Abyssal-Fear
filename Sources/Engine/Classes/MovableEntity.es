@@ -1595,49 +1595,151 @@ out:;
   };
 
   BOOL TryToClimbLadder(const FLOAT3D &vTranslationAbsolute, const CSurfaceType &stHit, 
-                        CBrushPolygon* pbpoClimbable)
+                        BOOL bHitLadderOrg)
   {
     _pfPhysicsProfile.StartTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
     _pfPhysicsProfile.IncrementTimerAveragingCounter(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
 
-    // get polygon plane
-    FLOATplane3D &plPolygon = pbpoClimbable->bpo_pbplPlane->bpl_plAbsolute;
+    // use only vertical components of the movement
+    FLOAT3D vTranslationVertical;
+    GetParallelComponent(vTranslationAbsolute, en_vGravityDir, vTranslationVertical);
 
-    FLOAT3D vPolygonNormal = ((FLOAT3D&)plPolygon);
-    vPolygonNormal.Normalize();
-
-    // if polygon is too steep or too flat
-    if(vPolygonNormal(2) > -0.80f || vPolygonNormal(2) < 0.80f) {
-      // it cannot be climbed
-      //CPrintF("vPolygonNormal(%f)\n", vPolygonNormal(2));
-      _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
-      return FALSE;
-    }
-
-    // use components of the movement for ladders
-    FLOAT3D vLadderTranslation = vTranslationAbsolute;
-
+    //CPrintF("Trying: (%g) ", vTranslationVertical(2));
     // if the movement has no substantial value
-    if(vLadderTranslation.Length()<0.001f) {
+    if(vTranslationVertical.Length()<0.001f) {
       //CPrintF("no value\n");
       // don't do it
       _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
       return FALSE;
     }
 
+    FLOAT3D vTranslationVerticalOrg = vTranslationVertical;
     // if the surface that is climbed on is not really ladder
-    if (!pbpoClimbable->bpo_ulFlags2 == BPOF2_LADDER) {
+    if (!bHitLadderOrg) {
       // keep minimum speed
-      vLadderTranslation.Normalize();
-      vLadderTranslation*=0.5f;
+      vTranslationVertical.Normalize();
+      vTranslationVertical*=0.5f;
     }
 
-    vLadderTranslation(2) = GetClimbingDirection();
+    // remember original placement
+    CPlacement3D plOriginal = en_plPlacement;
 
-    if(vLadderTranslation(2) != 0.0f) {
-      SetDesiredTranslation(vLadderTranslation);
+    // take stairs height
+    FLOAT fStairsHeight = 0;
+    if (stHit.st_fStairsHeight>0) {
+      fStairsHeight = Max(stHit.st_fStairsHeight, en_fStepUpHeight);
+    } else if (stHit.st_fStairsHeight<0) {
+      fStairsHeight = Min(stHit.st_fStairsHeight, en_fStepUpHeight);
     }
 
+    CContentType &ctDn = en_pwoWorld->wo_actContentTypes[en_iDnContent];
+    CContentType &ctUp = en_pwoWorld->wo_actContentTypes[en_iUpContent];
+
+    // if in partially in water
+    BOOL bGettingOutOfWater = FALSE;
+    if ((ctDn.ct_ulFlags&CTF_SWIMABLE) && !(ctUp.ct_ulFlags&CTF_SWIMABLE)
+      && en_fImmersionFactor>0.3f) {
+      // add immersion height to up step
+      if (en_pciCollisionInfo!=NULL) {
+        fStairsHeight=fStairsHeight*2+en_fImmersionFactor*
+          (en_pciCollisionInfo->ci_fMaxHeight-en_pciCollisionInfo->ci_fMinHeight);
+        // remember that we are trying to get out of water
+        bGettingOutOfWater = TRUE;
+      }
+    }
+
+    // calculate the 3 translation directions (up, forward and down)
+    FLOAT3D avTranslation[3];
+    avTranslation[0] = en_vGravityDir*-fStairsHeight;
+    avTranslation[1] = vTranslationVertical;
+    avTranslation[2] = en_vGravityDir*fStairsHeight;
+
+    // for each translation step
+    for(INDEX iStep=0; iStep<3; iStep++) {
+      BOOL bStepOK = TRUE;
+      // create new placement with the translation step
+      en_vNextPosition = en_plPlacement.pl_PositionVector+avTranslation[iStep];
+      en_mNextRotation = en_mRotation;
+      // clip the movement to the entity's world
+      CClipMove cm(this);
+      en_pwoWorld->ClipMove(cm);
+
+      // if not passed
+      if (cm.cm_fMovementFraction<1.0f) {
+        // find hit surface
+        INDEX iSurfaceHit = 0;
+        BOOL bHitLadderNow = FALSE;
+        if (cm.cm_pbpoHit!=NULL) {
+          bHitLadderNow = cm.cm_pbpoHit->bpo_ulFlags2&BPOF2_LADDER;
+          iSurfaceHit = cm.cm_pbpoHit->bpo_bppProperties.bpp_ubSurfaceType;
+        }
+        CSurfaceType &stHit = en_pwoWorld->wo_astSurfaceTypes[iSurfaceHit];
+
+
+        // check if hit a slope while climbing stairs
+        const FLOAT3D &vHitPlane = cm.cm_plClippedPlane;
+        FLOAT fPlaneDotG = vHitPlane%en_vGravityDir;
+        FLOAT fPlaneDotGAbs = Abs(fPlaneDotG);
+
+        BOOL bSlidingAllowed = (fPlaneDotGAbs>-0.01f && fPlaneDotGAbs<0.99f)&&bHitLadderOrg;
+
+        BOOL bEarlyClipAllowed = 
+          // going up or
+          iStep==0 || 
+          // going forward and hit ladder or
+          iStep==1 && bHitLadderNow || 
+          // going down 
+          iStep==2;
+
+        // if early clip is allowed
+        if (bEarlyClipAllowed || bSlidingAllowed) {
+          // try to go to where it is clipped (little bit before)
+          en_vNextPosition = en_plPlacement.pl_PositionVector +
+            avTranslation[iStep]*(cm.cm_fMovementFraction*0.98f);
+          if (bSlidingAllowed && iStep!=2) {
+            FLOAT3D vSliding = cm.cm_plClippedPlane.ProjectDirection(
+                  avTranslation[iStep]*(1.0f-cm.cm_fMovementFraction))+
+            vHitPlane*(ClampUp(avTranslation[iStep].Length(), 0.5f)/100.0f);
+            en_vNextPosition += vSliding;
+          }
+          CClipMove cm(this);
+          en_pwoWorld->ClipMove(cm);
+          // if it failed
+          if (cm.cm_fMovementFraction<=1.0f) {
+            // mark that this step is unsuccessful
+            bStepOK = FALSE;
+          }
+        // if early clip is not allowed
+        } else {
+          // mark that this step is unsuccessful
+          bStepOK = FALSE;
+        }
+      }
+
+      // if the step is successful
+      if (bStepOK) {
+        // use that position
+        SetPlacementFromNextPosition();
+      // if the step failed
+      } else {
+        // restore original placement
+        en_vNextPosition = plOriginal.pl_PositionVector;
+        SetPlacementFromNextPosition();
+        // move is unsuccessful
+        _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
+        //CPrintF("FAILED\n");
+        return FALSE;
+      }
+
+    } // end of steps loop
+
+    // all steps passed, use the final position
+
+    // NOTE: must not keep the speed when getting out of water,
+    // or the player gets launched out too fast
+    if (!bGettingOutOfWater) {
+      en_vAppliedTranslation += vTranslationVerticalOrg;
+    }
     // move is successful
     _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
     //CPrintF("done\n");
@@ -1947,8 +2049,17 @@ out:;
                   _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOTRANSLATE);
                   return FALSE;
                 }
-              } else if(bHitLadder) {
-                TryToClimbLadder(en_vMoveTranslation, stHit, cmMove.cm_pbpoHit);
+              } else if((vHitPlane%en_vGravityDir>-stHit.st_fClimbSlopeCos)
+                ||bHitLadder) {
+                FLOAT fSlidingVertical2 = en_vMoveTranslation%en_vGravityDir;
+                fSlidingVertical2*=fSlidingVertical2;
+                FLOAT fSliding2 = en_vMoveTranslation%en_vMoveTranslation;
+                if ((2*fSlidingVertical2<=fSliding2)
+                  && TryToClimbLadder(en_vMoveTranslation, stHit, bHitLadder)) {
+                // movement is ok
+                _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOTRANSLATE);
+                return FALSE;
+                }
               }
             }
           }

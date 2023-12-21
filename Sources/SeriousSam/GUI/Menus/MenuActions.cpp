@@ -35,7 +35,7 @@ static INDEX         _ctResolutions = 0;
 static CTString     * _astrResolutionTexts = NULL;
 static CDisplayMode *_admResolutionModes = NULL;
 
-#define VOLUME_STEPS  50
+#define VOLUME_STEPS  100
 
 
 // make description for a given resolution
@@ -851,7 +851,7 @@ extern void RefreshSoundFormat(void)
   }
 
   gmCurrent.gm_mgAudioAutoTrigger.mg_iSelected = Clamp(sam_bAutoAdjustAudio, 0, 1);
-  gmCurrent.gm_mgAudioAPITrigger.mg_iSelected = Clamp(_pShell->GetINDEX("snd_iInterface"), 0L, 2L);
+  gmCurrent.gm_mgAudioAPITrigger.mg_iSelected = Clamp(_pShell->GetINDEX("snd_iInterface"), 0L, 3L);
 
   gmCurrent.gm_mgWaveVolume.mg_iMinPos = 0;
   gmCurrent.gm_mgWaveVolume.mg_iMaxPos = VOLUME_STEPS;

@@ -84,6 +84,7 @@ void CCastRay::Init(CEntity *penOrigin, const FLOAT3D &vOrigin, const FLOAT3D &v
   cr_bHitBrushes = TRUE;
   cr_bHitTerrainInvisibleTris = FALSE;
   cr_fTestR = 0;
+  cr_bHitBlockSightPortals = TRUE;
 
 	cr_bFindBone = TRUE;
 	cr_iBoneHit	 = -1;
@@ -241,6 +242,33 @@ void CCastRay::TestModelCollisionBox(CEntity *penModel)
 // TODO: check for hitboxes in some way
 void CCastRay::TestModelHitBox(CEntity* penModel, CModelObject& mo)
 {
+    INDEX iHitBox = penModel->GetHitBoxes();
+    FLOATaabbox3D boxHitBox;
+    boxHitBox = mo.GetHitBox(iHitBox);
+    boxHitBox.StretchByVector(mo.mo_Stretch);
+
+    FLOAT fSphereRadius = boxHitBox.Size().Length() / 2.0f;
+    FLOAT3D vSphereCenter = boxHitBox.Center();
+    vSphereCenter *= penModel->en_mRotation;
+    vSphereCenter += penModel->en_plPlacement.pl_PositionVector;
+
+    // if the ray doesn't hit the sphere
+    FLOAT fSphereHitDistance;
+    if (!RayHitsSphere(cr_vOrigin, cr_vTarget,
+        vSphereCenter, fSphereRadius + cr_fTestR, fSphereHitDistance)) {
+        // ignore
+        return;
+    }
+
+    // if the ray hits the sphere closer than closest found hit point yet
+    if (fSphereHitDistance < cr_fHitDistance && fSphereHitDistance>0.0f) {
+        // set the current entity as new hit target
+        cr_fHitDistance = fSphereHitDistance;
+        cr_penHit = penModel;
+        cr_pbscBrushSector = NULL;
+        cr_pbpoBrushPolygon = NULL;
+    }
+
     return;
 }
 
@@ -489,10 +517,18 @@ void CCastRay::TestBrushSector(CBrushSector *pbscSector)
     }
 
     ULONG ulFlags = bpoPolygon.bpo_ulFlags;
+    ULONG ulFlags2 = bpoPolygon.bpo_ulFlags2;
     // if not testing recursively
     if (cr_penOrigin==NULL) {
       // if the polygon is portal
       if (ulFlags&BPOF_PORTAL) {
+        // if polygon blocks sight
+        if (ulFlags2 & BPOF2_BLOCKSIGHT) {
+          if (!cr_bHitBlockSightPortals) {
+            // skip this polygon
+            continue;
+          }
+        }
         // if it is translucent or selected
         if (ulFlags&(BPOF_TRANSLUCENT|BPOF_TRANSPARENT|BPOF_SELECTED)) {
           // if translucent portals should be passed through

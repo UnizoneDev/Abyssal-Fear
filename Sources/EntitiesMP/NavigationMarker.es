@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "StdH.h"
 #include "EntitiesMP/Common/PathFinding.h"
 
-#define MAX_TARGETS 8
+#define MAX_TARGETS 16
 %}
 
 uses "EntitiesMP/Marker";
@@ -53,6 +53,14 @@ properties:
   105 CEntityPointer m_penTarget5  "Target 5"     COLOR(C_dBLUE|0xFF),
   106 CEntityPointer m_penTarget6  "Target 6"     COLOR(C_dBLUE|0xFF),
   107 CEntityPointer m_penTarget7  "Target 7"     COLOR(C_dBLUE|0xFF),
+  108 CEntityPointer m_penTarget8  "Target 8"     COLOR(C_dBLUE|0xFF),
+  109 CEntityPointer m_penTarget9  "Target 9"     COLOR(C_dBLUE|0xFF),
+  110 CEntityPointer m_penTarget10 "Target 10"    COLOR(C_dBLUE|0xFF),
+  111 CEntityPointer m_penTarget11 "Target 11"    COLOR(C_dBLUE|0xFF),
+  112 CEntityPointer m_penTarget12 "Target 12"    COLOR(C_dBLUE|0xFF),
+  113 CEntityPointer m_penTarget13 "Target 13"    COLOR(C_dBLUE|0xFF),
+  114 CEntityPointer m_penTarget14 "Target 14"    COLOR(C_dBLUE|0xFF),
+  115 CEntityPointer m_penTarget15 "Target 15"    COLOR(C_dBLUE|0xFF),
 
   {
     CPathNode *m_ppnNode;  // for pathfinding algorithm

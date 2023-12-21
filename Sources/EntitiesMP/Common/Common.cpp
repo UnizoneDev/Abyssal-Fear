@@ -357,6 +357,9 @@ EffectParticlesType GetParticleEffectTypeForSurface(INDEX iSurfaceType)
     {eptType = EPT_BULLET_ICE; break; }
     case SURFACE_LAVA:
     {eptType = EPT_BULLET_LAVA; break; }
+    case SURFACE_CEMENT:
+    case SURFACE_CEMENT_NOIMPACT:
+    {eptType = EPT_BULLET_CEMENT; break; }
   }
   return eptType;
 }
@@ -428,6 +431,9 @@ BulletHitType GetBulletHitTypeForSurface(INDEX iSurfaceType)
     {bhtType = BHT_BRUSH_ICE; break; }
     case SURFACE_LAVA:
     {bhtType = BHT_BRUSH_LAVA; break; }
+    case SURFACE_CEMENT:
+    case SURFACE_CEMENT_NOIMPACT:
+    {bhtType = BHT_BRUSH_CEMENT; break; }
   }
   return bhtType;
 }
@@ -464,6 +470,7 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
     case BHT_BRUSH_GLITCH:
     case BHT_BRUSH_ICE:
     case BHT_BRUSH_LAVA:
+    case BHT_BRUSH_CEMENT:
     {
       // bullet stain
       ESpawnEffect ese;
@@ -496,6 +503,7 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if (bhtType == BHT_BRUSH_GLITCH)        { ese.betType = BET_BULLETSTAINGLITCH; };
         if (bhtType == BHT_BRUSH_ICE)           { ese.betType = BET_BULLETSTAINICE; };
         if (bhtType == BHT_BRUSH_LAVA)          { ese.betType = BET_BULLETSTAINLAVA; };
+        if (bhtType == BHT_BRUSH_CEMENT)        { ese.betType = BET_BULLETSTAINCEMENT; };
       }
       else
       {
@@ -526,6 +534,7 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if (bhtType == BHT_BRUSH_GLITCH)        { ese.betType = BET_BULLETSTAINGLITCHNOSOUND; };
         if (bhtType == BHT_BRUSH_ICE)           { ese.betType = BET_BULLETSTAINICENOSOUND; };
         if (bhtType == BHT_BRUSH_LAVA)          { ese.betType = BET_BULLETSTAINLAVANOSOUND; };
+        if (bhtType == BHT_BRUSH_CEMENT)        { ese.betType = BET_BULLETSTAINCEMENTNOSOUND; };
       }
 
       ese.vNormal = vHitNormal;
@@ -555,6 +564,9 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
     }
     case BHT_FLESH:
     case BHT_ACID:
+    case BHT_ORANGEFLESH:
+    case BHT_YELLOWFLESH:
+    case BHT_BLACKFLESH:
     {
       // spawn bullet entry wound
       ESpawnEffect ese;
@@ -568,6 +580,18 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
         if( bhtType == BHT_ACID)
         {
           ese.colMuliplier = BLOOD_SPILL_GREEN;
+        }
+        else if (bhtType == BHT_ORANGEFLESH)
+        {
+            ese.colMuliplier = BLOOD_SPILL_ORANGE;
+        }
+        else if (bhtType == BHT_YELLOWFLESH)
+        {
+            ese.colMuliplier = BLOOD_SPILL_YELLOW;
+        }
+        else if (bhtType == BHT_BLACKFLESH)
+        {
+            ese.colMuliplier = BLOOD_SPILL_BLACK;
         }
         else
         {
@@ -949,7 +973,7 @@ void ParseAMC_t(CModelObject *pmo, CTStream &strm, BOOL bPreview)
       FixupFileName_t(strLine);
       pmo->mo_toReflection.SetData_t(strLine);
 
-    // if specular
+    // if bump
     } else if (strLine.RemovePrefix("Bump:")) {
       // set texture
       FixupFileName_t(strLine);
@@ -1574,9 +1598,6 @@ FLOAT GetGameDamageMultiplier(void)
 FLOAT GetSeriousDamageMultiplier( CEntity *pen)
 {
   if( !IsOfClass(pen,"Player")) return 1.0f;
-  const TIME tmNow = _pTimer->CurrentTick();
-  const TIME tmDamage = ((CPlayer*)pen)->m_tmSeriousDamage;
-  if( tmDamage>tmNow) return 4.0f;
   return 1.0f;
 }
 

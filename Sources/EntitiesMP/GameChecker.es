@@ -20,8 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %}
 
 enum GameCheckerEventType {
-  0 GCET_CHEATDETECT         "Was Cheating Detected",
-  1 GCET_GOLDENSWITCHES      "Were Golden Switches Used"
+  0 GCET_CHEATDETECT         "Was Cheating Detected"
 };
 
 class CGameChecker: CRationalEntity {
@@ -36,12 +35,6 @@ properties:
   3 CEntityPointer m_penCheckTarget       "Check target" 'D',                       // check target
   4 enum EventEType m_eetCheckType        "Check event type" 'F' = EET_TRIGGER,     // check event type
   5 CEntityPointer m_penCaused,                                                     // who touched it last time
-  6 CEntityPointer m_penBadEndingTarget       "Bad ending target",                  // bad ending target
-  7 enum EventEType m_eetBadEndingType        "Bad ending type" = EET_TRIGGER,      // bad ending type
-  8 CEntityPointer m_penGoodEndingTarget      "Good ending target",                 // good ending target
-  9 enum EventEType m_eetGoodEndingType       "Good ending type" = EET_TRIGGER,     // good ending type
- 10 CEntityPointer m_penNeutralEndingTarget   "Neutral ending target",              // neutral ending target
- 11 enum EventEType m_eetNeutralEndingType    "Neutral ending type" = EET_TRIGGER,  // neutral ending type
 
 components:
 
@@ -66,29 +59,6 @@ functions:
     }
   }
 
-  void CheckForGoldenSwitches()
-  {
-    BOOL GoldenSwitch1 = _pShell->GetINDEX("sam_bGoldenSwitch1");
-    BOOL GoldenSwitch2 = _pShell->GetINDEX("sam_bGoldenSwitch2");
-    BOOL GoldenSwitch3 = _pShell->GetINDEX("sam_bGoldenSwitch3");
-    BOOL GoldenSwitch4 = _pShell->GetINDEX("sam_bGoldenSwitch4");
-
-    if(GoldenSwitch1 == FALSE && GoldenSwitch2 == FALSE && GoldenSwitch3 == FALSE && GoldenSwitch4 == FALSE)
-    {
-      SendToTarget(m_penBadEndingTarget, m_eetBadEndingType, m_penCaused);
-    }
-    else if(GoldenSwitch1 == TRUE && GoldenSwitch2 == TRUE && GoldenSwitch3 == TRUE && GoldenSwitch4 == TRUE)
-    {
-      SendToTarget(m_penGoodEndingTarget, m_eetGoodEndingType, m_penCaused);
-    }
-    else
-    {
-      SendToTarget(m_penNeutralEndingTarget, m_eetNeutralEndingType, m_penCaused);
-    }
-    
-    return;
-  }
-
 procedures:
 
   PerformChecks()
@@ -100,11 +70,6 @@ procedures:
         case GCET_CHEATDETECT:
         {
           CheckForCheats();
-          break;
-        }
-        case GCET_GOLDENSWITCHES:
-        {
-          CheckForGoldenSwitches();
           break;
         }
       }

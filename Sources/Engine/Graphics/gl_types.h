@@ -1000,7 +1000,101 @@ typedef enum {
 	GL_TEXTURE_MIN_LOD			= 0x813A,
 	GL_TEXTURE_MAX_LOD			= 0x813B,
 	GL_TEXTURE_BASE_LEVEL			= 0x813C,
-	GL_TEXTURE_MAX_LEVEL			= 0x813D
+	GL_TEXTURE_MAX_LEVEL			= 0x813D,
+	
+	/* [Uni] Additions to SE1 */
+	GL_TEXTURE_RECTANGLE_NV         = 0x84F5,
+
+    GL_MAX_DRAW_BUFFERS             = 0x8824,
+    GL_DRAW_BUFFER0                 = 0x8825,
+    GL_DRAW_BUFFER1                 = 0x8826,
+    GL_DRAW_BUFFER2                 = 0x8827,
+    GL_DRAW_BUFFER3                 = 0x8828,
+    GL_DRAW_BUFFER4                 = 0x8829,
+    GL_DRAW_BUFFER5                 = 0x882A,
+    GL_DRAW_BUFFER6                 = 0x882B,
+    GL_DRAW_BUFFER7                 = 0x882C,
+    GL_DRAW_BUFFER8                 = 0x882D,
+    GL_DRAW_BUFFER9                 = 0x882E,
+    GL_DRAW_BUFFER10                = 0x882F,
+    GL_DRAW_BUFFER11                = 0x8830,
+    GL_DRAW_BUFFER12                = 0x8831,
+    GL_DRAW_BUFFER13                = 0x8832,
+    GL_DRAW_BUFFER14                = 0x8833,
+    GL_DRAW_BUFFER15                = 0x8834,
+
+	GL_SHADER_TYPE                  = 0x8B4F,
+	GL_FRAGMENT_SHADER              = 0x8B30,
+	GL_VERTEX_SHADER                = 0x8B31,
+	GL_MAX_FRAGMENT_UNIFORM_COMPONENTS = 0x8B49,
+    GL_MAX_VERTEX_UNIFORM_COMPONENTS = 0x8B4A,
+	GL_FLOAT_VEC2                    = 0x8B50,
+    GL_FLOAT_VEC3                    = 0x8B51,
+    GL_FLOAT_VEC4                    = 0x8B52,
+    GL_INT_VEC2                      = 0x8B53,
+    GL_INT_VEC3                      = 0x8B54,
+    GL_INT_VEC4                      = 0x8B55,
+    GL_BOOL                          = 0x8B56,
+    GL_BOOL_VEC2                     = 0x8B57,
+    GL_BOOL_VEC3                     = 0x8B58,
+    GL_BOOL_VEC4                     = 0x8B59,
+    GL_FLOAT_MAT2                    = 0x8B5A,
+    GL_FLOAT_MAT3                    = 0x8B5B,
+    GL_FLOAT_MAT4                    = 0x8B5C,
+    GL_SAMPLER_1D                    = 0x8B5D,
+    GL_SAMPLER_2D                    = 0x8B5E,
+    GL_SAMPLER_3D                    = 0x8B5F,
+    GL_SAMPLER_CUBE                  = 0x8B60,
+    GL_SAMPLER_1D_SHADOW             = 0x8B61,
+    GL_SAMPLER_2D_SHADOW             = 0x8B62,
+
+	GL_DELETE_STATUS                 = 0x8B80,
+	GL_COMPILE_STATUS                = 0x8B81,
+    GL_LINK_STATUS                   = 0x8B82,
+    GL_VALIDATE_STATUS               = 0x8B83,
+	GL_INFO_LOG_LENGTH               = 0x8B84,
+	GL_ATTACHED_SHADERS              = 0x8B85,
+    GL_ACTIVE_UNIFORMS               = 0x8B86,
+    GL_ACTIVE_UNIFORM_MAX_LENGTH     = 0x8B87,
+	GL_SHADER_SOURCE_LENGTH          = 0x8B88,
+	GL_ACTIVE_ATTRIBUTES             = 0x8B89,
+	GL_ACTIVE_ATTRIBUTE_MAX_LENGTH   = 0x8B8A,
+    GL_FRAGMENT_SHADER_DERIVATIVE_HINT = 0x8B8B,
+    GL_SHADING_LANGUAGE_VERSION        = 0x8B8C,
+	GL_CURRENT_PROGRAM                 = 0x8B8D,
+	GL_VERTEX_PROGRAM_TWO_SIDE         = 0x8643,
+	GL_MAX_TEXTURE_COORDS              = 0x8871,
+
+	GL_BUFFER_SIZE                     = 0x8764,
+	GL_BUFFER_USAGE                    = 0x8795,
+	GL_ARRAY_BUFFER                    = 0x8892,
+	GL_ELEMENT_ARRAY_BUFFER            = 0x8893,
+	GL_ARRAY_BUFFER_BINDING            = 0x8894,
+	GL_ELEMENT_ARRAY_BUFFER_BINDING    = 0x8895,
+	GL_READ_ONLY                       = 0x88B8,
+	GL_WRITE_ONLY                      = 0x88B9,
+	GL_READ_WRITE                      = 0x88BA,
+	GL_BUFFER_ACCESS                   = 0x88BB,
+	GL_BUFFER_MAPPED                   = 0x88BC,
+	GL_BUFFER_MAP_POINTER              = 0x88BD,
+	GL_STREAM_DRAW                     = 0x88E0,
+    GL_STREAM_READ                     = 0x88E1,
+    GL_STREAM_COPY                     = 0x88E2,
+    GL_STATIC_DRAW                     = 0x88E4,
+    GL_STATIC_READ                     = 0x88E5,
+    GL_STATIC_COPY                     = 0x88E6,
+    GL_DYNAMIC_DRAW                    = 0x88E8,
+    GL_DYNAMIC_READ                    = 0x88E9,
+    GL_DYNAMIC_COPY                    = 0x88EA,
+
+	GL_VERTEX_ARRAY_BUFFER_BINDING           = 0x8896,
+	GL_NORMAL_ARRAY_BUFFER_BINDING           = 0x8897,
+	GL_COLOR_ARRAY_BUFFER_BINDING            = 0x8898,
+	GL_INDEX_ARRAY_BUFFER_BINDING            = 0x8899,
+	GL_TEXTURE_COORD_ARRAY_BUFFER_BINDING    = 0x889A,
+	GL_EDGE_FLAG_ARRAY_BUFFER_BINDING        = 0x889B,
+	GL_SECONDARY_COLOR_ARRAY_BUFFER_BINDING  = 0x889C,
+	GL_WEIGHT_ARRAY_BUFFER_BINDING           = 0x889E
 } GLenum;
 
 
@@ -1062,7 +1156,9 @@ typedef float		GLfloat;	/* single precision float */
 typedef float		GLclampf;	/* single precision float in [0,1] */
 typedef double		GLdouble;	/* double precision float */
 typedef double		GLclampd;	/* double precision float in [0,1] */
-
+typedef char        GLchar;
+typedef int         GLintptr;
+typedef int         GLsizeiptr;
 
 
 

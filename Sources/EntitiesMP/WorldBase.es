@@ -812,13 +812,28 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[52].st_fJumpSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[52].st_fClimbSlopeCos = Cos(45.0f);
 
-  ASSERT(53==SSURFACE_GLITCH_NOIMPACT);
+  ASSERT(53==SURFACE_GLITCH_NOIMPACT);
   pwo->wo_astSurfaceTypes[53].st_strName = "Glitch no impact";
   pwo->wo_astSurfaceTypes[53].st_fFriction = 1.0f;
   pwo->wo_astSurfaceTypes[53].st_fStairsHeight = 1.0f;
   pwo->wo_astSurfaceTypes[53].st_fJumpSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[53].st_fClimbSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[53].st_ulFlags = STF_NOIMPACT;
+
+  ASSERT(54==SURFACE_CEMENT);
+  pwo->wo_astSurfaceTypes[54].st_strName = "Cement";
+  pwo->wo_astSurfaceTypes[54].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[54].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[54].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[54].st_fClimbSlopeCos = Cos(45.0f);
+
+  ASSERT(55==SURFACE_CEMENT_NOIMPACT);
+  pwo->wo_astSurfaceTypes[55].st_strName = "Cement no impact";
+  pwo->wo_astSurfaceTypes[55].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[55].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[55].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[55].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[55].st_ulFlags = STF_NOIMPACT;
 
   // contents
   pwo->wo_actContentTypes[0].ct_strName = "Air";
@@ -1020,6 +1035,18 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_aetEnvironmentTypes[27].et_strName = "Hallucination Chaotic";
   pwo->wo_aetEnvironmentTypes[27].et_iType = EAX_ENVIRONMENT_DIZZY;
   pwo->wo_aetEnvironmentTypes[27].et_fSize = 1.25f;
+
+  pwo->wo_aetEnvironmentTypes[28].et_strName = "Insanity 1";
+  pwo->wo_aetEnvironmentTypes[28].et_iType = EAX_ENVIRONMENT_PSYCHOTIC;
+  pwo->wo_aetEnvironmentTypes[28].et_fSize = 0.35f;
+
+  pwo->wo_aetEnvironmentTypes[29].et_strName = "Insanity 2";
+  pwo->wo_aetEnvironmentTypes[29].et_iType = EAX_ENVIRONMENT_DRUGGED;
+  pwo->wo_aetEnvironmentTypes[29].et_fSize = 15.24f;
+
+  pwo->wo_aetEnvironmentTypes[30].et_strName = "Insanity 3";
+  pwo->wo_aetEnvironmentTypes[30].et_iType = EAX_ENVIRONMENT_DIZZY;
+  pwo->wo_aetEnvironmentTypes[30].et_fSize = 0.68f;
 
   // declare console variables
   _pShell->DeclareSymbol("user void MakeWorldStatistics(void);",  &MakeWorldStatistics);

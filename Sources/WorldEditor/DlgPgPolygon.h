@@ -54,6 +54,7 @@ public:
 	CComboBox	m_ComboFriction;
 	CCtrlEditBoolean	m_bLadder;
 	CCtrlEditBoolean	m_bSticky;
+	CCtrlEditBoolean	m_bBlockSight;
 	//}}AFX_DATA
 
 

@@ -31,6 +31,18 @@ enum EnemySoundType {
   6 EST_TAUNT        "Taunt",
   7 EST_LEADERSIGHT  "Leader Alert",
   8 EST_PAIN         "Pain",
+  9 EST_QUESTION     "Question",
+ 10 EST_ANSWER       "Answer",
+ 11 EST_CUSTOM1      "Custom 1",
+ 12 EST_CUSTOM2      "Custom 2",
+ 13 EST_CUSTOM3      "Custom 3",
+ 14 EST_CUSTOM4      "Custom 4",
+ 15 EST_CUSTOM5      "Custom 5",
+ 16 EST_CUSTOM6      "Custom 6",
+ 17 EST_CUSTOM7      "Custom 7",
+ 18 EST_CUSTOM8      "Custom 8",
+ 19 EST_CUSTOM9      "Custom 9",
+ 20 EST_CUSTOM10     "Custom 10",
 };
 
 // event sent to the enemy/NPC that should do this
@@ -39,6 +51,7 @@ event EChangeSequence {
   INDEX iModelCollisionBox,
   CEntityPointer penEnemyMarker,
   enum EnemySoundType estSoundType,
+  BOOL bLoopAnimation,
 };
 
 class CScriptedSequencer : CRationalEntity {
@@ -54,11 +67,12 @@ properties:
   4 CEntityPointer m_penTarget          "Marker Target" 'T' COLOR(C_RED|0xFF),
   5 CEntityPointer m_penEnemy           "Enemy" COLOR(C_GREEN|0xFF),
   6 enum EnemySoundType m_estSoundType  "Enemy Sound Type" = EST_NONE,
+  7 BOOL m_bLoopAnimation               "Loop Animation" = FALSE,
 
 components:
 
-  1 model   MODEL_MARKER     "Models\\Editor\\Axis.mdl",
-  2 texture TEXTURE_MARKER   "Models\\Editor\\Vector.tex"
+  1 model   MODEL_MARKER     "Models\\Editor\\ScriptedSequencer.mdl",
+  2 texture TEXTURE_MARKER   "Models\\Editor\\ScriptedSequencer.tex"
 
 functions:
 
@@ -127,6 +141,7 @@ procedures:
           eSequence.iModelCollisionBox = m_iCollisionBox;
           eSequence.penEnemyMarker = m_penTarget;
           eSequence.estSoundType = m_estSoundType;
+          eSequence.bLoopAnimation = m_bLoopAnimation;
           m_penEnemy->SendEvent(eSequence);
           resume;
       }

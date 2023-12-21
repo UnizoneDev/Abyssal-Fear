@@ -139,6 +139,7 @@ functions:
     CCastRay crRay( m_penOwner, GetPlacement().pl_PositionVector, m_vTarget);
     crRay.cr_bHitPortals = TRUE;
     crRay.cr_bHitTranslucentPortals = TRUE;
+    crRay.cr_bHitBlockSightPortals = FALSE;
     crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;
     crRay.cr_bPhysical = FALSE;
     crRay.cr_fTestR = m_fBulletSize;
@@ -251,6 +252,11 @@ functions:
             {
               // spawn green blood hit spill effect
               SpawnHitTypeEffect(this, BHT_ACID, bSound, vHitNormal, crRay.cr_vHit, vHitDirection, vDistance);
+            }
+            else if(IsOfClass(penOfFlesh, "BlackStickman"))
+            {
+              // spawn black blood hit spill effect
+              SpawnHitTypeEffect(this, BHT_BLACKFLESH, bSound, vHitNormal, crRay.cr_vHit, vHitDirection, vDistance);
             }
             else
             {
