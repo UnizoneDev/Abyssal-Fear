@@ -70,7 +70,7 @@ extern FLOAT snd_fDFilter  = 3.0f;   // filter for down
 ENGINE_API extern INDEX snd_iFormat = 3;
 extern INDEX snd_bMono = FALSE;
 static INDEX snd_iDevice = -1;
-static INDEX snd_iInterface = 2;   // 0=WaveOut, 1=DirectSound, 2=EAX, 3=OpenAL
+static INDEX snd_iInterface = 2;   // 0=WaveOut, 1=DirectSound, 2=EAX
 static INDEX snd_iMaxOpenRetries = 3;
 static INDEX snd_iMaxExtraChannels = 32;
 static FLOAT snd_tmOpenFailDelay = 0.5f;
@@ -177,7 +177,7 @@ static void SndPostFunc(void *pArgs)
   snd_tmMixAhead = Clamp( snd_tmMixAhead, 0.1f, 0.9f);
   snd_iFormat    = Clamp( snd_iFormat, (INDEX)CSoundLibrary::SF_NONE, (INDEX)CSoundLibrary::SF_44100_16);
   snd_iDevice    = Clamp( snd_iDevice, -1L, 15L);
-  snd_iInterface = Clamp( snd_iInterface, 0L, 2L);
+  snd_iInterface = Clamp( snd_iInterface, 0L, 3L);
   // if any variable has been changed
   if( _tmLastMixAhead!=snd_tmMixAhead || _iLastFormat!=snd_iFormat
    || _iLastDevice!=snd_iDevice || _iLastAPI!=snd_iInterface) {
@@ -301,38 +301,6 @@ static void SetLibraryFormat( CSoundLibrary &sl)
       FatalError( TRANS("Unknown sound format"));
       sl.sl_EsfFormat = CSoundLibrary::SF_ILLEGAL;
   }
-}
-
-
-static ALuint ALSetFormat(SWORD bitsPerSample, SWORD channels)
-{
-    ALenum format = AL_NONE;
-
-    switch (channels)
-    {
-    case 1:
-        switch (bitsPerSample)
-        {
-        case 8:
-            format = AL_FORMAT_MONO8;
-        case 16:
-            format = AL_FORMAT_MONO16;
-        }
-        break;
-    case 2:
-        switch (bitsPerSample)
-        {
-        case 8:
-            format = AL_FORMAT_STEREO8;
-        case 16:
-            format = AL_FORMAT_STEREO16;
-        }
-        break;
-    default:
-        return -1;
-    }
-
-    return format;
 }
 
 
@@ -740,10 +708,9 @@ static void SetFormat_internal( CSoundLibrary &sl, CSoundLibrary::SoundFormat Es
   SetWaveFormat( EsfNew, sl.sl_SwfeFormat);
   snd_iDevice    = Clamp( snd_iDevice, -1L, (INDEX)(sl.sl_ctWaveDevices-1));
   snd_tmMixAhead = Clamp( snd_tmMixAhead, 0.1f, 0.9f);
-  snd_iInterface = Clamp( snd_iInterface, 0L, 2L);
+  snd_iInterface = Clamp( snd_iInterface, 0L, 3L);
 
   BOOL bSoundOK = FALSE;
-
 
   if( snd_iInterface==2) {
     // if wanted, 1st try to set EAX

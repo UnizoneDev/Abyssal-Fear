@@ -92,9 +92,9 @@ components:
   1 class   CLASS_LIGHT         "Classes\\Light.ecl",
 
 // ********* FLAME *********
- 10 model   MODEL_FLAME         "ModelsMP\\Effects\\Flame\\Flame.mdl",
- 11 texture TEXTURE_FLAME       "ModelsMP\\Effects\\Flame\\Flame.tex",
- 12 sound   SOUND_FLAME         "SoundsMP\\Fire\\Burning.wav",
+ 10 model   MODEL_FLAME         "Models\\Effects\\Flames\\Fire1.mdl",
+ 11 texture TEXTURE_FLAME       "Models\\Effects\\Flames\\Fire1.tex",
+ 12 sound   SOUND_FLAME         "Sounds\\Ambient\\Nature\\Fire1.wav",
 
 functions:
   // add to prediction any entities that this entity depends on

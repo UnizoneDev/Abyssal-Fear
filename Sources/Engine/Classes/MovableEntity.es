@@ -1876,6 +1876,13 @@ out:;
           cmMove.cm_plClippedPlane = FLOATplane3D(-en_vGravityDir, 0);
         }
 
+        // if polygon is ladder, and the entity can climb ladder
+        if ((cmMove.cm_pbpoHit->bpo_ulFlags2&BPOF2_LADDER)
+          &&((en_ulPhysicsFlags&EPF_ONBLOCK_MASK)==EPF_ONBLOCK_CLIMBORSLIDE)) {
+          // adjust against sliding upwards
+          cmMove.cm_plClippedPlane = FLOATplane3D(-en_vGravityDir, 0);
+        }
+
         // if cannot be damaged by impact
         INDEX iSurface = cmMove.cm_pbpoHit->bpo_bppProperties.bpp_ubSurfaceType;
         if (en_pwoWorld->wo_astSurfaceTypes[iSurface].st_ulFlags&STF_NOIMPACT) {

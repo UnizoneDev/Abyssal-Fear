@@ -209,7 +209,8 @@
     <ClCompile Include="GnawBeast.cpp" />
     <ClCompile Include="Gunman.cpp" />
     <ClCompile Include="HungCorpse.cpp" />
-	<ClCompile Include="InventoryItem.cpp" />										 
+	<ClCompile Include="InfernalSpecter.cpp" />										   
+	<ClCompile Include="InventoryItem.cpp" />
     <ClCompile Include="Kahari.cpp" />
     <ClCompile Include="Korotuprok.cpp" />
     <ClCompile Include="LadderBrush.cpp" />
@@ -364,7 +365,6 @@
     </ClCompile>
     <ClCompile Include="RollingStone.cpp" />
     <ClCompile Include="ScrollHolder.cpp" />
-    <ClCompile Include="SeriousBomb.cpp" />
     <ClCompile Include="Ship.cpp" />
     <ClCompile Include="ShipMarker.cpp" />
     <ClCompile Include="SoundHolder.cpp" />
@@ -940,8 +940,10 @@
     <ClInclude Include="HudPicHolder_tables.h" />
     <ClInclude Include="HungCorpse.h" />
     <ClInclude Include="HungCorpse_tables.h" />
-	<ClInclude Include="InventoryItem.h" />
-    <ClInclude Include="InventoryItem_tables.h" />											  
+	<ClInclude Include="InfernalSpecter.h" />
+    <ClInclude Include="InfernalSpecter_tables.h" />
+    <ClInclude Include="InventoryItem.h" />
+    <ClInclude Include="InventoryItem_tables.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="Item_tables.h" />
     <ClInclude Include="Kahari.h" />
@@ -1038,8 +1040,6 @@
     <ClInclude Include="ScriptedSequencer_tables.h" />
     <ClInclude Include="ScrollHolder.h" />
     <ClInclude Include="ScrollHolder_tables.h" />
-    <ClInclude Include="SeriousBomb.h" />
-    <ClInclude Include="SeriousBomb_tables.h" />
     <ClInclude Include="Shambler.h" />
     <ClInclude Include="Shambler_tables.h" />
     <ClInclude Include="Ship.h" />
@@ -2194,17 +2194,6 @@ ecc EntitiesMP/%(Filename).es </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="SeriousBomb.es">
-      <FileType>Document</FileType>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
-ecc EntitiesMP/%(Filename).es</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
-ecc EntitiesMP/%(Filename).es</Command>
-    </CustomBuild>
     <CustomBuild Include="Ship.es">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
@@ -2763,6 +2752,19 @@ ecc EntitiesMP/%(Filename).es </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>																							 
+<ItemGroup>
+    <CustomBuild Include="InfernalSpecter.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

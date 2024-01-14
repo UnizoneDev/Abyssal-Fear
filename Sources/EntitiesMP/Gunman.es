@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep.
+/* Copyright (c) 2021-2024 Uni Musuotankarep.
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -468,11 +468,15 @@ functions:
     crRay.cr_ttHitModels = CCastRay::TT_NONE;     // check for brushes only
     crRay.cr_bHitTranslucentPortals = FALSE;
     crRay.cr_bHitBlockSightPortals = TRUE;
+    crRay.cr_bHitBlockMeleePortals = FALSE;
     en_pwoWorld->CastRay(crRay);
 
     // if hit nothing (no brush) the entity can be seen
     return (crRay.cr_penHit==NULL);     
   }
+
+
+  FLOAT GetLockRotationSpeed(void) { return 650.0f;};
 
 
   procedures:

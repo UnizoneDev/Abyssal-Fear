@@ -1441,7 +1441,7 @@ void CLayerMixer::MixOneMipmap(CBrushShadowMap* pbsm, INDEX iMipmap)
             if (ls.ls_ulFlags & LSF_DIRECTIONAL) {
                 AddOneLayerDirectional(itbsl, pub, ubMask);
             }
-			else if (ls.ls_ulFlags & LSF_SPOT) {
+            else if (ls.ls_ulFlags & LSF_SPOT) {
                 AddOneLayerSpot(itbsl, pub, ubMask);
             }
             else {
@@ -1455,7 +1455,7 @@ void CLayerMixer::MixOneMipmap(CBrushShadowMap* pbsm, INDEX iMipmap)
             if (ls.ls_ulFlags & LSF_DIRECTIONAL) {
                 AddOneLayerDirectional(itbsl, NULL);
             }
-			else if (ls.ls_ulFlags & LSF_SPOT) {
+            else if (ls.ls_ulFlags & LSF_SPOT) {
                 AddOneLayerSpot(itbsl, NULL);
             }
             else {

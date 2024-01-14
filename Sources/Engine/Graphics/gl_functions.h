@@ -1101,6 +1101,9 @@ DLLFUNCTION(OGL, void, glGetBufferPointerv, (GLenum target, GLenum pname, void *
 DLLFUNCTION(OGL, void, glGetActiveAttrib, (GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name), 0, 0);
 
 
+
+
+
 /* !!! FIXME: This needs to move to a GL context abstraction layer. */
 #ifdef PLATFORM_WIN32
 // gdi functions

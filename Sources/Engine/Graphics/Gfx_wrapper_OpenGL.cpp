@@ -14,6 +14,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 
+#include <Engine/Base/FileName.h>
+#include <Engine/Base/Stream.h>
+
 
 // ENABLE/DISABLE FUNCTIONS
 
@@ -1200,11 +1203,25 @@ static ULONG ogl_CreateVertexProgram(const char *strVertexProgram, ULONG ulProgr
 {
     ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
 
+    strVertexProgram = _fnmApplicationPath+strVertexProgram;
+
+    CTFileName fnm = (CTString)strVertexProgram;
+    CTFileStream strm;
+    strm.Open_t(fnm);
+
+    while (!strm.AtEOF())
+    {
+        CTString strLine;
+        strm.GetLine_t(strLine);
+    }
+
+    strm.Close();
+
     ulProgram = pglCreateProgram();
     GLuint ulVertexShader = pglCreateShader(GL_VERTEX_SHADER);
     GLint slProgramStatus = GL_TRUE;
 
-    pglShaderSource(ulVertexShader, 1, &strVertexProgram, NULL);
+    pglShaderSource(ulVertexShader, 1, (const char **)&fnm, NULL);
     pglCompileShader(ulVertexShader);
 
     GLint vShaderCompiled = GL_FALSE;
@@ -1231,11 +1248,25 @@ static ULONG ogl_CreateFragmentProgram(const char *strFragmentProgram, ULONG ulP
 {
     ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
 
+    strFragmentProgram = _fnmApplicationPath+strFragmentProgram;
+
+    CTFileName fnm = (CTString)strFragmentProgram;
+    CTFileStream strm;
+    strm.Open_t(fnm);
+
+    while (!strm.AtEOF())
+    {
+        CTString strLine;
+        strm.GetLine_t(strLine);
+    }
+
+    strm.Close();
+
     ulProgram = pglCreateProgram();
     GLuint ulFragmentShader = pglCreateShader(GL_FRAGMENT_SHADER);
     GLint slProgramStatus = GL_TRUE;
 
-    pglShaderSource(ulFragmentShader, 1, &strFragmentProgram, NULL);
+    pglShaderSource(ulFragmentShader, 1, (const char**)&fnm, NULL);
     pglCompileShader(ulFragmentShader);
 
     GLint vShaderCompiled = GL_FALSE;
@@ -1281,4 +1312,15 @@ static void ogl_DisableFragmentShaders(void)
     ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
     ASSERTALWAYS("Not implemented yet");
 }
-		
+
+static void ogl_SetShaderProgramIndex(const char* strUniform, ULONG ulHandle, INDEX iVariable)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    pglUniform1i(pglGetUniformLocation(ulHandle, strUniform), iVariable);
+}
+
+static void ogl_SetShaderProgramFloat(const char* strUniform, ULONG ulHandle, FLOAT fVariable)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    pglUniform1f(pglGetUniformLocation(ulHandle, strUniform), fVariable);
+}

@@ -52,7 +52,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/WorldSettingsController.h"
 #include "EntitiesMP/ScrollHolder.h"
 #include "EntitiesMP/TextFXHolder.h"
-#include "EntitiesMP/SeriousBomb.h"
 #include "EntitiesMP/CreditsHolder.h"
 #include "EntitiesMP/HudPicHolder.h"
 #include "EntitiesMP/OverlayHolder.h"
@@ -343,6 +342,7 @@ static INDEX cht_bGiveAll    = FALSE;
 static INDEX cht_bOpen       = FALSE;
 static INDEX cht_bRefresh    = FALSE;
 extern INDEX cht_bGod        = FALSE;
+extern INDEX cht_bBuddha     = FALSE;
 extern INDEX cht_bFly        = FALSE;
 extern INDEX cht_bGhost      = FALSE;
 extern INDEX cht_bInvisible  = FALSE;
@@ -703,7 +703,6 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_SNOW_LAND      );
 
   pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_TELEPORT);
-  pdec->PrecacheClass(CLASS_SERIOUSBOMB);
 
   pdec->PrecacheModel(MODEL_FLESH);
   pdec->PrecacheTexture(TEXTURE_FLESH_RED);
@@ -802,6 +801,7 @@ void CPlayer_OnInitClass(void)
 
   // cheats
   _pShell->DeclareSymbol("user INDEX cht_bGod;",       &cht_bGod);
+  _pShell->DeclareSymbol("user INDEX cht_bBuddha;",    &cht_bBuddha);
   _pShell->DeclareSymbol("user INDEX cht_bFly;",       &cht_bFly);
   _pShell->DeclareSymbol("user INDEX cht_bGhost;",     &cht_bGhost);
   _pShell->DeclareSymbol("user INDEX cht_bInvisible;", &cht_bInvisible);
@@ -1223,8 +1223,8 @@ components:
   2 class   CLASS_PLAYER_ANIMATOR "Classes\\PlayerAnimator.ecl",
   3 class   CLASS_PLAYER_VIEW     "Classes\\PlayerView.ecl",
   4 class   CLASS_BASIC_EFFECT    "Classes\\BasicEffect.ecl",
-  5 class   CLASS_BLOOD_SPRAY     "Classes\\BloodSpray.ecl", 
-  6 class   CLASS_SERIOUSBOMB     "Classes\\SeriousBomb.ecl",
+  5 class   CLASS_BLOOD_SPRAY     "Classes\\BloodSpray.ecl",
+  6 class   CLASS_BLOOD_UNI       "Classes\\BloodUni.ecl",
 
 // gender specific sounds - make sure that offset is exactly 100 
  50 sound SOUND_WATER_ENTER     "Sounds\\Player\\WaterEnter.wav",
@@ -2770,7 +2770,7 @@ functions:
     }
 
     // if in tourist mode
-    if (GetSP()->sp_gdGameDifficulty==CSessionProperties::GD_TOURIST && GetFlags()&ENF_ALIVE) {
+    if ((GetSP()->sp_gdGameDifficulty==CSessionProperties::GD_TOURIST && GetFlags()&ENF_ALIVE) || ( cht_bBuddha && CheatsEnabled() )) {
       // slowly increase health with time
       FLOAT fHealth = GetHealth();
       FLOAT fTopHealth = TopHealth();
@@ -3013,26 +3013,26 @@ functions:
 
       // spawn blood spray
       CPlacement3D plSpray = CPlacement3D( vHitPointCorrect, ANGLE3D(0, 0, 0));
-      m_penSpray = CreateEntity( plSpray, CLASS_BLOOD_SPRAY);
-      m_penSpray->SetParent( this);
-      ESpawnSpray eSpawnSpray;
-      eSpawnSpray.colBurnColor=C_WHITE|CT_OPAQUE;
+      m_penSpray = CreateEntity( plSpray, CLASS_BLOOD_UNI);
+      //m_penSpray->SetParent( this);
+      ESpawnBlood eSpawnBlood;
+      eSpawnBlood.colBurnColor=C_WHITE|CT_OPAQUE;
       
       if( m_fMaxDamageAmmount > 10.0f)
       {
-        eSpawnSpray.fDamagePower = 1.25f;
+        eSpawnBlood.fDamagePower = 1.35f;
       }
       else if(m_fSprayDamage+fDamageAmmount>50.0f)
       {
-        eSpawnSpray.fDamagePower = 0.75f;
+        eSpawnBlood.fDamagePower = 0.85f;
       }
       else
       {
-        eSpawnSpray.fDamagePower = 0.45f;
+        eSpawnBlood.fDamagePower = 0.65f;
       }
 
-      eSpawnSpray.sptType = SPT_BLOOD;
-      eSpawnSpray.fSizeMultiplier = 0.5f;
+      eSpawnBlood.sptType = SPT_BLOOD;
+      eSpawnBlood.fSizeMultiplier = 0.5f;
 
       // setup direction of spray
       FLOAT3D vHitPointRelative = vHitPointCorrect - GetPlacement().pl_PositionVector;
@@ -3045,11 +3045,11 @@ functions:
       FLOAT3D vProjectedComponent = vReflectingNormal*(vDirection%vReflectingNormal);
       FLOAT3D vSpilDirection = vDirection-vProjectedComponent*2.0f-en_vGravityDir*0.5f;
 
-      eSpawnSpray.vDirection = vSpilDirection;
-      eSpawnSpray.penOwner = this;
+      eSpawnBlood.vDirection = vSpilDirection;
+      eSpawnBlood.penOwner = this;
 
       // initialize spray
-      m_penSpray->Initialize( eSpawnSpray);
+      m_penSpray->Initialize( eSpawnBlood);
       m_tmSpraySpawned = _pTimer->CurrentTick();
       m_fSprayDamage = 0.0f;
       m_fMaxDamageAmmount = 0.0f;
@@ -3157,6 +3157,15 @@ functions:
     }
 
     FLOAT fSubHealth, fSubArmor;
+
+    // buddha mode -> your health never goes below 1
+    if( cht_bBuddha && CheatsEnabled() ) {
+      if(GetHealth() < 1) {
+        SetHealth(1);
+        return;
+      }
+    }
+
     if( dmtType == DMT_DROWNING) {
       // drowning
       fSubHealth = fDamageAmmount;
@@ -3196,7 +3205,9 @@ functions:
       return;
     }
 
-    DamageImpact(dmtType, fSubHealth, vHitPoint, vDirection);
+    if( !cht_bBuddha && !CheatsEnabled() ) {
+      DamageImpact(dmtType, fSubHealth, vHitPoint, vDirection);
+    }
 
     // receive damage
     CPlayerEntity::ReceiveDamage( penInflictor, dmtType, fSubHealth, vHitPoint, vDirection, dbptType);
@@ -3831,7 +3842,7 @@ functions:
 
     // if the sting time has passed
     FLOAT tmSinceStinging = _pTimer->CurrentTick() - m_tmStungTime;
-    if(tmSinceStinging<0.0f) {
+    if(tmSinceStinging<5.0f) {
       m_bIsStung = FALSE;
     }
   }
@@ -5107,18 +5118,25 @@ functions:
     // do screen blending
     ULONG ulR=255, ulG=0, ulB=0; // red for wounding
     ULONG ulA = pen->m_fDamageAmmount*5.0f;
-    
-    // if player got stung by an abomination
-    if(m_bIsStung) {
-      ulR=64, ulG=0, ulB=0; // dark red for stinging
-      ulA=112;
-    }
 
     // if less than few seconds elapsed since last damage
     FLOAT tmSinceWounding = _pTimer->CurrentTick() - pen->m_tmWoundedTime;
-    if( tmSinceWounding<4.0f) {
+    FLOAT tmSinceStinging = _pTimer->CurrentTick() - pen->m_tmStungTime;
+
+    // if player got stung by an abomination
+    if(tmSinceStinging < 0.0f) {
+      ulR=64, ulG=0, ulB=0; // dark red for stinging
+      ulA *= 112 - tmSinceStinging / 2.0f;
+    }
+
+    if( tmSinceWounding < 4.0f) {
       // decrease damage ammount
       if( tmSinceWounding<0.001f) { ulA = (ulA+64)/2; }
+    }
+
+    if(tmSinceStinging < 5.0f) {
+      // decrease sting screen tint ammount
+      if( tmSinceStinging<0.001f) { ulA = (ulA+64)/2; }
     }
 
     // add rest of blend ammount
@@ -6771,7 +6789,13 @@ procedures:
     wait() {
       on (EBegin) : { call FirstInit(); }
       on (ERebirth) : { call Rebirth(); }
-      on (EDeath eDeath) : { call Death(eDeath); }
+      on (EDeath eDeath) : { 
+        if( cht_bBuddha && CheatsEnabled() ) {
+          resume;
+        } else {
+          call Death(eDeath);
+        }
+      }
       on (EDamage eDamage) : { call Wounded(eDamage); }
       on (EPreLevelChange) : { 
         m_ulFlags&=~PLF_INITIALIZED; 

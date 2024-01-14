@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep.
+/* Copyright (c) 2021-2024 Uni Musuotankarep.
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -74,6 +74,33 @@ enum TwitcherType {
 
 %{
 
+  static INDEX idNightmareTwitcherAnim_TPose = -1;
+  static INDEX idNightmareTwitcherAnim_Stand = -1;
+  static INDEX idNightmareTwitcherAnim_Stand2 = -1;
+  static INDEX idNightmareTwitcherAnim_Walk  = -1;
+  static INDEX idNightmareTwitcherAnim_Run   = -1;
+  static INDEX idNightmareTwitcherAnim_Run2   = -1;
+  static INDEX idNightmareTwitcherAnim_Backpedal   = -1;
+  static INDEX idNightmareTwitcherAnim_StrafeLeft  = -1;
+  static INDEX idNightmareTwitcherAnim_StrafeRight = -1;
+  static INDEX idNightmareTwitcherAnim_Wound   = -1;
+  static INDEX idNightmareTwitcherAnim_Jump    = -1;
+  static INDEX idNightmareTwitcherAnim_Melee1  = -1;
+  static INDEX idNightmareTwitcherAnim_Melee2  = -1;
+  static INDEX idNightmareTwitcherAnim_Melee3  = -1;
+  static INDEX idNightmareTwitcherAnim_Melee4  = -1;
+  static INDEX idNightmareTwitcherAnim_Melee5  = -1;
+  static INDEX idNightmareTwitcherAnim_Melee6  = -1;
+  static INDEX idNightmareTwitcherAnim_Melee7  = -1;
+  static INDEX idNightmareTwitcherAnim_LeapMelee1 = -1;
+  static INDEX idNightmareTwitcherAnim_DeathFront = -1;
+  static INDEX idNightmareTwitcherAnim_DeathBack  = -1;
+  static INDEX idNightmareTwitcherAnim_SpinMelee1 = -1;
+  static INDEX idNightmareTwitcherAnim_Block      = -1;
+  static INDEX idNightmareTwitcherBox_Stand  = -1;
+  static INDEX idNightmareTwitcherBox_DeathFront   = -1;
+  static INDEX idNightmareTwitcherBox_DeathBack    = -1;
+
 // info structure
 static EntityInfo eiTwitcher = {
   EIBT_FLESH, 250.0f,
@@ -135,7 +162,9 @@ components:
  72 texture TEXTURE_TWITCHERMALE3_BLACK      "Models\\NPCs\\Twitcher\\MaleTwitcher3\\Twitcher1t.tex",
  73 model   MODEL_TWITCHERBLADEDPALE         "Models\\NPCs\\Twitcher\\PaleBladedTwitcher\\TwitcherPaleBladed.mdl",
  74 texture TEXTURE_TWITCHERBLADEDPALE       "Models\\NPCs\\Twitcher\\PaleBladedTwitcher\\Twitcher1u.tex",
- 76 model   MODEL_TWITCHERBLADEDNIGHTMARE    "Models\\NPCs\\Twitcher\\NightmareBladedTwitcherNew\\TwitcherNightmareBladed.mdl",
+ 76 skamodel MODEL_TWITCHERBLADEDNIGHTMARE   "Models\\NPCs\\TwitcherSKA\\NightmareBladedTwitcher\\TwitcherNightmareBladed.smc",
+113 skamodel MODEL_TWITCHERBLADEDNIGHTMARE2  "Models\\NPCs\\TwitcherSKA\\NightmareBladedTwitcher\\TwitcherNightmareBladed2.smc",
+114 skamodel MODEL_TWITCHERBLADEDNIGHTMARE3  "Models\\NPCs\\TwitcherSKA\\NightmareBladedTwitcher\\TwitcherNightmareBladed3.smc",
  77 texture TEXTURE_TWITCHERBLADEDNIGHTMARE  "Models\\NPCs\\Twitcher\\NightmareBladedTwitcherNew\\TwitcherNightmareBladed1.tex",
 105 texture TEXTURE_TWITCHERBLADEDNIGHTMARE2 "Models\\NPCs\\Twitcher\\NightmareBladedTwitcherNew\\TwitcherNightmareBladed2.tex",
 106 texture TEXTURE_TWITCHERBLADEDNIGHTMARE3 "Models\\NPCs\\Twitcher\\NightmareBladedTwitcherNew\\TwitcherNightmareBladed3.tex",
@@ -206,6 +235,39 @@ components:
 100 sound   SOUND_NIGHTMARE_ATTACK3       "Models\\NPCs\\Twitcher\\Sounds\\NightmareAttack3.wav",
 
 functions:
+
+  void CTwitcher(void) {
+  // Get nightmare twitcher animation IDs
+  idNightmareTwitcherAnim_TPose       = ska_GetIDFromStringTable("TPOSE");
+  idNightmareTwitcherAnim_Stand       = ska_GetIDFromStringTable("STAND");
+  idNightmareTwitcherAnim_Stand2      = ska_GetIDFromStringTable("STAND2");
+  idNightmareTwitcherAnim_Walk        = ska_GetIDFromStringTable("WALK");
+  idNightmareTwitcherAnim_Run         = ska_GetIDFromStringTable("RUN");
+  idNightmareTwitcherAnim_Run2        = ska_GetIDFromStringTable("RUN2");
+  idNightmareTwitcherAnim_Backpedal   = ska_GetIDFromStringTable("BACKPEDAL");
+  idNightmareTwitcherAnim_StrafeLeft  = ska_GetIDFromStringTable("STRAFELEFT");
+  idNightmareTwitcherAnim_StrafeRight = ska_GetIDFromStringTable("STRAFERIGHT");
+  idNightmareTwitcherAnim_Wound       = ska_GetIDFromStringTable("WOUND");
+  idNightmareTwitcherAnim_Jump        = ska_GetIDFromStringTable("JUMP");
+  idNightmareTwitcherAnim_Melee1      = ska_GetIDFromStringTable("MELEE1");
+  idNightmareTwitcherAnim_Melee2      = ska_GetIDFromStringTable("MELEE2");
+  idNightmareTwitcherAnim_Melee3      = ska_GetIDFromStringTable("MELEE3");
+  idNightmareTwitcherAnim_Melee4      = ska_GetIDFromStringTable("MELEE4");
+  idNightmareTwitcherAnim_Melee5      = ska_GetIDFromStringTable("MELEE5");
+  idNightmareTwitcherAnim_Melee6      = ska_GetIDFromStringTable("MELEE6");
+  idNightmareTwitcherAnim_Melee7      = ska_GetIDFromStringTable("MELEE7");
+  idNightmareTwitcherAnim_LeapMelee1  = ska_GetIDFromStringTable("LEAPMELEE1");
+  idNightmareTwitcherAnim_SpinMelee1  = ska_GetIDFromStringTable("SPINMELEE1");
+  idNightmareTwitcherAnim_DeathFront  = ska_GetIDFromStringTable("DEATHFRONT");
+  idNightmareTwitcherAnim_DeathBack   = ska_GetIDFromStringTable("DEATHBACK");
+  idNightmareTwitcherAnim_Block       = ska_GetIDFromStringTable("BLOCK");
+
+  // Get nightmare twitcher collision box IDs
+  idNightmareTwitcherBox_Stand       = ska_GetIDFromStringTable("Stand");
+  idNightmareTwitcherBox_DeathFront  = ska_GetIDFromStringTable("DeathFront");
+  idNightmareTwitcherBox_DeathBack   = ska_GetIDFromStringTable("DeathBack");
+};
+
   // describe how this enemy killed player
   virtual CTString GetPlayerKillDescription(const CTString &strPlayerName, const EDeath &eDeath)
   {
@@ -356,16 +418,14 @@ functions:
   {
     if(m_bAllowInfighting) {
       CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
-      if(IsOfClass(penInflictor, "Twitcher")) {
+      if (IsOfClass(penInflictor, "Twitcher")) {
         SetTargetHardForce(penInflictor);
-        // if died of chainsaw
-        if (dmtType==DMT_CHAINSAW && GetHealth()<=0) {
-          // must always blowup
-          m_fBlowUpAmount = 0;
-        }
       }
-
-      
+      // if died of chainsaw
+      if (dmtType==DMT_CHAINSAW && GetHealth()<=0) {
+        // must always blowup
+        m_fBlowUpAmount = 0;
+      }
     } else {
       // twitcher can't harm twitcher
       if (!IsOfClass(penInflictor, "Twitcher")) {
@@ -386,7 +446,7 @@ functions:
 
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      iAnim = TWITCHERNIGHTMAREBLADED_ANIM_WOUND;
+      iAnim = idNightmareTwitcherAnim_Wound;
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -444,7 +504,15 @@ functions:
     {
       iAnim = TWITCHERBALD_ANIM_WOUND;
     }
-    StartModelAnim(iAnim, 0);
+
+    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    {
+      GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
+    }
+    else
+    {
+      StartModelAnim(iAnim, 0);
+    }
 
     return iAnim;
   };
@@ -459,9 +527,9 @@ functions:
       if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
       {
         if (fDamageDir<0) {
-          iAnim = TWITCHERNIGHTMAREBLADED_ANIM_DEATHFRONT;
+          iAnim = idNightmareTwitcherAnim_DeathFront;
         } else {
-          iAnim = TWITCHERNIGHTMAREBLADED_ANIM_DEATHBACK;
+          iAnim = idNightmareTwitcherAnim_DeathBack;
         }
       }
       else if(m_twChar == TWC_STRONGBLADEDPALE)
@@ -577,7 +645,15 @@ functions:
         }
       }
 
-    StartModelAnim(iAnim, 0);
+    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    {
+      GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
+    }
+    else
+    {
+      StartModelAnim(iAnim, 0);
+    }
+
     return iAnim;
   };
 
@@ -594,125 +670,137 @@ functions:
     eSound.penTarget = m_penEnemy;
     SendEventInRange(eSound, FLOATaabbox3D(GetPlacement().pl_PositionVector, 30.0f));
 
-    if(GetModelObject()->GetAnim()==TWITCHERNIGHTMAREBLADED_ANIM_DEATHFRONT)
+    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERNIGHTMAREBLADED_COLLISION_BOX_DEATHBOX_FRONT);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERNIGHTMAREBLADED_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERNIGHTMAREBLADED_COLLISION_BOX_DEATHBOX_BACK);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERPALEBLADED_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERPALEBLADED_COLLISION_BOX_FRONTDEATH_BOX);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERPALEBLADED_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERPALEBLADED_COLLISION_BOX_BACKDEATH_BOX);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERMALE3_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE3_COLLISION_BOX_FRONTDEATH_BOX);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERMALE3_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE3_COLLISION_BOX_BACKDEATH_BOX);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERSHADOW_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERSHADOW_COLLISION_BOX_FRONTDEATH_BOX);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERSHADOW_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERSHADOW_COLLISION_BOX_BACKDEATH_BOX);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERBLADED4_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED4_COLLISION_BOX_FRONTDEATH_BOX);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERBLADED4_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED4_COLLISION_BOX_BACKDEATH_BOX);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERSKINNED_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERSKINNED_COLLISION_BOX_DEATHBOX_FRONT);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERSKINNED_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERSKINNED_COLLISION_BOX_DEATHBOX_BACK);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERBLADED3_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED3_COLLISION_BOX_FRONTDEATH_BOX);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERBLADED3_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED3_COLLISION_BOX_BACKDEATH_BOX);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERBLADED2_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED2_COLLISION_BOX_DEATHBOX_FRONT);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERBLADED2_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED2_COLLISION_BOX_DEATHBOX_BACK);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERFEMALE2_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERFEMALE2_COLLISION_BOX_DEATHBOX_FRONT);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERFEMALE2_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERFEMALE2_COLLISION_BOX_DEATHBOX_BACK);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERMALE2_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE2_COLLISION_BOX_DEATHBOX_FRONT);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERMALE2_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE2_COLLISION_BOX_DEATHBOX_BACK);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERBLADED_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED_COLLISION_BOX_DEATHBOX_FRONT);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERBLADED_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED_COLLISION_BOX_DEATHBOX_BACK);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERSTRONG_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERSTRONG_COLLISION_BOX_DEATHBOX_FRONT);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERSTRONG_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERSTRONG_COLLISION_BOX_DEATHBOX_BACK);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERMALE_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE_COLLISION_BOX_DEATHBOX_FRONT);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERMALE_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE_COLLISION_BOX_DEATHBOX_BACK);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERFEMALE_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERFEMALE_COLLISION_BOX_DEATHBOX_FRONT);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERFEMALE_ANIM_DEATHBACK)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERFEMALE_COLLISION_BOX_DEATHBOX_BACK);
-    }
-    else if(GetModelObject()->GetAnim()==TWITCHERBALD_ANIM_DEATHFRONT)
-    {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERBALD_COLLISION_BOX_DEATHBOX_FRONT);
+      if(GetModelInstance()->IsAnimationPlaying(idNightmareTwitcherAnim_DeathFront))
+      {
+        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idNightmareTwitcherBox_DeathFront);
+        ASSERT(iBoxIndex>=0);
+        ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
+        SetSkaColisionInfo();
+      }
+      else
+      {
+        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idNightmareTwitcherBox_DeathBack);
+        ASSERT(iBoxIndex>=0);
+        ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
+        SetSkaColisionInfo();
+      }
     }
     else
     {
-      ChangeCollisionBoxIndexWhenPossible(TWITCHERBALD_COLLISION_BOX_DEATHBOX_BACK);
+      if(GetModelObject()->GetAnim()==TWITCHERPALEBLADED_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERPALEBLADED_COLLISION_BOX_FRONTDEATH_BOX);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERPALEBLADED_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERPALEBLADED_COLLISION_BOX_BACKDEATH_BOX);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERMALE3_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE3_COLLISION_BOX_FRONTDEATH_BOX);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERMALE3_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE3_COLLISION_BOX_BACKDEATH_BOX);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERSHADOW_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERSHADOW_COLLISION_BOX_FRONTDEATH_BOX);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERSHADOW_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERSHADOW_COLLISION_BOX_BACKDEATH_BOX);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERBLADED4_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED4_COLLISION_BOX_FRONTDEATH_BOX);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERBLADED4_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED4_COLLISION_BOX_BACKDEATH_BOX);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERSKINNED_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERSKINNED_COLLISION_BOX_DEATHBOX_FRONT);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERSKINNED_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERSKINNED_COLLISION_BOX_DEATHBOX_BACK);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERBLADED3_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED3_COLLISION_BOX_FRONTDEATH_BOX);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERBLADED3_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED3_COLLISION_BOX_BACKDEATH_BOX);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERBLADED2_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED2_COLLISION_BOX_DEATHBOX_FRONT);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERBLADED2_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED2_COLLISION_BOX_DEATHBOX_BACK);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERFEMALE2_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERFEMALE2_COLLISION_BOX_DEATHBOX_FRONT);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERFEMALE2_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERFEMALE2_COLLISION_BOX_DEATHBOX_BACK);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERMALE2_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE2_COLLISION_BOX_DEATHBOX_FRONT);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERMALE2_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE2_COLLISION_BOX_DEATHBOX_BACK);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERBLADED_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED_COLLISION_BOX_DEATHBOX_FRONT);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERBLADED_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERBLADED_COLLISION_BOX_DEATHBOX_BACK);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERSTRONG_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERSTRONG_COLLISION_BOX_DEATHBOX_FRONT);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERSTRONG_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERSTRONG_COLLISION_BOX_DEATHBOX_BACK);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERMALE_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE_COLLISION_BOX_DEATHBOX_FRONT);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERMALE_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERMALE_COLLISION_BOX_DEATHBOX_BACK);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERFEMALE_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERFEMALE_COLLISION_BOX_DEATHBOX_FRONT);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERFEMALE_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERFEMALE_COLLISION_BOX_DEATHBOX_BACK);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERBALD_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERBALD_COLLISION_BOX_DEATHBOX_FRONT);
+      }
+      else
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERBALD_COLLISION_BOX_DEATHBOX_BACK);
+      }
     }
     
     en_fDensity = 500.0f;
@@ -722,7 +810,7 @@ functions:
   void StandingAnim(void) {
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_STAND, AOF_LOOPING|AOF_NORESTART);
+      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -790,7 +878,7 @@ functions:
     }
     else if (m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_STAND2, AOF_LOOPING|AOF_NORESTART);
+      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Stand2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_MALE2WHITE || m_twChar == TWC_MALE2BLACK)
     {
@@ -829,7 +917,7 @@ functions:
   void WalkingAnim(void) {
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -893,9 +981,9 @@ functions:
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
       if(m_bMoveFast) {
-        StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_RUN2, AOF_LOOPING|AOF_NORESTART);
+        GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Run2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
       } else {
-        StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
+        GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
       }
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
@@ -1005,7 +1093,7 @@ functions:
   void BacksteppingAnim(void) {
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_BACKPEDAL, AOF_LOOPING|AOF_NORESTART);
+      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Backpedal,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -1052,7 +1140,7 @@ functions:
   void StrafeLeftAnim(void) {
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_STRAFELEFT, AOF_LOOPING|AOF_NORESTART);
+      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_StrafeLeft,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if (m_twChar == TWC_STRONGBLADED3)
     {
@@ -1075,7 +1163,7 @@ functions:
   void StrafeRightAnim(void) {
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_STRAFERIGHT, AOF_LOOPING|AOF_NORESTART);
+      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_StrafeRight,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if (m_twChar == TWC_STRONGBLADED3)
     {
@@ -1099,7 +1187,7 @@ functions:
 
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_JUMP, AOF_LOOPING|AOF_NORESTART);
+      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -1338,15 +1426,6 @@ functions:
         return FALSE;
       }
 
-      // don't target your allies
-      if(enEB.GetFaction() == this->GetFaction())
-      {
-        if(m_bAllowInfighting && IsOfClass(penNewTarget, "Twitcher")) {
-          return TRUE;
-        }
-        return FALSE;
-      }
-
       // make exceptions for targets
       if((enEB.GetFaction() == FT_SHADOW) || (enEB.GetFaction() == FT_WILDLIFE))
       {
@@ -1355,6 +1434,15 @@ functions:
 
       if((this->GetFaction() == FT_WILDLIFE || this->GetFaction() == FT_SHADOW) && (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_GREATER))
       {
+        return FALSE;
+      }
+
+      // don't target your allies
+      if(enEB.GetFaction() == this->GetFaction())
+      {
+        if(m_bAllowInfighting) {
+          return TRUE;
+        }
         return FALSE;
       }
 
@@ -1371,7 +1459,7 @@ functions:
   BlockEnemyMelee(EVoid) {
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_BLOCK, 0);
+      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Block,AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -2136,14 +2224,14 @@ functions:
       autocall BlockEnemyMelee() EReturn;
       return EReturn();
     }
-
+    
     switch(IRnd()%5)
     {
-      case 0: StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_MELEE1, 0); break;
-      case 1: StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_MELEE2, 0); break;
-      case 2: StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_MELEE3, 0); break;
-      case 3: StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_MELEE4, 0); break;
-      case 4: StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_MELEE7, 0); break;
+      case 0: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee1,AN_CLEAR,1,0); break;
+      case 1: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee2,AN_CLEAR,1,0); break;
+      case 2: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee3,AN_CLEAR,1,0); break;
+      case 3: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee4,AN_CLEAR,1,0); break;
+      case 4: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee7,AN_CLEAR,1,0); break;
       default: ASSERTALWAYS("Nightmare Bladed Twitcher unknown melee attack");
     }
 
@@ -2260,8 +2348,8 @@ functions:
 
     switch(IRnd()%2)
     {
-      case 0: StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_MELEE5, 0); break;
-      case 1: StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_MELEE6, 0); break;
+      case 0: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee5,AN_CLEAR,1,0); break;
+      case 1: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee6,AN_CLEAR,1,0); break;
       default: ASSERTALWAYS("Nightmare Bladed Twitcher unknown melee attack");
     }
 
@@ -2441,7 +2529,7 @@ functions:
 
   TwitcherNightmareBladedSpinSlash(EVoid) {
 
-    StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_SPINMELEE1, 0);
+    GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_SpinMelee1,AN_CLEAR,1,0);
 
     m_bFistHit = FALSE;
     autowait(0.5f);
@@ -2522,7 +2610,7 @@ functions:
 
   TwitcherNightmareBladedLeap(EVoid) {
 
-    StartModelAnim(TWITCHERNIGHTMAREBLADED_ANIM_LEAPMELEE1, 0);
+    GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_LeapMelee1,AN_CLEAR,1,0);
 
     // jump
     FLOAT3D vDir = (m_penEnemy->GetPlacement().pl_PositionVector -
@@ -2535,7 +2623,7 @@ functions:
 
     // animation - IGNORE DAMAGE WOUND -
     SpawnReminder(this, 0.75f, 0);
-    m_iChargeHitAnimation = TWITCHERNIGHTMAREBLADED_ANIM_LEAPMELEE1;
+    m_iChargeHitAnimation = idNightmareTwitcherAnim_LeapMelee1;
     m_fChargeHitDamage = 30.0f;
     m_fChargeHitAngle = 0.0f;
     m_fChargeHitSpeed = 18.0f;
@@ -3174,7 +3262,11 @@ functions:
  ************************************************************/
   Main(EVoid) {
     // declare yourself as a model
-    InitAsModel();
+    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3) {
+      InitAsSkaModel();
+    } else {
+      InitAsModel();
+    }
     SetPhysicsFlags(EPF_MODEL_WALKING|EPF_HASLUNGS);
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
@@ -3384,9 +3476,8 @@ functions:
         m_fDamageWounded = 190.0f;
         m_iScore = 25000;
         en_fDensity = 1500.0f;
-        SetModel(MODEL_TWITCHERBLADEDNIGHTMARE);
-        SetModelMainTexture(TEXTURE_TWITCHERBLADEDNIGHTMARE);
-        GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        SetSkaModel(MODEL_TWITCHERBLADEDNIGHTMARE);
+        GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
       } break;
       case TWC_STRONGBLADEDNIGHTMARE:
@@ -3436,9 +3527,8 @@ functions:
         m_fDamageWounded = 190.0f;
         m_iScore = 25000;
         en_fDensity = 1500.0f;
-        SetModel(MODEL_TWITCHERBLADEDNIGHTMARE);
-        SetModelMainTexture(TEXTURE_TWITCHERBLADEDNIGHTMARE2);
-        GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        SetSkaModel(MODEL_TWITCHERBLADEDNIGHTMARE2);
+        GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
       } break;
       case TWC_NIGHTMAREBLADED3:
@@ -3448,9 +3538,8 @@ functions:
         m_fDamageWounded = 190.0f;
         m_iScore = 25000;
         en_fDensity = 1500.0f;
-        SetModel(MODEL_TWITCHERBLADEDNIGHTMARE);
-        SetModelMainTexture(TEXTURE_TWITCHERBLADEDNIGHTMARE3);
-        GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        SetSkaModel(MODEL_TWITCHERBLADEDNIGHTMARE3);
+        GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
       } break;
       case TWC_STRONGBLOODY:

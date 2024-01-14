@@ -256,6 +256,8 @@ extern void (*gfxSetShaderProgram)(const ULONG ulHandle);
 extern ULONG (*gfxCreateVertexProgram)(const char *strVertexProgram, ULONG ulProgram);
 extern ULONG (*gfxCreateFragmentProgram)(const char *strFragmentProgram, ULONG ulProgram);
 extern void (*gfxDeleteShaderProgram)(ULONG ulHandle, ULONG ulShader);
+extern void (*gfxSetShaderProgramIndex)(const char *strUniform, ULONG ulHandle, INDEX iVariable);
+extern void (*gfxSetShaderProgramFloat)(const char *strUniform, ULONG ulHandle, FLOAT fVariable);
 
 
 // MISC

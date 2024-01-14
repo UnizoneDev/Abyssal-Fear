@@ -196,6 +196,7 @@
     <ClCompile Include="NPCModelShader.cpp" />
     <ClCompile Include="Reflection.cpp" />
     <ClCompile Include="ReftectionAndSpecular.cpp" />
+	<ClCompile Include="ShadowWarpShader.cpp" />
     <ClCompile Include="Specular.cpp" />
     <ClCompile Include="StdH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

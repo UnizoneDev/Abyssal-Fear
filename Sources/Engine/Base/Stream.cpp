@@ -38,6 +38,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include <Engine/Templates/Stock_CTextureData.h>
 #include <Engine/Templates/Stock_CModelData.h>
+#include <Engine/Templates/Stock_CModelInstanceData.h>
 
 // default size of page used for stream IO operations (4Kb)
 ULONG _ulPageSize = 0;
@@ -812,6 +813,8 @@ void CTStream::DictionaryReadEnd_t(void)
         _pTextureStock->Release((CTextureData*)fnm.fnm_pserPreloaded);
       } else if (strExt==".mdl") {
         _pModelStock->Release((CModelData*)fnm.fnm_pserPreloaded);
+      } else if (strExt == ".smc") {
+        _pModelInstanceStock->Release((CModelInstanceData*)fnm.fnm_pserPreloaded);
       }
     }
 
@@ -832,6 +835,8 @@ void CTStream::DictionaryPreload_t(void)
         fnm.fnm_pserPreloaded = _pTextureStock->Obtain_t(fnm);
       } else if (strExt==".mdl") {
         fnm.fnm_pserPreloaded = _pModelStock->Obtain_t(fnm);
+      } else if (strExt == ".smc") {
+        fnm.fnm_pserPreloaded = _pModelInstanceStock->Obtain_t(fnm);
       }
     } catch (char *strError) {
       CPrintF( TRANS("Cannot preload %s: %s\n"), (CTString&)fnm, strError);
@@ -1442,13 +1447,14 @@ BOOL RemoveFile(const CTFileName &fnmFile)
 
 static BOOL IsFileReadable_internal(CTFileName &fnmFullFileName)
 {
-  FILE *pFile = fopen(fnmFullFileName, "rb");
-  if (pFile!=NULL) {
-    fclose(pFile);
-    return TRUE;
-  } else {
-    return FALSE;
-  }
+    FILE* pFile = fopen(fnmFullFileName, "rb");
+    if (pFile != NULL) {
+        fclose(pFile);
+        return TRUE;
+    }
+    else {
+        return FALSE;
+    }
 }
 
 // check for some file extensions that can be substituted
@@ -1556,56 +1562,59 @@ static INDEX ExpandFilePath_read(ULONG ulType, const CTFileName &fnmFile, CTFile
 }
 
 // Expand a file's filename to full path
-INDEX ExpandFilePath(ULONG ulType, const CTFileName &fnmFile, CTFileName &fnmExpanded)
+INDEX ExpandFilePath(ULONG ulType, const CTFileName& fnmFile, CTFileName& fnmExpanded)
 {
-  CTFileName fnmFileAbsolute = fnmFile;
-  fnmFileAbsolute.SetAbsolutePath();
+    CTFileName fnmFileAbsolute = fnmFile;
+    fnmFileAbsolute.SetAbsolutePath();
 
-  // if writing
-  if (ulType&EFP_WRITE) {
-    // if should write to mod dir
-    if (_fnmMod!="" && (!FileMatchesList(_afnmBaseWriteInc, fnmFileAbsolute) || FileMatchesList(_afnmBaseWriteExc, fnmFileAbsolute))) {
-      // do that
-      fnmExpanded = _fnmApplicationPath+_fnmMod+fnmFileAbsolute;
-      fnmExpanded.SetAbsolutePath();
-      return EFP_FILE;
-    // if should not write to mod dir
-    } else {
-      // write to base dir
-      fnmExpanded = _fnmApplicationPath+fnmFileAbsolute;
-      fnmExpanded.SetAbsolutePath();
-      return EFP_FILE;
+    // if writing
+    if (ulType & EFP_WRITE) {
+        // if should write to mod dir
+        if (_fnmMod != "" && (!FileMatchesList(_afnmBaseWriteInc, fnmFileAbsolute) || FileMatchesList(_afnmBaseWriteExc, fnmFileAbsolute))) {
+            // do that
+            fnmExpanded = _fnmApplicationPath + _fnmMod + fnmFileAbsolute;
+            fnmExpanded.SetAbsolutePath();
+            return EFP_FILE;
+            // if should not write to mod dir
+        }
+        else {
+            // write to base dir
+            fnmExpanded = _fnmApplicationPath + fnmFileAbsolute;
+            fnmExpanded.SetAbsolutePath();
+            return EFP_FILE;
+        }
+
+        // if reading
+    }
+    else if (ulType & EFP_READ) {
+
+        // check for expansions for reading
+        INDEX iRes = ExpandFilePath_read(ulType, fnmFileAbsolute, fnmExpanded);
+        // if not found
+        if (iRes == EFP_NONE) {
+            //check for some file extensions that can be substituted
+            CTFileName fnmSubst = fnmFileAbsolute;
+            if (SubstExt_internal(fnmSubst)) {
+                iRes = ExpandFilePath_read(ulType, fnmSubst, fnmExpanded);
+            }
+        }
+
+        fnmExpanded.SetAbsolutePath();
+
+        if (iRes != EFP_NONE) {
+            return iRes;
+        }
+
+        // in other cases
+    }
+    else {
+        ASSERT(FALSE);
+        fnmExpanded = _fnmApplicationPath + fnmFileAbsolute;
+        fnmExpanded.SetAbsolutePath();
+        return EFP_FILE;
     }
 
-  // if reading
-  } else if (ulType&EFP_READ) {
-
-    // check for expansions for reading
-    INDEX iRes = ExpandFilePath_read(ulType, fnmFileAbsolute, fnmExpanded);
-    // if not found
-    if (iRes==EFP_NONE) {
-      //check for some file extensions that can be substituted
-      CTFileName fnmSubst = fnmFileAbsolute;
-      if (SubstExt_internal(fnmSubst)) {
-        iRes = ExpandFilePath_read(ulType, fnmSubst, fnmExpanded);
-      }
-    }
-
+    fnmExpanded = _fnmApplicationPath + fnmFileAbsolute;
     fnmExpanded.SetAbsolutePath();
-
-    if (iRes!=EFP_NONE) {
-      return iRes;
-    }
-
-  // in other cases
-  } else  {
-    ASSERT(FALSE);
-    fnmExpanded = _fnmApplicationPath+fnmFileAbsolute;
-    fnmExpanded.SetAbsolutePath();
-    return EFP_FILE;
-  }
-
-  fnmExpanded = _fnmApplicationPath+fnmFileAbsolute;
-  fnmExpanded.SetAbsolutePath();
-  return EFP_NONE;
+    return EFP_NONE;
 }

@@ -28,6 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/Stock_CModelData.h>
 #include <Engine/Templates/Stock_CSoundData.h>
 #include <Engine/Templates/Stock_CEntityClass.h>
+#include <Engine/Templates/Stock_CModelInstanceData.h>
 
 #include <Engine/Templates/Stock_CEntityClass.h>
 
@@ -544,6 +545,15 @@ void CDLLEntityClass::PrecacheClass(SLONG slID, INDEX iUser /* = -1 */)
   pecClass->ObtainWithCheck();
   pecClass->ec_pecEntityClass->ec_pdecDLLClass->dec_OnPrecache(
     pecClass->ec_pecEntityClass->ec_pdecDLLClass, iUser);
+}
+
+void CDLLEntityClass::PrecacheSkaModel(SLONG slID)
+{
+    CTmpPrecachingNow tpn;
+
+    CEntityComponent* pecSkaModel = ComponentForTypeAndID(ECT_SKAMODEL, slID);
+    ASSERT(pecSkaModel != NULL);
+    pecSkaModel->ObtainWithCheck();
 }
 
 /*

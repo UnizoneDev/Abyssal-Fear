@@ -58,7 +58,7 @@ properties:
   7 CTString m_strName        "Name" 'N' ="",
  12 CTString m_strDescription = "",
   8 BOOL m_bColliding       "Collision" 'L' = FALSE,    // set if model is not immatierial
-//  9 ANIMATION m_iModelAnimation   "Model animation" = 0,
+  9 CTString m_strModelAnimation   "Model animation" = "",
 // 10 ANIMATION m_iTextureAnimation "Texture animation" = 0,
  11 enum SkaShadowType m_stClusterShadows "Shadows" 'W' = SST_CLUSTER,   // set if model uses cluster shadows
  13 BOOL m_bBackground     "Background" 'B' = FALSE,   // set if model is rendered in background
@@ -84,12 +84,12 @@ properties:
 // 36 FLOAT m_fMipFadeLenMetric  "Mip Fade Len (Metric)" = -1.0f,
  
  // random values variables
-// 50 BOOL m_bRandomStretch   "Apply RND stretch"   = FALSE, // apply random stretch
+   50 BOOL m_bRandomStretch   "Apply RND stretch"   = FALSE, // apply random stretch
 // 52 FLOAT m_fStretchRndX    "Stretch RND X (%)"   =  0.2f, // random stretch width
 // 51 FLOAT m_fStretchRndY    "Stretch RND Y (%)"   =  0.2f, // random stretch height
 // 53 FLOAT m_fStretchRndZ    "Stretch RND Z (%)"   =  0.2f, // random stretch depth
-// 54 FLOAT m_fStretchRndAll  "Stretch RND All (%)" =  0.0f, // random stretch all
-// 55 FLOAT3D m_fStretchRandom = FLOAT3D(1, 1, 1),
+   54 FLOAT m_fStretchRndAll  "Stretch RND All (%)" =  0.0f, // random stretch all
+   55 FLOAT3D m_fStretchRandom = FLOAT3D(1, 1, 1),
 
  // destruction values
 // 60 CEntityPointer m_penDestruction "Destruction" 'Q' COLOR(C_BLACK|0x20),    // model destruction entity
@@ -492,23 +492,23 @@ functions:
     if (Abs(m_vStretchXYZ(3))  >1000.0f) { m_vStretchXYZ(3)   = 1000.0f*Sgn(m_vStretchXYZ(3)); }
     if (m_fStretchAll>1000.0f) { m_fStretchAll = 1000.0f; }
 
-/*    if (m_bRandomStretch) {
+    if (m_bRandomStretch) {
       m_bRandomStretch = FALSE;
       // stretch
-      m_fStretchRndX   = Clamp( m_fStretchRndX   , 0.0f, 1.0f);
-      m_fStretchRndY   = Clamp( m_fStretchRndY   , 0.0f, 1.0f);
-      m_fStretchRndZ   = Clamp( m_fStretchRndZ   , 0.0f, 1.0f);
+      m_vStretchXYZ    = FLOAT3D(Clamp(m_vStretchXYZ(1), 0.0f, 1.0f), 
+                                 Clamp(m_vStretchXYZ(2), 0.0f, 1.0f), 
+                                 Clamp(m_vStretchXYZ(2), 0.0f, 1.0f));
       m_fStretchRndAll = Clamp( m_fStretchRndAll , 0.0f, 1.0f);
 
-      m_fStretchRandom(1) = (FRnd()*m_fStretchRndX*2 - m_fStretchRndX) + 1;
-      m_fStretchRandom(2) = (FRnd()*m_fStretchRndY*2 - m_fStretchRndY) + 1;
-      m_fStretchRandom(3) = (FRnd()*m_fStretchRndZ*2 - m_fStretchRndZ) + 1;
+      m_fStretchRandom(1) = (FRnd()*m_vStretchXYZ(1)*2 - m_vStretchXYZ(1)) + 1;
+      m_fStretchRandom(2) = (FRnd()*m_vStretchXYZ(2)*2 - m_vStretchXYZ(2)) + 1;
+      m_fStretchRandom(3) = (FRnd()*m_vStretchXYZ(3)*2 - m_vStretchXYZ(3)) + 1;
 
       FLOAT fRNDAll = (FRnd()*m_fStretchRndAll*2 - m_fStretchRndAll) + 1;
       m_fStretchRandom(1) *= fRNDAll;
       m_fStretchRandom(2) *= fRNDAll;
       m_fStretchRandom(3) *= fRNDAll;
-    }*/
+    }
 
     GetModelInstance()->StretchModel( m_vStretchXYZ*m_fStretchAll );
     ModelChangeNotify();
@@ -520,7 +520,7 @@ functions:
 
     // must not crash when model is removed
     if (m_fnModel=="") {
-      m_fnModel=CTFILENAME("Models\\Editor\\Ska\\Axis.smc");
+      m_fnModel=CTFILENAME("Models\\SkaStudio\\Axis\\Axis.smc");
     }
 
     if (m_bActive) {
@@ -541,7 +541,7 @@ functions:
       //SetSkaColisionInfo();
     }
     if (!bLoadOK) {
-      SetSkaModel(CTFILENAME("Models\\Editor\\Ska\\Axis.smc"));
+      SetSkaModel(CTFILENAME("Models\\SkaStudio\\Axis\\Axis.smc"));
     }
     
     /*try
@@ -760,21 +760,23 @@ procedures:
         resume;
       }*/
       // when animation should be changed
-      /*on(EChangeAnim eChange): {
-        m_iModelAnimation   = eChange.iModelAnim;
-        m_iTextureAnimation = eChange.iTextureAnim;
-        m_iLightAnimation   = eChange.iLightAnim;
-        if (m_aoLightAnimation.GetData()!=NULL) {
-          m_aoLightAnimation.PlayAnim(m_iLightAnimation, eChange.bLightLoop?AOF_LOOPING:0);
-        }
-        if (GetModelObject()->GetData()!=NULL) {
-          GetModelObject()->PlayAnim(m_iModelAnimation, eChange.bModelLoop?AOF_LOOPING:0);
-        }
-        if (GetModelObject()->mo_toTexture.GetData()!=NULL) {
-          GetModelObject()->mo_toTexture.PlayAnim(m_iTextureAnimation, eChange.bTextureLoop?AOF_LOOPING:0);
+      on(EChangeAnim eChange): {
+        m_strModelAnimation   = eChange.strSkaModelAnim;
+        if (m_strModelAnimation != "") {
+          INDEX iAnim = ska_GetIDFromStringTable(m_strModelAnimation);
+          INDEX iDummy1, iDummy2;
+          if(GetModelInstance()->FindAnimationByID(iAnim, &iDummy1, &iDummy2)) {
+            ULONG ulFlags = 0;
+			if (eChange.bModelLoop) {
+			  ulFlags = AN_LOOPING;
+			}
+            GetModelInstance()->AddAnimation(iAnim, ulFlags, 1, 1);
+          } else {
+            CPrintF("WARNING! Animation '%s' not found in SKA entity '%s'!\n", m_strModelAnimation, GetName());
+          }
         }
         resume;
-      }*/
+      }
       otherwise(): {
         resume;
       }

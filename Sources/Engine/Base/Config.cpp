@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep
+/* Copyright (c) 2021-2024 Dreamy Cecil & Uni Musuotankarep
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -32,6 +32,7 @@ void LoadConfigFile(const CTFileName &fnmFileName, CConfigPairs &aConfig)
         INDEX iValue;
         FLOAT fValue;
         char strValue[256];
+        BOOL bValue;
 
         INDEX iLine = 0;
 
@@ -69,6 +70,14 @@ void LoadConfigFile(const CTFileName &fnmFileName, CConfigPairs &aConfig)
                 ConfigPair& pair = aConfig.Push();
                 pair.key = strProp; // Set key name
                 pair.val.SetIndex(iValue); // Set number value
+
+              // Try to read the line with a number value as "strProp=bValue"
+            }
+            else if (strLine.ScanF("%256[^=]=%d", strProp, &bValue) == 2) {
+                // After reading a number value
+                ConfigPair& pair = aConfig.Push();
+                pair.key = strProp; // Set key name
+                pair.val.SetBool(bValue); // Set bool value
 
               // Invalid line
             }

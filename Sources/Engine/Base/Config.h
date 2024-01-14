@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep
+/* Copyright (c) 2021-2024 Dreamy Cecil & Uni Musuotankarep
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -31,27 +31,39 @@ class ENGINE_API ConfigValue {
     public:
     BOOL bString;
     BOOL bFloat;
+    BOOL bBool;
 
     CTString strValue;
     FLOAT fValue;
     INDEX iValue;
+    BOOL bValue;
 
     void SetString(const CTString& str) {
         strValue = str;
         bString = TRUE;
         bFloat = FALSE;
+        bBool = FALSE;
     };
 
     void SetNumber(const FLOAT f) {
         fValue = f;
         bString = FALSE;
         bFloat = TRUE;
+        bBool = FALSE;
     };
 
     void SetIndex(const INDEX i) {
         iValue = i;
         bString = FALSE;
         bFloat = FALSE;
+        bBool = FALSE;
+    };
+
+    void SetBool(const BOOL b) {
+        bValue = b;
+        bString = FALSE;
+        bFloat = FALSE;
+        bBool = TRUE;
     };
 };
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep.
+/* Copyright (c) 2021-2024 Uni Musuotankarep.
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -34,12 +34,37 @@ enum CustomEnemyBehaviorType {
   9 CEBT_COMBAT    "Combative Grunt", // melee only variant that can block attacks, strafe and backpedal
 };
 
+enum CustomEnemySizeType {
+  0 CEST_NORMAL     "Normal",         // average
+  1 CEST_SHORT      "Short",          // midget
+  2 CEST_TALL       "Tall",           // giant
+  3 CEST_TINY       "Tiny",           // dwarf
+};
+
 %{
 
 // info structure
 static EntityInfo eiCustomEnemy = {
   EIBT_FLESH, 200.0f,
-  0.0f, 1.75f, 0.0f,     // source (eyes)
+  0.0f, 1.75f, 0.0f,    // source (eyes)
+  0.0f, 1.0f, 0.0f,     // target (body)
+};
+
+static EntityInfo eiCustomEnemyTall = {
+  EIBT_FLESH, 200.0f,
+  0.0f, 2.0f, 0.0f,     // source (eyes)
+  0.0f, 1.0f, 0.0f,     // target (body)
+};
+
+static EntityInfo eiCustomEnemyShort = {
+  EIBT_FLESH, 200.0f,
+  0.0f, 1.5f, 0.0f,     // source (eyes)
+  0.0f, 1.0f, 0.0f,     // target (body)
+};
+
+static EntityInfo eiCustomEnemyTiny = {
+  EIBT_FLESH, 200.0f,
+  0.0f, 1.25f, 0.0f,    // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };
 
@@ -53,6 +78,7 @@ thumbnail "Thumbnails\\CustomEnemy.tbn";
 properties:
   1 BOOL m_bFistHit = FALSE,
   2 enum CustomEnemyBehaviorType m_cebtAIType "Behavior Type" = CEBT_CHASER,
+ 72 enum CustomEnemySizeType m_cestSizeType "Size Type" = CEST_NORMAL,
   3 BOOL m_bAllowInfighting "Allow Infighting" = FALSE,
   4 FLOAT m_fCustomHealth "Custom Health" = 100.0f,
   5 FLOAT m_fCustomDamageWounded "Custom Wounded Damage" = 150.0f,
@@ -79,6 +105,7 @@ properties:
  60 CTFileName m_fnmPainSound      "Pain Sound" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareWound3.wav"),
 
  24 ANIMATION m_iEnemyStandAnim        "Stand Animation" = 0,
+ 63 ANIMATION m_iEnemyStandFightAnim   "Stand Fight Animation" = 0,
  25 ANIMATION m_iEnemyWalkAnim         "Walk Animation" = 0,
  26 ANIMATION m_iEnemyRunAnim          "Run Animation" = 0,
  27 ANIMATION m_iEnemyRotateAnim       "Rotate Animation" = 0,
@@ -117,6 +144,14 @@ properties:
  59 INDEX m_fCustomBlowUpParts     "Custom Blow Up Parts" = 4,
  61 INDEX m_iStrafeChance          "Strafe Chance" = 2,
  62 INDEX m_iRandomMovementChoice = 0,
+ 64 FLOAT m_fCustomBlockStartTime "Custom Block Start Time" = 0.25f,
+ 65 FLOAT m_fCustomBlockWaitTime  "Custom Block Wait Time" = 1.0f,
+ 66 FLOAT m_fCustomMeleeStartTime "Custom Melee Start Time" = 0.30f,
+ 67 FLOAT m_fCustomMeleeEndTime   "Custom Melee End Time" = 0.30f,
+ 68 FLOAT m_fCustomRangedStartTime "Custom Ranged Start Time" = 0.25f,
+ 69 FLOAT m_fCustomRangedEndTime   "Custom Ranged End Time" = 0.50f,
+ 70 FLOAT m_fCustomRangedLockOnTime  "Custom Ranged Lock On Time" = 0.50f,
+ 71 FLOAT m_fCustomStrafeTime        "Custom Strafe Time" = 1.0f,
 
   {
     CTextureObject m_toCustomTexture;
@@ -141,7 +176,15 @@ functions:
 
   /* Entity info */
   void *GetEntityInfo(void) {
-    return &eiCustomEnemy;
+    if(m_cestSizeType == CEST_TINY) {
+      return &eiCustomEnemyTiny;
+    } else if(m_cestSizeType == CEST_SHORT) {
+      return &eiCustomEnemyShort;
+    } else if(m_cestSizeType == CEST_TALL) {
+      return &eiCustomEnemyTall;
+    } else {
+      return &eiCustomEnemy;
+    }
   };
 
   /* Read from stream. */
@@ -198,6 +241,7 @@ functions:
   CAnimData *GetAnimData(SLONG slPropertyOffset) 
   {
     if (slPropertyOffset==offsetof(CCustomEnemy, m_iEnemyStandAnim)     ||
+        slPropertyOffset==offsetof(CCustomEnemy, m_iEnemyStandFightAnim) ||
         slPropertyOffset==offsetof(CCustomEnemy, m_iEnemyWalkAnim)      ||
         slPropertyOffset==offsetof(CCustomEnemy, m_iEnemyRunAnim)       ||
         slPropertyOffset==offsetof(CCustomEnemy, m_iEnemyRotateAnim)    ||
@@ -309,6 +353,10 @@ functions:
   // virtual anim functions
   void StandingAnim(void) {
     StartModelAnim(m_iEnemyStandAnim, AOF_LOOPING|AOF_NORESTART);
+  };
+
+  void StandingAnimFight(void) {
+    StartModelAnim(m_iEnemyStandFightAnim, AOF_LOOPING|AOF_NORESTART);
   };
 
   void WalkingAnim(void) {
@@ -436,11 +484,11 @@ functions:
   BlockEnemyMelee(EVoid) {
     StartModelAnim(m_iEnemyBlockAnim, 0);
 
-    autowait(0.25f);
+    autowait(m_fCustomBlockStartTime);
 
     m_bIsBlocking = TRUE;
 
-    autowait(1.0f);
+    autowait(m_fCustomBlockWaitTime);
 
     m_bIsBlocking = FALSE;
 
@@ -454,11 +502,13 @@ functions:
     }
 
     if(m_cebtAIType == CEBT_TACTICAL) {
-      m_fLockOnEnemyTime = 1.0f;
+      m_fLockOnEnemyTime = m_fCustomStrafeTime;
 
       m_iRandomMovementChoice = IRnd()%m_iStrafeChance;
 
       if(m_iRandomMovementChoice == 1) {
+        autocall CEnemyBase::StepBackwards() EReturn;
+      } else if(m_iRandomMovementChoice == 3) {
         autocall CEnemyBase::StrafeLeftOrRightRandom() EReturn;
       }
     }
@@ -482,7 +532,7 @@ functions:
     }
 
     if(m_cebtAIType == CEBT_STRAFE || m_cebtAIType == CEBT_TACTICAL || m_cebtAIType == CEBT_COMBAT) {
-      m_fLockOnEnemyTime = 1.0f;
+      m_fLockOnEnemyTime = m_fCustomStrafeTime;
 
       m_iRandomMovementChoice = IRnd()%m_iStrafeChance;
 
@@ -500,7 +550,7 @@ functions:
     // close attack
     StartModelAnim(m_iEnemyMeleeAnim, 0);
     m_bFistHit = FALSE;
-    autowait(0.30f);
+    autowait(m_fCustomMeleeStartTime);
     if (CalcDist(m_penEnemy) < m_fCustomMeleeRange) {
       m_bFistHit = TRUE;
     }
@@ -516,23 +566,23 @@ functions:
       PlaySound(m_soSound, m_fnmMissSound, SOF_3D);
     }
 
-    autowait(0.3f);
+    autowait(m_fCustomMeleeEndTime);
     MaybeSwitchToAnotherPlayer();
 
     return EReturn();
   };
 
   RangedAttack(EVoid) {
-    m_fLockOnEnemyTime = 0.5f;
+    m_fLockOnEnemyTime = m_fCustomRangedLockOnTime;
     autocall CEnemyBase::LockOnEnemy() EReturn;
     StandingAnim();
-    autowait(0.2f + FRnd()/4);
+    autowait(m_fCustomRangedStartTime + FRnd()/4);
 
     StartModelAnim(m_iEnemyRangedAnim, 0);
     ShootProjectile(m_ptCustomProjectile, FLOAT3D(0.0f, 1.0f, 0.0f), ANGLE3D(0, 0, 0));
     PlaySound(m_soSound, m_fnmFireSound, SOF_3D);
 
-    autowait(0.5f + FRnd()/3);
+    autowait(m_fCustomRangedEndTime + FRnd()/3);
     MaybeSwitchToAnotherPlayer();
 
     return EEnd();

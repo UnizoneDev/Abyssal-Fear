@@ -192,6 +192,7 @@ void DeclareFeatureProperties(void)
 %token k_texture
 %token k_sound
 %token k_model
+%token k_skamodel
 
 %token k_properties
 %token k_components
@@ -906,6 +907,7 @@ component_type
   | k_texture   { _strCurrentComponentType = "ECT_TEXTURE"; }
   | k_sound     { _strCurrentComponentType = "ECT_SOUND"; }
   | k_class     { _strCurrentComponentType = "ECT_CLASS"; }
+  | k_skamodel  { _strCurrentComponentType = "ECT_SKAMODEL"; }
   ;
 
 /*/////////////////////////////////////////////////////////

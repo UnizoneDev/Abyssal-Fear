@@ -8,6 +8,9 @@
 // Names of collision boxes
 #define BARREL2_COLLISION_BOX_PART_NAME 0
 
+// Names of hit boxes
+#define BARREL2_HIT_BOX_PART_NAME 0
+
 // Attaching position names
 
 // Sound names

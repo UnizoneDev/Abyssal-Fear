@@ -61,6 +61,7 @@ properties:
  105 BOOL  m_bLightLoop = 0,
  106 COLOR m_colAmbient = 0,
  107 COLOR m_colDiffuse = 0,
+ 108 CTString m_strSkaModelAnim = "",
 
  110 INDEX m_iCounter = 0,
 
@@ -108,6 +109,7 @@ procedures:
       eca.bLightLoop   = m_bLightLoop  ;
       eca.colAmbient   = m_colAmbient  ;
       eca.colDiffuse   = m_colDiffuse  ;
+      eca.strSkaModelAnim = m_strSkaModelAnim;
       penTarget->SendEvent(eca);
 
       m_iCounter++;
@@ -130,6 +132,7 @@ procedures:
           m_bLightLoop    = eca.bLightLoop  ;
           m_colAmbient    = eca.colAmbient  ;
           m_colDiffuse    = eca.colDiffuse  ;
+          m_strSkaModelAnim = eca.strSkaModelAnim;
           jump RelayEvents();
         }
       }

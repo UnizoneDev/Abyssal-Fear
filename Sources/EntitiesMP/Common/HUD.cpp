@@ -38,6 +38,7 @@ extern INDEX cht_bEnable;
 extern INDEX cht_bGod;
 extern INDEX cht_bFly;
 extern INDEX cht_bGhost;
+extern INDEX cht_bBuddha;
 extern INDEX cht_bInvisible;
 extern FLOAT cht_fTranslationMultiplier;
 
@@ -1145,6 +1146,7 @@ extern void DrawHUD( const CPlayer *penPlayerCurrent, CDrawPort *pdpCurrent, BOO
     if( cht_bGhost)     { _pDP->PutTextR( "noclip",       _pixDPWidth-1, _pixDPHeight-pixFontHeight*iLine, colCheat|ulAlpha); iLine++; }
     if( cht_bFly)       { _pDP->PutTextR( "flight",       _pixDPWidth-1, _pixDPHeight-pixFontHeight*iLine, colCheat|ulAlpha); iLine++; }
     if( cht_bGod)       { _pDP->PutTextR( "invincible",   _pixDPWidth-1, _pixDPHeight-pixFontHeight*iLine, colCheat|ulAlpha); iLine++; }
+    if( cht_bBuddha)    { _pDP->PutTextR( "buddha",       _pixDPWidth-1, _pixDPHeight-pixFontHeight*iLine, colCheat|ulAlpha); iLine++; }
   }
 
   // in the end, remember the current time so it can be used in the next frame

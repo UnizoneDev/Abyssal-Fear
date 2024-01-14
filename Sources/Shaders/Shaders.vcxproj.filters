@@ -63,6 +63,9 @@
     <ClCompile Include="NPCModelShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="ShadowWarpShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h">

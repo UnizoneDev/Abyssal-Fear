@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep.
+/* Copyright (c) 2021-2024 Uni Musuotankarep.
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -16,12 +16,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 1002
 %{
 #include "StdH.h"
-#include "Models/NPCs/BlackStickman/BlackStickman.h"
-#include "Models/NPCs/BlackStickman/BlackStickmanReflective.h"
-#include "Models/NPCs/BlackStickman/BlackStickmanTranslucent.h"
 %}
 
 uses "EntitiesMP/EnemyBase";
+uses "EntitiesMP/Player";
 
 enum BlackStickmanActionType {
   0 BSAT_WALK          "Walk",
@@ -43,7 +41,14 @@ enum BlackStickmanBehaviorType {
 
 %{
 
-#define MIPRATIO 0.003125f //(2*tan(90/2))/640
+  static INDEX idBlackStickmanAnim_TPose = -1;
+  static INDEX idBlackStickmanAnim_Stand = -1;
+  static INDEX idBlackStickmanAnim_Walk  = -1;
+  static INDEX idBlackStickmanAnim_Run   = -1;
+  static INDEX idBlackStickmanAnim_Fly   = -1;
+  static INDEX idBlackStickmanAnim_Jump  = -1;
+  static INDEX idBlackStickmanBox_Stand  = -1;
+  static INDEX idBlackStickmanBox_Fly    = -1;
 
 // info structure
 static EntityInfo eiBlackStickman = {
@@ -64,27 +69,17 @@ properties:
   2 enum BlackStickmanCharacterType m_bsctType "Character" = BSCT_NORMAL,
   3 FLOAT m_fCheckGeometryWait = 2.0f,
   4 enum BlackStickmanBehaviorType m_bsbtType "AI Behavior" = BSBT_WANDER,
-  31 FLOAT m_fMipAdd "Mip Add" = 0.0f,
-  32 FLOAT m_fMipMul "Mip Mul" = 1.0f,
-  //33 FLOAT m_fMipFadeDist "Mip Fade Dist" = 0.0f,
-  //34 FLOAT m_fMipFadeLen  "Mip Fade Len" = 0.0f,
-  33 FLOAT m_fMipFadeDist = 0.0f,
-  34 FLOAT m_fMipFadeLen  = 0.0f,
-  35 RANGE m_rMipFadeDistMetric "Mip Fade Dist (Metric)" = 128.0f,
-  36 FLOAT m_fMipFadeLenMetric  "Mip Fade Len (Metric)" = 16.0f,
+  5 FLOAT m_fToPlayer = 0.0f,
+  6 FLOAT m_fToPlayerPitch = 0.0f,
+  7 BOOL m_bJitterBones "Jitter Bones" = FALSE,
   
 components:
   1 class   CLASS_BASE            "Classes\\EnemyBase.ecl",
-
- 10 model   MODEL_BLACKSTICKMAN             "Models\\NPCs\\BlackStickman\\BlackStickman.mdl",
-
+ 10 skamodel MODEL_BLACKSTICKMAN  "Models\\NPCs\\BlackStickmanSKA\\BlackStickman.smc",
 
  20 texture TEXTURE_BLACKSTICKMAN           "Models\\NPCs\\BlackStickman\\blackstickman.tex",
- 21 model   MODEL_BLACKSTICKMANREFLECTIVE   "Models\\NPCs\\BlackStickman\\BlackStickmanReflective.mdl",
- 22 model   MODEL_BLACKSTICKMANTRANSLUCENT  "Models\\NPCs\\BlackStickman\\BlackStickmanTranslucent.mdl",
- 23 texture TEXTURE_VANTABLACKSTICKMAN      "Models\\NPCs\\BlackStickman\\vantablackstickman.tex",
- 24 texture TEX_BUMP_DETAIL                 "Models\\NPCs\\BlackStickman\\BlackStickmanDetail.tex",
-
+ 21 texture TEXTURE_VANTABLACKSTICKMAN      "Models\\NPCs\\BlackStickman\\vantablackstickman.tex",
+ 22 texture TEX_BUMP_DETAIL                 "Models\\NPCs\\BlackStickman\\BlackStickmanDetail.tex",
 
  // ************** REFLECTIONS **************
  50 texture TEX_REFL_BWRIPLES01         "Models\\ReflectionTextures\\BWRiples01.tex",
@@ -102,12 +97,107 @@ components:
 
 functions:
 
+  void CBlackStickman(void) {
+  // Get animation IDs
+  idBlackStickmanAnim_TPose     = ska_GetIDFromStringTable("TPOSE");
+  idBlackStickmanAnim_Stand     = ska_GetIDFromStringTable("STAND");
+  idBlackStickmanAnim_Walk      = ska_GetIDFromStringTable("WALK");
+  idBlackStickmanAnim_Run       = ska_GetIDFromStringTable("RUN");
+  idBlackStickmanAnim_Fly       = ska_GetIDFromStringTable("FLY");
+  idBlackStickmanAnim_Jump      = ska_GetIDFromStringTable("JUMP");
+
+  // Get collision box IDs
+  idBlackStickmanBox_Stand    = ska_GetIDFromStringTable("Stand");
+  idBlackStickmanBox_Fly      = ska_GetIDFromStringTable("Fly");
+};
+
+  CPlayer *AcquireViewTarget() {
+    // find actual number of players
+    INDEX ctMaxPlayers = GetMaxPlayers();
+    CEntity *penPlayer;
+
+    for(INDEX i=0; i<ctMaxPlayers; i++) {
+      penPlayer=GetPlayerEntity(i);
+      if (penPlayer!=NULL && DistanceTo(this, penPlayer)<100.0f) {
+            return (CPlayer *)penPlayer;   
+      }
+    }
+    return NULL;
+  };
+
+
+  void AdjustBones(void) {
+    if(m_bsbtType != BSBT_STARE && m_bJitterBones) {
+      // Get arm and leg bones
+      INDEX iBoneIDUpperArmLeft = ska_GetIDFromStringTable("L_UpperArm");
+      INDEX iBoneIDLowerArmLeft = ska_GetIDFromStringTable("L_LowerArm");
+      INDEX iBoneIDUpperArmRight = ska_GetIDFromStringTable("R_UpperArm");
+      INDEX iBoneIDLowerArmRight = ska_GetIDFromStringTable("R_LowerArm");
+      RenBone *rbUAL = RM_FindRenBone(iBoneIDUpperArmLeft);
+      RenBone *rbLAL = RM_FindRenBone(iBoneIDLowerArmLeft);
+      RenBone *rbUAR = RM_FindRenBone(iBoneIDUpperArmRight);
+      RenBone *rbLAR = RM_FindRenBone(iBoneIDLowerArmRight);
+
+      if (rbUAL != NULL && rbUAR != NULL && rbLAL != NULL && rbLAR != NULL) {
+          // Set jittering rotation via quaternion
+          FLOATquat3D quatRandomL;
+          FLOATquat3D quatRandomR;
+          FLOAT fHeadingRandom = FRnd() + 90.0f - 180.0f;
+          FLOAT fPitchRandom = FRnd() + 90.0f - 180.0f;
+          FLOAT fBankingRandom = FRnd() + 90.0f - 180.0f;
+          fHeadingRandom = Clamp(fHeadingRandom, -30.0f, 30.0f);
+          fPitchRandom = Clamp(fPitchRandom, -30.0f, 30.0f);
+          fBankingRandom = Clamp(fBankingRandom, -30.0f, 30.0f);
+
+          quatRandomL.FromEuler(ANGLE3D(fBankingRandom + FRnd()*8.0f, -fPitchRandom + FRnd()*8.0f, -fHeadingRandom + FRnd()*8.0f));
+          quatRandomR.FromEuler(ANGLE3D(-fBankingRandom + FRnd()*8.0f, -fPitchRandom + FRnd()*8.0f, fHeadingRandom + FRnd()*8.0f));
+          rbUAL->rb_arRot.ar_qRot = quatRandomL;
+          rbUAR->rb_arRot.ar_qRot = quatRandomR;
+          rbLAL->rb_arRot.ar_qRot = quatRandomL;
+          rbLAR->rb_arRot.ar_qRot = quatRandomR;
+      }
+    }
+
+    // Get head bone
+    INDEX iBoneID = ska_GetIDFromStringTable("Head");
+    RenBone *rb = RM_FindRenBone(iBoneID);
+
+    FLOAT3D vPlayerPos = FLOAT3D(0.0f, 0.0f, 0.0f);
+
+    CPlayer *pTarget = AcquireViewTarget();
+    if(pTarget) {
+        if ((pTarget->GetFlags()&ENF_ALIVE) && !(pTarget->GetFlags()&ENF_DELETED)) {
+           vPlayerPos = pTarget->GetLerpedPlacement().pl_PositionVector;
+        }
+    }
+
+    FLOAT3D vToPlayer = (vPlayerPos - GetLerpedPlacement().pl_PositionVector).Normalize();
+    FLOAT fHeadingTowardsPlayer = GetRelativeHeading(vToPlayer); // CEnemyBase method
+    FLOAT fPitchTowardsPlayer = GetRelativePitch(-vToPlayer); // CEnemyBase method
+
+    fHeadingTowardsPlayer = Clamp(fHeadingTowardsPlayer, -45.0f, 45.0f); // Limit
+    fPitchTowardsPlayer = Clamp(fPitchTowardsPlayer, 15.0f, 30.0f); // Limit
+
+    FLOAT fDiff = fHeadingTowardsPlayer - m_fToPlayer;
+    FLOAT fDiffPitch = fPitchTowardsPlayer - m_fToPlayerPitch;
+
+    // Limit speed per tick (15.0f)
+    m_fToPlayer += Min(Abs(fDiff), 15.0f) * Sgn(fDiff);
+    m_fToPlayerPitch += Min(Abs(fDiffPitch), 15.0f) * Sgn(fDiffPitch);
+
+    if (rb != NULL) {
+        // Set rotation via quaternion
+        FLOATquat3D quat;
+        quat.FromEuler(ANGLE3D(0.0f, m_fToPlayerPitch, -m_fToPlayer));
+        rb->rb_arRot.ar_qRot = quat;
+    }
+  }
+
   /* Read from stream. */
   void Read_t( CTStream *istr)
   {
     CMovableModelEntity::Read_t(istr);
   };
-
 
   // fuss functions
   void AddToFuss(void)
@@ -115,12 +205,10 @@ functions:
     return;
   }
 
-
   void RemoveFromFuss(void)
   {
     return;
   }
-
 
   // describe how this enemy killed player
   virtual CTString GetPlayerKillDescription(const CTString &strPlayerName, const EDeath &eDeath)
@@ -186,7 +274,8 @@ functions:
        dmtType==DMT_SHARP ||
        dmtType==DMT_STING ||
        dmtType==DMT_RIFLE ||
-       dmtType==DMT_PUNCH)
+       dmtType==DMT_PUNCH ||
+       dmtType==DMT_SHARPSTRONG)
     {
       return;
     }
@@ -216,25 +305,28 @@ functions:
   };
 
   void DeathNotify(void) {
-    ChangeCollisionBoxIndexWhenPossible(BLACKSTICKMAN_COLLISION_BOX_DEATH_BOX);
+    INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idBlackStickmanBox_Fly);
+    ASSERT(iBoxIndex>=0);
+    ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
+    SetSkaColisionInfo();
     en_fDensity = 500.0f;
   };
 
   void ChooseAnimBSAT(void) {
     switch(m_bsatType)
     {
-        case BSAT_WALK: StartModelAnim(BLACKSTICKMAN_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+        case BSAT_WALK: GetModelInstance()->AddAnimation(idBlackStickmanAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
         break;
-        case BSAT_RUN: StartModelAnim(BLACKSTICKMAN_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
+        case BSAT_RUN: GetModelInstance()->AddAnimation(idBlackStickmanAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
         break;
-        case BSAT_FLY: StartModelAnim(BLACKSTICKMAN_ANIM_FLY, AOF_LOOPING|AOF_NORESTART);
+        case BSAT_FLY: GetModelInstance()->AddAnimation(idBlackStickmanAnim_Fly,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
         break;
     }
   };
 
   // virtual anim functions
   void StandingAnim(void) {
-    StartModelAnim(BLACKSTICKMAN_ANIM_STAND, AOF_LOOPING|AOF_NORESTART);
+    GetModelInstance()->AddAnimation(idBlackStickmanAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void WalkingAnim(void) {
@@ -250,50 +342,10 @@ functions:
   };
 
   void JumpingAnim(void) {
-    StartModelAnim(BLACKSTICKMAN_ANIM_JUMP, AOF_LOOPING|AOF_NORESTART);
+    GetModelInstance()->AddAnimation(idBlackStickmanAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
-
-  /* Adjust model mip factor if needed. */
-  void AdjustMipFactor(FLOAT &fMipFactor)
-  {
-    // if should fade last mip
-    if (m_fMipFadeDist>0) {
-      CModelObject *pmo = GetModelObject();
-      if(pmo==NULL) {
-        return;
-      }
-      // adjust for stretch
-      FLOAT fMipForFade = fMipFactor;
-      // TODO: comment the next 3 lines for mip factors conversion
-      /*if (pmo->mo_Stretch != FLOAT3D(1,1,1)) {
-        fMipForFade -= Log2( Max(pmo->mo_Stretch(1),Max(pmo->mo_Stretch(2),pmo->mo_Stretch(3))));
-      }*/
-
-      // if not visible
-      if (fMipForFade>m_fMipFadeDist) {
-        // set mip factor so that model is never rendered
-        fMipFactor = UpperLimit(0.0f);
-        return;
-      }
-
-      // adjust fading
-      FLOAT fFade = (m_fMipFadeDist-fMipForFade);
-      if (m_fMipFadeLen>0) {
-        fFade/=m_fMipFadeLen;
-      } else {
-        if (fFade>0) {
-          fFade = 1.0f;
-        }
-      }
-      
-      fFade = Clamp(fFade, 0.0f, 1.0f);
-      // make it invisible
-      pmo->mo_colBlendColor = (pmo->mo_colBlendColor&~255)|UBYTE(255*fFade);
-    }
-
-    fMipFactor = fMipFactor*m_fMipMul+m_fMipAdd;
-  }
+  FLOAT GetLockRotationSpeed(void) { return 250.0f;};
 
 
   procedures:
@@ -326,9 +378,28 @@ functions:
         on (ETimer) : { stop; }       // timer tick expire
       }
 
-      autocall RandomWander() EReturn;
+      if(m_bsbtType == BSBT_STARE) {
+        autocall StareAtPlayer() EReturn;
+      } else if(m_bsbtType != BSBT_STARE) {
+        autocall RandomWander() EReturn;
+      }
     }
   }
+
+
+  StareAtPlayer(EVoid)
+  {
+    m_vDesiredPosition = FLOAT3D(0.0f, 0.0f, 0.0f);
+    m_fMoveFrequency = 0.0f;
+    m_fMoveSpeed = 0.0f;
+    m_aRotateSpeed = 0.0f;
+    StandingAnim();
+    m_fLockOnEnemyTime = 8.0f;
+    while (TRUE) {
+      autocall CEnemyBase::LockOnEnemy() EReturn;
+      autowait(0.125f);
+    }
+  };
 
 
   RandomWander(EVoid)
@@ -357,10 +428,6 @@ functions:
       m_fMoveFrequency = 0.0f;
       m_fMoveSpeed = 0.0f;
       m_aRotateSpeed = 0.0f;
-      FLOAT fSpeedX = 0.0f;
-      FLOAT fSpeedY = 0.0f;
-      FLOAT fSpeedZ = 0.0f;
-      m_vDesiredPosition = FLOAT3D(0.0f, 0.0f, 0.0f);
       StandingAnim();
     }
     
@@ -369,7 +436,7 @@ functions:
     while (TRUE)
     {
       // adjust direction and speed only if moving
-      if(m_bsbtType != BSBT_STARE) {
+      if(m_bsbtType != BSBT_STARE || m_bsbtType != BSBT_CHASE) {
         m_fMoveSpeed = 0.0f;
         m_aRotateSpeed = FRnd()+40.0f-120.0f;
         FLOAT3D vTranslation = GetDesiredTranslation();
@@ -379,7 +446,7 @@ functions:
 
       ANGLE aHeadingRotation;
       
-      if(m_bsbtType != BSBT_STARE)
+      if(m_bsbtType != BSBT_STARE || m_bsbtType != BSBT_CHASE)
       {
         switch(IRnd()%6)
         {
@@ -421,7 +488,7 @@ functions:
         }
       }
 
-      if(m_bsbtType != BSBT_STARE) {
+      if(m_bsbtType != BSBT_STARE || m_bsbtType != BSBT_CHASE) {
         SetDesiredRotation(ANGLE3D(aHeadingRotation, 0, 0));
       }
 
@@ -452,39 +519,7 @@ functions:
  ************************************************************/
   Main(EVoid) {
     // declare yourself as a model
-    InitAsModel();
-
-    // TODO: decomment this AFTER mip factors conversion
-    if (m_fMipFadeLenMetric>m_rMipFadeDistMetric) { m_fMipFadeLenMetric = m_rMipFadeDistMetric; }
-    // TODO: decomment this for mip factors conversion
-    /*if (m_fMipFadeLen<0.0f) { m_fMipFadeLen = 0.0f; }
-    if (m_fMipFadeDist<0.0f) { m_fMipFadeDist = 0.0f; }
-    if (m_fMipFadeLen>m_fMipFadeDist) { m_fMipFadeLen = m_fMipFadeDist; }
-
-    // if metric mip values are not initialized, get values from old mip factors
-    if ( m_fMipFadeDist>0.0f ) {
-      CModelObject *pmo = GetModelObject();
-      if (pmo!=NULL) {
-        FLOAT fMipSizeFact = Log2( Max(pmo->mo_Stretch(1),Max(pmo->mo_Stretch(2),pmo->mo_Stretch(3))));
-        m_rMipFadeDistMetric = pow(2.0f, m_fMipFadeDist+fMipSizeFact)/(1024.0f*MIPRATIO);
-        m_fMipFadeLenMetric  = m_rMipFadeDistMetric - pow(2.0f, m_fMipFadeDist+fMipSizeFact-m_fMipFadeLen)/(1024.0f*MIPRATIO);
-      } else {
-        m_rMipFadeDistMetric = 0.0f;
-        m_fMipFadeLenMetric  = 0.0f;
-      }      
-    } else {
-      m_rMipFadeDistMetric = 0.0f;
-      m_fMipFadeLenMetric  = 0.0f;     
-    }*/
-    
-    // convert metric factors to mip factors
-    if (m_rMipFadeDistMetric>0.0f) {
-      m_fMipFadeDist = Log2(m_rMipFadeDistMetric*1024.0f*MIPRATIO);
-      m_fMipFadeLen  = Log2((m_rMipFadeDistMetric+m_fMipFadeLenMetric)*1024.0f*MIPRATIO) - m_fMipFadeDist;
-    } else {
-      m_fMipFadeDist = 0.0f;
-      m_fMipFadeLen  = 0.0f;
-    }
+    InitAsSkaModel();
 
     SetPhysicsFlags(EPF_MODEL_WALKING);
     SetCollisionFlags(ECF_MODEL);
@@ -500,26 +535,19 @@ functions:
     switch(m_bsctType)
     {
       default:
-      SetModel(MODEL_BLACKSTICKMAN);
-      SetModelMainTexture(TEXTURE_BLACKSTICKMAN);
+      SetSkaModel(MODEL_BLACKSTICKMAN);
       break;
 
       case BSCT_NORMAL:
-      SetModel(MODEL_BLACKSTICKMAN);
-      SetModelMainTexture(TEXTURE_BLACKSTICKMAN);
-      SetModelBumpTexture(TEX_BUMP_DETAIL);
+      SetSkaModel(MODEL_BLACKSTICKMAN);
       break;
 
       case BSCT_TRANSLUCENT:
-      SetModel(MODEL_BLACKSTICKMANTRANSLUCENT);
-      SetModelMainTexture(TEXTURE_VANTABLACKSTICKMAN);
+      SetSkaModel(MODEL_BLACKSTICKMAN);
       break;
 
       case BSCT_REFLECTIVE:
-      SetModel(MODEL_BLACKSTICKMANREFLECTIVE);
-      SetModelMainTexture(TEXTURE_VANTABLACKSTICKMAN);
-      SetModelSpecularTexture(TEX_SPEC_STRONG);
-      SetModelReflectionTexture(TEX_REFL_PURPLE01);
+      SetSkaModel(MODEL_BLACKSTICKMAN);
       break;
     }
 
@@ -545,9 +573,16 @@ functions:
         m_sptType = SPT_SMOKE;
 
     // set stretch factors for height and width
-    GetModelObject()->StretchModel(FLOAT3D(1.0f, 1.0f, 1.0f));
+    GetModelInstance()->StretchModel(FLOAT3D(1.0f, 1.0f, 1.0f));
     ModelChangeNotify();
     StandingAnim();
+
+    if(m_bsatType == BSAT_FLY) {
+      INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idBlackStickmanBox_Fly);
+      ASSERT(iBoxIndex>=0);
+      ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
+      SetSkaColisionInfo();
+    }
 
     // continue behavior in base class
     jump CEnemyBase::MainLoop();

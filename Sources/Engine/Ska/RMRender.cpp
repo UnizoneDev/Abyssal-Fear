@@ -716,7 +716,7 @@ void RM_SetShaderParamsAdjustCallback(void (*pAdjustShaderParams)(void *pData, I
   _pAdjustShaderData = pData;
 }
 
-// show gound for ska studio
+// show ground for ska studio
 void RM_RenderGround(CTextureObject &to)
 {
   gfxSetConstantColor(0xFFFFFFFF);

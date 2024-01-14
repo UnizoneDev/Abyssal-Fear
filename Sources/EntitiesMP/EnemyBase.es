@@ -322,6 +322,19 @@ functions:
   // The config checkers
   // --------------------------------------------------------------------------------------
 
+  // Set boolean properties
+  virtual void SetBoolProperty(const CTString &strProp, const BOOL bValue) {
+       if (strProp == "bCoward")             { m_bCoward = bValue; }
+       else if (strProp == "bCheckForPits")  { m_bCheckForPits = bValue; }
+       else if (strProp == "bNoIdleSound")   { m_bNoIdleSound = bValue; }
+       else if (strProp == "bBoss")          { m_bBoss = bValue; }
+       else if (strProp == "bCanJump")       { m_bCanJump = bValue; }
+       else if (strProp == "bCanCrouch")     { m_bCanCrouch = bValue; }
+       else if (strProp == "bCanClimb")      { m_bCanClimb = bValue; }
+       else if (strProp == "bCanTakeCover")  { m_bCanTakeCover = bValue; }
+       else if (strProp == "bTemplate")      { m_bTemplate = bValue; }
+  };
+
   // Set string properties
   virtual void SetStringProperty(const CTString &strProp, const CTString &strValue) {
        if (strProp == "name")       { m_strName = strValue; }
@@ -363,7 +376,9 @@ functions:
         const ConfigPair &pair = aConfig[i];
   
         // Set string or number value
-        if (pair.val.bString) {
+        if (pair.val.bBool) {
+            SetBoolProperty(pair.key, pair.val.bValue);
+        } else if (pair.val.bString) {
             SetStringProperty(pair.key, pair.val.strValue);
         } else if (pair.val.bFloat) {
             SetNumberProperty(pair.key, pair.val.fValue);
@@ -703,6 +718,7 @@ functions:
     crRay.cr_ttHitModels = CCastRay::TT_NONE;     // check for brushes only
     crRay.cr_bHitTranslucentPortals = FALSE;
     crRay.cr_bHitBlockSightPortals = TRUE;
+    crRay.cr_bHitBlockMeleePortals = FALSE;
     en_pwoWorld->CastRay(crRay);
 
     // if hit nothing (no brush) the entity can be seen
@@ -724,6 +740,7 @@ functions:
     crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;   // check for model collision box
     crRay.cr_bHitTranslucentPortals = FALSE;
     crRay.cr_bHitBlockSightPortals = TRUE;
+    crRay.cr_bHitBlockMeleePortals = FALSE;
     en_pwoWorld->CastRay(crRay);
 
     // if the ray hits wanted entity
@@ -1102,25 +1119,30 @@ functions:
       CPlacement3D plSpray = CPlacement3D( vHitPointNew, ANGLE3D(0, 0, 0));
 
       // Spawn the blood spray.
-      m_penSpray = CreateEntity( plSpray, CLASS_BLOOD_SPRAY);
+      m_penSpray = CreateEntity( plSpray, CLASS_BLOOD_UNI);
 
-      if (m_sptType != SPT_ELECTRICITY_SPARKS) {
+      /*
+      if (m_sptType != SPT_ELECTRICITY_SPARKS || m_sptType != SPT_BLOOD) {
         m_penSpray->SetParent( this);
       }
+      */
 
-      ESpawnSpray eSpawnSpray;
-      eSpawnSpray.colBurnColor=C_WHITE|CT_OPAQUE;
+      ESpawnBlood eSpawnBlood;
+      eSpawnBlood.colBurnColor=C_WHITE|CT_OPAQUE;
       
       if ( m_fMaxDamageAmmount > 10.0f) {
-        eSpawnSpray.fDamagePower = 1.25f;
+        eSpawnBlood.fDamagePower = 1.35f;
+        eSpawnBlood.iAmount = 16;
       } else if (m_fSprayDamage+fNewDamage>50.0f) {
-        eSpawnSpray.fDamagePower = 0.75f;
+        eSpawnBlood.fDamagePower = 0.85f;
+        eSpawnBlood.iAmount = 12;
       } else {
-        eSpawnSpray.fDamagePower = 0.45f;
+        eSpawnBlood.fDamagePower = 0.65f;
+        eSpawnBlood.iAmount = 10;
       }
 
-      eSpawnSpray.sptType = m_sptType;
-      eSpawnSpray.fSizeMultiplier = 0.5f;
+      eSpawnBlood.sptType = m_sptType;
+      eSpawnBlood.fSizeMultiplier = 0.5f;
 
       // setup direction of spray
       FLOAT3D vHitPointRelative = vHitPoint - GetPlacement().pl_PositionVector;
@@ -1133,16 +1155,16 @@ functions:
       FLOAT3D vProjectedComponent = vReflectingNormal*(vDirection%vReflectingNormal);
       FLOAT3D vSpilDirection = vDirection-vProjectedComponent*2.0f-en_vGravityDir*0.5f;
 
-      eSpawnSpray.vDirection = vSpilDirection;
-      eSpawnSpray.penOwner = this;
+      eSpawnBlood.vDirection = vSpilDirection;
+      eSpawnBlood.penOwner = this;
     
       /*if (dmtType==DMT_BURNING && GetHealth()<0)
       {
-        eSpawnSpray.fDamagePower = 1.0f;
+        eSpawnBlood.fDamagePower = 1.0f;
       }*/
 
       // initialize spray
-      m_penSpray->Initialize( eSpawnSpray);
+      m_penSpray->Initialize( eSpawnBlood);
       m_tmSpraySpawned = _pTimer->CurrentTick();
       m_fSprayDamage = 0.0f;
       m_fMaxDamageAmmount = 0.0f;
@@ -2652,6 +2674,9 @@ functions:
   // --------------------------------------------------------------------------------------
   void WoundedNotify(const EDamage &eDamage)
   {
+    m_bIsBlocking = FALSE;
+    m_bBlockFirearms = FALSE;
+
     // if no enemy
     if (m_penEnemy == NULL) {
       // do nothing
@@ -4427,6 +4452,8 @@ procedures:
         INDEX iAnim = eChangeSequence.iModelAnim;
         INDEX iBox = eChangeSequence.iModelCollisionBox;
         m_penMarker = eChangeSequence.penEnemyMarker;
+        CTString strAnim = eChangeSequence.strSkaModelAnim;
+        CTString strBox = eChangeSequence.strSkaModelBox;
 
         switch(eChangeSequence.estSoundType) {
             case EST_NONE:
@@ -4485,11 +4512,32 @@ procedures:
         }
 
         if(eChangeSequence.bLoopAnimation == TRUE) {
-          StartModelAnim(iAnim, AOF_LOOPING|AOF_NORESTART);
+          if(GetRenderType()==CEntity::RT_SKAMODEL) {
+            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
+            GetModelInstance()->AddAnimation(iSkaAnim, AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+          } else {
+            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
+            StartModelAnim(iSkaAnim, AOF_LOOPING|AOF_NORESTART);
+          }
         } else {
-          StartModelAnim(iAnim, 0);
+          if(GetRenderType()==CEntity::RT_SKAMODEL) {
+            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
+            GetModelInstance()->AddAnimation(iSkaAnim, AN_CLEAR,1,0);
+          } else {
+            StartModelAnim(iAnim, 0);
+          }
         }
-        ForceCollisionBoxIndexChange(iBox);
+
+        if(GetRenderType()==CEntity::RT_SKAMODEL) {
+          INDEX iSkaBox = ska_GetIDFromStringTable(strBox);
+          INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(iSkaBox);
+          ASSERT(iBoxIndex>=0);
+          ForceCollisionBoxIndexChange(iBoxIndex);
+          SetSkaColisionInfo();
+        } else {
+          ForceCollisionBoxIndexChange(iBox);
+        }
+
         resume;
       }
     }
@@ -4575,6 +4623,8 @@ procedures:
         INDEX iAnim = eChangeSequence.iModelAnim;
         INDEX iBox = eChangeSequence.iModelCollisionBox;
         m_penMarker = eChangeSequence.penEnemyMarker;
+        CTString strAnim = eChangeSequence.strSkaModelAnim;
+        CTString strBox = eChangeSequence.strSkaModelBox;
 
         switch(eChangeSequence.estSoundType) {
             case EST_NONE:
@@ -4633,11 +4683,31 @@ procedures:
         }
 
         if(eChangeSequence.bLoopAnimation == TRUE) {
-          StartModelAnim(iAnim, AOF_LOOPING|AOF_NORESTART);
+          if(GetRenderType()==CEntity::RT_SKAMODEL) {
+            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
+            GetModelInstance()->AddAnimation(iSkaAnim, AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+          } else {
+            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
+            StartModelAnim(iSkaAnim, AOF_LOOPING|AOF_NORESTART);
+          }
         } else {
-          StartModelAnim(iAnim, 0);
+          if(GetRenderType()==CEntity::RT_SKAMODEL) {
+            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
+            GetModelInstance()->AddAnimation(iSkaAnim, AN_CLEAR,1,0);
+          } else {
+            StartModelAnim(iAnim, 0);
+          }
         }
-        ForceCollisionBoxIndexChange(iBox);
+
+        if(GetRenderType()==CEntity::RT_SKAMODEL) {
+          INDEX iSkaBox = ska_GetIDFromStringTable(strBox);
+          INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(iSkaBox);
+          ASSERT(iBoxIndex>=0);
+          ForceCollisionBoxIndexChange(iBoxIndex);
+          SetSkaColisionInfo();
+        } else {
+          ForceCollisionBoxIndexChange(iBox);
+        }
         resume;
       }
 

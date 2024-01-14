@@ -853,6 +853,8 @@ procedures:
           FLOAT3D vDestination = m_penBeamHit->GetPlacement().pl_PositionVector;
           CCastRay crRay( this, vSource, vDestination);
           crRay.cr_bHitTranslucentPortals = FALSE;
+          crRay.cr_bHitBlockSightPortals = FALSE;
+          crRay.cr_bHitBlockMeleePortals = FALSE;
           crRay.cr_bPhysical = FALSE;
           crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;
           crRay.cr_fTestR = 16.0f;

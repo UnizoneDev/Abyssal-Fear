@@ -15,6 +15,9 @@
 // Names of collision boxes
 #define METALPIPEVIEWMODEL_COLLISION_BOX_PART_NAME 0
 
+// Names of hit boxes
+#define METALPIPEVIEWMODEL_HIT_BOX_PART_NAME 0
+
 // Attaching position names
 #define METALPIPEVIEWMODEL_ATTACHMENT_THEPIPE 0
 

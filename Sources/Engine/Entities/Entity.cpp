@@ -66,6 +66,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/Stock_CTextureData.h>
 #include <Engine/Templates/Stock_CModelData.h>
 #include <Engine/Templates/Stock_CSoundData.h>
+#include <Engine/Templates/Stock_CModelInstanceData.h>
 
 // a reference to a void event for use as default parameter
 const EVoid _evVoid;
@@ -1051,7 +1052,8 @@ void CEntity::FallDownToFloor( void)
     CCastRay crRay( this, vSource, vTarget);
     crRay.cr_ttHitModels = CCastRay::TT_NONE; // CCastRay::TT_FULLSEETHROUGH;
     crRay.cr_bHitTranslucentPortals = TRUE;
-	crRay.cr_bHitBlockSightPortals = FALSE;									   
+    crRay.cr_bHitBlockSightPortals = FALSE;
+    crRay.cr_bHitBlockMeleePortals = FALSE;
     crRay.cr_bPhysical = TRUE;
     GetWorld()->CastRay(crRay);
     if( (crRay.cr_penHit != NULL) && (crRay.cr_vHit(2) > fMaxY)) {
@@ -2455,14 +2457,15 @@ void CEntity::SetSkaColisionInfo()
 void CEntity::SetSkaModel_t(const CTString& fnmModel)
 {
     ASSERT(en_RenderType == RT_SKAMODEL || en_RenderType == RT_SKAEDITORMODEL);
-    // if model instance allready exists
-    if (en_pmiModelInstance != NULL) {
-        // release it first
-        en_pmiModelInstance->Clear();
-    }
+    
     try {
-        // load the new model data
-        en_pmiModelInstance = ParseSmcFile_t(fnmModel);
+        // if model instance doesn't exist
+        if (en_pmiModelInstance == NULL) {
+            en_pmiModelInstance = CreateModelInstance("");
+        }
+        ASSERT(en_pmiModelInstance != NULL);
+        ObtainModelInstance_t(*en_pmiModelInstance, fnmModel);
+
     }
     catch (char* strErrorDefault) {
         throw(strErrorDefault);
@@ -2470,38 +2473,56 @@ void CEntity::SetSkaModel_t(const CTString& fnmModel)
     SetSkaColisionInfo();
 }
 
-// Set the model data for a SKA model entity from file.
 BOOL CEntity::SetSkaModel(const CTString& fnmModel)
 {
     ASSERT(en_RenderType == RT_SKAMODEL || en_RenderType == RT_SKAEDITORMODEL);
-
     // try to
     try {
         SetSkaModel_t(fnmModel);
-
         // if failed
     }
     catch (char* strError) {
         (void)strError;
-        WarningMessage("%s\n\rLoading default model.\n", (const char*)strError);
+        WarningMessage("%s\n\rLoading default model.\n", strError);
         DECLARE_CTFILENAME(fnmDefault, "Models\\Editor\\Ska\\Axis.smc");
-
-        // Try to load the default model data
+        // try to
         try {
+            // load the default model data
             SetSkaModel_t(fnmDefault);
             // if failed
         }
         catch (char* strErrorDefault) {
-            FatalError(TRANS("Cannot load default model '%s':\n%s"), (CTString&)fnmDefault, strErrorDefault);
+            FatalError(TRANS("Cannot load default model '%s':\n%s"),
+                (CTString&)fnmDefault, strErrorDefault);
         }
-
         // set colision info for default model
         SetSkaColisionInfo();
         return FALSE;
     }
-
     return TRUE;
 }
+
+void CEntity::SetSkaModel(SLONG idSkaModelComponent)
+{
+    ASSERT(en_RenderType == RT_SKAMODEL || en_RenderType == RT_SKAEDITORMODEL);
+    CEntityComponent* pecSkaModel = en_pecClass->ComponentForTypeAndID(
+        ECT_SKAMODEL, idSkaModelComponent);
+    ASSERT(pecSkaModel != NULL);
+    ASSERT(pecSkaModel->ec_pmidSkaModel != NULL);
+    ASSERT(pecSkaModel->ec_pmidSkaModel->mid_pModelInstance != NULL);
+    CModelInstance *pmiComponent = pecSkaModel->ec_pmidSkaModel->mid_pModelInstance;
+
+    if (en_pmiModelInstance == NULL) {
+        en_pmiModelInstance = CreateModelInstance("");
+    }
+
+    en_pmiModelInstance->Copy(*pmiComponent);
+
+    SetSkaColisionInfo();
+    UpdateSpatialRange();
+    FindCollisionInfo();
+}
+
 
 // set/get model main blend color
 
@@ -2740,6 +2761,10 @@ void CEntity::PrecacheClass(SLONG slID, INDEX iUser /* = -1*/)
 {
   en_pecClass->ec_pdecDLLClass->PrecacheClass(slID, iUser);
 }
+void CEntity::PrecacheSkaModel(SLONG slID)
+{
+    en_pecClass->ec_pdecDLLClass->PrecacheSkaModel(slID);
+}
 
 CAutoPrecacheSound::CAutoPrecacheSound()
 {
@@ -2816,6 +2841,32 @@ void CAutoPrecacheTexture::Precache(const CTFileName &fnm)
   }
 }
 
+CAutoPrecacheSkaModel::CAutoPrecacheSkaModel()
+{
+    apc_pmid = NULL;
+}
+CAutoPrecacheSkaModel::~CAutoPrecacheSkaModel()
+{
+    if (apc_pmid != NULL) {
+        _pModelInstanceStock->Release(apc_pmid);
+    }
+}
+
+void CAutoPrecacheSkaModel::Precache(const CTFileName& fnm)
+{
+    if (apc_pmid != NULL) {
+        _pModelInstanceStock->Release(apc_pmid);
+    }
+    try {
+        if (fnm != "") {
+            apc_pmid = _pModelInstanceStock->Obtain_t(fnm);
+        }
+    }
+    catch (char* strError) {
+        CPrintF("%s\n", strError);
+    }
+}
+
 /* Get a filename for a component of given id. */
 const CTFileName &CEntity::FileNameForComponent(SLONG slType, SLONG slID)
 {
@@ -2848,6 +2899,18 @@ CModelData *CEntity::GetModelDataForComponent(SLONG slID)
   } else {
     return NULL;
   }
+}
+
+// Get data for a ska model component
+CModelInstanceData* CEntity::GetModelInstanceDataForComponent(SLONG slID)
+{
+    CEntityComponent* pec = ComponentForTypeAndID(ECT_SKAMODEL, slID);
+    if (pec != NULL) {
+        return pec->ec_pmidSkaModel;
+    }
+    else {
+        return NULL;
+    }
 }
 
 /* Remove attachment from model */
@@ -3018,10 +3081,12 @@ double CEntity::GetSoundLength(SLONG idSoundComponent)
   return pecSound->ec_psdSound->GetSecondsLength();
 }
 
-double CEntity::GetSoundLength(CSoundObject &so, const CTFileName &fnmSound)
+double CEntity::GetSoundLength(const CTFileName &fnmSound)
 {
-    CSoundData *psdSound = so.so_pCsdLink;
-    return psdSound->GetSecondsLength();
+    CSoundData* psdSound = _pSoundStock->Obtain_t(fnmSound);
+    double length = psdSound->GetSecondsLength();
+    _pSoundStock->Release(psdSound);
+    return length;
 }
 
 void CEntity::PlaySound(CSoundObject &so, const CTFileName &fnmSound, SLONG slPlayType)
@@ -3116,7 +3181,8 @@ static BOOL CheckModelRangeDamage(
     CCastRay crRay( &en, avPoints[i], vCenter);
     crRay.cr_ttHitModels = CCastRay::TT_NONE;     // only brushes block the damage
     crRay.cr_bHitTranslucentPortals = FALSE;
-	crRay.cr_bHitBlockSightPortals = FALSE;									   
+    crRay.cr_bHitBlockSightPortals = FALSE;
+    crRay.cr_bHitBlockMeleePortals = FALSE;
     crRay.cr_bPhysical = TRUE;
     en.en_pwoWorld->CastRay(crRay);
     if (crRay.cr_penHit==NULL) {

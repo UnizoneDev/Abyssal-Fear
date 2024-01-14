@@ -361,6 +361,10 @@ static void Key_Return(void)
 
     } else if (strEditingLine=="refresh") {
       DoCheat(strEditingLine, "cht_bRefresh");
+
+    } else if (strEditingLine == "buddha") {
+      DoCheat(strEditingLine, "cht_bBuddha");
+
     } else {
       CPrintF("sorry?\n");
     }

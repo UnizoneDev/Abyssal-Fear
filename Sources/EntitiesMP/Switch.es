@@ -87,6 +87,8 @@ properties:
 
 134 CEntityPointer m_penSoundUse    "Sound Use entity",     // sound use entity (doorknob jiggle)
 135 CSoundObject m_soUse,
+136 CTStringTrans m_strUseMessage "Use message" = "",
+137 CEntityPointer m_penUseTarget  "Use target" COLOR(C_dMAGENTA|0xFF),   // target to trigger when used
 
 
 components:
@@ -139,6 +141,7 @@ functions:
     slUsedMemory += m_strMessage.Length();
     slUsedMemory += m_strLockedMessage.Length();
     slUsedMemory += m_strUnlockedMessage.Length();
+    slUsedMemory += m_strUseMessage.Length();
     return slUsedMemory;
   }
 
@@ -304,6 +307,12 @@ procedures:
                 SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
               } else {
                 PlayUseSound();
+                if (m_strUseMessage!="") {
+                  PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+                }
+                if(m_penUseTarget != NULL) {
+                  SendToTarget(m_penUseTarget, m_eetEvent, eTrigger.penCaused);
+                }
               }
             }
             resume;
@@ -392,6 +401,12 @@ procedures:
                 SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
               } else {
                 PlayUseSound();
+                if (m_strUseMessage!="") {
+                  PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+                }
+                if(m_penUseTarget != NULL) {
+                  SendToTarget(m_penUseTarget, m_eetEvent, eTrigger.penCaused);
+                }
               }
             }
             resume;

@@ -68,6 +68,7 @@ EXP_FLT (({DIGIT}+("."({DIGIT}*)?)?)("E"|"e")("+"|"-")?{DIGIT}+)
 "texture"   {RETURN(k_texture);}
 "sound"     {RETURN(k_sound);}
 "model"     {RETURN(k_model);}
+"skamodel"  {RETURN(k_skamodel);}
 
 "properties"  {RETURN(k_properties);}
 "components"  {RETURN(k_components);}

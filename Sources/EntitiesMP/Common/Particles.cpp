@@ -229,7 +229,7 @@ void InitParticles(void)
     _toLavaTrailSmoke.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\LavaTrailSmoke.tex"));
     _toFlamethrowerTrail01.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\FlameThrower01.tex"));
     _toFlamethrowerTrail02.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\FlameThrower02.tex"));
-    _toFire.SetData_t(CTFILENAME("TexturesMP\\Effects\\Particles\\Fire.tex"));
+    _toFire.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\Fire.tex"));
     _toBoubble01.SetData_t(CTFILENAME("Models\\Items\\Particles\\Boubble01.tex"));
     _toBoubble02.SetData_t(CTFILENAME("Models\\Items\\Particles\\Boubble02.tex"));
     _toBoubble03.SetData_t(CTFILENAME("Models\\Items\\Particles\\Boubble03.tex"));

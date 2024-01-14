@@ -12,6 +12,9 @@
 // Names of collision boxes
 #define AXEVIEWMODEL_COLLISION_BOX_PART_NAME 0
 
+// Names of hit boxes
+#define AXEVIEWMODEL_HIT_BOX_PART_NAME 0
+
 // Attaching position names
 #define AXEVIEWMODEL_ATTACHMENT_THEAXE 0
 

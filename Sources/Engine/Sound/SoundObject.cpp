@@ -426,10 +426,13 @@ void CSoundObject::Update3DEffects(void)
   {
     CSoundListener &sli = *itsli;
 
-    // if local, but not of this listener
-    if ((so_slFlags&SOF_LOCAL) && so_penEntity!=sli.sli_penEntity) {
-      // don't add this listener
-      continue;
+    // [Cecil] Fixed local sounds not being played for predicted listeners
+    if (so_slFlags & SOF_LOCAL) {
+        // Skip if no listener
+        if (sli.sli_penEntity == NULL) continue;
+
+        // Skip if listener doesn't match
+        if (so_penEntity != sli.sli_penEntity->GetPredictionTail()) continue;
     }
 
     // calculated parameters for this listener

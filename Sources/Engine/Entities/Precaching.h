@@ -62,6 +62,13 @@ public:
   ~CAutoPrecacheTexture();
   void Precache(const CTFileName &fnm);
 };
+class ENGINE_API CAutoPrecacheSkaModel {
+public:
+    CModelInstanceData* apc_pmid;
+    CAutoPrecacheSkaModel();
+    ~CAutoPrecacheSkaModel();
+    void Precache(const CTFileName& fnm);
+};
 
 
 #endif  /* include-once check. */

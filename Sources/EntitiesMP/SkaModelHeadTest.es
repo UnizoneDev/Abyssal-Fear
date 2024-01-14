@@ -55,6 +55,7 @@ properties:
   5 enum SkaModelHeadAnimationType m_skhaType "Animation" 'A' = SKHAT_TPOSE,
 
 components:
+  1 skamodel MODEL_CORPSE     "Models\\NPCs\\Corpse\\SKACorpse1\\Corpse1.smc",
 
 functions:
 
@@ -153,21 +154,7 @@ procedures:
     SetPhysicsFlags(EPF_MODEL_FIXED);
     SetCollisionFlags(ECF_MODEL_HOLDER);
 
-    BOOL bLoadOK = TRUE;
-    CTFileName fnCorpseModel = CTFILENAME("Models\\NPCs\\Corpse\\SKACorpse1\\Corpse1.smc");
-    // try to load the model
-    try {
-      SetSkaModel_t(fnCorpseModel);
-      // if failed
-    } catch(char *strError) {
-      WarningMessage(TRANS("Cannot load ska model '%s':\n%s"), (CTString&)fnCorpseModel, strError);
-      bLoadOK = FALSE;
-      // set colision info for default model
-      //SetSkaColisionInfo();
-    }
-    if (!bLoadOK) {
-      SetSkaModel(CTFILENAME("Models\\Editor\\Ska\\Axis.smc"));
-    }
+    SetSkaModel(MODEL_CORPSE);
 
     switch(m_skhcType)
     {
@@ -191,6 +178,7 @@ procedures:
        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idCorpseBox_TPose);
        ASSERT(iBoxIndex>=0);
        ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
+       SetSkaColisionInfo();
       }
       break;
 
@@ -200,6 +188,7 @@ procedures:
        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idCorpseBox_OnBack);
        ASSERT(iBoxIndex>=0);
        ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
+       SetSkaColisionInfo();
       }
       break;
 
@@ -209,6 +198,7 @@ procedures:
        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idCorpseBox_OnFront);
        ASSERT(iBoxIndex>=0);
        ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
+       SetSkaColisionInfo();
       }
       break;
 
@@ -218,6 +208,7 @@ procedures:
        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idCorpseBox_TPose);
        ASSERT(iBoxIndex>=0);
        ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
+       SetSkaColisionInfo();
       }
       break;
     }

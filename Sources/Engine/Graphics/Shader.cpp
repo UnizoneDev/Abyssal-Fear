@@ -74,6 +74,9 @@ static GfxWrap _aShaderTexWrap[2] = { GFX_REPEAT, GFX_REPEAT };
 // [Uni] OpenGL stuff
 static BOOL _bUseVertexShaders = FALSE;
 static BOOL _bUseFragmentShaders = FALSE;
+static ULONG _ulProgram = 0;   // current shader program
+
+
 // Begin shader using
 void shaBegin(CAnyProjection3D &aprProjection,CShader *pShader)
 {
@@ -745,6 +748,32 @@ void shaSetTextureWrapping( enum GfxWrap eWrapU, enum GfxWrap eWrapV)
 }
 
 
+// Set uvmap for fog
+void shaSetFogUVMap(GFXTexCoord *paFogUVMap)
+{
+  _paFogUVMap = paFogUVMap;
+}
+
+// Set uvmap for haze
+void shaSetHazeUVMap(GFXTexCoord *paHazeUVMap)
+{
+  _paHazeUVMap = paHazeUVMap;
+}
+
+// Set array of vertex colors used in haze
+void shaSetHazeColorArray(GFXColor *paHazeColors)
+{
+  _pacolVtxHaze = paHazeColors;
+}
+
+BOOL shaOverBrightningEnabled(void)
+{
+  // determine multitexturing capability for overbrighting purposes
+  extern INDEX mdl_bAllowOverbright;
+  return mdl_bAllowOverbright && _pGfx->gl_ctTextureUnits>1;
+}
+
+
 // [Uni] OpenGL shaders
 BOOL shaUseHWShaders(void)
 {
@@ -785,29 +814,38 @@ void shaDisableFragmentShaders(void)
     gfxDisableFragmentShaders();
 }
 
-// Set uvmap for fog
-void shaSetFogUVMap(GFXTexCoord *paFogUVMap)
+
+// [Uni] OpenGL shaders variables
+
+ULONG shaGetProgram(void)
 {
-  _paFogUVMap = paFogUVMap;
+    return _ulProgram;
 }
 
-// Set uvmap for haze
-void shaSetHazeUVMap(GFXTexCoord *paHazeUVMap)
+void shaSetProgram(ULONG ulProgram)
 {
-  _paHazeUVMap = paHazeUVMap;
+    _ulProgram = ulProgram;
+    gfxSetShaderProgram(ulProgram);
 }
 
-// Set array of vertex colors used in haze
-void shaSetHazeColorArray(GFXColor *paHazeColors)
+void shaSetProgramIndex(const char* strUniform, INDEX iIndex)
 {
-  _pacolVtxHaze = paHazeColors;
+    gfxSetShaderProgramIndex(strUniform, _ulProgram, iIndex);
 }
 
-BOOL shaOverBrightningEnabled(void)
+void shaSetProgramFloat(const char* strUniform, FLOAT fFloat)
 {
-  // determine multitexturing capability for overbrighting purposes
-  extern INDEX mdl_bAllowOverbright;
-  return mdl_bAllowOverbright && _pGfx->gl_ctTextureUnits>1;
+    gfxSetShaderProgramFloat(strUniform, _ulProgram, fFloat);
+}
+
+void shaCreateVertexShader(const char* strShader, ULONG ulProgram)
+{
+    gfxCreateVertexProgram(strShader, ulProgram);
+}
+
+void shaCreateFragmentShader(const char* strShader, ULONG ulProgram)
+{
+    gfxCreateFragmentProgram(strShader, ulProgram);
 }
 
 

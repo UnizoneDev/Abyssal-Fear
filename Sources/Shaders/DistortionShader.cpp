@@ -63,9 +63,8 @@ SHADER_MAIN(Distortion)
     if (bOpaque) {
         shaDisableBlend();
         shaEnableDepthWrite();
-        // if translucent
-    }
-    else {
+    // if translucent
+    } else {
         shaEnableBlend();
         shaBlendFunc(GFX_SRC_ALPHA, GFX_INV_SRC_ALPHA);
         shaDisableDepthWrite();

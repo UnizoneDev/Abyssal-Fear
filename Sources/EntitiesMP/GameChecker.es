@@ -49,10 +49,11 @@ functions:
     BOOL cht_bGhost = _pShell->GetINDEX("cht_bGhost");
     BOOL cht_bFly = _pShell->GetINDEX("cht_bFly");
     BOOL cht_bGod = _pShell->GetINDEX("cht_bGod");
+    BOOL cht_bBuddha = _pShell->GetINDEX("cht_bBuddha");
     BOOL cht_bInvisible = _pShell->GetINDEX("cht_bInvisible");
     FLOAT cht_fTranslationMultiplier = _pShell->GetFLOAT("cht_fTranslationMultiplier");
 
-    if(cht_bGhost == TRUE || cht_bFly == TRUE || cht_bGod == TRUE || cht_bInvisible == TRUE || cht_fTranslationMultiplier > 1.0f)
+    if(cht_bGhost == TRUE || cht_bFly == TRUE || cht_bGod == TRUE || cht_bInvisible == TRUE || cht_bBuddha == TRUE || cht_fTranslationMultiplier > 1.0f)
     {
       SendToTarget(m_penCheckTarget, m_eetCheckType, m_penCaused);
       return;

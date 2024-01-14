@@ -165,6 +165,17 @@ void CEntity::Copy(CEntity &enOther, ULONG ulFlags)
   } if ( enOther.en_RenderType == RT_MODEL || en_RenderType == RT_EDITORMODEL) {
     // if will not initialize
     if (!(ulFlags&COPY_REINIT)) {
+      ASSERT(en_pmoModelObject == NULL);
+      ASSERT(en_psiShadingInfo == NULL);
+
+      if (en_pmoModelObject != NULL) {
+          delete en_pmoModelObject;
+      }
+
+      if (en_psiShadingInfo != NULL) {
+          delete en_psiShadingInfo;
+      }
+
       // create a new model object
       en_pmoModelObject = new CModelObject;
       en_psiShadingInfo = new CShadingInfo;
@@ -174,8 +185,19 @@ void CEntity::Copy(CEntity &enOther, ULONG ulFlags)
     }
   // if this is ska model
   } else if ( enOther.en_RenderType == RT_SKAMODEL || en_RenderType == RT_SKAEDITORMODEL) {
+      ASSERT(en_psiShadingInfo == NULL);
+      if (en_psiShadingInfo != NULL) {
+          delete en_psiShadingInfo;
+      }
+
       en_psiShadingInfo = new CShadingInfo;
       en_ulFlags &= ~ENF_VALIDSHADINGINFO;
+
+      ASSERT(en_pmiModelInstance == NULL);
+      if (en_pmiModelInstance != NULL) {
+          DeleteModelInstance(en_pmiModelInstance);
+      }
+
       en_pmiModelInstance = CreateModelInstance("Temp");
       // copy it
       GetModelInstance()->Copy(*enOther.GetModelInstance());
@@ -342,6 +364,41 @@ void CEntity::CopyOneProperty( CEntityProperty &epPropertySrc, CEntityProperty &
     // copy CPlacement3D
     COPYPROPERTY(CPlacement3D);
     break;
+  // if it is INDEX64
+  case CEntityProperty::EPT_INDEX64:
+    // copy INDEX64
+    COPYPROPERTY(INDEX64);
+    break;
+  // if it is DOUBLE
+  case CEntityProperty::EPT_DOUBLE:
+    // copy DOUBLE
+    COPYPROPERTY(DOUBLE);
+    break;
+  // if it is DOUBLEAABBOX3D
+  case CEntityProperty::EPT_DOUBLEAABBOX3D:
+      // copy DOUBLEAABBOX3D
+      COPYPROPERTY(DOUBLEaabbox3D);
+      break;
+      // if it is DOUBLEMATRIX3D
+  case CEntityProperty::EPT_DOUBLEMATRIX3D:
+      // copy DOUBLEMATRIX3D
+      COPYPROPERTY(DOUBLEmatrix3D);
+      break;
+      // if it is DOUBLE3D
+  case CEntityProperty::EPT_DOUBLE3D:
+      // copy DOUBLE3D
+      COPYPROPERTY(DOUBLE3D);
+      break;
+      // if it is DOUBLEQUATERNION3D
+  case CEntityProperty::EPT_DOUBLEQUAT3D:
+      // copy ANGLE3D
+      COPYPROPERTY(DOUBLEquat3D);
+      break;
+      // if it is DOUBLEplane3D
+  case CEntityProperty::EPT_DOUBLEplane3D:
+      // copy FLOATplane3D
+      COPYPROPERTY(DOUBLEplane3D);
+      break;
   default:
     ASSERTALWAYS("Unknown property type");
   }

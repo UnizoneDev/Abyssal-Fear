@@ -20,6 +20,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %}
 
 uses "EntitiesMP/ModelHolder2";
+uses "EntitiesMP/ModelHolder3";
+uses "EntitiesMP/UZModelHolder";
 uses "EntitiesMP/Light";
 
 // event sent to the entity that should change animation
@@ -34,6 +36,7 @@ event EChangeAnim {
   BOOL  bAmbientLightLoop,
   COLOR colAmbient,
   COLOR colDiffuse,
+  CTString strSkaModelAnim,
 };
 
 class CAnimationChanger : CRationalEntity {
@@ -55,6 +58,7 @@ properties:
   11 BOOL     m_bAmbientLightLoop  "Ambient Light Looping" = FALSE,
   12 COLOR m_colAmbient      "Ambient Light Color" 'A' = C_dBLUE,
   13 COLOR m_colDiffuse      "Diffuse Light Color" 'C' = C_GRAY,
+  14 CTString m_strSkaModelAnim    "Ska Model Animation" = "",
 
 components:
   1 model   MODEL_CHANGER     "Models\\Editor\\AnimationChanger.mdl",
@@ -96,7 +100,16 @@ functions:
       } else if (slPropertyOffset==offsetof(CAnimationChanger, m_iLightAnim)) {
         return penModel->m_aoLightAnimation.GetData();
       }
-
+    // if enhanced modelholder
+    } else if (IsOfClass(penTarget, "UZModelHolder")) {
+      CUZModelHolder *penModel = (CUZModelHolder*)&*penTarget;
+      if (slPropertyOffset==offsetof(CAnimationChanger, m_iModelAnim)) {
+        return penModel->GetModelObject()->GetData();
+      } else if (slPropertyOffset==offsetof(CAnimationChanger, m_iTextureAnim)) {
+        return penModel->GetModelObject()->mo_toTexture.GetData();
+      } else if (slPropertyOffset==offsetof(CAnimationChanger, m_iLightAnim)) {
+        return penModel->m_aoLightAnimation.GetData();
+      }
     // if light
     } else if (IsOfClass(penTarget, "Light")) {
       CLight *penLight = (CLight*)&*penTarget;
@@ -129,8 +142,10 @@ procedures:
     if (m_penTarget!=NULL && 
       !IsOfClass(m_penTarget, "AnimationHub") &&
       !IsOfClass(m_penTarget, "ModelHolder2") &&
+      !IsOfClass(m_penTarget, "ModelHolder3") &&
+      !IsOfClass(m_penTarget, "UZModelHolder") &&
       !IsOfClass(m_penTarget, "Light")) {
-      WarningMessage("Target must be AnimationHub ModelHolder2 or Light!");
+      WarningMessage("Target must be AnimationHub, ModelHolder2, ModelHolder3, UZModelHolder, or Light!");
       m_penTarget=NULL;
     }
     if (m_penTarget==NULL) {
@@ -151,6 +166,7 @@ procedures:
         eChange.bLightLoop        =m_bLightLoop  ;
         eChange.colAmbient        =m_colAmbient  ;
         eChange.colDiffuse        =m_colDiffuse  ;
+        eChange.strSkaModelAnim   =m_strSkaModelAnim;
         m_penTarget->SendEvent(eChange);
         resume;
       }

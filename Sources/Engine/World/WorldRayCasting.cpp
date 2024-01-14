@@ -85,6 +85,7 @@ void CCastRay::Init(CEntity *penOrigin, const FLOAT3D &vOrigin, const FLOAT3D &v
   cr_bHitTerrainInvisibleTris = FALSE;
   cr_fTestR = 0;
   cr_bHitBlockSightPortals = TRUE;
+  cr_bHitBlockMeleePortals = TRUE;
 
 	cr_bFindBone = TRUE;
 	cr_iBoneHit	 = -1;
@@ -529,6 +530,14 @@ void CCastRay::TestBrushSector(CBrushSector *pbscSector)
             continue;
           }
         }
+        // if polygon blocks melee attacks
+        if (ulFlags2 & BPOF2_BLOCKMELEE)
+        {
+          if (!cr_bHitBlockMeleePortals) {
+            // skip this polygon
+            continue;
+          }
+        }
         // if it is translucent or selected
         if (ulFlags&(BPOF_TRANSLUCENT|BPOF_TRANSPARENT|BPOF_SELECTED)) {
           // if translucent portals should be passed through
@@ -601,6 +610,15 @@ void CCastRay::TestBrushSector(CBrushSector *pbscSector)
           {
             // remember hit coordinates
             cr_fHitDistance=fHitDistance;
+            cr_penHit = pbscSector->bsc_pbmBrushMip->bm_pbrBrush->br_penEntity;
+            cr_pbscBrushSector = pbscSector;
+            cr_pbpoBrushPolygon = &bpoPolygon;
+          }
+          else if ((cr_bHitBlockSightPortals && ulFlags2&BPOF2_BLOCKSIGHT && !cr_bPhysical) ||
+              (cr_bHitBlockMeleePortals && ulFlags2 & BPOF2_BLOCKMELEE && !cr_bPhysical))
+          {
+            // remember hit coordinates
+            cr_fHitDistance = fHitDistance;
             cr_penHit = pbscSector->bsc_pbmBrushMip->bm_pbrBrush->br_penEntity;
             cr_pbscBrushSector = pbscSector;
             cr_pbpoBrushPolygon = &bpoPolygon;

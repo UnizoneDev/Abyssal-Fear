@@ -1444,656 +1444,100 @@ static void RenderWater(void)
   { // SUB-SAMPLING
     SLONG slHeightMapStep, slHeightRowStep;
 
-#if ASMOPT == 1
-
-    __asm {
-      push    ebx
-      bsf     ecx,D [_pixTexWidth]
-      dec     ecx
-      mov     eax,D [_pixBufferWidth]
-      sar     eax,cl
-      mov     D [slHeightMapStep],eax
-
-      bsf     edx,eax
-      add     edx,DISTORSION+2-1
-      mov     D [mmShift],edx
-
-      sub     eax,2
-      imul    eax,D [_pixBufferWidth]
-      mov     D [slHeightRowStep],eax
-
-      mov     eax,D [pixBaseWidth]
-      mov     edx,D [pixBaseHeight]
-      shl     edx,16
-      or      eax,edx
-      sub     eax,0x00010001
-      mov     D [mmBaseMasks],eax
-
-      mov     eax,D [pixBaseWidth]
-      shl     eax,16
-      or      eax,1
-      mov     D [mmBaseWidth],eax
-
-      mov     ebx,D [pswHeightMap]
-      mov     esi,D [pulTextureBase]
-      mov     edi,D [pulTexture]
-      pxor    mm6,mm6   // MM5 = 0 | 0 || pixV | pixU
-      mov     eax,D [_pixBufferWidth]
-      mov     edx,D [_pixTexHeight]
-rowLoop:
-      push    edx
-      mov     ecx,D [_pixTexWidth]
-pixLoop:
-      movd    mm1,D [ebx]
-      movd    mm3,D [ebx+ eax*2]
-      movq    mm2,mm1
-      psubw   mm3,mm1
-      pslld   mm1,16
-      psubw   mm2,mm1
-      pand    mm2,Q [mm00M0]
-      por     mm2,mm3
-      psraw   mm2,Q [mmShift]
-
-      paddw   mm2,mm6
-      pand    mm2,Q [mmBaseMasks]
-      pmaddwd mm2,Q [mmBaseWidth]
-      movd    edx,mm2
-      mov     edx,D [esi+ edx*4]
-      mov     D [edi],edx
-      // advance to next texture pixel
-      add     ebx,D [slHeightMapStep]
-      add     edi,4
-      paddd   mm6,Q [mm0001]
-      dec     ecx
-      jnz     pixLoop
-      // advance to next texture row
-      pop     edx
-      add     ebx,D [slHeightRowStep]
-      paddd   mm6,Q [mm0010]
-      dec     edx
-      jnz     rowLoop
-      emms
-      pop     ebx
-    }
-
-#else
-
     PIX pixPos, pixDU, pixDV;
-    slHeightMapStep  = _pixBufferWidth/pixBaseWidth
-    slHeightRowStep  = (slHeightMapStep-1)*_pixBufferWidth;
-    mmShift = DISTORSION+ FastLog2(slHeightMapStep) +2;
-    for( PIX pixV=0; pixV<_pixTexHeight; pixV++)
+    slHeightMapStep = _pixBufferWidth / pixBaseWidth;
+    slHeightRowStep = (slHeightMapStep - 1) * _pixBufferWidth;
+    mmShift = DISTORSION + FastLog2(slHeightMapStep) + 2;
+    for (PIX pixV = 0; pixV < _pixTexHeight; pixV++)
     { // row loop
-      for( PIX pixU=0; pixU<_pixTexWidth; pixU++)
-      { // texel loop
-        pixPos =  pswHeightMap[0];
-        pixDU  = (pswHeightMap[1]               - pixPos) >>(SLONG&)mmShift;
-        pixDV  = (pswHeightMap[_pixBufferWidth] - pixPos) >>(SLONG&)mmShift;
-        pixDU  = (pixU +pixDU) & (SLONG&)mmBaseWidthMask;
-        pixDV  = (pixV +pixDV) & (SLONG&)mmBaseHeightMask;
-        *pulTexture++ = pulTextureBase[pixDV*pixBaseWidth + pixDU];
-        // advance to next texel in height map
-        pswHeightMap += slHeightMapStep;
-      }
-      pswHeightMap += slHeightRowStep;
+        for (PIX pixU = 0; pixU < _pixTexWidth; pixU++)
+        { // texel loop
+            pixPos = pswHeightMap[0];
+            pixDU = (pswHeightMap[1] - pixPos) >> (SLONG&)mmShift;
+            pixDV = (pswHeightMap[_pixBufferWidth] - pixPos) >> (SLONG&)mmShift;
+            pixDU = (pixU + pixDU) & (SLONG&)mmBaseWidthMask;
+            pixDV = (pixV + pixDV) & (SLONG&)mmBaseHeightMask;
+            *pulTexture++ = pulTextureBase[pixDV * pixBaseWidth + pixDU];
+            // advance to next texel in height map
+            pswHeightMap += slHeightMapStep;
+        }
+        pswHeightMap += slHeightRowStep;
     }
-
-#endif
-
   }
   else if( _pixBufferWidth*2 == _pixTexWidth)
   { // BILINEAR SUPER-SAMPLING 2
 
-#if ASMOPT == 1
+      SLONG slU_00, slU_01, slU_10, slU_11;
+      SLONG slV_00, slV_01, slV_10, slV_11;
+      for (PIX pixV = 0; pixV < _pixBufferHeight; pixV++)
+      { // row loop
+          for (PIX pixU = 0; pixU < _pixBufferWidth; pixU++)
+          { // texel loop
+              slU_00 = pswHeightMap[_pixBufferWidth * 0 + 1] - pswHeightMap[_pixBufferWidth * 0 + 0] + ((pixU + 0) << (DISTORSION + 1 + 1));
+              slV_00 = pswHeightMap[_pixBufferWidth * 1 + 0] - pswHeightMap[_pixBufferWidth * 0 + 0] + ((pixV + 0) << (DISTORSION + 1 + 1));
+              slU_01 = pswHeightMap[_pixBufferWidth * 0 + 2] - pswHeightMap[_pixBufferWidth * 0 + 1] + ((pixU + 1) << (DISTORSION + 1 + 1));
+              slV_01 = pswHeightMap[_pixBufferWidth * 1 + 1] - pswHeightMap[_pixBufferWidth * 0 + 1] + ((pixV + 0) << (DISTORSION + 1 + 1));
+              slU_10 = pswHeightMap[_pixBufferWidth * 1 + 1] - pswHeightMap[_pixBufferWidth * 1 + 0] + ((pixU + 0) << (DISTORSION + 1 + 1));
+              slV_10 = pswHeightMap[_pixBufferWidth * 2 + 0] - pswHeightMap[_pixBufferWidth * 1 + 0] + ((pixV + 1) << (DISTORSION + 1 + 1));
+              slU_11 = pswHeightMap[_pixBufferWidth * 1 + 2] - pswHeightMap[_pixBufferWidth * 1 + 1] + ((pixU + 1) << (DISTORSION + 1 + 1));
+              slV_11 = pswHeightMap[_pixBufferWidth * 2 + 1] - pswHeightMap[_pixBufferWidth * 1 + 1] + ((pixV + 1) << (DISTORSION + 1 + 1));
 
-    __asm {
-      push    ebx
-      bsf     eax,D [pixBaseWidth]
-      mov     edx,32
-      sub     edx,eax
-      mov     D [mmBaseWidthShift],edx
+              pulTexture[_pixTexWidth * 0 + 0] = PIXEL((slU_00) >> (DISTORSION + 1), (slV_00) >> (DISTORSION + 1));
+              pulTexture[_pixTexWidth * 0 + 1] = PIXEL((slU_00 + slU_01) >> (DISTORSION + 1 + 1), (slV_00 + slV_01) >> (DISTORSION + 1 + 1));
+              pulTexture[_pixTexWidth * 1 + 0] = PIXEL((slU_00 + slU_10) >> (DISTORSION + 1 + 1), (slV_00 + slV_10) >> (DISTORSION + 1 + 1));
+              pulTexture[_pixTexWidth * 1 + 1] = PIXEL((slU_00 + slU_01 + slU_10 + slU_11) >> (DISTORSION + 1 + 2), (slV_00 + slV_01 + slV_10 + slV_11) >> (DISTORSION + 1 + 2));
 
-      movq    mm0,Q [mmBaseHeightMask]
-      psllq   mm0,32
-      por     mm0,Q [mmBaseWidthMask]
-      movq    Q [mmBaseMasks],mm0
-
-      pxor    mm6,mm6   // MM6 = pixV|pixU
-      mov     ebx,D [pswHeightMap]
-      mov     esi,D [pulTextureBase]
-      mov     edi,D [pulTexture]
-      mov     edx,D [_pixBufferHeight]
-rowLoop2:
-      push    edx
-      mov     edx,D [_pixTexWidth]
-      mov     ecx,D [_pixBufferWidth]
-pixLoop2:
-      mov     eax,D [_pixBufferWidth]
-
-      movd    mm1,D [ebx+ 2]
-      movd    mm0,D [ebx+ eax*2]
-      psllq   mm0,32
-      por     mm1,mm0
-      movd    mm0,D [ebx]
-      punpckldq mm0,mm0
-      psubd   mm1,mm0
-      movq    mm0,mm6
-      pslld   mm0,DISTORSION+1+1
-      paddd   mm1,mm0               // MM1 = slV_00 | slU_00
-
-      movd    mm2,D [ebx+ 4]
-      movd    mm0,D [ebx+ eax*2 +2]
-      psllq   mm0,32
-      por     mm2,mm0
-      movd    mm0,D [ebx+ 2]
-      punpckldq mm0,mm0
-      psubd   mm2,mm0
-      movq    mm0,mm6
-      paddd   mm0,Q [mm1LO]
-      pslld   mm0,DISTORSION+1+1
-      paddd   mm2,mm0               // MM2 = slV_01 | slU_01
-
-      movd    mm3,D [ebx+ eax*2 +2]
-      movd    mm0,D [ebx+ eax*4]
-      psllq   mm0,32
-      por     mm3,mm0
-      movd    mm0,D [ebx+ eax*2]
-      punpckldq mm0,mm0
-      psubd   mm3,mm0
-      movq    mm0,mm6
-      paddd   mm0,Q [mm1HI]
-      pslld   mm0,DISTORSION+1+1
-      paddd   mm3,mm0               // MM3 = slV_10 | slU_10
-
-      movd    mm4,D [ebx+ eax*2 +4]
-      movd    mm0,D [ebx+ eax*4 +2]
-      psllq   mm0,32
-      por     mm4,mm0
-      movd    mm0,D [ebx+ eax*2 +2]
-      punpckldq mm0,mm0
-      psubd   mm4,mm0
-      movq    mm0,mm6
-      paddd   mm0,Q [mm1HILO]
-      pslld   mm0,DISTORSION+1+1
-      paddd   mm4,mm0               // MM4 = slV_11 | slU_11
-
-      movq    mm0,mm1
-      psrad   mm0,DISTORSION+1+0
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi],eax
-
-      movq    mm0,mm1
-      paddd   mm0,mm2
-      psrad   mm0,DISTORSION+1+1
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ 4],eax
-
-      movq    mm0,mm1
-      paddd   mm0,mm3
-      psrad   mm0,DISTORSION+1+1
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*4],eax
-
-      paddd   mm1,mm2
-      paddd   mm1,mm3
-      paddd   mm1,mm4
-      psrad   mm1,DISTORSION+1+2
-      pand    mm1,Q [mmBaseMasks]
-      movq    mm7,mm1
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm1,mm7
-      movd    eax,mm1
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*4 +4],eax
-
-      // advance to next texture pixels
-      paddd   mm6,Q [mm1LO]
-      add     edi,8
-      add     ebx,2
-      dec     ecx
-      jnz     pixLoop2
-      // advance to next texture row
-      lea     edi,[edi+ edx*4]
-      pop     edx
-      paddd   mm6,Q [mm1HI]
-      dec     edx
-      jnz     rowLoop2
-      emms
-      pop     ebx
-    }
-
-#else
-
-    SLONG slU_00, slU_01, slU_10, slU_11;
-    SLONG slV_00, slV_01, slV_10, slV_11;
-    for( PIX pixV=0; pixV<_pixBufferHeight; pixV++)
-    { // row loop
-      for( PIX pixU=0; pixU<_pixBufferWidth; pixU++)
-      { // texel loop
-        slU_00 = pswHeightMap[_pixBufferWidth*0+1] - pswHeightMap[_pixBufferWidth*0+0] + ((pixU+0)<<(DISTORSION+1+1));
-        slV_00 = pswHeightMap[_pixBufferWidth*1+0] - pswHeightMap[_pixBufferWidth*0+0] + ((pixV+0)<<(DISTORSION+1+1));
-        slU_01 = pswHeightMap[_pixBufferWidth*0+2] - pswHeightMap[_pixBufferWidth*0+1] + ((pixU+1)<<(DISTORSION+1+1));
-        slV_01 = pswHeightMap[_pixBufferWidth*1+1] - pswHeightMap[_pixBufferWidth*0+1] + ((pixV+0)<<(DISTORSION+1+1));
-        slU_10 = pswHeightMap[_pixBufferWidth*1+1] - pswHeightMap[_pixBufferWidth*1+0] + ((pixU+0)<<(DISTORSION+1+1));
-        slV_10 = pswHeightMap[_pixBufferWidth*2+0] - pswHeightMap[_pixBufferWidth*1+0] + ((pixV+1)<<(DISTORSION+1+1));
-        slU_11 = pswHeightMap[_pixBufferWidth*1+2] - pswHeightMap[_pixBufferWidth*1+1] + ((pixU+1)<<(DISTORSION+1+1));
-        slV_11 = pswHeightMap[_pixBufferWidth*2+1] - pswHeightMap[_pixBufferWidth*1+1] + ((pixV+1)<<(DISTORSION+1+1));
-
-        pulTexture[_pixTexWidth*0+0] = PIXEL( (slU_00                     ) >>(DISTORSION+1  ), (slV_00                     ) >>(DISTORSION+1  ) );
-        pulTexture[_pixTexWidth*0+1] = PIXEL( (slU_00+slU_01              ) >>(DISTORSION+1+1), (slV_00+slV_01              ) >>(DISTORSION+1+1) );
-        pulTexture[_pixTexWidth*1+0] = PIXEL( (slU_00       +slU_10       ) >>(DISTORSION+1+1), (slV_00       +slV_10       ) >>(DISTORSION+1+1) );
-        pulTexture[_pixTexWidth*1+1] = PIXEL( (slU_00+slU_01+slU_10+slU_11) >>(DISTORSION+1+2), (slV_00+slV_01+slV_10+slV_11) >>(DISTORSION+1+2) );
-
-        // advance to next texel
-        pulTexture+=2;
-        pswHeightMap++;
+              // advance to next texel
+              pulTexture += 2;
+              pswHeightMap++;
+          }
+          pulTexture += _pixTexWidth;
       }
-      pulTexture+=_pixTexWidth;
-    }
-
-#endif
-
   }
   else if( _pixBufferWidth*4 == _pixTexWidth)
   { // BILINEAR SUPER-SAMPLING 4
+      SLONG slU_00, slU_01, slU_10, slU_11;
+      SLONG slV_00, slV_01, slV_10, slV_11;
+      mmBaseWidthShift = FastLog2(pixBaseWidth);        // faster multiplying with shift
+      for (PIX pixV = 0; pixV < _pixBufferHeight; pixV++)
+      { // row loop
+          for (PIX pixU = 0; pixU < _pixBufferWidth; pixU++)
+          { // texel loop
+              slU_00 = pswHeightMap[_pixBufferWidth * 0 + 1] - pswHeightMap[_pixBufferWidth * 0 + 0] + ((pixU + 0) << (DISTORSION + 2));
+              slV_00 = pswHeightMap[_pixBufferWidth * 1 + 0] - pswHeightMap[_pixBufferWidth * 0 + 0] + ((pixV + 0) << (DISTORSION + 2));
+              slU_01 = pswHeightMap[_pixBufferWidth * 0 + 2] - pswHeightMap[_pixBufferWidth * 0 + 1] + ((pixU + 1) << (DISTORSION + 2));
+              slV_01 = pswHeightMap[_pixBufferWidth * 1 + 1] - pswHeightMap[_pixBufferWidth * 0 + 1] + ((pixV + 0) << (DISTORSION + 2));
+              slU_10 = pswHeightMap[_pixBufferWidth * 1 + 1] - pswHeightMap[_pixBufferWidth * 1 + 0] + ((pixU + 0) << (DISTORSION + 2));
+              slV_10 = pswHeightMap[_pixBufferWidth * 2 + 0] - pswHeightMap[_pixBufferWidth * 1 + 0] + ((pixV + 1) << (DISTORSION + 2));
+              slU_11 = pswHeightMap[_pixBufferWidth * 1 + 2] - pswHeightMap[_pixBufferWidth * 1 + 1] + ((pixU + 1) << (DISTORSION + 2));
+              slV_11 = pswHeightMap[_pixBufferWidth * 2 + 1] - pswHeightMap[_pixBufferWidth * 1 + 1] + ((pixV + 1) << (DISTORSION + 2));
 
-#if ASMOPT == 1
+              pulTexture[_pixTexWidth * 0 + 0] = PIXEL((slU_00) >> (DISTORSION), (slV_00) >> (DISTORSION));
+              pulTexture[_pixTexWidth * 0 + 1] = PIXEL((slU_00 * 3 + slU_01 * 1) >> (DISTORSION + 2), (slV_00 * 3 + slV_01 * 1) >> (DISTORSION + 2));
+              pulTexture[_pixTexWidth * 0 + 2] = PIXEL((slU_00 + slU_01) >> (DISTORSION + 1), (slV_00 + slV_01) >> (DISTORSION + 1));
+              pulTexture[_pixTexWidth * 0 + 3] = PIXEL((slU_00 * 1 + slU_01 * 3) >> (DISTORSION + 2), (slV_00 * 1 + slV_01 * 3) >> (DISTORSION + 2));
 
-    __asm {
-      push    ebx
-      bsf     eax,D [pixBaseWidth]
-      mov     edx,32
-      sub     edx,eax
-      mov     D [mmBaseWidthShift],edx
+              pulTexture[_pixTexWidth * 1 + 0] = PIXEL((slU_00 * 3 + slU_10 * 1) >> (DISTORSION + 2), (slV_00 * 3 + slV_10) >> (DISTORSION + 2));
+              pulTexture[_pixTexWidth * 1 + 1] = PIXEL((slU_00 * 9 + slU_01 * 3 + slU_10 * 3 + slU_11 * 1) >> (DISTORSION + 4), (slV_00 * 9 + slV_01 * 3 + slV_10 * 3 + slV_11 * 1) >> (DISTORSION + 4));
+              pulTexture[_pixTexWidth * 1 + 2] = PIXEL((slU_00 * 3 + slU_01 * 3 + slU_10 * 1 + slU_11 * 1) >> (DISTORSION + 3), (slV_00 * 3 + slV_01 * 3 + slV_10 * 1 + slV_11 * 1) >> (DISTORSION + 3));
+              pulTexture[_pixTexWidth * 1 + 3] = PIXEL((slU_00 * 3 + slU_01 * 9 + slU_10 * 1 + slU_11 * 3) >> (DISTORSION + 4), (slV_00 * 3 + slV_01 * 9 + slV_10 * 1 + slV_11 * 3) >> (DISTORSION + 4));
 
-      movq    mm0,Q [mmBaseHeightMask]
-      psllq   mm0,32
-      por     mm0,Q [mmBaseWidthMask]
-      movq    Q [mmBaseMasks],mm0
+              pulTexture[_pixTexWidth * 2 + 0] = PIXEL((slU_00 + slU_10) >> (DISTORSION + 1), (slV_00 + slV_10) >> (DISTORSION + 1));
+              pulTexture[_pixTexWidth * 2 + 1] = PIXEL((slU_00 * 3 + slU_01 * 1 + slU_10 * 3 + slU_11 * 1) >> (DISTORSION + 3), (slV_00 * 3 + slV_01 * 1 + slV_10 * 3 + slV_11 * 1) >> (DISTORSION + 3));
+              pulTexture[_pixTexWidth * 2 + 2] = PIXEL((slU_00 + slU_01 + slU_10 + slU_11) >> (DISTORSION + 2), (slV_00 + slV_01 + slV_10 + slV_11) >> (DISTORSION + 2));
+              pulTexture[_pixTexWidth * 2 + 3] = PIXEL((slU_00 * 1 + slU_01 * 3 + slU_10 * 1 + slU_11 * 3) >> (DISTORSION + 3), (slV_00 * 1 + slV_01 * 3 + slV_10 * 1 + slV_11 * 3) >> (DISTORSION + 3));
 
-      pxor    mm6,mm6   // MM6 = pixV|pixU
-      mov     ebx,D [pswHeightMap]
-      mov     esi,D [pulTextureBase]
-      mov     edi,D [pulTexture]
-      mov     edx,D [_pixBufferHeight]
-rowLoop4:
-      push    edx
-      mov     ecx,D [_pixBufferWidth]
-pixLoop4:
-      mov     eax,D [_pixBufferWidth]
-      mov     edx,D [_pixTexWidth]
+              pulTexture[_pixTexWidth * 3 + 0] = PIXEL((slU_00 * 1 + slU_10 * 3) >> (DISTORSION + 2), (slV_00 * 1 + slV_10 * 3) >> (DISTORSION + 2));
+              pulTexture[_pixTexWidth * 3 + 1] = PIXEL((slU_00 * 3 + slU_01 * 1 + slU_10 * 9 + slU_11 * 3) >> (DISTORSION + 4), (slV_00 * 3 + slV_01 * 1 + slV_10 * 9 + slV_11 * 3) >> (DISTORSION + 4));
+              pulTexture[_pixTexWidth * 3 + 2] = PIXEL((slU_00 * 1 + slU_01 * 1 + slU_10 * 3 + slU_11 * 3) >> (DISTORSION + 3), (slV_00 * 1 + slV_01 * 1 + slV_10 * 3 + slV_11 * 3) >> (DISTORSION + 3));
+              pulTexture[_pixTexWidth * 3 + 3] = PIXEL((slU_00 * 1 + slU_01 * 3 + slU_10 * 3 + slU_11 * 9) >> (DISTORSION + 4), (slV_00 * 1 + slV_01 * 3 + slV_10 * 3 + slV_11 * 9) >> (DISTORSION + 4));
 
-      movd    mm1,D [ebx+ 2]
-      movd    mm0,D [ebx+ eax*2]
-      psllq   mm0,32
-      por     mm1,mm0
-      movd    mm0,D [ebx]
-      punpckldq mm0,mm0
-      psubd   mm1,mm0
-      movq    mm0,mm6
-      pslld   mm0,DISTORSION+1+1
-      paddd   mm1,mm0               // MM1 = slV_00 | slU_00
-
-      movd    mm2,D [ebx+ 4]
-      movd    mm0,D [ebx+ eax*2 +2]
-      psllq   mm0,32
-      por     mm2,mm0
-      movd    mm0,D [ebx+ 2]
-      punpckldq mm0,mm0
-      psubd   mm2,mm0
-      movq    mm0,mm6
-      paddd   mm0,Q [mm1LO]
-      pslld   mm0,DISTORSION+1+1
-      paddd   mm2,mm0               // MM2 = slV_01 | slU_01
-
-      movd    mm3,D [ebx+ eax*2 +2]
-      movd    mm0,D [ebx+ eax*4]
-      psllq   mm0,32
-      por     mm3,mm0
-      movd    mm0,D [ebx+ eax*2]
-      punpckldq mm0,mm0
-      psubd   mm3,mm0
-      movq    mm0,mm6
-      paddd   mm0,Q [mm1HI]
-      pslld   mm0,DISTORSION+1+1
-      paddd   mm3,mm0               // MM3 = slV_10 | slU_10
-
-      movd    mm4,D [ebx+ eax*2 +4]
-      movd    mm0,D [ebx+ eax*4 +2]
-      psllq   mm0,32
-      por     mm4,mm0
-      movd    mm0,D [ebx+ eax*2 +2]
-      punpckldq mm0,mm0
-      psubd   mm4,mm0
-      movq    mm0,mm6
-      paddd   mm0,Q [mm1HILO]
-      pslld   mm0,DISTORSION+1+1
-      paddd   mm4,mm0               // MM4 = slV_11 | slU_11
-
-      // texel 00
-      movq    mm0,mm1
-      psrad   mm0,DISTORSION
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi],eax
-      // texel 01
-      movq    mm0,mm1
-      paddd   mm0,mm1
-      paddd   mm0,mm1
-      paddd   mm0,mm2
-      psrad   mm0,DISTORSION+2
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi +4],eax
-      // texel 02
-      movq    mm0,mm1
-      paddd   mm0,mm2
-      psrad   mm0,DISTORSION+1
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi +8],eax
-      // texel 03
-      movq    mm0,mm1
-      paddd   mm0,mm2
-      paddd   mm0,mm2
-      paddd   mm0,mm2
-      psrad   mm0,DISTORSION+2
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi +12],eax
-
-      // texel 10
-      movq    mm0,mm1
-      paddd   mm0,mm1
-      paddd   mm0,mm1
-      paddd   mm0,mm3
-      psrad   mm0,DISTORSION+2
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*4],eax
-      // texel 11
-      movq    mm0,mm1
-      pslld   mm0,3
-      paddd   mm0,mm1
-      paddd   mm0,mm2
-      paddd   mm0,mm2
-      paddd   mm0,mm2
-      paddd   mm0,mm3
-      paddd   mm0,mm3
-      paddd   mm0,mm3
-      paddd   mm0,mm4
-      psrad   mm0,DISTORSION+4
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*4 +4],eax
-      // texel 12
-      movq    mm0,mm1
-      paddd   mm0,mm0
-      paddd   mm0,mm1
-      paddd   mm0,mm2
-      paddd   mm0,mm2
-      paddd   mm0,mm2
-      paddd   mm0,mm3
-      paddd   mm0,mm4
-      psrad   mm0,DISTORSION+3
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*4 +8],eax
-      // texel 13
-      movq    mm0,mm2
-      pslld   mm0,3
-      paddd   mm0,mm2
-      paddd   mm0,mm1
-      paddd   mm0,mm1
-      paddd   mm0,mm1
-      paddd   mm0,mm3
-      paddd   mm0,mm4
-      paddd   mm0,mm4
-      paddd   mm0,mm4
-      psrad   mm0,DISTORSION+4
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*4 +12],eax
-
-      // texel 20
-      movq    mm0,mm1
-      paddd   mm0,mm3
-      psrad   mm0,DISTORSION+1
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*8],eax
-      // texel 21
-      movq    mm0,mm1
-      paddd   mm0,mm1
-      paddd   mm0,mm1
-      paddd   mm0,mm2
-      paddd   mm0,mm3
-      paddd   mm0,mm3
-      paddd   mm0,mm3
-      paddd   mm0,mm4
-      psrad   mm0,DISTORSION+3
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*8 +4],eax
-      // texel 22
-      movq    mm0,mm1
-      paddd   mm0,mm2
-      paddd   mm0,mm3
-      paddd   mm0,mm4
-      psrad   mm0,DISTORSION+2
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*8 +8],eax
-      // texel 23
-      movq    mm0,mm1
-      paddd   mm0,mm2
-      paddd   mm0,mm2
-      paddd   mm0,mm2
-      paddd   mm0,mm3
-      paddd   mm0,mm4
-      paddd   mm0,mm4
-      paddd   mm0,mm4
-      psrad   mm0,DISTORSION+3
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*8 +12],eax
-
-      imul    edx,3 // _pixTexWidth*=3
-      // texel 30
-      movq    mm0,mm1
-      paddd   mm0,mm3
-      paddd   mm0,mm3
-      paddd   mm0,mm3
-      psrad   mm0,DISTORSION+2
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*4],eax
-      // texel 31
-      movq    mm0,mm3
-      pslld   mm0,3
-      paddd   mm0,mm3
-      paddd   mm0,mm1
-      paddd   mm0,mm1
-      paddd   mm0,mm1
-      paddd   mm0,mm2
-      paddd   mm0,mm4
-      paddd   mm0,mm4
-      paddd   mm0,mm4
-      psrad   mm0,DISTORSION+4
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*4 +4],eax
-      // texel 32
-      movq    mm0,mm4
-      paddd   mm0,mm0
-      paddd   mm0,mm4
-      paddd   mm0,mm3
-      paddd   mm0,mm3
-      paddd   mm0,mm3
-      paddd   mm0,mm2
-      paddd   mm0,mm1
-      psrad   mm0,DISTORSION+3
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*4 +8],eax
-      // texel 33
-      movq    mm0,mm4
-      pslld   mm0,3
-      paddd   mm0,mm4
-      paddd   mm0,mm1
-      paddd   mm0,mm2
-      paddd   mm0,mm2
-      paddd   mm0,mm2
-      paddd   mm0,mm3
-      paddd   mm0,mm3
-      paddd   mm0,mm3
-      psrad   mm0,DISTORSION+4
-      pand    mm0,Q [mmBaseMasks]
-      movq    mm7,mm0
-      psrlq   mm7,Q [mmBaseWidthShift]
-      paddd   mm0,mm7
-      movd    eax,mm0
-      mov     eax,D [esi+ eax*4]
-      mov     D [edi+ edx*4 +12],eax
-
-      // advance to next texture pixels
-      paddd   mm6,Q [mm1LO]
-      add     edi,16
-      add     ebx,2
-      dec     ecx
-      jnz     pixLoop4
-      // advance to next texture row
-      lea     edi,[edi+ edx*4] // +=[_pixTexWidth]*3
-      pop     edx
-      paddd   mm6,Q [mm1HI]
-      dec     edx
-      jnz     rowLoop4
-      emms
-      pop     ebx
-    }
-
-#else
-
-    SLONG slU_00, slU_01, slU_10, slU_11;
-    SLONG slV_00, slV_01, slV_10, slV_11;
-    mmBaseWidthShift = FastLog2( pixBaseWidth);        // faster multiplying with shift
-    for( PIX pixV=0; pixV<_pixBufferHeight; pixV++)
-    { // row loop
-      for( PIX pixU=0; pixU<_pixBufferWidth; pixU++)
-      { // texel loop
-        slU_00 = pswHeightMap[_pixBufferWidth*0+1] - pswHeightMap[_pixBufferWidth*0+0] + ((pixU+0)<<(DISTORSION+2));
-        slV_00 = pswHeightMap[_pixBufferWidth*1+0] - pswHeightMap[_pixBufferWidth*0+0] + ((pixV+0)<<(DISTORSION+2));
-        slU_01 = pswHeightMap[_pixBufferWidth*0+2] - pswHeightMap[_pixBufferWidth*0+1] + ((pixU+1)<<(DISTORSION+2));
-        slV_01 = pswHeightMap[_pixBufferWidth*1+1] - pswHeightMap[_pixBufferWidth*0+1] + ((pixV+0)<<(DISTORSION+2));
-        slU_10 = pswHeightMap[_pixBufferWidth*1+1] - pswHeightMap[_pixBufferWidth*1+0] + ((pixU+0)<<(DISTORSION+2));
-        slV_10 = pswHeightMap[_pixBufferWidth*2+0] - pswHeightMap[_pixBufferWidth*1+0] + ((pixV+1)<<(DISTORSION+2));
-        slU_11 = pswHeightMap[_pixBufferWidth*1+2] - pswHeightMap[_pixBufferWidth*1+1] + ((pixU+1)<<(DISTORSION+2));
-        slV_11 = pswHeightMap[_pixBufferWidth*2+1] - pswHeightMap[_pixBufferWidth*1+1] + ((pixV+1)<<(DISTORSION+2));
-
-        pulTexture[_pixTexWidth*0+0] = PIXEL( (slU_00                                 ) >>(DISTORSION  ), (slV_00                                 ) >>(DISTORSION  ) );
-        pulTexture[_pixTexWidth*0+1] = PIXEL( (slU_00* 3+slU_01* 1                    ) >>(DISTORSION+2), (slV_00* 3+slV_01* 1                    ) >>(DISTORSION+2) );
-        pulTexture[_pixTexWidth*0+2] = PIXEL( (slU_00   +slU_01                       ) >>(DISTORSION+1), (slV_00   +slV_01                       ) >>(DISTORSION+1) );
-        pulTexture[_pixTexWidth*0+3] = PIXEL( (slU_00* 1+slU_01* 3                    ) >>(DISTORSION+2), (slV_00* 1+slV_01* 3                    ) >>(DISTORSION+2) );
-
-        pulTexture[_pixTexWidth*1+0] = PIXEL( (slU_00* 3          +slU_10* 1          ) >>(DISTORSION+2), (slV_00* 3          +slV_10             ) >>(DISTORSION+2) );
-        pulTexture[_pixTexWidth*1+1] = PIXEL( (slU_00* 9+slU_01* 3+slU_10* 3+slU_11* 1) >>(DISTORSION+4), (slV_00* 9+slV_01* 3+slV_10* 3+slV_11* 1) >>(DISTORSION+4) );
-        pulTexture[_pixTexWidth*1+2] = PIXEL( (slU_00* 3+slU_01* 3+slU_10* 1+slU_11* 1) >>(DISTORSION+3), (slV_00* 3+slV_01* 3+slV_10* 1+slV_11* 1) >>(DISTORSION+3) );
-        pulTexture[_pixTexWidth*1+3] = PIXEL( (slU_00* 3+slU_01* 9+slU_10* 1+slU_11* 3) >>(DISTORSION+4), (slV_00* 3+slV_01* 9+slV_10* 1+slV_11* 3) >>(DISTORSION+4) );
-
-        pulTexture[_pixTexWidth*2+0] = PIXEL( (slU_00             +slU_10             ) >>(DISTORSION+1), (slV_00             +slV_10             ) >>(DISTORSION+1) );
-        pulTexture[_pixTexWidth*2+1] = PIXEL( (slU_00* 3+slU_01* 1+slU_10* 3+slU_11* 1) >>(DISTORSION+3), (slV_00* 3+slV_01* 1+slV_10* 3+slV_11* 1) >>(DISTORSION+3) );
-        pulTexture[_pixTexWidth*2+2] = PIXEL( (slU_00   +slU_01   +slU_10   +slU_11   ) >>(DISTORSION+2), (slV_00   +slV_01   +slV_10   +slV_11   ) >>(DISTORSION+2) );
-        pulTexture[_pixTexWidth*2+3] = PIXEL( (slU_00* 1+slU_01* 3+slU_10* 1+slU_11* 3) >>(DISTORSION+3), (slV_00* 1+slV_01* 3+slV_10* 1+slV_11* 3) >>(DISTORSION+3) );
-
-        pulTexture[_pixTexWidth*3+0] = PIXEL( (slU_00* 1          +slU_10* 3          ) >>(DISTORSION+2), (slV_00* 1          +slV_10* 3          ) >>(DISTORSION+2) );
-        pulTexture[_pixTexWidth*3+1] = PIXEL( (slU_00* 3+slU_01* 1+slU_10* 9+slU_11* 3) >>(DISTORSION+4), (slV_00* 3+slV_01* 1+slV_10* 9+slV_11* 3) >>(DISTORSION+4) );
-        pulTexture[_pixTexWidth*3+2] = PIXEL( (slU_00* 1+slU_01* 1+slU_10* 3+slU_11* 3) >>(DISTORSION+3), (slV_00* 1+slV_01* 1+slV_10* 3+slV_11* 3) >>(DISTORSION+3) );
-        pulTexture[_pixTexWidth*3+3] = PIXEL( (slU_00* 1+slU_01* 3+slU_10* 3+slU_11* 9) >>(DISTORSION+4), (slV_00* 1+slV_01* 3+slV_10* 3+slV_11* 9) >>(DISTORSION+4) );
-
-        // advance to next texel
-        pulTexture+=4;
-        pHeightMap++;
+              // advance to next texel
+              pulTexture += 4;
+              pswHeightMap++;
+          }
+          pulTexture += _pixTexWidth * 3;
       }
-      pulTexture+=_pixTexWidth*3;
-    }
-
-#endif
-
   }
   else
   { // DO NOTHING
@@ -2462,81 +1906,26 @@ static void AnimateFire( SLONG slDensity)
   SLONG slBufferMask   = _pixBufferWidth*_pixBufferHeight -1;
   SLONG slColumnModulo = _pixBufferWidth*(_pixBufferHeight-2) -1;
 
-#if ASMOPT == 1
-
-  __asm {
-    push    ebx
-    mov     edi,D [ulRNDSeed] ;// EDI = randomizer
-    mov     esi,D [pubNew]
-    xor     ebx,ebx
-
-colLoopFM:
-    mov     ecx,D [_pixBufferHeight]
-    sub     ecx,2
-
-rowLoopFM:
-    mov     edx,D [_pixBufferWidth]
-    add     edx,esi
-    movzx   eax,B [ebx+ edx]
-    add     edx,D [_pixBufferWidth]
-    movzx   edx,B [ebx+ edx]
-    add     eax,edx
-    shr     eax,1
-    cmp     eax,D [slDensity]
-    jg      doCalc
-    mov     B [esi+ebx],0
-    jmp     pixDone
-doCalc:
-    mov     edx,edi
-    sar     edx,16
-    and     edx,D [slDensity]
-    sub     eax,edx
-    movsx   edx,B [asbMod3Sub1Table +edx]
-    add     edx,ebx
-    and     edx,D [slBufferMask]
-    mov     B [esi+edx],al
-    imul    edi,262147
-
-pixDone:
-    // advance to next row
-    add     ebx,D [_pixBufferWidth]
-    dec     ecx
-    jnz     rowLoopFM
-
-    // advance to next column
-    sub     ebx,D [slColumnModulo]
-    cmp     ebx,D [_pixBufferWidth]
-    jl      colLoopFM
-
-    // all done
-    mov     D [ulRNDSeed],edi
-    pop     ebx
-  }
-
-#else
-
   // inner rectangle (without 1 pixel border)
-  for( PIX pixU=0; pixU<_pixBufferWidth; pixU++)
+  for (PIX pixU = 0; pixU < _pixBufferWidth; pixU++)
   {
-    SLONG slOffset = pixU;
-    for( PIX pixV=1; pixV<_pixBufferHeight-1; pixV++)
-    {
-      ULONG ulNew = ((ULONG)pubNew[_pixBufferWidth+slOffset] + (ULONG)pubNew[_pixBufferWidth*2+slOffset]) >>1;
-      if( ulNew>slDensity) {
-        ULONG ulNewDensity = RNDW&slDensity;
-        ulNew -= ulNewDensity;
-        SLONG slDifusion = (SLONG)asbMod3Sub1Table[ulNewDensity]; // (SLONG)(ulNewDensity%3-1);
-        SLONG slPos = (slDifusion+slOffset) & slBufferMask;
-        pubNew[slPos] = ulNew;
-      } else {
-        pubNew[slOffset] = 0;
+      SLONG slOffset = pixU;
+      for (PIX pixV = 1; pixV < _pixBufferHeight - 1; pixV++)
+      {
+          ULONG ulNew = ((ULONG)pubNew[_pixBufferWidth + slOffset] + (ULONG)pubNew[_pixBufferWidth * 2 + slOffset]) >> 1;
+          if (ulNew > slDensity) {
+              ULONG ulNewDensity = RNDW & slDensity;
+              ulNew -= ulNewDensity;
+              SLONG slDifusion = (SLONG)asbMod3Sub1Table[ulNewDensity]; // (SLONG)(ulNewDensity%3-1);
+              SLONG slPos = (slDifusion + slOffset) & slBufferMask;
+              pubNew[slPos] = ulNew;
+          }
+          else {
+              pubNew[slOffset] = 0;
+          }
+          slOffset += _pixBufferWidth;
       }
-      slOffset += _pixBufferWidth;
-    }
   }
-
-#endif
-
 //  _sfStats.StopTimer(CStatForm::STI_EFFECTRENDER);
 }
 
@@ -2557,51 +1946,16 @@ static void RenderPlasmaFire(void)
   SLONG slHeatRowStep  = (slHeatMapStep-1)*_pixBufferWidth;
   SLONG slBaseMipShift = 8 - FastLog2(pixBaseWidth);
 
-#if ASMOPT == 1
-
-  __asm {
-    push    ebx
-    mov     ebx,D [pubHeat]
-    mov     esi,D [pulTextureBase]
-    mov     edi,D [pulTexture]
-    mov     ecx,D [_pixTexHeight]
-rowLoopF:
-    push    ecx
-    mov     edx,D [_pixTexWidth]
-    mov     ecx,D [slBaseMipShift]
-pixLoopF:
-    movzx   eax,B [ebx]
-    shr     eax,cl
-    mov     eax,D [esi+ eax*4]
-    mov     D [edi],eax
-    // advance to next pixel
-    add     ebx,D [slHeatMapStep]
-    add     edi,4
-    dec     edx
-    jnz     pixLoopF
-    // advance to next row
-    pop     ecx
-    add     ebx,D [slHeatRowStep]
-    dec     ecx
-    jnz     rowLoopF
-    pop     ebx
-  }
-
-#else
-
   INDEX iPalette;
-  for( INDEX pixV=0; pixV<_pixTexHeight; pixV++) {
-    // for every pixel in horizontal line
-    for( INDEX pixU=0; pixU<_pixTexWidth; pixU++) {
-      iPalette = (*pubHeat)>>slBaseMipShift;
-      *pulTexture++ = pulTextureBase[iPalette];
-      pubHeat += slHeatMapStep;
-    }
-    pubHeat += slHeatRowStep;
+  for (INDEX pixV = 0; pixV < _pixTexHeight; pixV++) {
+      // for every pixel in horizontal line
+      for (INDEX pixU = 0; pixU < _pixTexWidth; pixU++) {
+          iPalette = (*pubHeat) >> slBaseMipShift;
+          *pulTexture++ = pulTextureBase[iPalette];
+          pubHeat += slHeatMapStep;
+      }
+      pubHeat += slHeatRowStep;
   }
-
-#endif
-
 //  _sfStats.StopTimer(CStatForm::STI_EFFECTRENDER);
 }
 

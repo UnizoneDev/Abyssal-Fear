@@ -63,6 +63,7 @@ uses "EntitiesMP/BasicEffects";
 uses "EntitiesMP/WeaponItem";
 uses "EntitiesMP/AmmoItem";
 uses "EntitiesMP/ModelHolder2";
+uses "EntitiesMP/ModelHolder3";
 
 
 // input parameter for weapons
@@ -704,6 +705,7 @@ functions:
     CCastRay crRay( m_penPlayer, plCrosshair);
     crRay.cr_bHitTranslucentPortals = FALSE;
     crRay.cr_bHitBlockSightPortals = FALSE;
+    crRay.cr_bHitBlockMeleePortals = TRUE;
     crRay.cr_bPhysical = FALSE;
     crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;
     GetWorld()->CastRay(crRay);
@@ -1257,6 +1259,7 @@ functions:
       CCastRay crRay( m_penPlayer, vBase, vDest[i]);
       crRay.cr_bHitTranslucentPortals = FALSE;
       crRay.cr_bHitBlockSightPortals = FALSE;
+      crRay.cr_bHitBlockMeleePortals = TRUE;
       crRay.cr_fTestR = fThickness;
       crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;
       GetWorld()->CastRay(crRay);
@@ -1278,6 +1281,66 @@ functions:
             FLOAT3D vNormal=crRay.cr_pbpoBrushPolygon->bpo_pbplPlane->bpl_plAbsolute;
             FLOAT3D vReflected = vDir-vNormal*(2.0f*(vNormal%vDir));
             ((CPlayer&)*m_penPlayer).AddBulletSpray( vBase+vFront, eptType, vReflected);
+          }
+          else if(crRay.cr_penHit->GetRenderType()==RT_SKAMODEL)
+          {
+            BOOL bRender=TRUE;
+            FLOAT3D vSpillDir=-((CPlayer&)*m_penPlayer).en_vGravityDir*0.5f;
+            SprayParticlesType sptType=SPT_NONE;
+            COLOR colParticles=C_WHITE|CT_OPAQUE;
+            FLOAT fPower=2.0f;
+            if( IsOfClass(crRay.cr_penHit, "ModelHolder3"))
+            {
+              m_bMeleeHitModel = TRUE;
+              bRender=FALSE;
+            }
+            else if( IsDerivedFromClass(crRay.cr_penHit, "Enemy Base"))
+            {
+              CEnemyBase &eb = (CEnemyBase&)*crRay.cr_penHit;
+
+              FLOAT3D vDirection = eb.GetPlacement().pl_PositionVector-GetPlayer()->GetPlacement().pl_PositionVector;
+              vDirection.Normalize();
+
+              FLOAT3D vProperDamageDir = (vDirection.ManhattanNorm() > eb.m_fBlockDirAmount) ? vDirection : -GetPlayer()->en_vGravityDir;
+              vProperDamageDir = (vProperDamageDir - GetPlayer()->en_vGravityDir * eb.m_fBlockDirAmount).Normalize();
+
+              if(eb.m_bIsBlocking == TRUE) {
+                if(eb.GetPlaneFrustumAngle(vProperDamageDir) < Cos(eb.m_fBlockAmount)) {
+                  m_bMeleeHitBlockingEnemy = TRUE;
+                } else {
+                  m_bMeleeHitBlockingEnemyFlesh = TRUE;
+                }
+              } else {
+                m_bMeleeHitEnemy = TRUE;
+              }
+            }
+            else if( IsOfClass(crRay.cr_penHit, "Player"))
+            {
+              CPlayer &pl = (CPlayer&)*crRay.cr_penHit;
+
+              FLOAT3D vDirection = pl.GetPlacement().pl_PositionVector-GetPlayer()->GetPlacement().pl_PositionVector;
+              vDirection.Normalize();
+
+              FLOAT3D vProperDamageDir = (vDirection.ManhattanNorm() > pl.m_fBlockDirAmount) ? vDirection : -GetPlayer()->en_vGravityDir;
+              vProperDamageDir = (vProperDamageDir - GetPlayer()->en_vGravityDir * pl.m_fBlockDirAmount).Normalize();
+
+              if(pl.m_bIsBlocking == TRUE) {
+                if(pl.GetPlaneFrustumAngle(vProperDamageDir) < Cos(pl.m_fBlockAmount)) {
+                  m_bMeleeHitBlockingEnemy = TRUE;
+                } else {
+                  m_bMeleeHitBlockingEnemyFlesh = TRUE;
+                }
+              } else {
+                m_bMeleeHitEnemy = TRUE;
+              }
+            }
+            FLOATaabbox3D boxCutted=FLOATaabbox3D(FLOAT3D(0,0,0),FLOAT3D(1,1,1));
+            if(bRender)
+            {
+              crRay.cr_penHit->en_pmiModelInstance->GetCurrentColisionBox( boxCutted);
+              ((CPlayer&)*m_penPlayer).AddGoreSpray( vBase+vFront, vHit, sptType,
+                vSpillDir, boxCutted, fPower, colParticles);
+            }
           }
           else if(crRay.cr_penHit->GetRenderType()==RT_MODEL)
           {
@@ -2601,7 +2664,7 @@ procedures:
     m_bMeleeHitBlockingEnemyFlesh = FALSE;
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
-    autowait(0.175f);
+    autowait(0.2f);
     if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 50.0f : 30.0f), DMT_AXE)) {
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -3168,7 +3231,7 @@ procedures:
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.25f);
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 10.0f), DMT_BLUNT)) {
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_BLUNT)) {
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
@@ -3186,7 +3249,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 10.0f), DMT_BLUNT);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_BLUNT);
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)

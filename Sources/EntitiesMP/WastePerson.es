@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep.
+/* Copyright (c) 2021-2024 Uni Musuotankarep.
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -21,13 +21,16 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "Models/NPCs/WastePeople/WasterMale.h"
 #include "Models/NPCs/WastePeople/WasterSword.h"
+#include "Models/NPCs/WastePeople/WasterKnife.h"
 %}
 
 uses "EntitiesMP/EnemyDive";
 
 enum WastePersonType {
-  0 WPC_BROWNMALE        "Brown Haired Male",
-  1 WPC_BLACKMALE        "Black Haired Male",
+  0 WPC_BROWNMALE        "Brown Haired Male Sword",
+  1 WPC_BLACKMALE        "Black Haired Male Sword",
+  2 WPC_BROWNMALEKNIFE   "Brown Haired Male Knife",
+  3 WPC_BLACKMALEKNIFE   "Black Haired Male Knife",
 };
 
 %{
@@ -62,6 +65,7 @@ components:
   6 texture TEXTURE_WASTERMALE2 	"Models\\NPCs\\WastePeople\\WasterMale\\WasterMale2.tex",
   4 model   MODEL_WASTERSWORD		"Models\\NPCs\\WastePeople\\WasterWeapons\\WasterSword.mdl",
   5 texture TEXTURE_WASTERSWORD		"Models\\NPCs\\WastePeople\\WasterWeapons\\WasterSword.tex",
+  7 model   MODEL_WASTERKNIFE		"Models\\NPCs\\WastePeople\\WasterWeapons\\WasterKnife.mdl",
 
   10 sound   SOUND_SWING            "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
   11 sound   SOUND_SLICE1           "Models\\NPCs\\Twitcher\\Sounds\\Slice1.wav",
@@ -112,6 +116,8 @@ functions:
     switch(m_wpChar) {
     case WPC_BROWNMALE: { pes->es_strName+=" Brown Hair"; } break;
     case WPC_BLACKMALE: { pes->es_strName+=" Black Hair"; } break;
+    case WPC_BROWNMALEKNIFE: { pes->es_strName+=" Brown Hair Knife"; } break;
+    case WPC_BLACKMALEKNIFE: { pes->es_strName+=" Black Hair Knife"; } break;
     }
     return TRUE;
   }
@@ -223,6 +229,14 @@ functions:
     RunningAnim();
   };
 
+  void BacksteppingAnim(void) {
+    if (m_bInLiquid) {
+      StartModelAnim(WASTERMALE_ANIM_SWIMMOVE, AOF_LOOPING|AOF_NORESTART);
+    } else {
+      StartModelAnim(WASTERMALE_ANIM_BACKPEDAL, AOF_LOOPING|AOF_NORESTART);
+    }
+  };
+
   void JumpingAnim(void) {
     StartModelAnim(WASTERMALE_ANIM_JUMPSWORD, AOF_LOOPING|AOF_NORESTART);
   };
@@ -238,6 +252,9 @@ functions:
   procedures:
 
   BlockEnemyMelee(EVoid) {
+    if(m_wpChar == WPC_BROWNMALEKNIFE || m_wpChar == WPC_BLACKMALEKNIFE) {
+      return EReturn();
+    }
 
     StartModelAnim(WASTERMALE_ANIM_BLOCK1, 0);
 
@@ -275,12 +292,14 @@ functions:
       return EReturn();
     }
 
-    switch(IRnd()%4)
+    switch(IRnd()%6)
     {
       case 0: StartModelAnim(WASTERMALE_ANIM_MELEE1, 0); break;
       case 1: StartModelAnim(WASTERMALE_ANIM_MELEE2, 0); break;
       case 2: StartModelAnim(WASTERMALE_ANIM_MELEE3, 0); break;
       case 3: StartModelAnim(WASTERMALE_ANIM_MELEE4, 0); break;
+      case 4: StartModelAnim(WASTERMALE_ANIM_MELEE5, 0); break;
+      case 5: StartModelAnim(WASTERMALE_ANIM_MELEE6, 0); break;
       default: ASSERTALWAYS("Waster unknown melee attack");
     }
 
@@ -361,7 +380,11 @@ functions:
           }
         }
 
-        InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        if(m_wpChar == WPC_BROWNMALE || m_wpChar == WPC_BLACKMALE) {
+          InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        } else {
+          InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 5.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        }
       }
     } else {
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
@@ -465,7 +488,11 @@ functions:
           }
         }
 
-        InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        if(m_wpChar == WPC_BROWNMALE || m_wpChar == WPC_BLACKMALE) {
+          InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        } else {
+          InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 5.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        }
       }
     } else {
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
@@ -487,8 +514,8 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_LESSER;
-    SetHealth(250.0f);
-    m_fMaxHealth = 250.0f;
+    SetHealth(200.0f);
+    m_fMaxHealth = 200.0f;
     m_fDamageWounded = 90.0f;
     m_iScore = 10000;
     en_tmMaxHoldBreath = 30.0f;
@@ -497,12 +524,25 @@ functions:
 
     // set your appearance and texture
         SetModel(MODEL_WASTERMALE);
-        if(m_wpChar == WPC_BLACKMALE) {
-          SetModelMainTexture(TEXTURE_WASTERMALE2);
-        } else {
-          SetModelMainTexture(TEXTURE_WASTERMALE);
+        switch(m_wpChar) {
+          case WPC_BROWNMALE:
+            SetModelMainTexture(TEXTURE_WASTERMALE);
+            AddAttachment(WASTERMALE_ATTACHMENT_SWORD, MODEL_WASTERSWORD, TEXTURE_WASTERSWORD);
+          break;
+          case WPC_BLACKMALE:
+            SetModelMainTexture(TEXTURE_WASTERMALE2);
+            AddAttachment(WASTERMALE_ATTACHMENT_SWORD, MODEL_WASTERSWORD, TEXTURE_WASTERSWORD);
+          break;
+          case WPC_BROWNMALEKNIFE:
+            SetModelMainTexture(TEXTURE_WASTERMALE);
+            AddAttachment(WASTERMALE_ATTACHMENT_KNIFE, MODEL_WASTERKNIFE, TEXTURE_WASTERSWORD);
+          break;
+          case WPC_BLACKMALEKNIFE:
+            SetModelMainTexture(TEXTURE_WASTERMALE2);
+            AddAttachment(WASTERMALE_ATTACHMENT_KNIFE, MODEL_WASTERKNIFE, TEXTURE_WASTERSWORD);
+          break;
         }
-        AddAttachment(WASTERMALE_ATTACHMENT_SWORD, MODEL_WASTERSWORD, TEXTURE_WASTERSWORD);
+
         GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
 

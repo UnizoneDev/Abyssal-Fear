@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep.
+/* Copyright (c) 2021-2024 Uni Musuotankarep.
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -200,35 +200,8 @@ procedures:
       return EReturn();
     }
 
-    m_vDesiredPosition = m_penEnemy->GetPlacement().pl_PositionVector;
-    m_fMoveFrequency = 0.1f;
-
-    while (TRUE)
-    {
-      // adjust direction and speed
-      m_fMoveSpeed = m_fCloseRunSpeed;
-      m_aRotateSpeed = m_aCloseRotateSpeed;
-      FLOAT3D vTranslation = GetDesiredTranslation();
-      SetDesiredMovement(); 
-      SetDesiredTranslation(vTranslation);
-
-      wait(m_fMoveFrequency)
-      {
-        on (EBegin) : { resume; };
-        on (ESound) : { resume; }     // ignore all sounds
-        on (EWatch) : { resume; }     // ignore watch
-        on (ETimer) : { stop; }       // timer tick expire
-        on (ETouch etouch) :
-        {
-          // if we touched food, then eat it
-          if ( IsDerivedFromClass( etouch.penOther, "Wildlife Food") && !CheckIfFull())
-          {            
-            jump EatFood();
-          }
-          // we didn't touch ground nor player, ignore
-          resume;
-        }
-      }
+    if(!CheckIfFull()) {
+      jump EatFood();
     }
 
     return EReturn();

@@ -33,6 +33,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #endif
 
 /* !!! FIXME: rcg10042001 This is going to need OpenAL or SDL_audio... */
+#include <AL/al.h>
+#include <AL/alc.h>
 
 // Mixer
 // set master volume and resets mixer buffer (wipes it with zeroes and keeps pointers)

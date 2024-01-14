@@ -80,6 +80,7 @@ void CDlgPgPolygon::DoDataExchange(CDataExchange* pDX)
     m_bLadder.EnableWindow(bSelectionExists);
     m_bSticky.EnableWindow(bSelectionExists);
     m_bBlockSight.EnableWindow(bSelectionExists);
+    m_bBlockMelee.EnableWindow(bSelectionExists);
     GetDlgItem( IDC_STATIC_MIRROR)->EnableWindow( bSelectionExists);
     GetDlgItem( IDC_STATIC_FRICTION)->EnableWindow( bSelectionExists);
     GetDlgItem( IDC_PRETENDER_DISTANCE)->EnableWindow( bSelectionExists);
@@ -150,6 +151,7 @@ void CDlgPgPolygon::DoDataExchange(CDataExchange* pDX)
       SET_TRI_STATE_TO_CTRL2(m_bLadder, BPOF2_LADDER);
       SET_TRI_STATE_TO_CTRL2(m_bSticky, BPOF2_STICKY);
       SET_TRI_STATE_TO_CTRL2(m_bBlockSight, BPOF2_BLOCKSIGHT);
+      SET_TRI_STATE_TO_CTRL2(m_bBlockMelee, BPOF2_BLOCKMELEE);
 
       if( bSameFriction) m_ComboFriction.SetCurSel( ubFirstFriction);
       else m_ComboFriction.SetCurSel(-1);
@@ -162,6 +164,7 @@ void CDlgPgPolygon::DoDataExchange(CDataExchange* pDX)
   }
 
   //{{AFX_DATA_MAP(CDlgPgPolygon)
+    DDX_Control(pDX, IDC_BLOCK_MELEE, m_bBlockMelee);
     DDX_Control(pDX, IDC_BLOCK_SIGHT, m_bBlockSight);
     DDX_Control(pDX, IDC_LADDER, m_bLadder);
     DDX_Control(pDX, IDC_STICKY, m_bSticky);
@@ -248,6 +251,7 @@ void CDlgPgPolygon::DoDataExchange(CDataExchange* pDX)
       TRI_STATE_CTRL_TO_FLAGS2(m_bLadder, BPOF2_LADDER, FALSE, FALSE);
       TRI_STATE_CTRL_TO_FLAGS2(m_bSticky, BPOF2_STICKY, FALSE, FALSE);
       TRI_STATE_CTRL_TO_FLAGS2(m_bBlockSight, BPOF2_BLOCKSIGHT, FALSE, FALSE);
+	  TRI_STATE_CTRL_TO_FLAGS2(m_bBlockMelee, BPOF2_BLOCKMELEE, FALSE, FALSE);
 
       // occluder and detail flags can't be on at the same time    
       BOOL bOccluderSet = ((ulFlagsBefore&BPOF_OCCLUDER)!=(ulFlagsAfter&BPOF_OCCLUDER))&&(ulFlagsAfter&BPOF_OCCLUDER);
@@ -408,6 +412,7 @@ BOOL CDlgPgPolygon::OnInitDialog()
     m_bLadder.SetDialogPtr(this);
     m_bSticky.SetDialogPtr(this);
     m_bBlockSight.SetDialogPtr(this);
+	m_bBlockMelee.SetDialogPtr(this);
   return TRUE;
 }
 

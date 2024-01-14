@@ -355,6 +355,7 @@ public:
 #define BPOF2_STICKY          (1UL<<1)  // polygon can be used for pseudo-parkour
 #define BPOF2_SMOOTHLYSHADED  (1UL<<2)  // polygon will be smoothly shaded
 #define BPOF2_BLOCKSIGHT      (1UL<<3)  // polygon will block sight
+#define BPOF2_BLOCKMELEE      (1UL<<4)  // polygon will block melee attacks
 
 // properties that are retained in conversions to/from CObjectPolygon
 struct CBrushPolygonProperties {

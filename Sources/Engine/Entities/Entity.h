@@ -325,15 +325,19 @@ public:
   CTextureData *GetTextureDataForComponent(SLONG slID);
   // Get data for a model component
   CModelData *GetModelDataForComponent(SLONG slID);
+  // Get data for a ska model component
+  CModelInstanceData *GetModelInstanceDataForComponent(SLONG slID);
 
   // model manipulation functions -- only for RT_MODEL/RT_EDITORMODEL
   /* Set the model data for model entity. */
   void SetModel(const CTFileName &fnmModel);
   void SetModel(SLONG idModelComponent);
+
   BOOL SetSkaModel(const CTString &fnmModel);
   void SetSkaModel_t(const CTString &fnmModel);
   void SetSkaModel(SLONG idModelComponent);
   void SetSkaColisionInfo();
+
   /* Get the model data for model entity. */
   const CTFileName &GetModel(void);
   /* Start new animation for model entity. */
@@ -343,7 +347,7 @@ public:
   void PlaySound(CSoundObject &so, SLONG idSoundComponent, SLONG slPlayType);
   void PlaySound(CSoundObject &so, const CTFileName &fnmSound, SLONG slPlayType);
   double GetSoundLength(SLONG idSoundComponent);
-  double GetSoundLength(CSoundObject &so, const CTFileName &fnmSound);																  
+  double GetSoundLength(const CTFileName &fnmSound);
 
   // set/get model main blend color
   COLOR GetModelColor(void) const;

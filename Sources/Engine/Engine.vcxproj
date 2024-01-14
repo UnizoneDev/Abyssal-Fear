@@ -502,6 +502,7 @@
     <ClCompile Include="Templates\Stock_CEntityClass.cpp" />
     <ClCompile Include="Templates\Stock_CMesh.cpp" />
     <ClCompile Include="Templates\Stock_CModelData.cpp" />
+	<ClCompile Include="Templates\Stock_CModelInstanceData.cpp" />
     <ClCompile Include="Templates\Stock_CShader.cpp" />
     <ClCompile Include="Templates\Stock_CSkeleton.cpp" />
     <ClCompile Include="Templates\Stock_CSoundData.cpp" />
@@ -822,6 +823,7 @@
     <ClInclude Include="Templates\Stock_CEntityClass.h" />
     <ClInclude Include="Templates\Stock_CMesh.h" />
     <ClInclude Include="Templates\Stock_CModelData.h" />
+	<ClInclude Include="Templates\Stock_CModelInstanceData.h" />
     <ClInclude Include="Templates\Stock_CShader.h" />
     <ClInclude Include="Templates\Stock_CSkeleton.h" />
     <ClInclude Include="Templates\Stock_CSoundData.h" />

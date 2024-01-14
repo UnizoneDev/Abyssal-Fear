@@ -140,6 +140,7 @@ functions:
     crRay.cr_bHitPortals = TRUE;
     crRay.cr_bHitTranslucentPortals = TRUE;
     crRay.cr_bHitBlockSightPortals = FALSE;
+    crRay.cr_bHitBlockMeleePortals = FALSE;
     crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;
     crRay.cr_bPhysical = FALSE;
     crRay.cr_fTestR = m_fBulletSize;

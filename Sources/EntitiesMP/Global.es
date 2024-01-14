@@ -66,10 +66,10 @@ event EKilledEnemy { // sent to player when enemy is killed
 };
 event ESecretFound { // sent to player secret is found
 };
-event ELock {        // lock this object
+event ELock {        // lock or pause this object
   CEntityPointer penCaused,
 }; 
-event EUnlock {      // unlock this object
+event EUnlock {      // unlock or unpause this object
   CEntityPointer penCaused,
 }; 
 

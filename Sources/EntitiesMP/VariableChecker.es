@@ -25,7 +25,11 @@ enum VariableCheckerType {
   3 VCT_ZPOSITION           "Z Pos",
   4 VCT_HROTATION           "H Rot",
   5 VCT_PROTATION           "P Rot",
-  6 VCT_BROTATION           "B Rot"
+  6 VCT_BROTATION           "B Rot",
+  7 VCT_XSPEED              "X Speed",
+  8 VCT_YSPEED              "Y Speed",
+  9 VCT_ZSPEED              "Z Speed",
+ 10 VCT_SPEED               "Total Speed"
 };
 
 enum VariableCheckerOperationType {
@@ -54,6 +58,7 @@ properties:
   8 FLOAT m_fCheckValue                             "Float Value" = 0.0f,
   9 CEntityPointer m_penCheck                       "Entity to Check",
  10 BOOL m_bCompareCaller                           "Compare with caller" = FALSE,
+ 11 INDEX m_iCheckValue                             "Index Value" = 0,
 
 components:
 
@@ -150,6 +155,38 @@ functions:
 
       case VCT_BROTATION:
       CompareFloats(penCaused, penCaused->GetPlacement().pl_OrientationAngle(3));
+      break;
+
+      case VCT_XSPEED:
+      if(!penCaused->IsMovableEntity())
+      {
+        return;
+      }
+      CompareFloats(penCaused, ((CMovableEntity&)*penCaused).en_vCurrentTranslationAbsolute(1));
+      break;
+
+      case VCT_YSPEED:
+      if(!penCaused->IsMovableEntity())
+      {
+        return;
+      }
+      CompareFloats(penCaused, ((CMovableEntity&)*penCaused).en_vCurrentTranslationAbsolute(2));
+      break;
+
+      case VCT_ZSPEED:
+      if(!penCaused->IsMovableEntity())
+      {
+        return;
+      }
+      CompareFloats(penCaused, ((CMovableEntity&)*penCaused).en_vCurrentTranslationAbsolute(3));
+      break;
+
+      case VCT_SPEED:
+      if(!penCaused->IsMovableEntity())
+      {
+        return;
+      }
+      CompareFloats(penCaused, ((CMovableEntity&)*penCaused).en_vCurrentTranslationAbsolute.Length());
       break;
     }
   };

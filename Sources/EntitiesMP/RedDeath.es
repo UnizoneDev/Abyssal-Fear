@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep.
+/* Copyright (c) 2021-2024 Uni Musuotankarep.
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -223,7 +223,7 @@ functions:
     }
     m_bFistHit = FALSE;
     autowait(0.35f);
-    if (CalcDist(m_penEnemy) < 2.8f) {
+    if (CalcDist(m_penEnemy) < m_fCloseDistance) {
       m_bFistHit = TRUE;
     }
     
@@ -253,9 +253,9 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_GREATER;
-    SetHealth(300.0f);
-    m_fMaxHealth = 300.0f;
-    m_fDamageWounded = 180.0f;
+    SetHealth(200.0f);
+    m_fMaxHealth = 200.0f;
+    m_fDamageWounded = 140.0f;
     m_iScore = 5000;
     en_tmMaxHoldBreath = 30.0f;
     en_fDensity = 2000.0f;

@@ -18,14 +18,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "StdH.h"
 #include "EntitiesMP/EnemyBase.h"
 #include "Models/Weapons/Pistol/Projectile/Bullet.h"
-#include "Models/NPCs/DoomImp/Projectile/ImpFireball.h"
+#include "Models/NPCs/InfernalSpecter/Projectile/Fireball.h"
 #include "Models/NPCs/Abomination/Projectile/MutantBloodSpit.h"
 
 #include "EntitiesMP/PlayerWeapons.h"
 #include "EntitiesMP/Shooter.h"
-
-#define DEVIL_LASER_SPEED 100.0f
-#define DEVIL_ROCKET_SPEED 60.0f
 %}
 
 uses "EntitiesMP/BasicEffects";
@@ -52,7 +49,7 @@ enum ProjectileMovingType {
   3 PMT_GUIDED_FAST    "",     // fast guided projectile
   4 PMT_FLYING_REBOUNDING "",  // flying and rebounding from walls a few times
   5 PMT_GUIDED_SLIDING "",     // sliding on floor and guided at the same time
-  6 PMT_BLOODBUNDLE "",        // projectile that is throw at an arc
+  6 PMT_BLOODBUNDLE "",        // projectile that is thrown at an arc
 };
 
 
@@ -66,17 +63,6 @@ event ELaunchProjectile {
 
 
 %{
-#define DRAGONMAN_NORMAL 0
-#define DRAGONMAN_STRONG 1
-
-#define ELEMENTAL_LARGE   2
-#define ELEMENTAL_BIG     1
-#define ELEMENTAL_NORMAL  0
-
-#define ELEMENTAL_STONEMAN 0
-#define ELEMENTAL_LAVAMAN  1
-#define ELEMENTAL_ICEMAN   2
-
 void CProjectile_OnInitClass(void)
 {
 }
@@ -185,12 +171,12 @@ components:
   4 class   CLASS_BLOOD_SPRAY   "Classes\\BloodSpray.ecl",
 
 // ********* PLAYER FLAME *********
-  5 model   MODEL_FLAME         "ModelsMP\\Weapons\\Flamer\\Projectile\\Invisible.mdl",
+  5 model   MODEL_FLAME         "Models\\Effects\\InvisiblePlane\\InvisiblePlane.mdl",
   6 class   CLASS_FLAME         "Classes\\Flame.ecl",
 
 // ********** FIREBALL **********
-  7 model   MODEL_FIREBALL      "Models\\NPCs\\DoomImp\\Projectile\\ImpFireball.mdl",
-  8 texture TEX_FIREBALL        "Models\\NPCs\\DoomImp\\Projectile\\FireballImp.tex",
+  7 model   MODEL_FIREBALL      "Models\\NPCs\\InfernalSpecter\\Projectile\\Fireball.mdl",
+  8 texture TEX_FIREBALL        "Models\\NPCs\\InfernalSpecter\\Projectile\\Fireball.tex",
 
 // ********** BULLET **********
   9 model   MODEL_BULLET        "Models\\Weapons\\Pistol\\Projectile\\Bullet.mdl",

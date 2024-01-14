@@ -23,6 +23,7 @@ uses "EntitiesMP/Debris";
 
 // input parameter for spawning an enhanced blood spray
 event ESpawnBlood {
+  enum SprayParticlesType sptType, // type of particles
   FLOAT fDamagePower,              // factor saying how powerfull damage has been
   FLOAT fSizeMultiplier,           // stretch factor
   FLOAT3D vDirection,              // dammage direction  
@@ -66,6 +67,7 @@ properties:
  13 INDEX m_iAmount = 1,
  14 BOOL m_bGenerateStreams = FALSE,
  15 FLOAT3D m_vLastStain  = FLOAT3D(0,0,0), // where last stain was left
+ 16 enum SprayParticlesType m_sptType = SPT_NONE,                    // type of particles
 
 
 components:
@@ -82,9 +84,72 @@ functions:
       Particles_BloodTrail(this);
     }
 
-    Particles_BloodDroplet(GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
+    switch( m_sptType)
+    {
+    case SPT_BLOOD:
+    {
+     Particles_BloodSpray(m_sptType, GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
+        m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower, m_colBurnColor);
+     Particles_BloodDroplet(GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
         m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower, m_colBurnColor, m_iAmount);
-
+     break;
+    }
+    case SPT_BONES:
+    case SPT_FEATHER:
+    case SPT_STONES:
+    case SPT_WOOD:
+    case SPT_SLIME:
+    case SPT_LAVA_STONES:
+    case SPT_SMALL_LAVA_STONES:
+    case SPT_BEAST_PROJECTILE_SPRAY:
+    case SPT_AIRSPOUTS:
+    case SPT_GOO:
+    {
+      Particles_BloodSpray(m_sptType, GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
+        m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower, m_colBurnColor);
+      break;
+    }
+    case SPT_COLOREDSTONE:
+      {
+        Particles_BloodSpray(m_sptType, GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
+          m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower, MulColors(m_colCentralColor, m_colBurnColor) );
+        break;
+      }
+    case SPT_TREE01:
+      Particles_BloodSpray(SPT_WOOD, GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA/1.5f,
+        m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower/2.0f, m_colBurnColor);
+      Particles_Leaves(m_penOwner, m_boxOriginalOwner, GetLerpedPlacement().pl_PositionVector,
+        m_fDamagePower, m_fDamagePower*m_fLaunchPower, m_vGDir,
+        m_fGA/2.0f, m_tmStarted, MulColors(m_colCentralColor,m_colBurnColor));
+      break;
+    case SPT_PLASMA:
+        Particles_BloodSpray(m_sptType, GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
+          m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower);
+        Particles_DamageSmoke(this, m_tmStarted, m_boxSizedOwner, m_fDamagePower);
+        Particles_ElectricitySparks( this, m_tmStarted, 5.0f, 0.0f, 32);
+      break;
+    case SPT_ELECTRICITY_SPARKS:
+      {
+        Particles_MetalParts(this, m_tmStarted, m_boxSizedOwner, m_fDamagePower);
+        Particles_DamageSmoke(this, m_tmStarted, m_boxSizedOwner, m_fDamagePower);
+        Particles_BloodSpray(SPT_BLOOD, GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
+          m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower/2.0f, C_WHITE|CT_OPAQUE);
+        Particles_ElectricitySparks( this, m_tmStarted, 5.0f, 0.0f, 32);
+        break;
+      }
+    case SPT_ELECTRICITY_SPARKS_NO_BLOOD:
+      {
+        Particles_MetalParts(this, m_tmStarted, m_boxSizedOwner, m_fDamagePower);
+        Particles_DamageSmoke(this, m_tmStarted, m_boxSizedOwner, m_fDamagePower);
+        Particles_ElectricitySparks( this, m_tmStarted, 5.0f, 0.0f, 32);
+        break;
+      }
+    case SPT_SMOKE:
+      {
+        Particles_DamageSmoke(this, m_tmStarted, m_boxSizedOwner, m_fDamagePower);
+        break;
+      }
+    }
   };
 
   void LeaveStain( BOOL bGrow)
@@ -141,6 +206,7 @@ procedures:
     SetModelMainTexture(TEXTURE_BLOOD);
 
     // setup variables
+    m_sptType = eBlood.sptType;
     m_vDirection = eBlood.vDirection;
     m_penOwner = eBlood.penOwner;
     m_fDamagePower = eBlood.fDamagePower;

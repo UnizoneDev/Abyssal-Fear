@@ -224,6 +224,18 @@ functions:
   // The config checkers
   // --------------------------------------------------------------------------------------
 
+  // Set boolean properties
+  virtual void SetBoolProperty(const CTString &strProp, const BOOL bValue) {
+       if (strProp == "bMoveOnDamage")          { m_bMoveOnDamage = bValue; }
+       else if (strProp == "bBlowupByDamager")  { m_bBlowupByDamager = bValue; }
+       else if (strProp == "bBlowupByAnything") { m_bBlowupByAnything = bValue; }
+       else if (strProp == "bPlayersOnly")      { m_bPlayersOnly = bValue; }
+       else if (strProp == "bAutoStart")        { m_bAutoStart = bValue; }
+       else if (strProp == "bMoveOnTouch")      { m_bMoveOnTouch = bValue; }
+       else if (strProp == "bVeryBigBrush")     { m_bVeryBigBrush = bValue; }
+       else if (strProp == "bDynamicShadows")   { m_bDynamicShadows = bValue; }
+  };
+
   // Set string properties
   virtual void SetStringProperty(const CTString &strProp, const CTString &strValue) {
        if (strProp == "name")       { m_strName = strValue; }
@@ -264,7 +276,9 @@ functions:
         const ConfigPair &pair = aConfig[i];
   
         // Set string or number value
-        if (pair.val.bString) {
+        if (pair.val.bBool) {
+            SetBoolProperty(pair.key, pair.val.bValue);
+        } else if (pair.val.bString) {
             SetStringProperty(pair.key, pair.val.strValue);
         } else if (pair.val.bFloat) {
             SetNumberProperty(pair.key, pair.val.fValue);

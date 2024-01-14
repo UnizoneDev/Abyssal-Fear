@@ -150,6 +150,7 @@ enum EntityComponentType {  // DO NOT RENUMBER!
   ECT_MODEL     = 2,    // model data
   ECT_CLASS     = 3,    // entity class
   ECT_SOUND     = 4,    // sound data
+  ECT_SKAMODEL  = 5,    // ska model data
 };
 
 class ENGINE_API CEntityComponent {
@@ -173,6 +174,7 @@ public:
     CModelData   *ec_pmdModel;                 // for models
     CSoundData   *ec_psdSound;                 // for sounds
     CEntityClass *ec_pecEntityClass;           // for entity classes
+    CModelInstanceData *ec_pmidSkaModel;       // for ska models
     void *ec_pvPointer;   // for comparison needs
   };
 
@@ -234,6 +236,7 @@ public:
   void PrecacheTexture(SLONG slID);
   void PrecacheSound(SLONG slID);
   void PrecacheClass(SLONG slID, INDEX iUser = -1);
+  void PrecacheSkaModel(SLONG slID);
 };
 
 /* rcg10062001 */
@@ -285,6 +288,7 @@ inline ENGINE_API void ClearToDefault(FLOAT3D &v) { v = FLOAT3D(0,1,0); };
 inline ENGINE_API void ClearToDefault(COLOR &c) { c = 0xFFFFFFFF; };
 inline ENGINE_API void ClearToDefault(CModelData *&pmd) { pmd = NULL; };
 inline ENGINE_API void ClearToDefault(CTextureData *&pmt) { pmt = NULL; };
+inline ENGINE_API void ClearToDefault(CModelInstanceData *&pmid) { pmid = NULL; };
 
 
 #endif  /* include-once check. */

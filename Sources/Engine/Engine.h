@@ -50,7 +50,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // [Cecil] Byte swapping functions
 #include <Engine/Base/ByteSwap.h>
 
-// [Uni] Config file stuff
+// [Cecil] + [Uni] Config file stuff
 #include <Engine/Base/Config.h>
 
 #include <Engine/Base/Input.h>

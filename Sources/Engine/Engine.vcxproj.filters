@@ -478,6 +478,9 @@
     <ClCompile Include="Templates\Stock_CModelData.cpp">
       <Filter>Source Files\Templates</Filter>
     </ClCompile>
+	<ClCompile Include="Templates\Stock_CModelInstanceData.cpp">
+      <Filter>Source Files\Templates</Filter>
+    </ClCompile>
     <ClCompile Include="Templates\Stock_CShader.cpp">
       <Filter>Source Files\Templates</Filter>
     </ClCompile>
@@ -1117,6 +1120,9 @@
       <Filter>Header Files\Templates Headers</Filter>
     </ClInclude>
     <ClInclude Include="Templates\Stock_CModelData.h">
+      <Filter>Header Files\Templates Headers</Filter>
+    </ClInclude>
+	<ClInclude Include="Templates\Stock_CModelInstanceData.h">
       <Filter>Header Files\Templates Headers</Filter>
     </ClInclude>
     <ClInclude Include="Templates\Stock_CShader.h">

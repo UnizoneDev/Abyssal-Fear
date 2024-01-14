@@ -631,7 +631,7 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[28].st_fClimbSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[28].st_ulFlags = STF_NOIMPACT;
 
-  ASSERT(29==SURFACE_WOOD_NO_IMPACT);
+  ASSERT(29==SURFACE_WOOD_NOIMPACT);
   pwo->wo_astSurfaceTypes[29].st_strName = "Wood no impact";
   pwo->wo_astSurfaceTypes[29].st_fFriction = 1.0f;
   pwo->wo_astSurfaceTypes[29].st_fStairsHeight = 1.0f;
@@ -639,7 +639,7 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[29].st_fClimbSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[29].st_ulFlags = STF_NOIMPACT;
 
-  ASSERT(30==SURFACE_SNOW_NO_IMPACT);
+  ASSERT(30==SURFACE_SNOW_NOIMPACT);
   pwo->wo_astSurfaceTypes[30].st_strName = "Snow no impact";
   pwo->wo_astSurfaceTypes[30].st_fFriction = 1.0f;
   pwo->wo_astSurfaceTypes[30].st_fStairsHeight = 1.0f;
@@ -647,7 +647,7 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[30].st_fClimbSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[30].st_ulFlags = STF_NOIMPACT;
 
-  ASSERT(31==SURFACE_SAND_NO_IMPACT);
+  ASSERT(31==SURFACE_SAND_NOIMPACT);
   pwo->wo_astSurfaceTypes[31].st_strName = "Sand no impact";
   pwo->wo_astSurfaceTypes[31].st_fFriction = 1.0f;
   pwo->wo_astSurfaceTypes[31].st_fStairsHeight = 1.0f;
@@ -655,7 +655,7 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[31].st_fClimbSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[31].st_ulFlags = STF_NOIMPACT;
 
-  ASSERT(32==SURFACE_RED_SAND_NO_IMPACT);
+  ASSERT(32==SURFACE_RED_SAND_NOIMPACT);
   pwo->wo_astSurfaceTypes[32].st_strName = "Red sand no impact";
   pwo->wo_astSurfaceTypes[32].st_fFriction = 1.0f;
   pwo->wo_astSurfaceTypes[32].st_fStairsHeight = 1.0f;
@@ -732,14 +732,14 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
 
   ASSERT(42==SURFACE_MUD);
   pwo->wo_astSurfaceTypes[42].st_strName = "Mud";
-  pwo->wo_astSurfaceTypes[42].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[42].st_fFriction = 3.0f;
   pwo->wo_astSurfaceTypes[42].st_fStairsHeight = 1.0f;
   pwo->wo_astSurfaceTypes[42].st_fJumpSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[42].st_fClimbSlopeCos = Cos(45.0f);
 
   ASSERT(43==SURFACE_MUD_NOIMPACT);
   pwo->wo_astSurfaceTypes[43].st_strName = "Mud no impact";
-  pwo->wo_astSurfaceTypes[43].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[43].st_fFriction = 3.0f;
   pwo->wo_astSurfaceTypes[43].st_fStairsHeight = 1.0f;
   pwo->wo_astSurfaceTypes[43].st_fJumpSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[43].st_fClimbSlopeCos = Cos(45.0f);

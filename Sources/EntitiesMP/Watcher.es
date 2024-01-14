@@ -228,8 +228,8 @@ functions:
 
   void CheckIfPlayerVisible(void)
   {
-    // if the owner is blind
-    if( GetOwner()->m_bBlind) {
+    // if the owner is blind or writhing
+    if( GetOwner()->m_bBlind || GetOwner()->m_bWrithe) {
       // don't even bother checking
       return;
     }
@@ -338,8 +338,8 @@ functions:
   // this is called directly from enemybase to check if another player has come too close
   CEntity *CheckCloserPlayer(CEntity *penCurrentTarget, FLOAT fRange)
   {
-    // if the owner is blind
-    if( GetOwner()->m_bBlind) {
+    // if the owner is blind or writhing
+    if( GetOwner()->m_bBlind || GetOwner()->m_bWrithe) {
       // don't even bother checking
       return NULL;
     }
@@ -376,8 +376,8 @@ functions:
   // this is called directly from enemybase to attack multiple players (for really big enemies)
   CEntity *CheckAnotherPlayer(CEntity *penCurrentTarget)
   {
-    // if the owner is blind, or no current target
-    if( GetOwner()->m_bBlind || penCurrentTarget==NULL) {
+    // if the owner is blind, writhing, or no current target
+    if( GetOwner()->m_bBlind || GetOwner()->m_bWrithe || penCurrentTarget==NULL) {
       // don't even check
       return NULL;
     }
@@ -419,8 +419,8 @@ functions:
   // this is called directly from enemybase to check if another enemy has come too close
   CEntity *CheckCloserEnemy(CEntity *penCurrentTarget, FLOAT fRange)
   {
-    // if the owner is blind
-    if( GetOwner()->m_bBlind) {
+    // if the owner is blind or writhing
+    if( GetOwner()->m_bBlind || GetOwner()->m_bWrithe) {
       // don't even bother checking
       return NULL;
     }
@@ -491,8 +491,8 @@ functions:
   // this is called directly from enemybase to attack multiple players (for really big enemies)
   CEntity *CheckAnotherEnemy(CEntity *penCurrentTarget)
   {
-    // if the owner is blind, or no current target
-    if( GetOwner()->m_bBlind || penCurrentTarget==NULL) {
+    // if the owner is blind, writhing, or no current target
+    if( GetOwner()->m_bBlind || GetOwner()->m_bWrithe || penCurrentTarget==NULL) {
       // don't even check
       return NULL;
     }
@@ -561,8 +561,8 @@ functions:
   // this is called directly from enemywildlife to check if another food has come too close
   CEntity *CheckCloserFood(CEntity *penCurrentTarget, FLOAT fRange)
   {
-    // if the owner is blind
-    if( GetOwner()->m_bBlind) {
+    // if the owner is blind or writhing
+    if( GetOwner()->m_bBlind || GetOwner()->m_bWrithe) {
       // don't even bother checking
       return NULL;
     }
@@ -620,8 +620,8 @@ functions:
   // this is called directly from enemywildlife to hunt multiple foods (for really hungry enemies)
   CEntity *CheckAnotherFood(CEntity *penCurrentTarget)
   {
-    // if the owner is blind, or no current target
-    if( GetOwner()->m_bBlind || penCurrentTarget==NULL) {
+    // if the owner is blind, writhing, or no current target
+    if( GetOwner()->m_bBlind || GetOwner()->m_bWrithe || penCurrentTarget==NULL) {
       // don't even check
       return NULL;
     }

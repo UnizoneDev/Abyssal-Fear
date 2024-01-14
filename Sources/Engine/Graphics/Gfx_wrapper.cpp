@@ -146,7 +146,11 @@ extern void (*gfxDisableFragmentShaders)(void) = NULL;
 extern void (*gfxSetShaderProgram)(const ULONG ulHandle) = NULL;
 extern ULONG (*gfxCreateVertexProgram)(const char* strVertexProgram, ULONG ulProgram) = NULL;
 extern ULONG (*gfxCreateFragmentProgram)(const char* strFragmentProgram, ULONG ulProgram) = NULL;
-extern void (*gfxDeleteShaderProgram)(ULONG ulHandle, ULONG ulShader) = NULL;																 
+extern void (*gfxDeleteShaderProgram)(ULONG ulHandle, ULONG ulShader) = NULL;
+
+extern void (*gfxSetShaderProgramIndex)(const char* strUniform, ULONG ulHandle, INDEX iVariable) = NULL;
+extern void (*gfxSetShaderProgramFloat)(const char* strUniform, ULONG ulHandle, FLOAT fVariable) = NULL;
+
 
 
 // dummy function (one size fits all:)
@@ -188,6 +192,16 @@ static ULONG none_create_fragment_shader(const char *strFragmentProgram, ULONG u
 }
 
 static void none_delete_shader_program(ULONG ulProgram, ULONG ulShader)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
+}
+
+static void none_shader_program_index(const char* strUniform, ULONG ulProgram, INDEX iVariable)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
+}
+
+static void none_shader_program_float(const char* strUniform, ULONG ulProgram, FLOAT fVariable)
 {
     ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
 }
@@ -827,7 +841,8 @@ extern void GFX_SetFunctionPointers( INDEX iAPI)
     gfxFinish               = &ogl_Finish;              
     gfxLockArrays           = &ogl_LockArrays;          
     gfxSetColorMask         = &ogl_SetColorMask;
-	gfxEnableVertexShaders    = &ogl_EnableVertexShaders;
+
+    gfxEnableVertexShaders    = &ogl_EnableVertexShaders;
     gfxEnableFragmentShaders  = &ogl_EnableFragmentShaders;
     gfxDisableVertexShaders   = &ogl_DisableVertexShaders;
     gfxDisableFragmentShaders = &ogl_DisableFragmentShaders;
@@ -835,7 +850,10 @@ extern void GFX_SetFunctionPointers( INDEX iAPI)
     gfxSetShaderProgram      = &ogl_SetShaderProgram;
     gfxDeleteShaderProgram   = &ogl_DeleteShaderProgram;
     gfxCreateVertexProgram   = &ogl_CreateVertexProgram;
-    gfxCreateFragmentProgram = &ogl_CreateFragmentProgram;											  
+    gfxCreateFragmentProgram = &ogl_CreateFragmentProgram;
+
+    gfxSetShaderProgramIndex  = &ogl_SetShaderProgramIndex;
+    gfxSetShaderProgramFloat  = &ogl_SetShaderProgramFloat;
   }
   // Direct3D?
 #ifdef SE1_D3D
@@ -947,6 +965,9 @@ extern void GFX_SetFunctionPointers( INDEX iAPI)
     gfxSetShaderProgram       = &none_const_ulong;
     gfxDeleteShaderProgram    = &none_delete_shader_program;
     gfxCreateVertexProgram    = &none_create_vertex_shader;
-    gfxCreateFragmentProgram  = &none_create_fragment_shader;												 
+    gfxCreateFragmentProgram  = &none_create_fragment_shader;
+
+    gfxSetShaderProgramIndex  = &none_shader_program_index;
+    gfxSetShaderProgramFloat  = &none_shader_program_float;
   }
 }

@@ -94,6 +94,7 @@ public:
   BOOL cr_bPhysical;               // pass only where physical objects can pass
   FLOAT cr_fTestR;                 // additional radius of ray (default 0)
   BOOL cr_bHitBlockSightPortals;   // don't pass through block sight portals (on by default)
+  BOOL cr_bHitBlockMeleePortals;   // don't pass through block melee portals (on by default)
 
 // these are filled by casting algorithm:
   CEntity *cr_penHit;         // entity hit by ray, NULL if ray was cast in void

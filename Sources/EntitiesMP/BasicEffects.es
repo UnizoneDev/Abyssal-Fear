@@ -264,6 +264,11 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheSound(SOUND_DIRT_BULLET2);
     pdec->PrecacheSound(SOUND_DIRT_BULLET3);
     pdec->PrecacheSound(SOUND_DIRT_BULLET4);
+
+    pdec->PrecacheSound(SOUND_WATER_BULLET1);
+    pdec->PrecacheSound(SOUND_WATER_BULLET2);
+    pdec->PrecacheSound(SOUND_WATER_BULLET3);
+    pdec->PrecacheSound(SOUND_WATER_BULLET4);
     break;
   case BET_BULLETTRAIL:
     pdec->PrecacheModel(MODEL_BULLET_TRAIL);
@@ -481,6 +486,11 @@ components:
  169 sound   SOUND_DIRT_BULLET2    "Sounds\\Materials\\Dirt\\BulletDirt2.wav",
  170 sound   SOUND_DIRT_BULLET3    "Sounds\\Materials\\Dirt\\BulletDirt3.wav",
  171 sound   SOUND_DIRT_BULLET4    "Sounds\\Materials\\Dirt\\BulletDirt4.wav",
+
+ 174 sound   SOUND_WATER_BULLET1    "Sounds\\Materials\\Water\\BulletWater1.wav",
+ 175 sound   SOUND_WATER_BULLET2    "Sounds\\Materials\\Water\\BulletWater2.wav",
+ 176 sound   SOUND_WATER_BULLET3    "Sounds\\Materials\\Water\\BulletWater3.wav",
+ 177 sound   SOUND_WATER_BULLET4    "Sounds\\Materials\\Water\\BulletWater4.wav",
 
  165 model   MODEL_INVISIBLE_PLANE    "Models\\Effects\\InvisiblePlane\\InvisiblePlane.mdl",
  166 texture TEXTURE_INVISIBLE_PLANE  "Models\\Effects\\InvisiblePlane\\InvisiblePlane.tex",
@@ -1171,8 +1181,26 @@ functions:
     if( bSound)
     {
       m_soEffect.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
-      PlaySound(m_soEffect, SOUND_BULLET_WATER, SOF_3D);
-      m_fSoundTime = GetSoundLength(SOUND_BULLET_WATER);
+
+      switch(IRnd()%4) {
+        case 0: {
+          PlaySound(m_soEffect, SOUND_WATER_BULLET1, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_WATER_BULLET1);
+        } break;
+        case 1: {
+          PlaySound(m_soEffect, SOUND_WATER_BULLET2, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_WATER_BULLET2);
+        } break;
+        case 2: {
+          PlaySound(m_soEffect, SOUND_WATER_BULLET3, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_WATER_BULLET3);
+        } break;
+        case 3: {
+          PlaySound(m_soEffect, SOUND_WATER_BULLET4, SOF_3D);
+          m_fSoundTime = GetSoundLength(SOUND_WATER_BULLET4);
+        } break;
+        default: break;
+      }
     }
 
     SetModel(MODEL_SHOCKWAVE);
@@ -1756,7 +1784,7 @@ functions:
     }
     
     SetModel(MODEL_BULLET_STAIN);
-    SetModelMainTexture(TEXTURE_BULLET_HIT);
+    SetModelMainTexture(TEXTURE_BULLET_STAIN);
     CModelObject &moHole = *GetModelObject();
     moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
     ModelChangeNotify();
@@ -1781,7 +1809,7 @@ functions:
     }
     
     SetModel(MODEL_BULLET_STAIN);
-    SetModelMainTexture(TEXTURE_BULLET_HIT);
+    SetModelMainTexture(TEXTURE_BULLET_STAIN);
     CModelObject &moHole = *GetModelObject();
     moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
     ModelChangeNotify();
@@ -1871,7 +1899,7 @@ functions:
     }
     
     SetModel(MODEL_BULLET_STAIN);
-    SetModelMainTexture(TEXTURE_BULLET_HIT);
+    SetModelMainTexture(TEXTURE_BULLET_STAIN);
     CModelObject &moHole = *GetModelObject();
     moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
     ModelChangeNotify();
@@ -1913,7 +1941,7 @@ functions:
     }
     
     SetModel(MODEL_BULLET_STAIN);
-    SetModelMainTexture(TEXTURE_BULLET_HIT);
+    SetModelMainTexture(TEXTURE_BULLET_STAIN);
     CModelObject &moHole = *GetModelObject();
     moHole.StretchModel(FLOAT3D(1.5f, 1.5f, 1.5f));
     ModelChangeNotify();

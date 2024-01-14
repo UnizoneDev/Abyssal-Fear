@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep.
+/* Copyright (c) 2021-2024 Uni Musuotankarep.
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -52,6 +52,8 @@ event EChangeSequence {
   CEntityPointer penEnemyMarker,
   enum EnemySoundType estSoundType,
   BOOL bLoopAnimation,
+  CTString strSkaModelAnim,
+  CTString strSkaModelBox,
 };
 
 class CScriptedSequencer : CRationalEntity {
@@ -68,6 +70,8 @@ properties:
   5 CEntityPointer m_penEnemy           "Enemy" COLOR(C_GREEN|0xFF),
   6 enum EnemySoundType m_estSoundType  "Enemy Sound Type" = EST_NONE,
   7 BOOL m_bLoopAnimation               "Loop Animation" = FALSE,
+  8 CTString m_strSkaEnemyAnim          "Ska Enemy Animation" = "",
+  9 CTString m_strSkaEnemyBox           "Ska Enemy Collision Box" = "",
 
 components:
 
@@ -89,7 +93,11 @@ functions:
     if (IsDerivedFromClass(penTarget, "Enemy Base")) {
       CEnemyBase *penEnemy = (CEnemyBase*)&*penTarget;
       if (slPropertyOffset==offsetof(CScriptedSequencer, m_iEnemyAnim)) {
-        return penEnemy->GetModelObject()->GetData();
+        if(penEnemy->GetRenderType()==CEntity::RT_SKAMODEL) {
+          return CEntity::GetAnimData(slPropertyOffset);
+        } else {
+          return penEnemy->GetModelObject()->GetData();
+        }
       }
     }
 
@@ -142,6 +150,8 @@ procedures:
           eSequence.penEnemyMarker = m_penTarget;
           eSequence.estSoundType = m_estSoundType;
           eSequence.bLoopAnimation = m_bLoopAnimation;
+          eSequence.strSkaModelAnim = m_strSkaEnemyAnim;
+          eSequence.strSkaModelBox = m_strSkaEnemyBox;
           m_penEnemy->SendEvent(eSequence);
           resume;
       }

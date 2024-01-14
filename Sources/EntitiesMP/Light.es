@@ -105,6 +105,17 @@ functions:
   // The config checkers
   // --------------------------------------------------------------------------------------
 
+  // Set boolean properties
+  virtual void SetBoolProperty(const CTString &strProp, const BOOL bValue) {
+       if (strProp == "bDarkLight")          { m_bDarkLight = bValue; }
+       else if (strProp == "bSubstractSectorAmbient") { m_bSubstractSectorAmbient = bValue; }
+       else if (strProp == "bRenderAsSmallLight") { m_bRenderAsSmallLight = bValue; }
+       else if (strProp == "bLensFlareOnly") { m_bLensFlareOnly = bValue; }
+       else if (strProp == "bTargetable")    { m_bTargetable = bValue; }
+       else if (strProp == "bDiffusion")     { m_bDiffusion = bValue; }
+       else if (strProp == "bBackground")    { m_bBackground = bValue; }
+  };
+
   // Set string properties
   virtual void SetStringProperty(const CTString &strProp, const CTString &strValue) {
        if (strProp == "name")       { m_strName = strValue; }
@@ -139,7 +150,9 @@ functions:
         const ConfigPair &pair = aConfig[i];
   
         // Set string or number value
-        if (pair.val.bString) {
+        if (pair.val.bBool) {
+            SetBoolProperty(pair.key, pair.val.bValue);
+        } else if (pair.val.bString) {
             SetStringProperty(pair.key, pair.val.strValue);
         } else if (pair.val.bFloat) {
             SetNumberProperty(pair.key, pair.val.fValue);

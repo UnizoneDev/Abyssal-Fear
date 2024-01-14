@@ -30,6 +30,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/Stock_CModelData.h>
 #include <Engine/Templates/Stock_CSoundData.h>
 #include <Engine/Templates/Stock_CEntityClass.h>
+#include <Engine/Templates/Stock_CModelInstanceData.h>
 #include <Engine/Templates/StaticArray.cpp>
 
 #define FILTER_ALL            "All files (*.*)\0*.*\0"
@@ -253,6 +254,55 @@ void CEntity::ReadProperties_t(CTStream &istrm) // throw char *
         // skip CSoundObject
         SkipSoundObject_t(istrm);
         break;
+      // if it is DOUBLE
+      case CEntityProperty::EPT_DOUBLE: {
+          // skip DOUBLE
+          DOUBLE fDummy;
+          istrm >> fDummy;
+      }
+      break;
+      // if it is DOUBLE3D
+      case CEntityProperty::EPT_DOUBLE3D: {
+          // skip DOUBLE3D
+          DOUBLE3D vDummy;
+          istrm >> vDummy;
+      }
+      break;
+      // if it is DOUBLEAABBOX3D
+      case CEntityProperty::EPT_DOUBLEAABBOX3D: {
+          // skip DOUBLEAABBOX3D
+          DOUBLEaabbox3D boxDummy;
+          istrm.Read_t(&boxDummy, sizeof(DOUBLEaabbox3D));
+      }
+      break;
+      // if it is DOUBLEMATRIX3D
+      case CEntityProperty::EPT_DOUBLEMATRIX3D: {
+          // skip DOUBLEMATRIX3D
+          DOUBLEmatrix3D boxDummy;
+          istrm.Read_t(&boxDummy, sizeof(DOUBLEmatrix3D));
+      }
+      break;
+      // if it is EPT_DOUBLEQUAT3D
+      case CEntityProperty::EPT_DOUBLEQUAT3D: {
+          // skip EPT_DOUBLEQUAT3D
+          DOUBLEquat3D qDummy;
+          istrm.Read_t(&qDummy, sizeof(DOUBLEquat3D));
+      }
+      break;
+      // if it is DOUBLEplane3D
+      case CEntityProperty::EPT_DOUBLEplane3D: {
+          // skip DOUBLEplane3D
+          DOUBLEplane3D plDummy;
+          istrm.Read_t(&plDummy, sizeof(plDummy));
+      }
+      break;
+      // if it is INDEX64
+      case CEntityProperty::EPT_INDEX64: {
+          // skip INDEX64
+          INDEX64 iDummy;
+          istrm >> iDummy;
+      }
+      break;
       default:
         ASSERTALWAYS("Unknown property type");
       }
@@ -400,6 +450,41 @@ void CEntity::ReadProperties_t(CTStream &istrm) // throw char *
         // read CPlacement3D
         istrm.Read_t(&PROPERTY(pepProperty->ep_slOffset, CPlacement3D), sizeof(CPlacement3D));
         break;
+      // if it is DOUBLE
+      case CEntityProperty::EPT_DOUBLE:
+          // read DOUBLE
+          istrm >> PROPERTY(pepProperty->ep_slOffset, DOUBLE);
+          break;
+      // if it is DOUBLE3D
+      case CEntityProperty::EPT_DOUBLE3D:
+          // read DOUBLE3D
+          istrm.Read_t(&PROPERTY(pepProperty->ep_slOffset, DOUBLE3D), sizeof(DOUBLE3D));
+          break;
+      // if it is DOUBLEAABBOX3D
+      case CEntityProperty::EPT_DOUBLEAABBOX3D:
+          // read DOUBLEAABBOX3D
+          istrm.Read_t(&PROPERTY(pepProperty->ep_slOffset, DOUBLEaabbox3D), sizeof(DOUBLEaabbox3D));
+          break;
+      // if it is DOUBLEMATRIX3D
+      case CEntityProperty::EPT_DOUBLEMATRIX3D:
+          // read DOUBLEMATRIX3D
+          istrm.Read_t(&PROPERTY(pepProperty->ep_slOffset, DOUBLEmatrix3D), sizeof(DOUBLEmatrix3D));
+          break;
+      // if it is DOUBLEQUAT3D
+      case CEntityProperty::EPT_DOUBLEQUAT3D:
+          // read DOUBLEQUAT3D
+          istrm.Read_t(&PROPERTY(pepProperty->ep_slOffset, DOUBLEquat3D), sizeof(DOUBLEquat3D));
+          break;
+      // if it is DOUBLEplane3D
+      case CEntityProperty::EPT_DOUBLEplane3D:
+          // read DOUBLEplane3D
+          istrm.Read_t(&PROPERTY(pepProperty->ep_slOffset, DOUBLEplane3D), sizeof(DOUBLEplane3D));
+          break;
+      // if it is INDEX64
+      case CEntityProperty::EPT_INDEX64:
+          // read INDEX64
+          istrm >> PROPERTY(pepProperty->ep_slOffset, INDEX64);
+          break;
       default:
         ASSERTALWAYS("Unknown property type");
       }
@@ -625,7 +710,14 @@ void CEntityComponent::Obtain_t(void)  // throw char *
       ec_pecEntityClass = _pEntityClassStock->Obtain_t(ec_fnmComponent);
       ctUsed = ec_pecEntityClass->GetUsedCount();
       break;
-
+    // if ska model
+    case ECT_SKAMODEL:
+      // obtain model data
+      ec_pmidSkaModel = _pModelInstanceStock->Obtain_t(ec_fnmComponent);
+      ASSERT(ec_pmidSkaModel != NULL);
+      ASSERT(ec_pmidSkaModel->mid_pModelInstance != NULL);
+      ctUsed = ec_pmidSkaModel->GetUsedCount();
+      break;
 
     // if something else
     default:
@@ -667,6 +759,7 @@ void CEntityComponent::AddToCRCTable(void)
     case ECT_MODEL:     ec_pmdModel->AddToCRCTable(); break;
     case ECT_SOUND:     ec_psdSound->AddToCRCTable(); break;
     case ECT_CLASS:     ec_pecEntityClass->AddToCRCTable(); break;
+    case ECT_SKAMODEL:  ec_pmidSkaModel->AddToCRCTable(); break;
   }
 }
 
@@ -702,6 +795,12 @@ void CEntityComponent::Release(void)
       // release entity class
       _pEntityClassStock->Release(ec_pecEntityClass);
       break;
+    // if ska model
+    case ECT_SKAMODEL:
+        // release ska model data
+        _pModelInstanceStock->Release(ec_pmidSkaModel);
+        break;
+
     // if something else
     default:
       // error
