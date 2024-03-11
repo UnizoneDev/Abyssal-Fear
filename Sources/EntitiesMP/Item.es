@@ -131,29 +131,8 @@ functions:
   /* Adjust model shading parameters if needed. */
   BOOL AdjustShadingParameters(FLOAT3D &vLightDirection, COLOR &colLight, COLOR &colAmbient)
   {
-    // in DM, glares are off, so add some light to items
-    //if( m_bRespawn)
-    {
-      // fixed light and ambient
-      colLight   = 0x40404040;
-      colAmbient = 0x60606060;
-    }
-    /*
-    else
-    {
-      // fixed light and ambient
-      colLight   = 0x30303030;
-      colAmbient = 0x30303030;
-    }
-    */
-
-    // light direction always from upper left corner relative to the object
-    vLightDirection = FLOAT3D(-1,-1,-1);
-    vLightDirection.Normalize();
-    vLightDirection*=GetRotationMatrix();
-
-    // no shadow
-    return FALSE;
+    // use default shadows
+    return TRUE;
   };
 
 /************************************************************
@@ -164,7 +143,7 @@ functions:
     SetFlags(GetFlags()|ENF_SEETHROUGH);
 
     if (m_bFloating) {
-      SetPhysicsFlags(EPF_MODEL_FLYING);
+      SetPhysicsFlags(EPF_MODEL_FREE_FLYING);
     } else {
       SetPhysicsFlags(EPF_MODEL_SLIDING);
     }

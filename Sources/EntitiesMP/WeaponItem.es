@@ -247,7 +247,7 @@ procedures:
   {
     Initialize();     // initialize base class
     StartModelAnim(ITEMHOLDER_ANIM_DEFAULT_ANIMATION, AOF_LOOPING|AOF_NORESTART);
-    ForceCollisionBoxIndexChange(ITEMHOLDER_COLLISION_BOX_BIG);
+    ForceCollisionBoxIndexChange(ITEMHOLDER_COLLISION_BOX_MEDIUM);
     SetProperties();  // set properties
 
     if (!m_bDropped) {

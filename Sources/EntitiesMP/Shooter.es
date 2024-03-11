@@ -47,7 +47,9 @@ properties:
  15 FLOAT m_fRndBeginWait                  "Random begin wait time" = 0.0f,
 
  20 CEntityPointer m_penSoundLaunch        "Sound launch",   // sound when firing
- 21 CSoundObject m_soLaunch,  
+ 21 CSoundObject m_soLaunch,
+ 22 CEntityPointer m_penSoundDestroy        "Sound destroy",   // sound when firing
+ 23 CSoundObject m_soDestroy,
   
  30 CEntityPointer m_penFlame,
  //internal:
@@ -199,8 +201,17 @@ functions:
     // if sound entity exists
     if (m_penSoundLaunch!=NULL) {
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundLaunch;
-      m_soLaunch.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, 1.0f);
+      m_soLaunch.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
       PlaySound(m_soLaunch, sh.m_fnSound, sh.m_iPlayType);
+    }
+  };
+
+  void PlayDestroySound(void) {
+    // if sound entity exists
+    if (m_penSoundDestroy!=NULL) {
+      CSoundHolder &sh = (CSoundHolder&)*m_penSoundDestroy;
+      m_soDestroy.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
+      PlaySound(m_soDestroy, sh.m_fnSound, sh.m_iPlayType);
     }
   };
 
@@ -284,6 +295,7 @@ procedures:
         resume;
       }
       on (EDeath) : {
+        PlayDestroySound();
         if (m_penDestruction!=NULL) {
           jump CModelHolder2::Die();
         } else {
@@ -312,6 +324,10 @@ procedures:
     if (m_penSoundLaunch!=NULL && !IsOfClass(m_penSoundLaunch, "SoundHolder")) {
       WarningMessage( "Entity '%s' is not of class SoundHolder!", m_penSoundLaunch);
       m_penSoundLaunch=NULL;
+    }
+    if (m_penSoundDestroy!=NULL && !IsOfClass(m_penSoundDestroy, "SoundHolder")) {
+      WarningMessage( "Entity '%s' is not of class SoundHolder!", m_penSoundDestroy);
+      m_penSoundDestroy=NULL;
     }
     if (m_penDestruction!=NULL && !IsOfClass(m_penDestruction, "ModelDestruction")) {
       WarningMessage( "Entity '%s' is not of class ModelDestruction!", m_penDestruction);

@@ -330,7 +330,7 @@ functions:
       // if exists only in rendering model
       } else if (pamoWeapRen!=NULL && pamoWeapDef==NULL) {
         // remove it from rendering
-        delete pamoWeapRen;
+        pmoBodyRen->RemoveAttachmentModel(iWeapon);
 
       // if exists only in default
       } else if (pamoWeapRen==NULL && pamoWeapDef!=NULL) {
@@ -363,7 +363,7 @@ functions:
         AddWeaponAttachment(BODY_ATTACHMENT_KNIFE, MODEL_KNIFE, TEXTURE_KNIFE, 0, 0, 0);
         break;
  
-    // *********** COLT ***********
+    // *********** GLOCK ***********
       case WEAPON_PISTOL:
         AddWeaponAttachment(BODY_ATTACHMENT_PISTOL, MODEL_PISTOLITEM, TEXTURE_PISTOLITEM, 0, 0, 0);
         break;
@@ -378,16 +378,17 @@ functions:
         AddWeaponAttachment(BODY_ATTACHMENT_SHOTGUN, MODEL_SHOTGUNITEM, TEXTURE_SHOTGUNITEM, 0, 0, 0);
         break;
 
-    // *********** SMG ***********
+    // *********** MP5 ***********
       case WEAPON_SMG:
         AddWeaponAttachment(BODY_ATTACHMENT_SMG, MODEL_SMGITEM, TEXTURE_SMGITEM, 0, 0, 0);
         break;
 
+    // *********** PIPE ***********
       case WEAPON_PIPE:
         AddWeaponAttachment(BODY_ATTACHMENT_PIPE, MODEL_PIPE, TEXTURE_PIPE, TEX_REFL_LIGHTMETAL01, TEX_SPEC_MEDIUM, 0);
         break;
 
-    // *********** COLT ***********
+    // *********** DESERT EAGLE ***********
       case WEAPON_STRONGPISTOL:
         AddWeaponAttachment(BODY_ATTACHMENT_STRONGPISTOL, MODEL_STRONGPISTOLITEM, TEXTURE_STRONGPISTOLITEM, 0, 0, 0);
         break;

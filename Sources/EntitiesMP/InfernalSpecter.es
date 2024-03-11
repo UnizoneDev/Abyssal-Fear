@@ -45,6 +45,31 @@ enum InfernalSpecterType {
   static INDEX idInfernalSpecterBox_DeathFront   = -1;
   static INDEX idInfernalSpecterBox_DeathBack    = -1;
 
+  static INDEX idInfernalSpecterBone_Head = -1;
+  static INDEX idInfernalSpecterBone_Neck = -1;
+  static INDEX idInfernalSpecterBone_Chest = -1;
+  static INDEX idInfernalSpecterBone_MidTorso = -1;
+  static INDEX idInfernalSpecterBone_LowerTorso = -1;
+  static INDEX idInfernalSpecterBone_Pelvis = -1;
+
+  static INDEX idInfernalSpecterBone_L_Shoulder = -1;
+  static INDEX idInfernalSpecterBone_L_UpperArm = -1;
+  static INDEX idInfernalSpecterBone_L_LowerArm = -1;
+  static INDEX idInfernalSpecterBone_L_Hip = -1;
+  static INDEX idInfernalSpecterBone_L_UpperLeg = -1;
+  static INDEX idInfernalSpecterBone_L_LowerLeg = -1;
+  static INDEX idInfernalSpecterBone_L_Foot = -1;
+  static INDEX idInfernalSpecterBone_L_Toes = -1;
+
+  static INDEX idInfernalSpecterBone_R_Shoulder = -1;
+  static INDEX idInfernalSpecterBone_R_UpperArm = -1;
+  static INDEX idInfernalSpecterBone_R_LowerArm = -1;
+  static INDEX idInfernalSpecterBone_R_Hip = -1;
+  static INDEX idInfernalSpecterBone_R_UpperLeg = -1;
+  static INDEX idInfernalSpecterBone_R_LowerLeg = -1;
+  static INDEX idInfernalSpecterBone_R_Foot = -1;
+  static INDEX idInfernalSpecterBone_R_Toes = -1;
+
 // info structure
 static EntityInfo eiInfernalSpecter = {
   EIBT_FLESH, 400.0f,
@@ -112,6 +137,32 @@ functions:
   idInfernalSpecterBox_Stand       = ska_GetIDFromStringTable("Stand");
   idInfernalSpecterBox_DeathFront  = ska_GetIDFromStringTable("DeathFront");
   idInfernalSpecterBox_DeathBack   = ska_GetIDFromStringTable("DeathBack");
+
+  // Get bone IDs
+  idInfernalSpecterBone_Head = ska_GetIDFromStringTable("Head");
+  idInfernalSpecterBone_Neck = ska_GetIDFromStringTable("Neck");
+  idInfernalSpecterBone_Chest = ska_GetIDFromStringTable("Chest");
+  idInfernalSpecterBone_MidTorso = ska_GetIDFromStringTable("MidTorso");
+  idInfernalSpecterBone_LowerTorso = ska_GetIDFromStringTable("LowerTorso");
+  idInfernalSpecterBone_Pelvis = ska_GetIDFromStringTable("Pelvis");
+
+  idInfernalSpecterBone_L_Shoulder = ska_GetIDFromStringTable("L_Shoulder");
+  idInfernalSpecterBone_L_UpperArm = ska_GetIDFromStringTable("L_UpperArm");
+  idInfernalSpecterBone_L_LowerArm = ska_GetIDFromStringTable("L_LowerArm");
+  idInfernalSpecterBone_L_Hip      = ska_GetIDFromStringTable("L_Hip");
+  idInfernalSpecterBone_L_UpperLeg = ska_GetIDFromStringTable("L_UpperLeg");
+  idInfernalSpecterBone_L_LowerLeg = ska_GetIDFromStringTable("L_LowerLeg");
+  idInfernalSpecterBone_L_Foot     = ska_GetIDFromStringTable("L_Foot");
+  idInfernalSpecterBone_L_Toes     = ska_GetIDFromStringTable("L_Toes");
+
+  idInfernalSpecterBone_R_Shoulder = ska_GetIDFromStringTable("R_Shoulder");
+  idInfernalSpecterBone_R_UpperArm = ska_GetIDFromStringTable("R_UpperArm");
+  idInfernalSpecterBone_R_LowerArm = ska_GetIDFromStringTable("R_LowerArm");
+  idInfernalSpecterBone_R_Hip      = ska_GetIDFromStringTable("R_Hip");
+  idInfernalSpecterBone_R_UpperLeg = ska_GetIDFromStringTable("R_UpperLeg");
+  idInfernalSpecterBone_R_LowerLeg = ska_GetIDFromStringTable("R_LowerLeg");
+  idInfernalSpecterBone_R_Foot     = ska_GetIDFromStringTable("R_Foot");
+  idInfernalSpecterBone_R_Toes     = ska_GetIDFromStringTable("R_Toes");
 };
 
   void AddDependentsToPrediction(void)
@@ -342,7 +393,7 @@ functions:
       default: ASSERTALWAYS("Infernal Specter unknown melee animation");
     }
     m_bFistHit = FALSE;
-    autowait(0.375f);
+    autowait(0.4f);
     if (CalcDist(m_penEnemy) < m_fCloseDistance) {
       m_bFistHit = TRUE;
     }
@@ -353,9 +404,9 @@ functions:
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
         if (m_isChar==ISC_STRONG) {
-          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 20.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
-        } else {
           InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        } else {
+          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {

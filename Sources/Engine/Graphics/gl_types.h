@@ -1004,6 +1004,8 @@ typedef enum {
 
 	/* [Uni] Additions to SE1 */
 	GL_TEXTURE_RECTANGLE_NV         = 0x84F5,
+	GL_DOT3_RGB                     = 0x86AE,
+	GL_DOT3_RGBA                    = 0x86AF,
 
     GL_MAX_DRAW_BUFFERS             = 0x8824,
     GL_DRAW_BUFFER0                 = 0x8825,

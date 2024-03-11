@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/Reminder.h"
 #include "EntitiesMP/Flame.h"
 #include "EntitiesMP/Debris.h"
+#include "EntitiesMP/DebrisSka.h"
 #include "EntitiesMP/Player.h"
 #include "EntitiesMP/Bullet.h"
 #include "EntitiesMP/BackgroundViewer.h"
@@ -732,6 +733,7 @@ CLensFlareType _lftOrange;
 CLensFlareType _lftBlue;
 CLensFlareType _lftWhite;
 CLensFlareType _lftRed;
+CLensFlareType _lftYellow;						  
 static BOOL _bLensFlaresLoaded = FALSE;
 
 #define FLARE_CREATE(type,noof,tex,pos,rot,i,j,flags,amp,des,falloff)\
@@ -783,6 +785,9 @@ void InitLensFlares(void) {
   FLARE_CREATE(_lftRed, 1, "Red01\\RedFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
   FLARE_GLARE(_lftRed, 20.0f, 0.3f, 0.8f, 1.0f);
 
+// Yellow Flare 1
+  FLARE_CREATE(_lftYellow, 1, "Yellow01\\YellowFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.25f, 5.0f);
+  FLARE_GLARE(_lftYellow, 20.0f, 0.3f, 0.8f, 1.0f);
   _bLensFlaresLoaded = TRUE;
 };
 
@@ -792,6 +797,7 @@ void CloseLensFlares(void) {
   _lftBlue.lft_aolfFlares.Clear();
   _lftWhite.lft_aolfFlares.Clear();
   _lftRed.lft_aolfFlares.Clear();
+  _lftYellow.lft_aolfFlares.Clear();							
   _bLensFlaresLoaded = FALSE;
 };
 
@@ -1313,6 +1319,75 @@ CEntityPointer Debris_Spawn_Template(
   return penDebris;
 }
 
+CEntityPointer Debris_Spawn_SKA(
+    CEntity* penSpawner,
+    CEntity* penComponents,
+    SLONG idSkaModelComponent,
+    INDEX iModelAnim,
+    FLOAT fSize,
+    const FLOAT3D& vPosRatio)
+{
+    // create debris at same world as spawner
+    FLOAT3D vPos;
+    FLOAT3D vStretch = FLOAT3D(1, 1, 1);
+    if ((penSpawner->en_RenderType == CEntity::RT_SKAMODEL ||
+        penSpawner->en_RenderType == CEntity::RT_SKAEDITORMODEL) &&
+        penSpawner->GetModelInstance() != NULL)
+    {
+        vStretch = penSpawner->GetModelInstance()->mi_vStretch;
+    }
+    penSpawner->GetEntityPointRatio(vPosRatio, vPos);
+    CEntityPointer penDebris = penSpawner->GetWorld()->CreateEntity_t(
+        CPlacement3D(vPos, ANGLE3D(0, 0, 0)), CTFILENAME("Classes\\DebrisSka.ecl"));
+    // prepare parameters
+    ESpawnDebrisSka eSpawn;
+    eSpawn.bImmaterialASAP = FALSE;
+    eSpawn.bCustomShading = FALSE;
+    eSpawn.Eeibt = _Eeibt;
+    eSpawn.dptParticles = _dptParticles;
+    eSpawn.betStain = _betStain;
+    eSpawn.pmiSkaModelComponent = penComponents->GetModelInstanceForComponent(idSkaModelComponent);
+    eSpawn.iSkaModelAnim = iModelAnim;
+
+    eSpawn.colDebris = _colDebris;
+    eSpawn.vStretch = FLOAT3D(1, 1, 1);
+    if (fSize == 0) {
+        eSpawn.fSize = 1.0f;
+    }
+    else {
+        eSpawn.fSize = _fEntitySize * fSize;
+    }
+    // initialize it
+    penDebris->Initialize(eSpawn);
+
+    FLOAT fCone = _fEntitySize * 1.0f;
+    if (_vSpeed.Length() == 0) {
+        fCone = 0;
+    }
+    FLOAT fRndX = (penSpawner->FRnd() * 2 - 1) * fCone * _fConeSize;
+    FLOAT fRndY = (penSpawner->FRnd() * 2 - 1) * fCone * _fConeSize;
+    FLOAT fRndZ = (penSpawner->FRnd() * 2 - 1) * fCone * _fConeSize;
+
+    FLOAT fRndH = penSpawner->FRnd();
+    FLOAT fRndP = penSpawner->FRnd();
+    FLOAT fRndB = penSpawner->FRnd();
+
+    FLOAT3D vUp;
+    const FLOATmatrix3D& m = penSpawner->GetRotationMatrix();
+    vUp(1) = m(1, 2);
+    vUp(2) = m(2, 2);
+    vUp(3) = m(3, 2);
+
+    //FLOAT fStrength = _vSpeed.Length();
+
+    // speed it up
+    ((CMovableEntity&)*penDebris).LaunchAsFreeProjectile(
+        _vSpawnerSpeed + _vSpeed + FLOAT3D(fRndX, fRndY, fRndZ) + vUp * _fSpeedUp, (CMovableEntity*)penSpawner);
+    ((CMovableEntity&)*penDebris).SetDesiredRotation(
+        ANGLE3D(fRndH * 360.0f - 180.0f, fRndP * 360.0f - 180.0f, fRndB * 360.0f - 180.0f));
+
+    return penDebris;
+}
 // info structure
 static EntityInfo eiFlesh = {EIBT_FLESH};
 static EntityInfo eiWater = {EIBT_WATER};
@@ -1370,6 +1445,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_AXE:    return 0.0f;
     case DMT_STING:  return 0.0f;
     case DMT_PUNCH:  return 0.0f;
+	case DMT_SHARPSTRONG:  return 0.0f;								   
     }
     return 1.0f;
   case EIBT_ROCK :
@@ -1382,6 +1458,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_AXE:    return 0.0f;
     case DMT_STING:  return 0.0f;
     case DMT_PUNCH:  return 0.0f;
+	case DMT_SHARPSTRONG:  return 0.0f;								   
     }
     return 1.0f;
   case EIBT_ICE :
@@ -1394,6 +1471,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_AXE:    return 1.0f;
     case DMT_STING:  return 0.5f;
     case DMT_PUNCH:  return 0.75f;
+	case DMT_SHARPSTRONG:  return 1.0f;								   
     }
     return 1.0f;
   case EIBT_FIRE :
@@ -1405,6 +1483,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_AXE:    return 0.5f;
     case DMT_STING:  return 0.5f;
     case DMT_PUNCH:  return 0.5f;
+	case DMT_SHARPSTRONG:  return 0.5f;								   
     }
     return 1.0f;
   case EIBT_AIR  :
@@ -1428,6 +1507,12 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_CLOSERANGE:  return 0.0f;
     case DMT_BURNING:   return 0.0f;
     case DMT_FREEZING:  return 0.0f;
+	case DMT_SHARP:  return 0.5f;
+    case DMT_BLUNT:  return 0.25f;
+    case DMT_AXE:    return 0.5f;
+    case DMT_CHAINSAW: return 0.5f;
+    case DMT_PUNCH:  return 0.25f;
+    case DMT_SHARPSTRONG:  return 0.5f;
     }
     return 1.0f;
   case EIBT_ROBOT:
@@ -1435,6 +1520,11 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_CLOSERANGE:return 0.5f;
     case DMT_BURNING:   return 0.5f;
     case DMT_FREEZING:  return 0.5f;
+	case DMT_SHARP:  return 0.5f;
+    case DMT_BLUNT:  return 0.5f;
+    case DMT_AXE:    return 0.5f;
+    case DMT_PUNCH:  return 0.5f;
+    case DMT_SHARPSTRONG:  return 0.5f;
     }
     return 1.0f;
   case EIBT_GLASS:
@@ -1443,6 +1533,8 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_SHARP:  return 1.5f;
     case DMT_BLUNT:  return 1.5f;
     case DMT_AXE:    return 1.5f;
+	case DMT_PUNCH:  return 1.5f;
+    case DMT_SHARPSTRONG:  return 1.5f;
     }
     return 1.0f;
   case EIBT_SHADOW:
@@ -1459,6 +1551,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
       case DMT_AXE:    return 0.0f;
       case DMT_CHAINSAW: return 0.0f;
       case DMT_PUNCH:  return 0.0f;
+	  case DMT_SHARPSTRONG:  return 0.0f;								 
       }
       return 1.0f;
   case EIBT_SMOKE:
@@ -1473,6 +1566,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
       case DMT_AXE:    return 0.0f;
       case DMT_CHAINSAW: return 0.0f;
       case DMT_PUNCH:  return 0.0f;
+	  case DMT_SHARPSTRONG:  return 0.0f;							 
       }
       return 1.0f;
   default:
@@ -1483,7 +1577,8 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
 
 // Print center screen message
 void PrintCenterMessage(CEntity *penThis, CEntity *penCaused, 
-  const CTString &strMessage, TIME tmLength, enum MessageSound mssSound, enum MessageFont mfFont, FLOAT fMsgPosX, FLOAT fMsgPosY)
+  const CTString &strMessage, TIME tmLength, enum MessageSound mssSound, enum MessageFont mfFont, FLOAT fMsgPosX, FLOAT fMsgPosY,
+  enum MessagePosition mpPosition)
 {
   penCaused = FixupCausedToPlayer(penThis, penCaused);
 
@@ -1494,11 +1589,12 @@ void PrintCenterMessage(CEntity *penThis, CEntity *penCaused,
   eMsg.mfFont = mfFont;
   eMsg.fMessagePositionX = fMsgPosX;
   eMsg.fMessagePositionY = fMsgPosY;
+  eMsg.mpPosition = mpPosition;
   penCaused->SendEvent(eMsg);
 }
 
 
-// i.e. weapon sound when fireing or exploding
+// i.e. weapon sound when firing or exploding
 void SpawnRangeSound( CEntity *penPlayer, CEntity *penPos, enum SoundType st, FLOAT fRange)
 {
   // if not really player

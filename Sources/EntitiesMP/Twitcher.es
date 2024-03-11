@@ -34,6 +34,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "Models/NPCs/Twitcher/MaleTwitcher3/TwitcherMale3.h"
 #include "Models/NPCs/Twitcher/PaleBladedTwitcher/TwitcherPaleBladed.h"
 #include "Models/NPCs/Twitcher/NightmareBladedTwitcherNew/TwitcherNightmareBladed.h"
+#include "Models/NPCs/Twitcher/DiseasedTwitcher/TwitcherDiseased.h"
 %}
 
 uses "EntitiesMP/EnemyBase";
@@ -70,36 +71,52 @@ enum TwitcherType {
  27 TWC_NIGHTMAREBLADED3 "Nightmare Bladed 3",
  28 TWC_STRONGBLOODY     "Strong Bloody Corpse",
  29 TWC_FEMALE2PALE      "Female 2 Pale",
+ 30 TWC_DISEASED         "Diseased",
+ 31 TWC_DISEASEDBLOODY   "Diseased Bloody",
+ 32 TWC_DISEASEDFORSAKEN  "Diseased Forsaken 1",
+ 33 TWC_DISEASEDFORSAKEN2 "Diseased Forsaken 2",
+ 34 TWC_DISEASEDFORSAKEN3 "Diseased Forsaken 3",
+ 35 TWC_DISEASEDFORSAKEN4 "Diseased Forsaken 4",
+ 36 TWC_DISEASEDFORSAKEN5 "Diseased Forsaken 5"
+};
+
+enum TwitcherMoveSpeedType {
+  0 TSPT_NORMAL      "Normal",
+  1 TSPT_FAST        "Fast",
+  2 TSPT_SLOW        "Slow"
 };
 
 %{
 
-  static INDEX idNightmareTwitcherAnim_TPose = -1;
-  static INDEX idNightmareTwitcherAnim_Stand = -1;
-  static INDEX idNightmareTwitcherAnim_Stand2 = -1;
-  static INDEX idNightmareTwitcherAnim_Walk  = -1;
-  static INDEX idNightmareTwitcherAnim_Run   = -1;
-  static INDEX idNightmareTwitcherAnim_Run2   = -1;
-  static INDEX idNightmareTwitcherAnim_Backpedal   = -1;
-  static INDEX idNightmareTwitcherAnim_StrafeLeft  = -1;
-  static INDEX idNightmareTwitcherAnim_StrafeRight = -1;
-  static INDEX idNightmareTwitcherAnim_Wound   = -1;
-  static INDEX idNightmareTwitcherAnim_Jump    = -1;
-  static INDEX idNightmareTwitcherAnim_Melee1  = -1;
-  static INDEX idNightmareTwitcherAnim_Melee2  = -1;
-  static INDEX idNightmareTwitcherAnim_Melee3  = -1;
-  static INDEX idNightmareTwitcherAnim_Melee4  = -1;
-  static INDEX idNightmareTwitcherAnim_Melee5  = -1;
-  static INDEX idNightmareTwitcherAnim_Melee6  = -1;
-  static INDEX idNightmareTwitcherAnim_Melee7  = -1;
-  static INDEX idNightmareTwitcherAnim_LeapMelee1 = -1;
-  static INDEX idNightmareTwitcherAnim_DeathFront = -1;
-  static INDEX idNightmareTwitcherAnim_DeathBack  = -1;
-  static INDEX idNightmareTwitcherAnim_SpinMelee1 = -1;
-  static INDEX idNightmareTwitcherAnim_Block      = -1;
-  static INDEX idNightmareTwitcherBox_Stand  = -1;
-  static INDEX idNightmareTwitcherBox_DeathFront   = -1;
-  static INDEX idNightmareTwitcherBox_DeathBack    = -1;
+  static INDEX idTwitcherAnim_TPose = -1;
+  static INDEX idTwitcherAnim_Stand = -1;
+  static INDEX idTwitcherAnim_Stand2 = -1;
+  static INDEX idTwitcherAnim_Walk  = -1;
+  static INDEX idTwitcherAnim_Walk2  = -1;
+  static INDEX idTwitcherAnim_Run   = -1;
+  static INDEX idTwitcherAnim_Run2   = -1;
+  static INDEX idTwitcherAnim_Backpedal   = -1;
+  static INDEX idTwitcherAnim_StrafeLeft  = -1;
+  static INDEX idTwitcherAnim_StrafeRight = -1;
+  static INDEX idTwitcherAnim_Wound   = -1;
+  static INDEX idTwitcherAnim_Jump    = -1;
+  static INDEX idTwitcherAnim_Melee1  = -1;
+  static INDEX idTwitcherAnim_Melee2  = -1;
+  static INDEX idTwitcherAnim_Melee3  = -1;
+  static INDEX idTwitcherAnim_Melee4  = -1;
+  static INDEX idTwitcherAnim_Melee5  = -1;
+  static INDEX idTwitcherAnim_Melee6  = -1;
+  static INDEX idTwitcherAnim_Melee7  = -1;
+  static INDEX idTwitcherAnim_LeapMelee1 = -1;
+  static INDEX idTwitcherAnim_DeathFront = -1;
+  static INDEX idTwitcherAnim_DeathBack  = -1;
+  static INDEX idTwitcherAnim_SpinMelee1 = -1;
+  static INDEX idTwitcherAnim_Block      = -1;
+  static INDEX idTwitcherAnim_WritheFront = -1;
+  static INDEX idTwitcherAnim_WritheBack  = -1;
+  static INDEX idTwitcherBox_Stand  = -1;
+  static INDEX idTwitcherBox_DeathFront   = -1;
+  static INDEX idTwitcherBox_DeathBack    = -1;
 
 // info structure
 static EntityInfo eiTwitcher = {
@@ -118,11 +135,13 @@ thumbnail "Thumbnails\\Twitcher.tbn";
 properties:
   1 BOOL m_bFistHit = FALSE,
   2 enum TwitcherType m_twChar "Character" 'C' = TWC_BALDWHITE,   // character
-  3 BOOL m_bMoveFast "Move Fast" = FALSE,
-  4 BOOL m_bAllowInfighting "Allow Infighting" = FALSE,
+  3 enum TwitcherMoveSpeedType m_twSpeed "Move Speed" = TSPT_NORMAL,
+  4 BOOL m_bJitterHead "Jitter Head" = FALSE,
   5 INDEX m_iRandomMovementChoice = 0,
   6 BOOL m_bStartHidden "Start Hidden" = FALSE,
   7 INDEX m_iRunAnim = 0,
+  8 FLOAT m_fHeadJitterAmount "Head Jitter Amount" = 32.0f,
+  9 INDEX m_iStandAnim = 0,
   
 components:
   1 class   CLASS_BASE            "Classes\\EnemyBase.ecl",
@@ -165,9 +184,6 @@ components:
  76 skamodel MODEL_TWITCHERBLADEDNIGHTMARE   "Models\\NPCs\\TwitcherSKA\\NightmareBladedTwitcher\\TwitcherNightmareBladed.smc",
 113 skamodel MODEL_TWITCHERBLADEDNIGHTMARE2  "Models\\NPCs\\TwitcherSKA\\NightmareBladedTwitcher\\TwitcherNightmareBladed2.smc",
 114 skamodel MODEL_TWITCHERBLADEDNIGHTMARE3  "Models\\NPCs\\TwitcherSKA\\NightmareBladedTwitcher\\TwitcherNightmareBladed3.smc",
- 77 texture TEXTURE_TWITCHERBLADEDNIGHTMARE  "Models\\NPCs\\Twitcher\\NightmareBladedTwitcherNew\\TwitcherNightmareBladed1.tex",
-105 texture TEXTURE_TWITCHERBLADEDNIGHTMARE2 "Models\\NPCs\\Twitcher\\NightmareBladedTwitcherNew\\TwitcherNightmareBladed2.tex",
-106 texture TEXTURE_TWITCHERBLADEDNIGHTMARE3 "Models\\NPCs\\Twitcher\\NightmareBladedTwitcherNew\\TwitcherNightmareBladed3.tex",
  92 texture TEXTURE_TWITCHERSTRONG_NIGHTMARE "Models\\NPCs\\Twitcher\\StrongTwitcherNew\\TwitcherStrong2.tex",
  93 texture TEXTURE_TWITCHERBLADED_NIGHTMARE "Models\\NPCs\\Twitcher\\BladedTwitcherNew\\TwitcherBladed2.tex",
  96 texture TEXTURE_TWITCHERFEMALE_PALE      "Models\\NPCs\\Twitcher\\FemaleTwitcherNew\\TwitcherFemale3.tex",
@@ -175,6 +191,13 @@ components:
 104 texture TEXTURE_TWITCHERSKINNED3         "Models\\NPCs\\Twitcher\\SkinnedTwitcherNew\\TwitcherSkinned3.tex",
 107 texture TEXTURE_TWITCHERSTRONG_BLOODY    "Models\\NPCs\\Twitcher\\StrongTwitcherNew\\TwitcherStrong4.tex",
 112 texture TEXTURE_TWITCHERFEMALE2_PALE     "Models\\NPCs\\Twitcher\\FemaleTwitcher2New\\TwitcherFemale5.tex",
+115 skamodel MODEL_TWITCHERDISEASED          "Models\\NPCs\\TwitcherSKA\\DiseasedTwitcher\\DiseasedTwitcher.smc",
+116 skamodel MODEL_TWITCHERDISEASEDBLOODY    "Models\\NPCs\\TwitcherSKA\\DiseasedTwitcher\\DiseasedTwitcherBloody.smc",
+117 skamodel MODEL_TWITCHERDISEASEDFORSAKEN  "Models\\NPCs\\TwitcherSKA\\DiseasedTwitcher\\DiseasedTwitcherForsaken.smc",
+118 skamodel MODEL_TWITCHERDISEASEDFORSAKEN2 "Models\\NPCs\\TwitcherSKA\\DiseasedTwitcher\\DiseasedTwitcherForsaken2.smc",
+119 skamodel MODEL_TWITCHERDISEASEDFORSAKEN3 "Models\\NPCs\\TwitcherSKA\\DiseasedTwitcher\\DiseasedTwitcherForsaken3.smc",
+120 skamodel MODEL_TWITCHERDISEASEDFORSAKEN4 "Models\\NPCs\\TwitcherSKA\\DiseasedTwitcher\\DiseasedTwitcherForsaken4.smc",
+121 skamodel MODEL_TWITCHERDISEASEDFORSAKEN5 "Models\\NPCs\\TwitcherSKA\\DiseasedTwitcher\\DiseasedTwitcherForsaken5.smc",
 
  30 sound   SOUND_HIT                  "Models\\NPCs\\Gunman\\Sounds\\Kick.wav",
 108 sound   SOUND_PUNCH1               "Sounds\\Weapons\\Punch1.wav",
@@ -237,36 +260,60 @@ components:
 functions:
 
   void CTwitcher(void) {
-  // Get nightmare twitcher animation IDs
-  idNightmareTwitcherAnim_TPose       = ska_GetIDFromStringTable("TPOSE");
-  idNightmareTwitcherAnim_Stand       = ska_GetIDFromStringTable("STAND");
-  idNightmareTwitcherAnim_Stand2      = ska_GetIDFromStringTable("STAND2");
-  idNightmareTwitcherAnim_Walk        = ska_GetIDFromStringTable("WALK");
-  idNightmareTwitcherAnim_Run         = ska_GetIDFromStringTable("RUN");
-  idNightmareTwitcherAnim_Run2        = ska_GetIDFromStringTable("RUN2");
-  idNightmareTwitcherAnim_Backpedal   = ska_GetIDFromStringTable("BACKPEDAL");
-  idNightmareTwitcherAnim_StrafeLeft  = ska_GetIDFromStringTable("STRAFELEFT");
-  idNightmareTwitcherAnim_StrafeRight = ska_GetIDFromStringTable("STRAFERIGHT");
-  idNightmareTwitcherAnim_Wound       = ska_GetIDFromStringTable("WOUND");
-  idNightmareTwitcherAnim_Jump        = ska_GetIDFromStringTable("JUMP");
-  idNightmareTwitcherAnim_Melee1      = ska_GetIDFromStringTable("MELEE1");
-  idNightmareTwitcherAnim_Melee2      = ska_GetIDFromStringTable("MELEE2");
-  idNightmareTwitcherAnim_Melee3      = ska_GetIDFromStringTable("MELEE3");
-  idNightmareTwitcherAnim_Melee4      = ska_GetIDFromStringTable("MELEE4");
-  idNightmareTwitcherAnim_Melee5      = ska_GetIDFromStringTable("MELEE5");
-  idNightmareTwitcherAnim_Melee6      = ska_GetIDFromStringTable("MELEE6");
-  idNightmareTwitcherAnim_Melee7      = ska_GetIDFromStringTable("MELEE7");
-  idNightmareTwitcherAnim_LeapMelee1  = ska_GetIDFromStringTable("LEAPMELEE1");
-  idNightmareTwitcherAnim_SpinMelee1  = ska_GetIDFromStringTable("SPINMELEE1");
-  idNightmareTwitcherAnim_DeathFront  = ska_GetIDFromStringTable("DEATHFRONT");
-  idNightmareTwitcherAnim_DeathBack   = ska_GetIDFromStringTable("DEATHBACK");
-  idNightmareTwitcherAnim_Block       = ska_GetIDFromStringTable("BLOCK");
+  // Get twitcher animation IDs
+  idTwitcherAnim_TPose       = ska_GetIDFromStringTable("TPOSE");
+  idTwitcherAnim_Stand       = ska_GetIDFromStringTable("STAND");
+  idTwitcherAnim_Stand2      = ska_GetIDFromStringTable("STAND2");
+  idTwitcherAnim_Walk        = ska_GetIDFromStringTable("WALK");
+  idTwitcherAnim_Walk2       = ska_GetIDFromStringTable("WALK2");
+  idTwitcherAnim_Run         = ska_GetIDFromStringTable("RUN");
+  idTwitcherAnim_Run2        = ska_GetIDFromStringTable("RUN2");
+  idTwitcherAnim_Backpedal   = ska_GetIDFromStringTable("BACKPEDAL");
+  idTwitcherAnim_StrafeLeft  = ska_GetIDFromStringTable("STRAFELEFT");
+  idTwitcherAnim_StrafeRight = ska_GetIDFromStringTable("STRAFERIGHT");
+  idTwitcherAnim_Wound       = ska_GetIDFromStringTable("WOUND");
+  idTwitcherAnim_Jump        = ska_GetIDFromStringTable("JUMP");
+  idTwitcherAnim_Melee1      = ska_GetIDFromStringTable("MELEE1");
+  idTwitcherAnim_Melee2      = ska_GetIDFromStringTable("MELEE2");
+  idTwitcherAnim_Melee3      = ska_GetIDFromStringTable("MELEE3");
+  idTwitcherAnim_Melee4      = ska_GetIDFromStringTable("MELEE4");
+  idTwitcherAnim_Melee5      = ska_GetIDFromStringTable("MELEE5");
+  idTwitcherAnim_Melee6      = ska_GetIDFromStringTable("MELEE6");
+  idTwitcherAnim_Melee7      = ska_GetIDFromStringTable("MELEE7");
+  idTwitcherAnim_LeapMelee1  = ska_GetIDFromStringTable("LEAPMELEE1");
+  idTwitcherAnim_SpinMelee1  = ska_GetIDFromStringTable("SPINMELEE1");
+  idTwitcherAnim_DeathFront  = ska_GetIDFromStringTable("DEATHFRONT");
+  idTwitcherAnim_DeathBack   = ska_GetIDFromStringTable("DEATHBACK");
+  idTwitcherAnim_Block       = ska_GetIDFromStringTable("BLOCK");
+  idTwitcherAnim_WritheFront = ska_GetIDFromStringTable("WRITHEFRONT");
+  idTwitcherAnim_WritheBack  = ska_GetIDFromStringTable("WRITHEBACK");
 
-  // Get nightmare twitcher collision box IDs
-  idNightmareTwitcherBox_Stand       = ska_GetIDFromStringTable("Stand");
-  idNightmareTwitcherBox_DeathFront  = ska_GetIDFromStringTable("DeathFront");
-  idNightmareTwitcherBox_DeathBack   = ska_GetIDFromStringTable("DeathBack");
+  // Get twitcher collision box IDs
+  idTwitcherBox_Stand       = ska_GetIDFromStringTable("Stand");
+  idTwitcherBox_DeathFront  = ska_GetIDFromStringTable("DeathFront");
+  idTwitcherBox_DeathBack   = ska_GetIDFromStringTable("DeathBack");
 };
+  
+  void AdjustBones(void) {
+    if(en_RenderType == RT_SKAMODEL) {
+      if(m_bJitterHead && GetHealth() > 0) {
+        // get head bone
+        INDEX iBoneIDHead = ska_GetIDFromStringTable("Head");
+        RenBone *rbHead = RM_FindRenBone(iBoneIDHead);
+
+        if(rbHead != NULL) {
+          // Set jittering rotation via quaternion
+          FLOATquat3D quatRandomHead;
+          FLOAT fHeadingRandom = FRnd() + 45.0f - 45.0f;
+          FLOAT fPitchRandom = FRnd() + 15.0f - 15.0f;
+          fHeadingRandom = Clamp(fHeadingRandom, -45.0f, 45.0f);
+          fPitchRandom = Clamp(fPitchRandom, 15.0f, 30.0f);
+          quatRandomHead.FromEuler(ANGLE3D(0.0f, -fPitchRandom + FRnd()*m_fHeadJitterAmount, -fHeadingRandom + FRnd()*m_fHeadJitterAmount));
+          rbHead->rb_arRot.ar_qRot = quatRandomHead;
+        }
+      }
+    }
+  }
 
   // describe how this enemy killed player
   virtual CTString GetPlayerKillDescription(const CTString &strPlayerName, const EDeath &eDeath)
@@ -293,6 +340,7 @@ functions:
     static DECLARE_CTFILENAME(fnmTwitcherShadow, "Data\\Messages\\NPCs\\TwitcherShadow.txt");
     static DECLARE_CTFILENAME(fnmTwitcherMale3, "Data\\Messages\\NPCs\\TwitcherMale3.txt");
     static DECLARE_CTFILENAME(fnmTwitcherNightmareBladed, "Data\\Messages\\NPCs\\TwitcherNightmareBladed.txt");
+    static DECLARE_CTFILENAME(fnmTwitcherDiseased, "Data\\Messages\\NPCs\\TwitcherDiseased.txt");
     switch(m_twChar) {
     default: ASSERT(FALSE);
     case TWC_BALDWHITE: case TWC_BALDBLACK: return fnmTwitcherBald;
@@ -307,6 +355,14 @@ functions:
     case TWC_NIGHTMARESHADOW: return fnmTwitcherShadow;
     case TWC_MALE3WHITE: case TWC_MALE3BLACK: return fnmTwitcherMale3;
     case TWC_NIGHTMAREBLADED: case TWC_NIGHTMAREBLADED2: case TWC_NIGHTMAREBLADED3: return fnmTwitcherNightmareBladed;
+    case TWC_DISEASED:
+    case TWC_DISEASEDBLOODY:
+    case TWC_DISEASEDFORSAKEN: 
+    case TWC_DISEASEDFORSAKEN2:
+    case TWC_DISEASEDFORSAKEN3:
+    case TWC_DISEASEDFORSAKEN4:
+    case TWC_DISEASEDFORSAKEN5:
+    return fnmTwitcherDiseased;
     }
   };
 
@@ -408,6 +464,13 @@ functions:
     case TWC_NIGHTMAREBLADED3: { pes->es_strName+=" Bladed Nightmare 3"; } break;
     case TWC_STRONGBLOODY: { pes->es_strName+=" Strong Bloody"; } break;
     case TWC_FEMALE2PALE: { pes->es_strName+=" Female 2 Pale"; } break;
+    case TWC_DISEASED: { pes->es_strName+=" Diseased"; } break;
+    case TWC_DISEASEDBLOODY: { pes->es_strName+=" Diseased Bloody"; } break;
+    case TWC_DISEASEDFORSAKEN: { pes->es_strName+=" Diseased Forsaken 1"; } break;
+    case TWC_DISEASEDFORSAKEN2: { pes->es_strName+=" Diseased Forsaken 2"; } break;
+    case TWC_DISEASEDFORSAKEN3: { pes->es_strName+=" Diseased Forsaken 3"; } break;
+    case TWC_DISEASEDFORSAKEN4: { pes->es_strName+=" Diseased Forsaken 4"; } break;
+    case TWC_DISEASEDFORSAKEN5: { pes->es_strName+=" Diseased Forsaken 5"; } break;
     }
     return TRUE;
   }
@@ -444,9 +507,15 @@ functions:
   INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     INDEX iAnim;
 
-    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    if(m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN ||
+       m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+       m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
-      iAnim = idNightmareTwitcherAnim_Wound;
+      iAnim = idTwitcherAnim_Wound;
+    }
+    else if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    {
+      iAnim = idTwitcherAnim_Wound;
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -505,7 +574,10 @@ functions:
       iAnim = TWITCHERBALD_ANIM_WOUND;
     }
 
-    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3 ||
+       m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN ||
+       m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+       m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
       GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
     }
@@ -524,12 +596,22 @@ functions:
       GetHeadingDirection(0, vFront);
       FLOAT fDamageDir = m_vDamage%vFront;
 
-      if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+      if(m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN ||
+         m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+         m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
       {
         if (fDamageDir<0) {
-          iAnim = idNightmareTwitcherAnim_DeathFront;
+          iAnim = idTwitcherAnim_DeathFront;
         } else {
-          iAnim = idNightmareTwitcherAnim_DeathBack;
+          iAnim = idTwitcherAnim_DeathBack;
+        }
+      }
+      else if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+      {
+        if (fDamageDir<0) {
+          iAnim = idTwitcherAnim_DeathFront;
+        } else {
+          iAnim = idTwitcherAnim_DeathBack;
         }
       }
       else if(m_twChar == TWC_STRONGBLADEDPALE)
@@ -645,7 +727,10 @@ functions:
         }
       }
 
-    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3 ||
+       m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN ||
+       m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+       m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
       GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
     }
@@ -670,18 +755,21 @@ functions:
     eSound.penTarget = m_penEnemy;
     SendEventInRange(eSound, FLOATaabbox3D(GetPlacement().pl_PositionVector, 30.0f));
 
-    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3
+       || m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN ||
+       m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+       m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
-      if(GetModelInstance()->IsAnimationPlaying(idNightmareTwitcherAnim_DeathFront))
+      if(GetModelInstance()->IsAnimationPlaying(idTwitcherAnim_DeathFront))
       {
-        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idNightmareTwitcherBox_DeathFront);
+        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idTwitcherBox_DeathFront);
         ASSERT(iBoxIndex>=0);
         ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
         SetSkaColisionInfo();
       }
       else
       {
-        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idNightmareTwitcherBox_DeathBack);
+        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idTwitcherBox_DeathBack);
         ASSERT(iBoxIndex>=0);
         ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
         SetSkaColisionInfo();
@@ -689,7 +777,15 @@ functions:
     }
     else
     {
-      if(GetModelObject()->GetAnim()==TWITCHERPALEBLADED_ANIM_DEATHFRONT)
+      if(GetModelObject()->GetAnim()==TWITCHERDISEASED_ANIM_DEATHFRONT)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERDISEASED_COLLISION_BOX_DEATHBOX_FRONT);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERDISEASED_ANIM_DEATHBACK)
+      {
+        ChangeCollisionBoxIndexWhenPossible(TWITCHERDISEASED_COLLISION_BOX_DEATHBOX_BACK);
+      }
+      else if(GetModelObject()->GetAnim()==TWITCHERPALEBLADED_ANIM_DEATHFRONT)
       {
         ChangeCollisionBoxIndexWhenPossible(TWITCHERPALEBLADED_COLLISION_BOX_FRONTDEATH_BOX);
       }
@@ -808,9 +904,20 @@ functions:
 
   // virtual anim functions
   void StandingAnim(void) {
-    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    if(m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN ||
+       m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+       m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
-      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      switch(m_iStandAnim)
+      {
+        case 0: GetModelInstance()->AddAnimation(idTwitcherAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
+        case 1: GetModelInstance()->AddAnimation(idTwitcherAnim_Stand2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
+        default: ASSERTALWAYS("Twitcher unknown stand animation");
+      }
+    }
+    else if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    {
+      GetModelInstance()->AddAnimation(idTwitcherAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -878,7 +985,7 @@ functions:
     }
     else if (m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Stand2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      GetModelInstance()->AddAnimation(idTwitcherAnim_Stand2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_MALE2WHITE || m_twChar == TWC_MALE2BLACK)
     {
@@ -915,9 +1022,20 @@ functions:
   };
 
   void WalkingAnim(void) {
-    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    if(m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN ||
+       m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+       m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
-      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      switch(m_iRunAnim)
+      {
+        case 0: GetModelInstance()->AddAnimation(idTwitcherAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
+        case 1: GetModelInstance()->AddAnimation(idTwitcherAnim_Walk2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
+        default: ASSERTALWAYS("Twitcher unknown run animation");
+      }
+    }
+    else if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    {
+      GetModelInstance()->AddAnimation(idTwitcherAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -978,12 +1096,27 @@ functions:
   };
 
   void RunningAnim(void) {
-    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    if(m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN ||
+       m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+       m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
-      if(m_bMoveFast) {
-        GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Run2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      if(m_twSpeed != TSPT_FAST) {
+        switch(m_iRunAnim)
+        {
+          case 0: GetModelInstance()->AddAnimation(idTwitcherAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
+          case 1: GetModelInstance()->AddAnimation(idTwitcherAnim_Walk2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
+          default: ASSERTALWAYS("Twitcher unknown run animation");
+        }
       } else {
-        GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+        GetModelInstance()->AddAnimation(idTwitcherAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      }
+    }
+    else if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    {
+      if(m_twSpeed == TSPT_FAST) {
+        GetModelInstance()->AddAnimation(idTwitcherAnim_Run2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      } else {
+        GetModelInstance()->AddAnimation(idTwitcherAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
       }
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
@@ -1004,7 +1137,7 @@ functions:
     }
     else if(m_twChar == TWC_SKINNEDBLADED || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3)
     {
-      if(m_bMoveFast) {
+      if(m_twSpeed == TSPT_FAST) {
         switch(m_iRunAnim)
         {
           case 0: StartModelAnim(TWITCHERSKINNED_ANIM_RUN2, AOF_LOOPING|AOF_NORESTART); break;
@@ -1022,7 +1155,7 @@ functions:
     }
     else if(m_twChar == TWC_STRONGBLADED2)
     {
-      if(m_bMoveFast) {
+      if(m_twSpeed == TSPT_FAST) {
         StartModelAnim(TWITCHERBLADED2_ANIM_RUN2, AOF_LOOPING|AOF_NORESTART);
       } else {
         StartModelAnim(TWITCHERBLADED2_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
@@ -1030,7 +1163,7 @@ functions:
     }
     else if(m_twChar == TWC_FEMALE2WHITE || m_twChar == TWC_FEMALE2PALE)
     {
-      if(m_bMoveFast) {
+      if(m_twSpeed == TSPT_FAST) {
         StartModelAnim(TWITCHERFEMALE2_ANIM_RUN2, AOF_LOOPING|AOF_NORESTART);
       } else {
         StartModelAnim(TWITCHERFEMALE2_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
@@ -1038,7 +1171,7 @@ functions:
     }
     else if(m_twChar == TWC_MALE2WHITE || m_twChar == TWC_MALE2BLACK)
     {
-      if(m_bMoveFast) {
+      if(m_twSpeed == TSPT_FAST) {
         StartModelAnim(TWITCHERMALE2_ANIM_RUN2, AOF_LOOPING|AOF_NORESTART);
       } else {
         StartModelAnim(TWITCHERMALE2_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
@@ -1046,7 +1179,7 @@ functions:
     }
     else if(m_twChar == TWC_STRONGBLADED || m_twChar == TWC_STRONGBLADEDNIGHTMARE)
     {
-      if(m_bMoveFast) {
+      if(m_twSpeed == TSPT_FAST) {
         StartModelAnim(TWITCHERBLADED_ANIM_RUN2, AOF_LOOPING|AOF_NORESTART);
       } else {
         StartModelAnim(TWITCHERBLADED_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
@@ -1054,7 +1187,7 @@ functions:
     }
     else if(m_twChar == TWC_STRONGPALE || m_twChar == TWC_STRONGCORPSE || m_twChar == TWC_STRONGNIGHTMARE || m_twChar == TWC_STRONGBLOODY)
     {
-      if(m_bMoveFast) {
+      if(m_twSpeed == TSPT_FAST) {
         StartModelAnim(TWITCHERSTRONG_ANIM_RUN2, AOF_LOOPING|AOF_NORESTART);
       } else {
         StartModelAnim(TWITCHERSTRONG_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
@@ -1062,7 +1195,7 @@ functions:
     }
     else if(m_twChar == TWC_MALEWHITE || m_twChar == TWC_MALEBLACK)
     {
-      if(m_bMoveFast) {
+      if(m_twSpeed == TSPT_FAST) {
         StartModelAnim(TWITCHERMALE_ANIM_RUN2, AOF_LOOPING|AOF_NORESTART);
       } else {
         StartModelAnim(TWITCHERMALE_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
@@ -1070,7 +1203,7 @@ functions:
     }
     else if(m_twChar == TWC_FEMALEWHITE || m_twChar == TWC_FEMALEBLONDE || m_twChar == TWC_FEMALEPALE)
     {
-      if(m_bMoveFast) {
+      if(m_twSpeed == TSPT_FAST) {
         StartModelAnim(TWITCHERFEMALE_ANIM_RUN2, AOF_LOOPING|AOF_NORESTART);
       } else {
         StartModelAnim(TWITCHERFEMALE_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
@@ -1078,7 +1211,7 @@ functions:
     }
     else
     {
-      if(m_bMoveFast) {
+      if(m_twSpeed == TSPT_FAST) {
         StartModelAnim(TWITCHERBALD_ANIM_RUN2, AOF_LOOPING|AOF_NORESTART);
       } else {
         StartModelAnim(TWITCHERBALD_ANIM_RUN, AOF_LOOPING|AOF_NORESTART);
@@ -1091,9 +1224,15 @@ functions:
   };
 
   void BacksteppingAnim(void) {
-    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    if(m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN ||
+       m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+       m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
-      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Backpedal,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      GetModelInstance()->AddAnimation(idTwitcherAnim_Backpedal,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    }
+    else if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    {
+      GetModelInstance()->AddAnimation(idTwitcherAnim_Backpedal,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -1140,7 +1279,7 @@ functions:
   void StrafeLeftAnim(void) {
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_StrafeLeft,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      GetModelInstance()->AddAnimation(idTwitcherAnim_StrafeLeft,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if (m_twChar == TWC_STRONGBLADED3)
     {
@@ -1163,7 +1302,7 @@ functions:
   void StrafeRightAnim(void) {
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_StrafeRight,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      GetModelInstance()->AddAnimation(idTwitcherAnim_StrafeRight,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if (m_twChar == TWC_STRONGBLADED3)
     {
@@ -1184,10 +1323,15 @@ functions:
   };
 
   void JumpingAnim(void) {
-
-    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    if(m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN ||
+       m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+       m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
-      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      GetModelInstance()->AddAnimation(idTwitcherAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    }
+    else if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
+    {
+      GetModelInstance()->AddAnimation(idTwitcherAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -1262,7 +1406,9 @@ functions:
     }
     else if(m_twChar == TWC_STRONGPALE || m_twChar == TWC_STRONGBLADED || m_twChar == TWC_STRONGCORPSE || m_twChar == TWC_STRONGBLADED3 
     || m_twChar == TWC_SKINNEDBLADED || m_twChar == TWC_STRONGBLADED4 || m_twChar == TWC_NIGHTMARESHADOW || m_twChar == TWC_STRONGBLADEDPALE
-    || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3 || m_twChar == TWC_STRONGBLOODY)
+    || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3 || m_twChar == TWC_STRONGBLOODY || m_twChar == TWC_DISEASEDFORSAKEN
+    || m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+    m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
       switch(IRnd()%2)
       {
@@ -1296,7 +1442,9 @@ functions:
     }
     else if(m_twChar == TWC_STRONGPALE || m_twChar == TWC_STRONGBLADED || m_twChar == TWC_STRONGCORPSE || m_twChar == TWC_STRONGBLADED3
     || m_twChar == TWC_SKINNEDBLADED || m_twChar == TWC_STRONGBLADED4 || m_twChar == TWC_NIGHTMARESHADOW
-    || m_twChar == TWC_STRONGBLADEDPALE || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3 || m_twChar == TWC_STRONGBLOODY)
+    || m_twChar == TWC_STRONGBLADEDPALE || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3 || m_twChar == TWC_STRONGBLOODY 
+    || m_twChar == TWC_DISEASEDFORSAKEN || m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+    m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
       switch(IRnd()%2)
       {
@@ -1330,7 +1478,9 @@ functions:
     }
     else if(m_twChar == TWC_STRONGPALE || m_twChar == TWC_STRONGBLADED || m_twChar == TWC_STRONGCORPSE || m_twChar == TWC_STRONGBLADED3 
     || m_twChar == TWC_SKINNEDBLADED || m_twChar == TWC_STRONGBLADED4 || m_twChar == TWC_NIGHTMARESHADOW || m_twChar == TWC_STRONGBLADEDPALE
-    || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3 || m_twChar == TWC_STRONGBLOODY)
+    || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3 || m_twChar == TWC_STRONGBLOODY || m_twChar == TWC_DISEASEDFORSAKEN
+    || m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+    m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
       switch(IRnd()%2)
       {
@@ -1364,7 +1514,9 @@ functions:
     }
     else if(m_twChar == TWC_STRONGPALE || m_twChar == TWC_STRONGBLADED || m_twChar == TWC_STRONGCORPSE || m_twChar == TWC_STRONGBLADED3 
     || m_twChar == TWC_SKINNEDBLADED || m_twChar == TWC_STRONGBLADED4 || m_twChar == TWC_NIGHTMARESHADOW || m_twChar == TWC_STRONGBLADEDPALE
-    || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3 || m_twChar == TWC_STRONGBLOODY)
+    || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3 || m_twChar == TWC_STRONGBLOODY || m_twChar == TWC_DISEASEDFORSAKEN
+    || m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3 ||
+    m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5)
     {
       switch(IRnd()%2)
       {
@@ -1459,7 +1611,7 @@ functions:
   BlockEnemyMelee(EVoid) {
     if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
     {
-      GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Block,AN_CLEAR,1,0);
+      GetModelInstance()->AddAnimation(idTwitcherAnim_Block,AN_CLEAR,1,0);
     }
     else if(m_twChar == TWC_STRONGBLADEDPALE)
     {
@@ -1537,7 +1689,11 @@ functions:
 
   // melee attack enemy
   Hit(EVoid) : CEnemyBase::Hit {
-    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3) {
+    if (m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN
+     || m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3
+     || m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5) {
+      jump TwitcherDiseasedSlash();
+    } else if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3) {
       if (CalcDist(m_penEnemy) < 3.0f) {
         switch(IRnd()%3)
         {
@@ -1617,7 +1773,7 @@ functions:
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
     }
 
-    autowait(0.4f);
+    autowait(0.35f);
     MaybeSwitchToAnotherPlayer();
 
     return EReturn();
@@ -1670,7 +1826,7 @@ functions:
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
     }
 
-    autowait(0.4f);
+    autowait(0.35f);
     MaybeSwitchToAnotherPlayer();
 
     return EReturn();
@@ -1788,7 +1944,7 @@ functions:
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
     }
 
-    autowait(0.4f);
+    autowait(0.35f);
     MaybeSwitchToAnotherPlayer();
 
     m_fLockOnEnemyTime = 1.0f;
@@ -1839,7 +1995,7 @@ functions:
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
     }
 
-    autowait(0.4f);
+    autowait(0.35f);
     MaybeSwitchToAnotherPlayer();
 
     return EReturn();
@@ -1881,7 +2037,7 @@ functions:
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
     }
 
-    autowait(0.4f);
+    autowait(0.35f);
     MaybeSwitchToAnotherPlayer();
 
     return EReturn();
@@ -1997,7 +2153,7 @@ functions:
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
     }
 
-    autowait(0.4f);
+    autowait(0.35f);
     MaybeSwitchToAnotherPlayer();
 
     m_fLockOnEnemyTime = 1.0f;
@@ -2114,7 +2270,7 @@ functions:
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
     }
 
-    autowait(0.4f);
+    autowait(0.35f);
     MaybeSwitchToAnotherPlayer();
 
     m_fLockOnEnemyTime = 1.0f;
@@ -2167,7 +2323,7 @@ functions:
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
     }
 
-    autowait(0.4f);
+    autowait(0.35f);
     MaybeSwitchToAnotherPlayer();
 
     return EReturn();
@@ -2209,7 +2365,7 @@ functions:
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
     }
 
-    autowait(0.4f);
+    autowait(0.35f);
     MaybeSwitchToAnotherPlayer();
 
     return EReturn();
@@ -2227,11 +2383,11 @@ functions:
     
     switch(IRnd()%5)
     {
-      case 0: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee1,AN_CLEAR,1,0); break;
-      case 1: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee2,AN_CLEAR,1,0); break;
-      case 2: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee3,AN_CLEAR,1,0); break;
-      case 3: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee4,AN_CLEAR,1,0); break;
-      case 4: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee7,AN_CLEAR,1,0); break;
+      case 0: GetModelInstance()->AddAnimation(idTwitcherAnim_Melee1,AN_CLEAR,1,0); break;
+      case 1: GetModelInstance()->AddAnimation(idTwitcherAnim_Melee2,AN_CLEAR,1,0); break;
+      case 2: GetModelInstance()->AddAnimation(idTwitcherAnim_Melee3,AN_CLEAR,1,0); break;
+      case 3: GetModelInstance()->AddAnimation(idTwitcherAnim_Melee4,AN_CLEAR,1,0); break;
+      case 4: GetModelInstance()->AddAnimation(idTwitcherAnim_Melee7,AN_CLEAR,1,0); break;
       default: ASSERTALWAYS("Nightmare Bladed Twitcher unknown melee attack");
     }
 
@@ -2348,8 +2504,8 @@ functions:
 
     switch(IRnd()%2)
     {
-      case 0: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee5,AN_CLEAR,1,0); break;
-      case 1: GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_Melee6,AN_CLEAR,1,0); break;
+      case 0: GetModelInstance()->AddAnimation(idTwitcherAnim_Melee5,AN_CLEAR,1,0); break;
+      case 1: GetModelInstance()->AddAnimation(idTwitcherAnim_Melee6,AN_CLEAR,1,0); break;
       default: ASSERTALWAYS("Nightmare Bladed Twitcher unknown melee attack");
     }
 
@@ -2529,7 +2685,7 @@ functions:
 
   TwitcherNightmareBladedSpinSlash(EVoid) {
 
-    GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_SpinMelee1,AN_CLEAR,1,0);
+    GetModelInstance()->AddAnimation(idTwitcherAnim_SpinMelee1,AN_CLEAR,1,0);
 
     m_bFistHit = FALSE;
     autowait(0.5f);
@@ -2608,9 +2764,51 @@ functions:
     return EReturn();
   }
 
+  TwitcherDiseasedSlash(EVoid) {
+
+    switch(IRnd()%3)
+    {
+      case 0: GetModelInstance()->AddAnimation(idTwitcherAnim_Melee1,AN_CLEAR,1,0); break;
+      case 1: GetModelInstance()->AddAnimation(idTwitcherAnim_Melee2,AN_CLEAR,1,0); break;
+      case 2: GetModelInstance()->AddAnimation(idTwitcherAnim_Melee3,AN_CLEAR,1,0); break;
+      default: ASSERTALWAYS("Diseased Twitcher unknown melee attack");
+    }
+
+    m_bFistHit = FALSE;
+    autowait(0.35f);
+    if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+      m_bFistHit = TRUE;
+    }
+
+    if (m_bFistHit) {
+      if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(m_soSound, SOUND_PUNCH1, SOF_3D); break;
+          case 1: PlaySound(m_soSound, SOUND_PUNCH2, SOF_3D); break;
+          case 2: PlaySound(m_soSound, SOUND_PUNCH3, SOF_3D); break;
+          case 3: PlaySound(m_soSound, SOUND_PUNCH4, SOF_3D); break;
+          default: ASSERTALWAYS("Twitcher unknown melee hit sound");
+        }
+
+        FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
+        vDirection.Normalize();
+
+        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 5.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+      }
+    } else {
+      PlaySound(m_soSound, SOUND_SWING, SOF_3D);
+    }
+
+    autowait(0.35f);
+    MaybeSwitchToAnotherPlayer();
+
+    return EReturn();
+  }
+
   TwitcherNightmareBladedLeap(EVoid) {
 
-    GetModelInstance()->AddAnimation(idNightmareTwitcherAnim_LeapMelee1,AN_CLEAR,1,0);
+    GetModelInstance()->AddAnimation(idTwitcherAnim_LeapMelee1,AN_CLEAR,1,0);
 
     // jump
     FLOAT3D vDir = (m_penEnemy->GetPlacement().pl_PositionVector -
@@ -2623,7 +2821,7 @@ functions:
 
     // animation - IGNORE DAMAGE WOUND -
     SpawnReminder(this, 0.75f, 0);
-    m_iChargeHitAnimation = idNightmareTwitcherAnim_LeapMelee1;
+    m_iChargeHitAnimation = idTwitcherAnim_LeapMelee1;
     m_fChargeHitDamage = 30.0f;
     m_fChargeHitAngle = 0.0f;
     m_fChargeHitSpeed = 18.0f;
@@ -3230,7 +3428,15 @@ functions:
   // overridable called before main enemy loop actually begins
   PreMainLoop(EVoid) : CEnemyBase::PreMainLoop
   {
-    m_iRunAnim = IRnd()%3;
+    if(m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN
+    || m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3
+    || m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5) {
+      m_iRunAnim = IRnd()%2;
+      m_iStandAnim = IRnd()%2;
+    } else {
+      m_iRunAnim = IRnd()%3;
+      m_iStandAnim = IRnd()%2;
+    }
 
     if(m_twChar == TWC_SKINNEDBLADED || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3) {
       // if sleeping
@@ -3262,7 +3468,10 @@ functions:
  ************************************************************/
   Main(EVoid) {
     // declare yourself as a model
-    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3) {
+    if(m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3
+       || m_twChar == TWC_DISEASED || m_twChar == TWC_DISEASEDBLOODY || m_twChar == TWC_DISEASEDFORSAKEN
+       || m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3
+       || m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5) {
       InitAsSkaModel();
     } else {
       InitAsModel();
@@ -3326,9 +3535,9 @@ functions:
       } break;
       case TWC_STRONGPALE:
       {
-        SetHealth(150.0f);
-        m_fMaxHealth = 150.0f;
-        m_fDamageWounded = 90.0f;
+        SetHealth(120.0f);
+        m_fMaxHealth = 120.0f;
+        m_fDamageWounded = 80.0f;
         m_iScore = 1000;
         SetModel(MODEL_TWITCHERSTRONG);
         SetModelMainTexture(TEXTURE_TWITCHERSTRONG_PALE);
@@ -3369,9 +3578,9 @@ functions:
       } break;
       case TWC_STRONGCORPSE:
       {
-        SetHealth(150.0f);
-        m_fMaxHealth = 150.0f;
-        m_fDamageWounded = 110.0f;
+        SetHealth(100.0f);
+        m_fMaxHealth = 100.0f;
+        m_fDamageWounded = 70.0f;
         m_iScore = 2000;
         SetModel(MODEL_TWITCHERSTRONG);
         SetModelMainTexture(TEXTURE_TWITCHERSTRONG_CORPSE);
@@ -3544,9 +3753,9 @@ functions:
       } break;
       case TWC_STRONGBLOODY:
       {
-        SetHealth(150.0f);
-        m_fMaxHealth = 150.0f;
-        m_fDamageWounded = 90.0f;
+        SetHealth(120.0f);
+        m_fMaxHealth = 120.0f;
+        m_fDamageWounded = 80.0f;
         m_iScore = 1000;
         SetModel(MODEL_TWITCHERSTRONG);
         SetModelMainTexture(TEXTURE_TWITCHERSTRONG_BLOODY);
@@ -3560,10 +3769,80 @@ functions:
         GetModelObject()->StretchModel(FLOAT3D(1.125f, 1.125f, 1.125f));
         ModelChangeNotify();
       } break;
+      case TWC_DISEASED:
+      {
+        SetHealth(150.0f);
+        m_fMaxHealth = 150.0f;
+        m_fDamageWounded = 60.0f;
+        m_iScore = 1000;
+        SetSkaModel(MODEL_TWITCHERDISEASED);
+        GetModelInstance()->StretchModel(FLOAT3D(1.175f, 1.175f, 1.175f));
+        ModelChangeNotify();
+      } break;
+      case TWC_DISEASEDBLOODY:
+      {
+        SetHealth(150.0f);
+        m_fMaxHealth = 150.0f;
+        m_fDamageWounded = 60.0f;
+        m_iScore = 1000;
+        SetSkaModel(MODEL_TWITCHERDISEASEDBLOODY);
+        GetModelInstance()->StretchModel(FLOAT3D(1.175f, 1.175f, 1.175f));
+        ModelChangeNotify();
+      } break;
+      case TWC_DISEASEDFORSAKEN:
+      {
+        SetHealth(180.0f);
+        m_fMaxHealth = 180.0f;
+        m_fDamageWounded = 80.0f;
+        m_iScore = 2000;
+        SetSkaModel(MODEL_TWITCHERDISEASEDFORSAKEN);
+        GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        ModelChangeNotify();
+      } break;
+      case TWC_DISEASEDFORSAKEN2:
+      {
+        SetHealth(180.0f);
+        m_fMaxHealth = 180.0f;
+        m_fDamageWounded = 80.0f;
+        m_iScore = 2000;
+        SetSkaModel(MODEL_TWITCHERDISEASEDFORSAKEN2);
+        GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        ModelChangeNotify();
+      } break;
+      case TWC_DISEASEDFORSAKEN3:
+      {
+        SetHealth(180.0f);
+        m_fMaxHealth = 180.0f;
+        m_fDamageWounded = 80.0f;
+        m_iScore = 2000;
+        SetSkaModel(MODEL_TWITCHERDISEASEDFORSAKEN3);
+        GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        ModelChangeNotify();
+      } break;
+      case TWC_DISEASEDFORSAKEN4:
+      {
+        SetHealth(180.0f);
+        m_fMaxHealth = 180.0f;
+        m_fDamageWounded = 80.0f;
+        m_iScore = 2000;
+        SetSkaModel(MODEL_TWITCHERDISEASEDFORSAKEN4);
+        GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        ModelChangeNotify();
+      } break;
+      case TWC_DISEASEDFORSAKEN5:
+      {
+        SetHealth(180.0f);
+        m_fMaxHealth = 180.0f;
+        m_fDamageWounded = 80.0f;
+        m_iScore = 2000;
+        SetSkaModel(MODEL_TWITCHERDISEASEDFORSAKEN5);
+        GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        ModelChangeNotify();
+      } break;
     }
 
         // setup moving speed
-        if((m_twChar == TWC_SKINNEDBLADED || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3) && m_bMoveFast)
+        if((m_twChar == TWC_SKINNEDBLADED || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3) && m_twSpeed == TSPT_FAST)
         {
           m_fWalkSpeed = FRnd() + 4.5f;
           m_aWalkRotateSpeed = AngleDeg(FRnd()*40.0f + 650.0f);
@@ -3572,7 +3851,7 @@ functions:
           m_fCloseRunSpeed = FRnd() + 8.0f;
           m_aCloseRotateSpeed = AngleDeg(FRnd()*65 + 325.0f);
         }
-        else if((m_twChar == TWC_SKINNEDBLADED || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3) && !m_bMoveFast)
+        else if((m_twChar == TWC_SKINNEDBLADED || m_twChar == TWC_SKINNEDBLADED2 || m_twChar == TWC_SKINNEDBLADED3) && m_twSpeed != TSPT_FAST)
         {
           m_fWalkSpeed = FRnd() + 4.0f;
           m_aWalkRotateSpeed = AngleDeg(FRnd()*30.0f + 600.0f);
@@ -3581,7 +3860,7 @@ functions:
           m_fCloseRunSpeed = FRnd() + 7.0f;
           m_aCloseRotateSpeed = AngleDeg(FRnd()*60 + 300.0f);
         }
-        else if(m_bMoveFast || m_twChar == TWC_STRONGBLADED2 || m_twChar == TWC_STRONGBLADED3 || m_twChar == TWC_STRONGBLADED4 || m_twChar == TWC_STRONGBLADEDPALE
+        else if(m_twSpeed == TSPT_FAST || m_twChar == TWC_STRONGBLADED2 || m_twChar == TWC_STRONGBLADED3 || m_twChar == TWC_STRONGBLADED4 || m_twChar == TWC_STRONGBLADEDPALE
                 || m_twChar == TWC_NIGHTMAREBLADED || m_twChar == TWC_NIGHTMAREBLADED2 || m_twChar == TWC_NIGHTMAREBLADED3)
         {
           m_fWalkSpeed = FRnd() + 3.0f;
@@ -3590,6 +3869,26 @@ functions:
           m_aAttackRotateSpeed = AngleDeg(FRnd()*60 + 275.0f);
           m_fCloseRunSpeed = FRnd() + 6.0f;
           m_aCloseRotateSpeed = AngleDeg(FRnd()*60 + 275.0f);
+        }
+        else if (m_twSpeed == TSPT_SLOW && (m_twChar == TWC_DISEASEDFORSAKEN || m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3
+                 || m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5 ))
+        {
+          m_fWalkSpeed = FRnd() + 1.0f;
+          m_aWalkRotateSpeed = AngleDeg(FRnd()*8.0f + 450.0f);
+          m_fAttackRunSpeed = FRnd() + 3.0f;
+          m_aAttackRotateSpeed = AngleDeg(FRnd()*35 + 240.0f);
+          m_fCloseRunSpeed = FRnd() + 3.0f;
+          m_aCloseRotateSpeed = AngleDeg(FRnd()*35 + 240.0f);
+        }
+        else if (m_twSpeed == TSPT_NORMAL && (m_twChar == TWC_DISEASEDFORSAKEN || m_twChar == TWC_DISEASEDFORSAKEN2 || m_twChar == TWC_DISEASEDFORSAKEN3
+                 || m_twChar == TWC_DISEASEDFORSAKEN4 || m_twChar == TWC_DISEASEDFORSAKEN5 ))
+        {
+          m_fWalkSpeed = FRnd() + 1.5f;
+          m_aWalkRotateSpeed = AngleDeg(FRnd()*10.0f + 450.0f);
+          m_fAttackRunSpeed = FRnd() + 3.5f;
+          m_aAttackRotateSpeed = AngleDeg(FRnd()*45 + 240.0f);
+          m_fCloseRunSpeed = FRnd() + 3.5f;
+          m_aCloseRotateSpeed = AngleDeg(FRnd()*45 + 240.0f);
         }
         else
         {

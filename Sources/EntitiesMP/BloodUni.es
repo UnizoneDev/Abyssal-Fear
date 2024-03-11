@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep
+/* Copyright (c) 2021-2024 Uni Musuotankarep
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -44,6 +44,8 @@ event ESpawnBlood {
     pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODSTAINGROW);
     pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODEXPLODE);
   }
+
+  extern FLOAT sam_tmSprayFadeWait;
 %}
 
 class CBloodUni: CMovableModelEntity {
@@ -80,14 +82,13 @@ functions:
   // particles
   void RenderParticles(void)
   {
-    if(m_bGenerateStreams) {
-      Particles_BloodTrail(this);
-    }
-
     switch( m_sptType)
     {
     case SPT_BLOOD:
     {
+     if(m_bGenerateStreams) {
+       Particles_BloodTrail(this);
+     }
      Particles_BloodSpray(m_sptType, GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
         m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower, m_colBurnColor);
      Particles_BloodDroplet(GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
@@ -134,6 +135,8 @@ functions:
         Particles_DamageSmoke(this, m_tmStarted, m_boxSizedOwner, m_fDamagePower);
         Particles_BloodSpray(SPT_BLOOD, GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
           m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower/2.0f, C_WHITE|CT_OPAQUE);
+        Particles_BloodDroplet(GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
+          m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower, m_colBurnColor, m_iAmount);
         Particles_ElectricitySparks( this, m_tmStarted, 5.0f, 0.0f, 32);
         break;
       }
@@ -244,7 +247,7 @@ procedures:
       m_fGA = 30.0f;
     }
 
-    FLOAT fWaitTime=FRnd()*4.0f + 4.0f;
+    FLOAT fWaitTime = sam_tmSprayFadeWait;
 
     wait (fWaitTime) {
       on (EBegin) : { resume; }

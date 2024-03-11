@@ -15,28 +15,28 @@ Button
 Button
  Name: TTRS Strafe Left
  Key1: A
- Key2: Q
+ Key2: None
  Pressed:  ctl_bMoveLeft = 1;
  Released: ctl_bMoveLeft = 0;
 
 Button
  Name: TTRS Strafe Right
  Key1: D
- Key2: E
+ Key2: None
  Pressed:  ctl_bMoveRight = 1;
  Released: ctl_bMoveRight = 0;
 
 Button
  Name: TTRS Up/Jump
  Key1: Space
- Key2: R
+ Key2: None
  Pressed:  ctl_bMoveUp = 1;
  Released: ctl_bMoveUp = 0;
 
 Button
  Name: TTRS Down/Duck
- Key1: F
- Key2: C
+ Key1: Left Control
+ Key2: None
  Pressed:  ctl_bMoveDown = 1;
  Released: ctl_bMoveDown = 0;
 
@@ -76,18 +76,11 @@ Button
  Released: ctl_bCenterView = 0;
 
 Button
- Name: TTRS Walk
+ Name: TTRS Run
  Key1: Left Shift
  Key2: None
- Pressed:  ctl_bWalk = !ctl_bWalk;
- Released: ctl_bWalk = !ctl_bWalk;
-
-Button
- Name: TTRS Walk/Run Toggle
- Key1: Caps Lock
- Key2: None
- Pressed:  ctl_bWalk = !ctl_bWalk;
- Released: ;
+ Pressed:  ctl_bRun = !ctl_bRun;
+ Released: ctl_bRun = !ctl_bRun;
 
 Button
  Name: TTRS Strafe
@@ -99,44 +92,51 @@ Button
 Button
  Name: TTRS Fire
  Key1: Mouse Button 1
- Key2: Left Control
+ Key2: None
  Pressed:  ctl_bFire = 1;
  Released: ctl_bFire = 0;
+ 
+Button
+ Name: TTRS AltFire
+ Key1: Mouse Button 2
+ Key2: None
+ Pressed:  ctl_bAltFire = 1;
+ Released: ctl_bAltFire = 0;
 
 Button
  Name: TTRS Reload
- Key1: Left Alt
+ Key1: R
  Key2: None
  Pressed:  ctl_bReload = 1;
  Released: ctl_bReload = 0;
 
 Button
- Name: TTRS 3rd Person View
+ Name: TTRS Holster
  Key1: H
+ Key2: None
+ Pressed:  ctl_bHolster = 1;
+ Released: ctl_bHolster = 0;
+
+Button
+ Name: TTRS Drop Weapon
+ Key1: G
+ Key2: None
+ Pressed:  ctl_bDropWeapon = 1;
+ Released: ctl_bDropWeapon = 0;
+
+Button
+ Name: TTRS 3rd Person View
+ Key1: C
  Key2: None
  Pressed:  ctl_b3rdPersonView = 1;
  Released: ctl_b3rdPersonView = 0;
 
 Button
- Name: TTRS Use/Invoke NETRICSA/Sniper Zoom
- Key1: Mouse Button 2
- Key2: Enter
- Pressed:  ctl_bUseOrComputer = 1;
- Released: ctl_bUseOrComputer = 0;
-
-Button
- Name: TTRS Use/Sniper Zoom
- Key1: None
+ Name: TTRS Use
+ Key1: E
  Key2: None
  Pressed:  ctl_bUse = 1;
  Released: ctl_bUse = 0;
-
-Button
- Name: TTRS Invoke NETRICSA
- Key1: None
- Key2: None
- Pressed:  ctl_bComputer = 1;
- Released: ctl_bComputer = 0;
 
 Button
  Name: TTRS Talk
@@ -167,67 +167,46 @@ Button
  Released: ctl_bWeaponFlip = 0;
 
 Button
- Name: TTRS Knife/Chainsaw
+ Name: TTRS Knife/Axe
  Key1: 1
  Key2: None
  Pressed:  ctl_bSelectWeapon[1] = 1;
  Released: ctl_bSelectWeapon[1] = 0;
 
 Button
- Name: TTRS Colt/Two Colts
+ Name: TTRS Pistol/Strong Pistol
  Key1: 2
  Key2: None
  Pressed:  ctl_bSelectWeapon[2] = 1;
  Released: ctl_bSelectWeapon[2] = 0;
 
 Button
- Name: TTRS Single/Double Shotgun
+ Name: TTRS Shotgun/Submachine Gun
  Key1: 3
  Key2: None
  Pressed:  ctl_bSelectWeapon[3] = 1;
  Released: ctl_bSelectWeapon[3] = 0;
 
 Button
- Name: TTRS Tommygun/Minigun
+ Name: TTRS Semi-Automatic Rifle
  Key1: 4
  Key2: None
  Pressed:  ctl_bSelectWeapon[4] = 1;
  Released: ctl_bSelectWeapon[4] = 0;
 
 Button
- Name: TTRS Rocket Launcher/Grenade Launcher
+ Name: TTRS Grenade/Dynamite
  Key1: 5
  Key2: None
  Pressed:  ctl_bSelectWeapon[5] = 1;
  Released: ctl_bSelectWeapon[5] = 0;
 
 Button
- Name: TTRS Flamethrower/Sniper
- Key1: 6
- Key2: None
- Pressed:  ctl_bSelectWeapon[6] = 1;
- Released: ctl_bSelectWeapon[6] = 0;
-
-Button
- Name: TTRS Laser
- Key1: 7
- Key2: None
- Pressed:  ctl_bSelectWeapon[7] = 1;
- Released: ctl_bSelectWeapon[7] = 0;
-
-Button
- Name: TTRS Cannon
- Key1: 8
- Key2: None
- Pressed:  ctl_bSelectWeapon[8] = 1;
- Released: ctl_bSelectWeapon[8] = 0;
-
-Button
- Name: TTRS Serious Bomb
+ Name: TTRS Painkillers
  Key1: 0
  Key2: None
- Pressed:  ctl_bFireBomb = 1;
- Released: ctl_bFireBomb = 0;
+ Pressed:  ctl_bUsePainkillers = 1;
+ Released: ctl_bUsePainkillers = 0;
 
 Button
  Name: TTRS Strafe Left
@@ -242,20 +221,6 @@ Button
  Key2: None
  Pressed:  ctl_bMoveRight = 1;
  Released: ctl_bMoveRight = 0;
-
-Button
- Name: TTRS Sniper Zoom +
- Key1: X
- Key2: None
- Pressed:  ctl_bSniperZoomIn = 1;
- Released: ctl_bSniperZoomIn = 0;
-
-Button
- Name: TTRS Sniper Zoom -
- Key1: Z
- Key2: None
- Pressed:  ctl_bSniperZoomOut = 1;
- Released: ctl_bSniperZoomOut = 0;
 
 Axis "move u/d" "None" 50 0 NotInverted Absolute NotSmooth
 Axis "move l/r" "None" 50 0 NotInverted Absolute NotSmooth

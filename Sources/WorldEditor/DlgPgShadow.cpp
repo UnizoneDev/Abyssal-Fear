@@ -76,6 +76,7 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
     m_bNoDynamicLights.EnableWindow( bSelectionExists);
     m_NoShadow.EnableWindow( bSelectionExists);
     m_bSmoothShading.EnableWindow(bSelectionExists);
+	m_bCastAlphaShadows.EnableWindow(bSelectionExists);												   
 	  m_ctrlComboClusterSize.EnableWindow( bSelectionExists);
 	  m_comboShadowBlend.EnableWindow( bSelectionExists);
 	  m_ComboIllumination.EnableWindow( bSelectionExists);
@@ -158,6 +159,7 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
       SET_TRI_STATE_TO_CTRL( m_bNoDynamicLights, BPOF_NODYNAMICLIGHTS);
       SET_TRI_STATE_TO_CTRL( m_NoShadow, BPOF_FULLBRIGHT);
       SET_TRI_STATE_TO_CTRL2(m_bSmoothShading, BPOF2_SMOOTHLYSHADED);
+	  SET_TRI_STATE_TO_CTRL2(m_bCastAlphaShadows, BPOF2_CASTALPHASHADOWS);																  
 
       if( bSameIllumination)
       {
@@ -196,6 +198,7 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_NO_SHADOW, m_NoShadow);
 	DDX_Control(pDX, IDC_IS_LIGHT_BEAM_PASSABLLE, m_IsLightBeamPassable);
     DDX_Control(pDX, IDC_SMOOTHLY_SHADED, m_bSmoothShading);
+	DDX_Control(pDX, IDC_CAST_ALPHA_SHADOWS, m_bCastAlphaShadows);															  
 	DDX_Control(pDX, ID_SHADOW_COLOR, m_ctrlShadowColor);
 	DDX_Control(pDX, IDC_SHADOW_BLEND_COMBO, m_comboShadowBlend);
 	DDX_Control(pDX, IDC_CLUSTER_SIZE_COMBO, m_ctrlComboClusterSize);
@@ -294,6 +297,7 @@ void CDlgPgShadow::DoDataExchange(CDataExchange* pDX)
       TRI_STATE_CTRL_TO_FLAGS( m_bNoDynamicLights, BPOF_NODYNAMICLIGHTS, FALSE, FALSE, FALSE, TRUE);
       TRI_STATE_CTRL_TO_FLAGS( m_NoShadow, BPOF_FULLBRIGHT, TRUE, TRUE, TRUE, TRUE);
       TRI_STATE_CTRL_TO_FLAGS2( m_bSmoothShading, BPOF2_SMOOTHLYSHADED, TRUE, TRUE, TRUE, TRUE);
+	  TRI_STATE_CTRL_TO_FLAGS2( m_bCastAlphaShadows, BPOF2_CASTALPHASHADOWS, TRUE, TRUE, TRUE, TRUE);																								 
 
       if( m_ctrlShadowColor.IsColorValid()) {
         itbpo->bpo_colShadow = m_ctrlShadowColor.GetColor();
@@ -460,6 +464,7 @@ BOOL CDlgPgShadow::OnInitDialog()
   m_bDontReceiveShadows.SetDialogPtr( this);
   m_bNoDynamicLights.SetDialogPtr( this);
   m_bSmoothShading.SetDialogPtr(this);
+  m_bCastAlphaShadows.SetDialogPtr(this);										 
   return TRUE;
 }
 

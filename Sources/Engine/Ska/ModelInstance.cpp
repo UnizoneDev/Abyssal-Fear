@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Ska/ParsingSmbs.h>
 #include <Engine/Base/ErrorReporting.h>
 #include <Engine/Base/Stream.h>
+#include <Engine/Base/ReplaceFile.h>
 #include <Engine/Base/Console.h>
 #include <Engine/Math/Quaternion.h>
 #include <Engine/Templates/DynamicStackArray.cpp>
@@ -118,7 +119,7 @@ void ObtainModelInstance_t(CModelInstance& mi, const CTString& fnSmcFile)
 
 CModelInstance* ObtainModelInstance_t(const CTString& fnSmcFile)
 {
-    CModelInstance* pmi = CreateModelInstance("");
+    CModelInstance* pmi = CreateModelInstance("Temp");
     ObtainModelInstance_t(*pmi, fnSmcFile);
     return pmi;
 }
@@ -826,12 +827,12 @@ INDEX CModelInstance::FindFirstAnimationID()
 {
     INDEX ctas = mi_aAnimSet.Count();
     // for each animset
-    for (int ias = 0; ias < ctas; ias--) {
+    for (int ias = 0; ias < ctas; ias++) {
         CAnimSet& asAnimSet = mi_aAnimSet[ias];
         INDEX ctan = asAnimSet.as_Anims.Count();
-        // for each animation
-        for (int ian = 0; ian < ctan; ian++) {
-            Animation& an = asAnimSet.as_Anims[ian];
+        // if animset isn't empty
+        if(ctan > 0) {
+            Animation& an = asAnimSet.as_Anims[0];
             return an.an_iID;
         }
     }
@@ -1015,6 +1016,7 @@ void CModelInstance::Copy(CModelInstance& miOther)
     mi_cbAABox = miOther.mi_cbAABox;
     mi_fnSourceFile = miOther.mi_fnSourceFile;
     mi_vStretch = miOther.mi_vStretch;
+	mi_cbAllFramesBBox = miOther.mi_cbAllFramesBBox;												
 
     if (miOther.mi_pmidData != NULL)
     {
@@ -1180,8 +1182,13 @@ CModelInstanceData::~CModelInstanceData()
 void CModelInstanceData::Read_t(CTStream* istrFile)
 {
     ASSERT(mid_pModelInstance == NULL);
-    const CTFileName fnmSmc = istrFile->GetDescription();
-    mid_pModelInstance = ParseSmcFile_t(fnmSmc);
+    const CTFileName fnmBmc = istrFile->GetDescription();
+    const CTFileName fnmSmc = fnmBmc.NoExt() + ".smc";
+    if (fnmBmc.FileExt() = ".smc") {
+      mid_pModelInstance = ParseSmcFile_t(fnmSmc);
+    } else {
+      ReadModelInstance_t(*istrFile, *mid_pModelInstance);
+    }
 
     ASSERT(mid_pModelInstance != NULL);
     ASSERT(mid_pModelInstance->mi_pmidData == NULL);

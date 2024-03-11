@@ -314,9 +314,6 @@
     <ClCompile Include="PlayerWeaponsEffects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PowerUpItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Projectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -339,9 +336,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ScrollHolder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SeriousBomb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Ship.cpp">
@@ -464,9 +458,6 @@
     <ClCompile Include="DeadFace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LadderBrush.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OverlayHolder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -546,6 +537,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="UZModelHolder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+	<ClCompile Include="WastePerson.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InfernalSpecter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Decal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebrisSka.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1009,9 +1015,6 @@
     <CustomBuild Include="Projectile.es">
       <Filter>Class Files\Weapons</Filter>
     </CustomBuild>
-    <CustomBuild Include="SeriousBomb.es">
-      <Filter>Class Files\Weapons</Filter>
-    </CustomBuild>
     <CustomBuild Include="Water.es">
       <Filter>Class Files\Weapons</Filter>
     </CustomBuild>
@@ -1195,7 +1198,7 @@
     <CustomBuild Include="MessageItem.es">
       <Filter>Class Files\Items</Filter>
     </CustomBuild>
-    <CustomBuild Include="PowerUpItem.es">
+    <CustomBuild Include="InventoryItem.es">
       <Filter>Class Files\Items</Filter>
     </CustomBuild>
     <CustomBuild Include="PuzzleItem.es">
@@ -1348,9 +1351,6 @@
     <CustomBuild Include="Bouncer.es">
       <Filter>Class Files\Brushes</Filter>
     </CustomBuild>
-    <CustomBuild Include="LadderBrush.es">
-      <Filter>Class Files\Brushes</Filter>
-    </CustomBuild>
     <CustomBuild Include="MovingBrush.es">
       <Filter>Class Files\Brushes</Filter>
     </CustomBuild>
@@ -1434,6 +1434,18 @@
     </CustomBuild>
     <CustomBuild Include="UZModelHolder.es">
       <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+	<CustomBuild Include="WastePerson.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="InfernalSpecter.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Decal.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="DebrisSka.es">
+      <Filter>Class Files\Effects</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -1917,12 +1929,6 @@
     <ClInclude Include="PlayerWeaponsEffects_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PowerUpItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PowerUpItem_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Projectile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1963,12 +1969,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScrollHolder_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SeriousBomb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SeriousBomb_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Ship.h">
@@ -2157,12 +2157,6 @@
     <ClInclude Include="DeadFace_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LadderBrush.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LadderBrush_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="OverlayHolder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -2323,6 +2317,36 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UZModelHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="WastePerson.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WastePerson_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryItem_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InfernalSpecter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InfernalSpecter_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Decal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Decal_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebrisSka.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebrisSka_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/Common/PathFinding.h"
 #include "EntitiesMP/NavigationMarker.h"
 #include "EntitiesMP/TacticsHolder.h"
+#include "EntitiesMP/UZModelHolder.h"
 extern void JumpFromBouncer(CEntity *penToBounce, CEntity *penBouncer);
 extern INDEX ent_bReportBrokenChains;
 %}
@@ -37,6 +38,9 @@ uses "EntitiesMP/KeyItem";
 uses "EntitiesMP/PuzzleItem";
 uses "EntitiesMP/BloodUni";
 uses "EntitiesMP/ScriptedSequencer";
+uses "EntitiesMP/InventoryItem";
+uses "EntitiesMP/HealthItem";
+uses "EntitiesMP/ArmorItem";
 
 event ERestartAttack {
 };
@@ -74,12 +78,20 @@ enum FactionType {
    8 FT_ALLY "Allies",
 };
 
+enum PitCheckType {
+   0 PCT_NONE "None",
+   1 PCT_JUMP "Jump Over Pits",
+   2 PCT_STRAFE "Strafe From Pits",
+};
+
 %{
 #define MF_MOVEZ    (1L<<0)
 #define MF_ROTATEH  (1L<<1)
 #define MF_MOVEXZY  (1L<<2)
 #define MF_MOVEY    (1L<<3)
 #define MF_MOVEX    (1L<<4)
+
+extern FLOAT sam_tmCorpseFadeWait;
 %}
 
 class export CEnemyBase : CMovableModelEntity {
@@ -220,6 +232,7 @@ properties:
 
 220 enum FactionType m_ftFactionType = FT_NONE,
 221 CTFileName m_fnmConfig "Enemy Config" = CTString(""),
+222 BOOL m_bAllowInfighting "Allow Infighting" = FALSE,
 
 // how fast can enemy jump
 230 FLOAT m_fJumpSpeed = 0.0f,
@@ -232,6 +245,7 @@ properties:
 236 BOOL m_bUsePainSound = FALSE,
 237 BOOL m_bWrithe = FALSE,
 238 BOOL m_bJump = FALSE,
+239 BOOL m_bNoSounds "Silent" = FALSE,
 
 240 INDEX m_ulMovementFlags = 0,
 241 CEntityPointer m_penLastAttacker,
@@ -239,7 +253,8 @@ properties:
 243 BOOL m_bCanCrouch  "Can Crouch" = FALSE,
 244 BOOL m_bCanClimb  "Can Climb" = FALSE,
 245 BOOL m_bCanTakeCover  "Can Take Cover" = FALSE,
-246 BOOL m_bCheckForPits  "Check For Pits" = FALSE,
+246 enum PitCheckType m_pctPitCheck "Pit Check Type" = PCT_NONE,
+247 FLOAT m_fPitJumpDistanceHeight "Pit Check Distance" = 8.0f,
 
 248 BOOL m_bCoward   "Coward" = FALSE,
 249 BOOL m_bDormant  "Dormant" = FALSE,
@@ -267,6 +282,9 @@ components:
   8 class   CLASS_KEY             "Classes\\KeyItem.ecl",
   9 class   CLASS_BLOOD_UNI       "Classes\\BloodUni.ecl",
  40 class   CLASS_PUZZLE_ITEM     "Classes\\PuzzleItem.ecl",
+ 41 class   CLASS_INVENTORY_ITEM  "Classes\\InventoryItem.ecl",
+ 42 class   CLASS_HEALTH_ITEM     "Classes\\HealthItem.ecl",
+ 43 class   CLASS_ARMOR_ITEM      "Classes\\ArmorItem.ecl",
 
 // ************** FLESH PARTS **************
  10 model   MODEL_FLESH          "Models\\Effects\\Debris\\FleshDebris.mdl",
@@ -318,6 +336,14 @@ functions:
     return CreateEntity(plSpawn, CLASS_PUZZLE_ITEM);
   };
 
+  virtual CEntityPointer SpawnInventoryItem(void) {
+    CPlacement3D plSpawn = GetPlacement();
+    plSpawn.pl_PositionVector += FLOAT3D(0.0f, 1.0f, 0.0f) * GetRotationMatrix();
+    plSpawn.pl_OrientationAngle(1) = FRnd() * 360.0f;
+
+    return CreateEntity(plSpawn, CLASS_INVENTORY_ITEM);
+  };
+
   // --------------------------------------------------------------------------------------
   // The config checkers
   // --------------------------------------------------------------------------------------
@@ -325,7 +351,7 @@ functions:
   // Set boolean properties
   virtual void SetBoolProperty(const CTString &strProp, const BOOL bValue) {
        if (strProp == "bCoward")             { m_bCoward = bValue; }
-       else if (strProp == "bCheckForPits")  { m_bCheckForPits = bValue; }
+       else if (strProp == "bNoSounds")      { m_bNoSounds = bValue; }
        else if (strProp == "bNoIdleSound")   { m_bNoIdleSound = bValue; }
        else if (strProp == "bBoss")          { m_bBoss = bValue; }
        else if (strProp == "bCanJump")       { m_bCanJump = bValue; }
@@ -719,6 +745,7 @@ functions:
     crRay.cr_bHitTranslucentPortals = FALSE;
     crRay.cr_bHitBlockSightPortals = TRUE;
     crRay.cr_bHitBlockMeleePortals = FALSE;
+    crRay.cr_bHitBlockHitscanPortals = FALSE;
     en_pwoWorld->CastRay(crRay);
 
     // if hit nothing (no brush) the entity can be seen
@@ -741,6 +768,7 @@ functions:
     crRay.cr_bHitTranslucentPortals = FALSE;
     crRay.cr_bHitBlockSightPortals = TRUE;
     crRay.cr_bHitBlockMeleePortals = FALSE;
+    crRay.cr_bHitBlockHitscanPortals = FALSE;
     en_pwoWorld->CastRay(crRay);
 
     // if the ray hits wanted entity
@@ -946,6 +974,11 @@ functions:
         fKickDamage /= 10;
         break;
 
+      case DMT_SHARPSTRONG:
+      case DMT_PUNCH:
+        fKickDamage /= 5;
+        break;
+
       // Burning can't kick normally.
       case DMT_BURNING:
         fKickDamage /= 100000;
@@ -1024,7 +1057,7 @@ functions:
     fNewDamage *= GetGameDamageMultiplier();
 
     if(m_bWrithe) {
-      fNewDamage /= 2.0f;
+      fNewDamage /= 3.0f;
     }
 
     // if no damage then do nothing
@@ -1131,13 +1164,13 @@ functions:
       eSpawnBlood.colBurnColor=C_WHITE|CT_OPAQUE;
       
       if ( m_fMaxDamageAmmount > 10.0f) {
-        eSpawnBlood.fDamagePower = 1.35f;
+        eSpawnBlood.fDamagePower = 1.25f;
         eSpawnBlood.iAmount = 16;
       } else if (m_fSprayDamage+fNewDamage>50.0f) {
-        eSpawnBlood.fDamagePower = 0.85f;
+        eSpawnBlood.fDamagePower = 1.0f;
         eSpawnBlood.iAmount = 12;
       } else {
-        eSpawnBlood.fDamagePower = 0.65f;
+        eSpawnBlood.fDamagePower = 0.75f;
         eSpawnBlood.iAmount = 10;
       }
 
@@ -1407,7 +1440,7 @@ functions:
       }
 
       // don't target your allies
-      if(enEB.GetFaction() == this->GetFaction())
+      if(enEB.GetFaction() == this->GetFaction() && !m_bAllowInfighting)
       {
         return FALSE;
       }
@@ -1423,7 +1456,7 @@ functions:
         return FALSE;
       }
 
-      if((this->GetFaction() == FT_LESSER || this->GetFaction() == FT_GREATER) && (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_GREATER))
+      if((this->GetFaction() == FT_LESSER || this->GetFaction() == FT_GREATER) && (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_GREATER) && !m_bAllowInfighting)
       {
         return FALSE;
       }
@@ -1596,7 +1629,7 @@ functions:
   {
     FLOAT fSpeedMultiplier = 1.0F;
     
-    if (ulFlags&MF_MOVEY) {
+    if (ulFlags&MF_MOVEY || m_bJump == TRUE) {
       JumpingAnim();
     } else if (ulFlags&MF_MOVEX) {
       if (m_fStrafeDir == 1.0f) {
@@ -1700,6 +1733,7 @@ functions:
   virtual ULONG SetDesiredMovement(void) 
   {
     m_ulMovementFlags = 0;
+    m_bJump = FALSE;
 
     // get delta to desired position
     FLOAT3D vDelta = m_vDesiredPosition - GetPlacement().pl_PositionVector;
@@ -1775,19 +1809,27 @@ functions:
 
       if (m_tmStrafeUpdate <= _pTimer->CurrentTick()) {
         m_fStrafeDir = (IRnd() % 2) ? -1.0f : 1.0f;
-        m_tmStrafeUpdate = _pTimer->CurrentTick() + 3.0f + FRnd();
+        if(m_pctPitCheck == PCT_STRAFE) {
+          m_tmStrafeUpdate = _pTimer->CurrentTick() + 9.0f + FRnd();
+        } else {
+          m_tmStrafeUpdate = _pTimer->CurrentTick() + 3.0f + FRnd();
+        }
       }
 
-      if (m_bCheckForPits) {
+      if (m_pctPitCheck != PCT_NONE) {
         // [Cecil] If found a pit in the movement direction
         FLOAT3D vMoveDir(0.0f, 0.0f, -1.0f);
 
         if (CheckPit(vMoveDir, 0.0f, 3.0f)) {
           // Able to jump over
-          if (!CheckPit(vMoveDir, 0.0f, 8.0f)) {
-            vTranslation = vMoveDir * m_fMoveSpeed;
-            vTranslation(2) = m_fJumpHeight;
-
+          if (!CheckPit(vMoveDir, 0.0f, m_fPitJumpDistanceHeight)) {
+            if(m_pctPitCheck == PCT_JUMP) {
+              vTranslation = vMoveDir * m_fMoveSpeed;
+              vTranslation(2) = m_fJumpHeight;
+              m_bJump = TRUE;
+            } else {
+              vTranslation = -vMoveDir * m_fMoveSpeed;
+            }
           } else {
             ANGLE3D aMoveDir;
             DirectionVectorToAngles(vMoveDir, aMoveDir);
@@ -1815,7 +1857,11 @@ functions:
               AnglesToDirectionVector(aMoveDir, vMoveDir);
             }
 
-            vTranslation = vMoveDir * m_fMoveSpeed;
+            if(m_pctPitCheck == PCT_STRAFE) {
+              vTranslation = -vMoveDir * m_fMoveSpeed;
+            } else {
+              vTranslation = vMoveDir * m_fMoveSpeed;
+            }
           }
         }
       }
@@ -2686,7 +2732,8 @@ functions:
     // if not killed from short distance
     if (eDamage.dmtType != DMT_CLOSERANGE && eDamage.dmtType != DMT_CHAINSAW &&
         eDamage.dmtType != DMT_BLUNT && eDamage.dmtType != DMT_SHARP &&
-        eDamage.dmtType != DMT_AXE) {
+        eDamage.dmtType != DMT_AXE && eDamage.dmtType != DMT_SHARPSTRONG &&
+        eDamage.dmtType != DMT_PUNCH) {
       // yell
       ESound eSound;
       eSound.EsndtSound = SNDT_YELL;
@@ -2729,6 +2776,7 @@ functions:
   virtual void StrafeRightAnim(void) { RunningAnim(); };
   virtual void ClimbingUpAnim(void) {};
   virtual void ClimbingDownAnim(void) {};
+  virtual void MountAnim(void) {};
   virtual void DismountAnim(void) {};
   virtual void LandingAnim(void) {};
   virtual void CrouchingAnim(void) {};
@@ -2738,6 +2786,12 @@ functions:
   virtual void BacksteppingAnim(void) { WalkingAnim(); };
   virtual void DodgeLeftAnim(void) {};
   virtual void DodgeRightAnim(void) {};
+  virtual void GetUpAnim(void) {};
+  virtual void FallDownAnim(void) {};
+  virtual void StandToCrouchAnim(void) {};
+  virtual void CrouchToStandAnim(void) {};
+  virtual void RotateLeftAnim(void) { RotatingAnim(); };
+  virtual void RotateRightAnim(void) { RotatingAnim(); };
   virtual INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) { return 0; };
   virtual void BlowUpNotify(void) {};
   virtual INDEX AnimForDeath(void) { return 0; };
@@ -3007,14 +3061,14 @@ procedures:
     // repeat forever
     while(TRUE)
     {
-      if(!m_bNoIdleSound)
+      if(!m_bNoIdleSound || !m_bNoSounds)
       {
         // wait some time
         autowait(Lerp(5.0f, 20.0f, FRnd()));
 
         IdleSound(); // play idle sound
       }
-      else if(m_bNoIdleSound)
+      else if(m_bNoIdleSound || m_bNoSounds)
       {
         // wait some time
         autowait(Lerp(5.0f, 20.0f, FRnd()));
@@ -3162,7 +3216,7 @@ procedures:
 
       // if should start tactics
       if (pem->m_bStartTactics){
-        // start to see/hear
+        // start to see/hear/smell
         m_bBlind = FALSE;
         m_bDeaf = FALSE;
         m_bDormant = FALSE;
@@ -3326,7 +3380,9 @@ procedures:
       }
     }
 
-    SightSound(); // make sound that you spotted the player
+    if(!m_bNoSounds) {
+      SightSound(); // make sound that you spotted the player
+    }
 
     // return to caller
     return EReturn();
@@ -4151,7 +4207,9 @@ procedures:
     m_bIsBlocking = FALSE;
     m_bBlockFirearms = FALSE;
     StopMoving();     // stop moving
-    DeathSound();     // death sound
+    if(!m_bNoSounds) {
+      DeathSound();     // death sound
+    }
     LeaveStain(FALSE);
 
     // set physic flags
@@ -4229,7 +4287,7 @@ procedures:
       penFlame->SendEvent(esf);
     }
 
-    autowait(8.0f);
+    autowait(sam_tmCorpseFadeWait);
 
     // start fading out and turning into stardust effect
     m_fSpiritStartTime = _pTimer->CurrentTick();
@@ -4351,7 +4409,9 @@ procedures:
           // notify wounding to others
           WoundedNotify(eDamage);
           
-          WoundSound(); // make pain sound
+          if(!m_bNoSounds) {
+            WoundSound(); // make pain sound
+          }
           
           // play wounding animation
           call BeWounded(eDamage);
@@ -4404,7 +4464,9 @@ procedures:
         // if target changed
         if (bTargetChanged) {
           // make sound that you spotted the player
-          SightSound();
+          if(!m_bNoSounds) {
+            SightSound(); // make sound that you spotted the player
+          }
           // start new behavior
           SendEvent(EReconsiderBehavior());
         }
@@ -4417,7 +4479,9 @@ procedures:
         // if can set the trigerer as soft target
         if (SetTargetSoft(penCaused)) {
           // make sound that you spotted the player
-          SightSound();
+          if(!m_bNoSounds) {
+            SightSound(); // make sound that you spotted the player
+          }
           // start new behavior
           SendEvent(EReconsiderBehavior());
         }
@@ -4451,91 +4515,168 @@ procedures:
       on (EChangeSequence eChangeSequence) : {
         INDEX iAnim = eChangeSequence.iModelAnim;
         INDEX iBox = eChangeSequence.iModelCollisionBox;
-        m_penMarker = eChangeSequence.penEnemyMarker;
         CTString strAnim = eChangeSequence.strSkaModelAnim;
         CTString strBox = eChangeSequence.strSkaModelBox;
 
-        switch(eChangeSequence.estSoundType) {
-            case EST_NONE:
-            break;
-            case EST_SIGHT:
-            SightSound();
-            break;
-            case EST_WOUND:
-            WoundSound();
-            break;
-            case EST_DEATH:
-            DeathSound();
-            break;
-            case EST_IDLE:
-            IdleSound();
-            break;
-            case EST_ACTIVE:
-            ActiveSound();
-            break;
-            case EST_PAIN:
-            PainSound();
+        switch(eChangeSequence.eatActionType) {
+            case EAT_CHANGEANIM:
+            {
+              if(eChangeSequence.bLoopAnimation == TRUE) {
+                if(GetRenderType()==CEntity::RT_SKAMODEL) {
+                  INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
+                  GetModelInstance()->AddAnimation(iSkaAnim, AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+                } else {
+                  StartModelAnim(iAnim, AOF_LOOPING|AOF_NORESTART);
+                }
+              } else {
+                if(GetRenderType()==CEntity::RT_SKAMODEL) {
+                  INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
+                  GetModelInstance()->AddAnimation(iSkaAnim, AN_CLEAR,1,0);
+                } else {
+                  StartModelAnim(iAnim, 0);
+                }
+              }
+            }
             break;
 
-            case EST_CUSTOM1:
-            CustomSound(0);
+            case EAT_CHANGEBOX:
+            {
+              if(GetRenderType()==CEntity::RT_SKAMODEL) {
+                INDEX iSkaBox = ska_GetIDFromStringTable(strBox);
+                INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(iSkaBox);
+                ASSERT(iBoxIndex>=0);
+                ForceCollisionBoxIndexChange(iBoxIndex);
+                SetSkaColisionInfo();
+              } else {
+                ForceCollisionBoxIndexChange(iBox);
+              }
+            }
             break;
-            case EST_CUSTOM2:
-            CustomSound(1);
+
+            case EAT_GOTOMARKER:
+            m_penMarker = eChangeSequence.penEnemyMarker;
             break;
-            case EST_CUSTOM3:
-            CustomSound(2);
+
+            case EAT_PLAYSOUND:
+            {
+              switch(eChangeSequence.estSoundType) {
+              case EST_NONE:
+              break;
+              case EST_SIGHT:
+              SightSound();
+              break;
+              case EST_WOUND:
+              WoundSound();
+              break;
+              case EST_DEATH:
+              DeathSound();
+              break;
+              case EST_IDLE:
+              IdleSound();
+              break;
+              case EST_ACTIVE:
+              ActiveSound();
+              break;
+              case EST_PAIN:
+              PainSound();
+              break;
+
+              case EST_CUSTOM1:
+              CustomSound(0);
+              break;
+              case EST_CUSTOM2:
+              CustomSound(1);
+              break;
+              case EST_CUSTOM3:
+              CustomSound(2);
+              break;
+              case EST_CUSTOM4:
+              CustomSound(3);
+              break;
+              case EST_CUSTOM5:
+              CustomSound(4);
+              break;
+              case EST_CUSTOM6:
+              CustomSound(5);
+              break;
+              case EST_CUSTOM7:
+              CustomSound(6);
+              break;
+              case EST_CUSTOM8:
+              CustomSound(7);
+              break;
+              case EST_CUSTOM9:
+              CustomSound(8);
+              break;
+              case EST_CUSTOM10:
+              CustomSound(9);
+              break;
+
+              default:
+              break;
+              }
+            }
             break;
-            case EST_CUSTOM4:
-            CustomSound(3);
+
+            case EAT_PERFORMATTACK:
+            {
+              m_penEnemy = eChangeSequence.penAttackTarget;
+              if (m_penEnemy != NULL) {
+                call AttackEnemy();
+              }
+            }
             break;
-            case EST_CUSTOM5:
-            CustomSound(4);
+
+            case EAT_TOGGLECOWARD:
+            m_bCoward = !m_bCoward;
             break;
-            case EST_CUSTOM6:
-            CustomSound(5);
+
+            case EAT_TOGGLEQUIET:
+            m_bNoIdleSound = !m_bNoIdleSound;
             break;
-            case EST_CUSTOM7:
-            CustomSound(6);
+
+            case EAT_TOGGLEPITCHECK:
+            {
+              PitCheckType pctPitCheck = m_pctPitCheck;
+
+              if(m_pctPitCheck != PCT_NONE)
+              {
+                m_pctPitCheck = PCT_NONE;
+              }
+              else
+              {
+                m_pctPitCheck = pctPitCheck;
+              }
+            }
             break;
-            case EST_CUSTOM8:
-            CustomSound(7);
+
+            case EAT_JUMP:
+            {
+              if (m_bCanJump == TRUE)
+              {
+                m_bJump = TRUE;
+                m_fJumpSpeed = m_fJumpHeight;
+                m_fJumpSpeed = 0;
+                m_bJump = FALSE;
+              }
+            }
             break;
-            case EST_CUSTOM9:
-            CustomSound(8);
+
+            case EAT_CROUCH:
+            {
+              if (m_bCanCrouch == TRUE)
+              {
+                m_bCrouch = !m_bCrouch;
+              }
+            }
             break;
-            case EST_CUSTOM10:
-            CustomSound(9);
+
+            case EAT_TOGGLESILENT:
+            m_bNoSounds = !m_bNoSounds;
             break;
+
             default:
             break;
-        }
-
-        if(eChangeSequence.bLoopAnimation == TRUE) {
-          if(GetRenderType()==CEntity::RT_SKAMODEL) {
-            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
-            GetModelInstance()->AddAnimation(iSkaAnim, AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
-          } else {
-            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
-            StartModelAnim(iSkaAnim, AOF_LOOPING|AOF_NORESTART);
-          }
-        } else {
-          if(GetRenderType()==CEntity::RT_SKAMODEL) {
-            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
-            GetModelInstance()->AddAnimation(iSkaAnim, AN_CLEAR,1,0);
-          } else {
-            StartModelAnim(iAnim, 0);
-          }
-        }
-
-        if(GetRenderType()==CEntity::RT_SKAMODEL) {
-          INDEX iSkaBox = ska_GetIDFromStringTable(strBox);
-          INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(iSkaBox);
-          ASSERT(iBoxIndex>=0);
-          ForceCollisionBoxIndexChange(iBoxIndex);
-          SetSkaColisionInfo();
-        } else {
-          ForceCollisionBoxIndexChange(iBox);
         }
 
         resume;
@@ -4622,92 +4763,170 @@ procedures:
       on (EChangeSequence eChangeSequence) : {
         INDEX iAnim = eChangeSequence.iModelAnim;
         INDEX iBox = eChangeSequence.iModelCollisionBox;
-        m_penMarker = eChangeSequence.penEnemyMarker;
         CTString strAnim = eChangeSequence.strSkaModelAnim;
         CTString strBox = eChangeSequence.strSkaModelBox;
 
-        switch(eChangeSequence.estSoundType) {
-            case EST_NONE:
-            break;
-            case EST_SIGHT:
-            SightSound();
-            break;
-            case EST_WOUND:
-            WoundSound();
-            break;
-            case EST_DEATH:
-            DeathSound();
-            break;
-            case EST_IDLE:
-            IdleSound();
-            break;
-            case EST_ACTIVE:
-            ActiveSound();
-            break;
-            case EST_PAIN:
-            PainSound();
+        switch(eChangeSequence.eatActionType) {
+            case EAT_CHANGEANIM:
+            {
+              if(eChangeSequence.bLoopAnimation == TRUE) {
+                if(GetRenderType()==CEntity::RT_SKAMODEL) {
+                  INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
+                  GetModelInstance()->AddAnimation(iSkaAnim, AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+                } else {
+                  StartModelAnim(iAnim, AOF_LOOPING|AOF_NORESTART);
+                }
+              } else {
+                if(GetRenderType()==CEntity::RT_SKAMODEL) {
+                  INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
+                  GetModelInstance()->AddAnimation(iSkaAnim, AN_CLEAR,1,0);
+                } else {
+                  StartModelAnim(iAnim, 0);
+                }
+              }
+            }
             break;
 
-            case EST_CUSTOM1:
-            CustomSound(0);
+            case EAT_CHANGEBOX:
+            {
+              if(GetRenderType()==CEntity::RT_SKAMODEL) {
+                INDEX iSkaBox = ska_GetIDFromStringTable(strBox);
+                INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(iSkaBox);
+                ASSERT(iBoxIndex>=0);
+                ForceCollisionBoxIndexChange(iBoxIndex);
+                SetSkaColisionInfo();
+              } else {
+                ForceCollisionBoxIndexChange(iBox);
+              }
+            }
             break;
-            case EST_CUSTOM2:
-            CustomSound(1);
+
+            case EAT_GOTOMARKER:
+            m_penMarker = eChangeSequence.penEnemyMarker;
             break;
-            case EST_CUSTOM3:
-            CustomSound(2);
+
+            case EAT_PLAYSOUND:
+            {
+              switch(eChangeSequence.estSoundType) {
+              case EST_NONE:
+              break;
+              case EST_SIGHT:
+              SightSound();
+              break;
+              case EST_WOUND:
+              WoundSound();
+              break;
+              case EST_DEATH:
+              DeathSound();
+              break;
+              case EST_IDLE:
+              IdleSound();
+              break;
+              case EST_ACTIVE:
+              ActiveSound();
+              break;
+              case EST_PAIN:
+              PainSound();
+              break;
+
+              case EST_CUSTOM1:
+              CustomSound(0);
+              break;
+              case EST_CUSTOM2:
+              CustomSound(1);
+              break;
+              case EST_CUSTOM3:
+              CustomSound(2);
+              break;
+              case EST_CUSTOM4:
+              CustomSound(3);
+              break;
+              case EST_CUSTOM5:
+              CustomSound(4);
+              break;
+              case EST_CUSTOM6:
+              CustomSound(5);
+              break;
+              case EST_CUSTOM7:
+              CustomSound(6);
+              break;
+              case EST_CUSTOM8:
+              CustomSound(7);
+              break;
+              case EST_CUSTOM9:
+              CustomSound(8);
+              break;
+              case EST_CUSTOM10:
+              CustomSound(9);
+              break;
+
+              default:
+              break;
+              }
+            }
             break;
-            case EST_CUSTOM4:
-            CustomSound(3);
+
+            case EAT_PERFORMATTACK:
+            {
+              m_penEnemy = eChangeSequence.penAttackTarget;
+              if (m_penEnemy != NULL) {
+                call AttackEnemy();
+              }
+            }
             break;
-            case EST_CUSTOM5:
-            CustomSound(4);
+
+            case EAT_TOGGLECOWARD:
+            m_bCoward = !m_bCoward;
             break;
-            case EST_CUSTOM6:
-            CustomSound(5);
+
+            case EAT_TOGGLEQUIET:
+            m_bNoIdleSound = !m_bNoIdleSound;
             break;
-            case EST_CUSTOM7:
-            CustomSound(6);
+
+            case EAT_TOGGLEPITCHECK:
+            {
+              PitCheckType pctPitCheck = m_pctPitCheck;
+
+              if(m_pctPitCheck != PCT_NONE)
+              {
+                m_pctPitCheck = PCT_NONE;
+              }
+              else
+              {
+                m_pctPitCheck = pctPitCheck;
+              }
+            }
             break;
-            case EST_CUSTOM8:
-            CustomSound(7);
+
+            case EAT_JUMP:
+            {
+              if (m_bCanJump == TRUE)
+              {
+                m_bJump = TRUE;
+                m_fJumpSpeed = m_fJumpHeight;
+                m_fJumpSpeed = 0;
+                m_bJump = FALSE;
+              }
+            }
             break;
-            case EST_CUSTOM9:
-            CustomSound(8);
+
+            case EAT_CROUCH:
+            {
+              if (m_bCanCrouch == TRUE)
+              {
+                m_bCrouch = !m_bCrouch;
+              }
+            }
             break;
-            case EST_CUSTOM10:
-            CustomSound(9);
+
+            case EAT_TOGGLESILENT:
+            m_bNoSounds = !m_bNoSounds;
             break;
+
             default:
             break;
         }
 
-        if(eChangeSequence.bLoopAnimation == TRUE) {
-          if(GetRenderType()==CEntity::RT_SKAMODEL) {
-            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
-            GetModelInstance()->AddAnimation(iSkaAnim, AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
-          } else {
-            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
-            StartModelAnim(iSkaAnim, AOF_LOOPING|AOF_NORESTART);
-          }
-        } else {
-          if(GetRenderType()==CEntity::RT_SKAMODEL) {
-            INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
-            GetModelInstance()->AddAnimation(iSkaAnim, AN_CLEAR,1,0);
-          } else {
-            StartModelAnim(iAnim, 0);
-          }
-        }
-
-        if(GetRenderType()==CEntity::RT_SKAMODEL) {
-          INDEX iSkaBox = ska_GetIDFromStringTable(strBox);
-          INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(iSkaBox);
-          ASSERT(iBoxIndex>=0);
-          ForceCollisionBoxIndexChange(iBoxIndex);
-          SetSkaColisionInfo();
-        } else {
-          ForceCollisionBoxIndexChange(iBox);
-        }
         resume;
       }
 
@@ -4870,6 +5089,23 @@ procedures:
         if (IsOfClass(eTouch.penOther, "Bouncer")) {
           JumpFromBouncer(this, eTouch.penOther);
         }
+
+        if(IsOfClass(eTouch.penOther, "UZModelHolder")) {
+          FLOAT3D vPush = eTouch.penOther->GetPlacement().pl_PositionVector - GetPlacement().pl_PositionVector;
+          CUZModelHolder *penPushable = (CUZModelHolder*)&*eTouch.penOther;
+          switch(penPushable->m_pmwType)
+          {
+            case PMWT_SMALL: vPush *= 2.0f; break;
+            case PMWT_MEDIUM: vPush *= 1.65f; break;
+            case PMWT_BIG: vPush *= 1.35f; break;
+            case PMWT_HUGE: vPush *= 1.1f; break;
+            default: break;
+          }
+          if(penPushable->m_bPushable) {
+            penPushable->GiveImpulseTranslationAbsolute(FLOAT3D(vPush(1), 0.0f, vPush(3)));
+          }
+        }
+
         resume;
       }
 

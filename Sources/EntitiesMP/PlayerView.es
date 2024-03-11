@@ -148,6 +148,7 @@ functions:
       crRay.cr_bHitTranslucentPortals = FALSE;
       crRay.cr_bHitBlockSightPortals = FALSE;
       crRay.cr_bHitBlockMeleePortals = FALSE;
+      crRay.cr_bHitBlockHitscanPortals = FALSE;
       crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;
       GetWorld()->CastRay(crRay);
 
@@ -243,6 +244,7 @@ functions:
     crRay.cr_bHitTranslucentPortals = FALSE;
     crRay.cr_bHitBlockSightPortals = FALSE;
     crRay.cr_bHitBlockMeleePortals = FALSE;
+    crRay.cr_bHitBlockHitscanPortals = FALSE;
     crRay.cr_ttHitModels = CCastRay::TT_NONE;
     GetWorld()->CastRay(crRay);
     

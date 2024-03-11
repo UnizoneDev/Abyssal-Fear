@@ -757,6 +757,8 @@
 #define IDC_SMOOTHLY_SHADED             11064
 #define IDC_BLOCK_SIGHT                 11065
 #define IDC_BLOCK_MELEE                 11066
+#define IDC_BLOCK_HITSCAN               11067
+#define IDC_CAST_ALPHA_SHADOWS          11068
 #define ID_SAVE_VIRTUAL_TREE            32771
 #define ID_LOAD_VIRTUAL_TREE            32772
 #define ID_DELETE_DIRECTORY             32773

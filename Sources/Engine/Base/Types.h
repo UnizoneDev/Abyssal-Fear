@@ -22,13 +22,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Base/Base.h>
 #include <Engine/Graphics/gl_types.h>
 
-typedef signed long long int    SLONGLONG;
+typedef signed long long int    SQUAD;
 typedef signed long  int        SLONG;
 typedef signed short int        SWORD;
 typedef signed char	            SBYTE;
 typedef signed int              SINT;
 
-typedef unsigned long long int  ULONGLONG;
+typedef unsigned long long int  UQUAD;
 typedef unsigned long  int      ULONG;
 typedef unsigned short int      UWORD;
 typedef unsigned char           UBYTE;
@@ -67,22 +67,22 @@ typedef unsigned int            UINT;
 #endif
 
 
-#define MAX_SLONGLONG ((SLONGLONG)0x7FFFFFFFFFFFFFFFL)
+#define MAX_SQUAD ((SQUAD)0x7FFFFFFFFFFFFFFFL)
 #define MAX_SLONG ((SLONG)0x7FFFFFFFL)
 #define MAX_SWORD ((SWORD)0x7FFF)
 #define MAX_SBYTE ((SBYTE)0x7F)
 
-#define MIN_SLONGLONG ((SLONGLONG)0x8000000000000000L)
+#define MIN_SQUAD ((SQUAD)0x8000000000000000L)
 #define MIN_SLONG ((SLONG)0x80000000L)
 #define MIN_SWORD ((SWORD)0x8000)
 #define MIN_SBYTE ((SBYTE)0x80)
 
-#define MIN_ULONGLONG ((ULONGLONG)0x0000000000000000L)
+#define MIN_UQUAD ((UQUAD)0x0000000000000000L)
 #define MIN_ULONG ((ULONG)0x00000000L)
 #define MIN_UWORD ((UWORD)0x0000)
 #define MIN_UBYTE ((UBYTE)0x00)
 
-#define MAX_ULONGLONG ((ULONGLONG)0xFFFFFFFFFFFFFFFFL)
+#define MAX_UQUAD ((UQUAD)0xFFFFFFFFFFFFFFFFL)
 #define MAX_ULONG ((ULONG)0xFFFFFFFFL)
 #define MAX_UWORD ((UWORD)0xFFFF)
 #define MAX_UBYTE ((UBYTE)0xFF)
@@ -188,8 +188,8 @@ inline float UpperLimit(float x) { return +3E38f; }
 inline float LowerLimit(float x) { return -3E38f; }
 inline double UpperLimit(double x) { return +1E308; }
 inline double LowerLimit(double x) { return -1E308; }
-inline SLONGLONG UpperLimit(SLONGLONG x) { return MAX_SLONGLONG; }
-inline SLONGLONG LowerLimit(SLONGLONG x) { return MIN_SLONGLONG; }
+inline SQUAD UpperLimit(SQUAD x) { return MAX_SQUAD; }
+inline SQUAD LowerLimit(SQUAD x) { return MIN_SQUAD; }
 inline SLONG UpperLimit(SLONG x) { return MAX_SLONG; }
 inline SLONG LowerLimit(SLONG x) { return MIN_SLONG; }
 inline SWORD UpperLimit(SWORD x) { return MAX_SWORD; }

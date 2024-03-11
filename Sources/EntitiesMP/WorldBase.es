@@ -424,6 +424,14 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_aitIlluminationTypes[7].it_strName = "Misc 1";
   pwo->wo_aitIlluminationTypes[8].it_strName = "Misc 2";
   pwo->wo_aitIlluminationTypes[9].it_strName = "Misc 3";
+  pwo->wo_aitIlluminationTypes[10].it_strName = "Uni 1";
+  pwo->wo_aitIlluminationTypes[11].it_strName = "Uni 2";
+  pwo->wo_aitIlluminationTypes[12].it_strName = "Uni 3";
+  pwo->wo_aitIlluminationTypes[13].it_strName = "Uni 4";
+  pwo->wo_aitIlluminationTypes[14].it_strName = "Uni 5";
+  pwo->wo_aitIlluminationTypes[15].it_strName = "Uni 6";
+  pwo->wo_aitIlluminationTypes[16].it_strName = "Uni 7";
+  pwo->wo_aitIlluminationTypes[17].it_strName = "Uni 8";
 
   // surfaces
 
@@ -921,7 +929,7 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_actContentTypes[7].ct_iSwimDamageType = DMT_ACID;
   pwo->wo_actContentTypes[7].ct_fSwimDamageAmount = 10.0f;
   pwo->wo_actContentTypes[7].ct_tmSwimDamageFrequency = 0.5f;
-  pwo->wo_actContentTypes[7].ct_ulFlags = CTF_FADESPINNING;
+  pwo->wo_actContentTypes[7].ct_ulFlags = CTF_FADESPINNING|CTF_SWIMABLE;
 
   // environments
   pwo->wo_aetEnvironmentTypes[ 0].et_strName = "Normal";
@@ -1038,15 +1046,15 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
 
   pwo->wo_aetEnvironmentTypes[28].et_strName = "Insanity 1";
   pwo->wo_aetEnvironmentTypes[28].et_iType = EAX_ENVIRONMENT_PSYCHOTIC;
-  pwo->wo_aetEnvironmentTypes[28].et_fSize = 0.35f;
+  pwo->wo_aetEnvironmentTypes[28].et_fSize = 7.39f;
 
   pwo->wo_aetEnvironmentTypes[29].et_strName = "Insanity 2";
   pwo->wo_aetEnvironmentTypes[29].et_iType = EAX_ENVIRONMENT_DRUGGED;
-  pwo->wo_aetEnvironmentTypes[29].et_fSize = 15.24f;
+  pwo->wo_aetEnvironmentTypes[29].et_fSize = 2.1f;
 
   pwo->wo_aetEnvironmentTypes[30].et_strName = "Insanity 3";
   pwo->wo_aetEnvironmentTypes[30].et_iType = EAX_ENVIRONMENT_DIZZY;
-  pwo->wo_aetEnvironmentTypes[30].et_fSize = 0.68f;
+  pwo->wo_aetEnvironmentTypes[30].et_fSize = 4.68f;
 
   // declare console variables
   _pShell->DeclareSymbol("user void MakeWorldStatistics(void);",  &MakeWorldStatistics);
@@ -1209,17 +1217,20 @@ void CWorldBase_OnWorldRender(CWorld *pwo)
 
   mdui.mdui_aURotation = 8192*16/1024.0f*tmNow;
   mdui.mdui_aVRotation = 8192*64/1024.0f*tmNow;
-  pwo->wo_attTextureTransformations[50].tt_mdTransformation.FromUI(mdui);
 
+  pwo->wo_attTextureTransformations[50].tt_mdTransformation.FromUI(mdui);
   pwo->wo_attTextureTransformations[50].tt_mdTransformation.md_fUOffset=Sin( tmNow*15);
   pwo->wo_attTextureTransformations[50].tt_mdTransformation.md_fVOffset=Cos( tmNow*25);
 
+  pwo->wo_attTextureTransformations[51].tt_mdTransformation.FromUI(mdui);
   pwo->wo_attTextureTransformations[51].tt_mdTransformation.md_fUOffset=Sin( tmNow*15)/30;
   pwo->wo_attTextureTransformations[51].tt_mdTransformation.md_fVOffset=Cos( tmNow*12)/35;
 
+  pwo->wo_attTextureTransformations[52].tt_mdTransformation.FromUI(mdui);
   pwo->wo_attTextureTransformations[52].tt_mdTransformation.md_fUOffset=Sin( tmNow*12)/30;
   pwo->wo_attTextureTransformations[52].tt_mdTransformation.md_fVOffset=Cos( tmNow*9)/35;
 
+  pwo->wo_attTextureTransformations[53].tt_mdTransformation.FromUI(mdui);
   pwo->wo_attTextureTransformations[53].tt_mdTransformation.md_fUOffset=Sin( tmNow*8)/30;
   pwo->wo_attTextureTransformations[53].tt_mdTransformation.md_fVOffset=Cos( tmNow*6)/35;
 

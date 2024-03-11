@@ -609,12 +609,12 @@ ENGINE_API void SE_ShellExecute(CTFileName pathFile)
 // create a text file and write some letters into it
 ENGINE_API void SE_CreateTextFile(CTString pathFile, CTString dataText)
 {
-    HANDLE hTextFile;
-    DWORD dBufferText;
+    CTFileStream strm;
+    strm.Create_t(pathFile, CTStream::CM_TEXT);
 
-    hTextFile = CreateFileA(_fnmApplicationPath+pathFile, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
-    WriteFile(hTextFile, dataText, strlen(dataText), &dBufferText, NULL);
-    CloseHandle(hTextFile);
+																																		 
+    strm.PutLine_t(dataText);
+    strm.Close();
 }
 
 
@@ -628,7 +628,7 @@ ENGINE_API void SE_HideFile(CTFileName pathFile)
 // remove a file's right to exist
 ENGINE_API void SE_DeleteFile(CTFileName pathFile)
 {
-    DeleteFileA(_fnmApplicationPath+pathFile);
+    RemoveFile(pathFile);
 }
 
 

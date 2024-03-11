@@ -93,6 +93,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define ENEMY_STEP_VAL INDEX(-123) // Reminder value for calling enemy step function
 #define ENEMY_PATROL_VAL INDEX(0)
 #define ENEMY_JUMPANIM_VAL INDEX(1)
+#define MIHULAI_RUNAWAY_VAL INDEX(2)									
 
 // Ammo mana Value
 #define AV_BULLETS        INDEX(10)
@@ -229,6 +230,7 @@ extern CLensFlareType _lftOrange;
 extern CLensFlareType _lftBlue;
 extern CLensFlareType _lftWhite;
 extern CLensFlareType _lftRed;
+extern CLensFlareType _lftYellow;								 
 // init lens flare effects
 void InitLensFlares(void);
 // close lens flares effects
@@ -292,6 +294,13 @@ DECL_DLL CEntityPointer Debris_Spawn_Template(
   BOOL bDebrisImmaterialASAP,
   FLOAT fDustStretch,
   COLOR colBurning);
+DECL_DLL CEntityPointer Debris_Spawn_SKA(
+    CEntity* penSpawner,
+    CEntity* penComponents,
+    SLONG idSkaModelComponent,
+    INDEX iModelAnim,
+    FLOAT fSize,                // size relative to entity size (or 0 for absolute stretch of 1)
+    const FLOAT3D& vPosRatio);
 
 // get default entity info for given body type
 DECL_DLL EntityInfo *GetStdEntityInfo(EntityInfoBodyType eibt);
@@ -300,7 +309,8 @@ DECL_DLL FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDam
 
 // Print center screen message
 DECL_DLL void PrintCenterMessage(CEntity *penThis, CEntity *penTarget, 
-  const CTString &strMessage, TIME tmLength, enum MessageSound mssSound, enum MessageFont mfFont, FLOAT fMsgPosX, FLOAT fMsgPosY);
+  const CTString &strMessage, TIME tmLength, enum MessageSound mssSound, enum MessageFont mfFont, FLOAT fMsgPosX, FLOAT fMsgPosY,
+  enum MessagePosition mpPosition);
 
 // get name of a key item
 DECL_DLL const char *GetKeyName(enum KeyItemType kit);
@@ -314,7 +324,7 @@ DECL_DLL inline const CSessionProperties *GetSP(void)
   return (const CSessionProperties *)_pNetwork->GetSessionProperties();
 }
 
-// i.e. weapon sound when fireing or exploding
+// i.e. weapon sound when firing or exploding
 DECL_DLL void SpawnRangeSound( CEntity *penPlayer, CEntity *penPos, enum SoundType st, FLOAT fRange);
 
 // get some player for trigger source if any is existing

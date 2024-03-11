@@ -57,6 +57,7 @@ public:
 	CComboBox	m_ctrlComboClusterSize;
 	CComboBox	m_ComboIllumination;
 	CCtrlEditBoolean	m_bSmoothShading;
+	CCtrlEditBoolean	m_bCastAlphaShadows;
 	//}}AFX_DATA
 
 

@@ -706,6 +706,7 @@ functions:
     crRay.cr_bHitTranslucentPortals = FALSE;
     crRay.cr_bHitBlockSightPortals = FALSE;
     crRay.cr_bHitBlockMeleePortals = TRUE;
+    crRay.cr_bHitBlockHitscanPortals = TRUE;
     crRay.cr_bPhysical = FALSE;
     crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;
     GetWorld()->CastRay(crRay);
@@ -917,7 +918,7 @@ functions:
       pdp->SetTextAspect( 1.0f);
       // do faded printout
       ULONG ulA = (FLOAT)ulAlpha * Clamp( 2*tmDelta, 0.0f, 1.0f);
-      pdp->PutTextC( m_strLastTarget, slDPWidth*0.5f, slDPHeight*0.75f, SE_COL_BLUE_NEUTRAL|ulA);
+      pdp->PutTextC( m_strLastTarget, slDPWidth*0.5f, slDPHeight*0.75f, SE_COL_RED_DARK|ulA);
     }
 
     // printout crosshair world coordinates if needed
@@ -1260,6 +1261,7 @@ functions:
       crRay.cr_bHitTranslucentPortals = FALSE;
       crRay.cr_bHitBlockSightPortals = FALSE;
       crRay.cr_bHitBlockMeleePortals = TRUE;
+      crRay.cr_bHitBlockHitscanPortals = FALSE;
       crRay.cr_fTestR = fThickness;
       crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;
       GetWorld()->CastRay(crRay);
@@ -1424,7 +1426,7 @@ functions:
         vToTarget.Normalize(); vTargetHeading.Normalize();
         if (vToTarget%vTargetHeading>0.64279) //CosFast(50.0f)
         {
-          PrintCenterMessage(this, m_penPlayer, TRANS("Backstab!"), 4.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+          PrintCenterMessage(this, m_penPlayer, TRANS("Backstab!"), 4.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
           fDamage *= 4.0f;
         }
       }
@@ -1452,7 +1454,7 @@ functions:
   void FireOneBullet(FLOAT fX, FLOAT fY, FLOAT fRange, FLOAT fDamage, enum DamageType dmtType) {
     PrepareBullet(fX, fY, fDamage);
     ((CBullet&)*penBullet).CalcTarget(fRange);
-    ((CBullet&)*penBullet).m_fBulletSize = 0.1f;
+    ((CBullet&)*penBullet).m_fBulletSize = 0.25f;
     ((CBullet&)*penBullet).m_EdtDamage = dmtType;
     // launch bullet
     ((CBullet&)*penBullet).LaunchBullet(TRUE, FALSE, TRUE);
@@ -1464,7 +1466,7 @@ functions:
     FLOAT *afPositions, FLOAT fStretch, FLOAT fJitter, enum DamageType dmtType) {
     PrepareBullet(fX, fY, fDamage);
     ((CBullet&)*penBullet).CalcTarget(fRange);
-    ((CBullet&)*penBullet).m_fBulletSize = GetSP()->sp_bCooperative ? 0.1f : 0.3f;
+    ((CBullet&)*penBullet).m_fBulletSize = GetSP()->sp_bCooperative ? 0.25f : 0.4f;
     ((CBullet&)*penBullet).m_EdtDamage = dmtType;
     // launch slugs
     INDEX iSlug;
@@ -1986,11 +1988,11 @@ functions:
     switch (EwtWeapon) {
       case WEAPON_HOLSTERED: return WEAPON_HOLSTERED;
       case WEAPON_KNIFE: return WEAPON_AXE;
-      case WEAPON_AXE: return WEAPON_KNIFE;
+      case WEAPON_AXE: return WEAPON_PIPE;
       case WEAPON_PISTOL: return WEAPON_STRONGPISTOL;
       case WEAPON_SHOTGUN: return WEAPON_SMG;
       case WEAPON_SMG: return WEAPON_SHOTGUN;
-      case WEAPON_PIPE: return WEAPON_PIPE;
+      case WEAPON_PIPE: return WEAPON_KNIFE;
       case WEAPON_STRONGPISTOL: return WEAPON_PISTOL;
     }
     return WEAPON_NONE;
@@ -2164,7 +2166,11 @@ functions:
   // get secondary weapon for a given primary weapon
   WeaponType PrimaryToSecondary(WeaponType wt)
   {
-    if (wt==WEAPON_AXE) {
+    if (wt==WEAPON_KNIFE) {
+      return WEAPON_AXE;
+    } else if (wt==WEAPON_AXE) {
+      return WEAPON_KNIFE;
+    } else if (wt==WEAPON_PIPE) {
       return WEAPON_KNIFE;
     } else if (wt==WEAPON_STRONGPISTOL) {
       return WEAPON_PISTOL;
@@ -2178,7 +2184,11 @@ functions:
   WeaponType SecondaryToPrimary(WeaponType wt)
   {
     if (wt==WEAPON_KNIFE) {
-      return WEAPON_AXE;
+      return WEAPON_PIPE;
+    } else if (wt==WEAPON_AXE) {
+      return WEAPON_KNIFE;
+    } else if (wt==WEAPON_PIPE) {
+      return WEAPON_KNIFE;
     } else if (wt==WEAPON_PISTOL) {
       return WEAPON_STRONGPISTOL;
     } else if (wt==WEAPON_SHOTGUN) {
@@ -2653,8 +2663,16 @@ procedures:
     GetAnimator()->FireAnimation(BODY_ANIM_KNIFE_ATTACK, 0);
     // sound
     CPlayer &pl = (CPlayer&)*m_penPlayer;
+
+    switch(IRnd()%3)
+    {
+      case 0: m_iAnim = AXEVIEWMODEL_ANIM_ATTACK; break;
+      case 1: m_iAnim = AXEVIEWMODEL_ANIM_ATTACK2; break;
+      case 2: m_iAnim = AXEVIEWMODEL_ANIM_ATTACK3; break;
+      default: ASSERTALWAYS("Axe unknown attack animation");
+    }
     
-    m_iAnim = AXEVIEWMODEL_ANIM_ATTACK; m_fAnimWaitTime = 0.45f;
+    m_fAnimWaitTime = 0.45f;
     PlaySound(pl.m_soWeapon0, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
       if(_pNetwork->IsPlayerLocal(m_penPlayer))
         {IFeel_PlayEffect("Knife_back");}
@@ -2739,7 +2757,7 @@ procedures:
     // pistol fire
     INDEX iAnim = PISTOLVIEWMODEL_ANIM_FIRE;
     m_moWeapon.PlayAnim(iAnim, 0);
-    autowait(m_moWeapon.GetAnimLength(iAnim)-0.125f);
+    autowait(m_moWeapon.GetAnimLength(iAnim)-0.175f);
     m_bFireWeapon = FALSE;
     m_moWeapon.PlayAnim(PISTOLVIEWMODEL_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART|AOF_SMOOTHCHANGE);
     }
@@ -2973,7 +2991,7 @@ procedures:
     // fire one bullet
     if (m_iSMGBullets>0) {
       FireMachineBullet(wpn_fFX[WEAPON_SMG], wpn_fFY[WEAPON_SMG], 
-        500.0f, 9.0f, ((GetSP()->sp_bCooperative) ? 0.01f : 0.03f),
+        500.0f, 9.0f, ((GetSP()->sp_bCooperative) ? 0.05f : 0.075f),
         ((GetSP()->sp_bCooperative) ? 0.5f : 0.0f), DMT_BULLET);
       SpawnRangeSound(50.0f);
       if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("SMG_fire");}

@@ -45,6 +45,20 @@ enum EnemySoundType {
  20 EST_CUSTOM10     "Custom 10",
 };
 
+enum EnemyActionType {
+  0 EAT_CHANGEANIM      "Change Animation",
+  1 EAT_CHANGEBOX       "Change Collision Box",
+  2 EAT_GOTOMARKER      "Go To Marker",
+  3 EAT_PLAYSOUND       "Play Sound",
+  4 EAT_PERFORMATTACK   "Perform Attack",
+  5 EAT_TOGGLECOWARD    "Toggle Cowardice",
+  6 EAT_JUMP            "Jump",
+  7 EAT_CROUCH          "Crouch",
+  8 EAT_TOGGLEQUIET     "Toggle Quietness",
+  9 EAT_TOGGLEPITCHECK  "Toggle Pit Checking",
+ 10 EAT_TOGGLESILENT    "Toggle Silence",
+};
+
 // event sent to the enemy/NPC that should do this
 event EChangeSequence {
   INDEX iModelAnim,
@@ -54,6 +68,8 @@ event EChangeSequence {
   BOOL bLoopAnimation,
   CTString strSkaModelAnim,
   CTString strSkaModelBox,
+  enum EnemyActionType eatActionType,
+  CEntityPointer penAttackTarget,
 };
 
 class CScriptedSequencer : CRationalEntity {
@@ -63,15 +79,17 @@ features "HasName", "HasTarget", "IsTargetable";
 
 properties:
 
-  1 CTString m_strName                  "Name" 'N' = "Scripted Sequencer",           // class name
-  2 INDEX m_iCollisionBox               "Collision Box" 'B' = 0,
-  3 ANIMATION m_iEnemyAnim              "Enemy Animation" 'M' = 0,
-  4 CEntityPointer m_penTarget          "Marker Target" 'T' COLOR(C_RED|0xFF),
-  5 CEntityPointer m_penEnemy           "Enemy" COLOR(C_GREEN|0xFF),
-  6 enum EnemySoundType m_estSoundType  "Enemy Sound Type" = EST_NONE,
-  7 BOOL m_bLoopAnimation               "Loop Animation" = FALSE,
-  8 CTString m_strSkaEnemyAnim          "Ska Enemy Animation" = "",
-  9 CTString m_strSkaEnemyBox           "Ska Enemy Collision Box" = "",
+  1 CTString m_strName                    "Name" 'N' = "Scripted Sequencer",           // class name
+  2 INDEX m_iCollisionBox                 "Collision Box" 'B' = 0,
+  3 ANIMATION m_iEnemyAnim                "Enemy Animation" 'M' = 0,
+  4 CEntityPointer m_penTarget            "Marker Target" 'T' COLOR(C_RED|0xFF),
+  5 CEntityPointer m_penEnemy             "Enemy" COLOR(C_GREEN|0xFF),
+  6 enum EnemySoundType m_estSoundType    "Enemy Sound Type" = EST_NONE,
+  7 BOOL m_bLoopAnimation                 "Loop Animation" = FALSE,
+  8 CTString m_strSkaEnemyAnim            "Ska Enemy Animation" = "",
+  9 CTString m_strSkaEnemyBox             "Ska Enemy Collision Box" = "",
+ 10 enum EnemyActionType m_eatActionType  "Enemy Action Type" = EAT_CHANGEANIM,
+ 11 CEntityPointer m_penAttackTarget      "Attack Target" COLOR(C_BLUE|0xFF),
 
 components:
 
@@ -127,7 +145,7 @@ procedures:
       m_penEnemy=NULL;
     }
 
-    if (m_penTarget==NULL) {
+    if (m_eatActionType == EAT_GOTOMARKER && m_penTarget==NULL) {
       return;
     }
 
@@ -136,6 +154,17 @@ procedures:
       !IsOfClass(m_penTarget, "Enemy Marker")) {
       WarningMessage("Marker Target must be EnemyMarker!");
       m_penTarget=NULL;
+    }
+
+    if(m_eatActionType == EAT_PERFORMATTACK && m_penAttackTarget == NULL) {
+      return;
+    }
+
+    // check marker type
+    if (m_penAttackTarget!=NULL && 
+      !IsDerivedFromClass(m_penAttackTarget, "Enemy Base")) {
+      WarningMessage("Attack target must be derived from EnemyBase!");
+      m_penAttackTarget=NULL;
     }
 
     // spawn in world editor
@@ -152,6 +181,8 @@ procedures:
           eSequence.bLoopAnimation = m_bLoopAnimation;
           eSequence.strSkaModelAnim = m_strSkaEnemyAnim;
           eSequence.strSkaModelBox = m_strSkaEnemyBox;
+          eSequence.eatActionType = m_eatActionType;
+          eSequence.penAttackTarget = m_penAttackTarget;
           m_penEnemy->SendEvent(eSequence);
           resume;
       }

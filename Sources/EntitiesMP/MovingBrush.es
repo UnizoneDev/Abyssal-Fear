@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 uses "EntitiesMP/MovingBrushMarker";
 uses "EntitiesMP/SoundHolder";
+uses "EntitiesMP/RandomSoundHolder";
 uses "EntitiesMP\MirrorMarker";
 uses "EntitiesMP/Debris";
 
@@ -53,19 +54,29 @@ enum BrushDebrisType {
  15 BDT_CRETE3       "Green Concrete",
  16 BDT_CRETE4       "Grey Concrete 2",
  17 BDT_CRETE5       "Brown Concrete",
+ 18 BDT_METAL5       "Light Grey Metal 1",
+ 19 BDT_WOOD5        "Rough Tan Wood 1",
+ 20 BDT_WOOD6        "Rough Grey Wood",
+ 21 BDT_WOOD7        "Rough Tan Wood 2",
+ 22 BDT_WOOD8        "Rough Brown Wood",
+ 23 BDT_FLESH1       "Red Flesh",
+ 24 BDT_FLESH2       "Green Flesh",
 };
 
 enum BrushMaterialType {
-  0 BMT_GENERIC      "Generic",
-  1 BMT_CONCRETE     "Concrete",
-  2 BMT_WOOD         "Wood",
-  3 BMT_METAL        "Metal",
-  4 BMT_GLASS        "Glass",
-  5 BMT_CHAINLINK    "Chainlink",
-  6 BMT_GRASS        "Grass",
-  7 BMT_FLESH        "Flesh",
-  8 BMT_ICE          "Ice",
-  9 BMT_SNOW         "Snow",
+  0 BMT_GENERIC        "Generic",
+  1 BMT_CONCRETE       "Concrete",
+  2 BMT_WOOD           "Wood",
+  3 BMT_METAL          "Metal",
+  4 BMT_GLASS          "Glass",
+  5 BMT_CHAINLINK      "Chainlink",
+  6 BMT_GRASS          "Grass",
+  7 BMT_FLESH          "Flesh",
+  8 BMT_ICE            "Ice",
+  9 BMT_SNOW           "Snow",
+ 10 BMT_STRONGCONCRETE "Strong Concrete",
+ 11 BMT_STRONGWOOD     "Strong Wood",
+ 12 BMT_STRONGMETAL    "Strong Metal",
 };
 
 enum TouchOrDamageEvent {
@@ -151,9 +162,13 @@ properties:
  50 CEntityPointer m_penSoundStart    "Sound start entity" 'Q',   // sound start entity
  51 CEntityPointer m_penSoundStop     "Sound stop entity" 'Z',    // sound stop entity
  52 CEntityPointer m_penSoundFollow   "Sound follow entity" 'F',  // sound follow entity
- 53 CSoundObject m_soStart,
- 54 CSoundObject m_soStop,
- 55 CSoundObject m_soFollow,
+ 53 CEntityPointer m_penSoundDamage   "Sound damage entity",      // sound damage entity
+ 54 CEntityPointer m_penSoundBreak    "Sound break entity",       // sound break entity
+ 55 CSoundObject m_soStart,
+ 56 CSoundObject m_soStop,
+ 57 CSoundObject m_soFollow,
+ 58 CSoundObject m_soDamage,
+ 59 CSoundObject m_soBreak,
 
 
  60 CEntityPointer m_penMirror0 "Mirror 0" 'M',
@@ -192,6 +207,10 @@ components:
  16 model     MODEL_METAL        "Models\\Effects\\Debris\\MetalDebris.mdl",
  17 model     MODEL_GLASS        "Models\\Effects\\Debris\\GlassDebris.mdl",
 
+ 18 model     MODEL_FLESH          "Models\\Effects\\Debris\\FleshDebris.mdl",
+ 51 texture   TEXTURE_FLESH_RED    "Models\\Effects\\Debris\\FleshDebrisRed.tex",
+ 52 texture   TEXTURE_FLESH_GREEN  "Models\\Effects\\Debris\\FleshDebrisGreen.tex",
+
  20 texture   TEXTURE_STONE1     "Models\\Effects\\Debris\\StoneDebris.tex",
  21 texture   TEXTURE_STONE2     "Models\\Effects\\Debris\\StoneDebris2.tex",
  22 texture   TEXTURE_STONE3     "Models\\Effects\\Debris\\StoneDebris3.tex",
@@ -208,11 +227,16 @@ components:
  31 texture   TEXTURE_WOOD2      "Models\\Effects\\Debris\\WoodDebris2.tex",
  32 texture   TEXTURE_WOOD3      "Models\\Effects\\Debris\\WoodDebris3.tex",
  33 texture   TEXTURE_WOOD4      "Models\\Effects\\Debris\\WoodDebris4.tex",
+ 38 texture   TEXTURE_WOOD5      "Models\\Effects\\Debris\\WoodDebris5.tex",
+ 39 texture   TEXTURE_WOOD6      "Models\\Effects\\Debris\\WoodDebris6.tex",
+ 40 texture   TEXTURE_WOOD7      "Models\\Effects\\Debris\\WoodDebris7.tex",
+ 42 texture   TEXTURE_WOOD8      "Models\\Effects\\Debris\\WoodDebris8.tex",
 
  34 texture   TEXTURE_METAL1     "Models\\Effects\\Debris\\MetalDebris.tex",
  35 texture   TEXTURE_METAL2     "Models\\Effects\\Debris\\MetalDebris2.tex",
  36 texture   TEXTURE_METAL3     "Models\\Effects\\Debris\\MetalDebris3.tex",
  37 texture   TEXTURE_METAL4     "Models\\Effects\\Debris\\MetalDebris4.tex",
+ 41 texture   TEXTURE_METAL5     "Models\\Effects\\Debris\\MetalDebris5.tex",
 
  50 class     CLASS_DEBRIS       "Classes\\Debris.ecl",
   4 class     CLASS_BASIC_EFFECT "Classes\\BasicEffect.ecl",
@@ -296,11 +320,18 @@ functions:
  
  void Precache(void)
   {
+    PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODSPILL);
+    PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODSTAIN);
+    PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODSTAINGROW);
+    PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODEXPLODE);
+
     PrecacheClass(CLASS_DEBRIS);
     PrecacheModel(MODEL_STONE);
     PrecacheModel(MODEL_WOOD);
     PrecacheModel(MODEL_METAL);
     PrecacheModel(MODEL_GLASS);
+    PrecacheModel(MODEL_FLESH);
+
     PrecacheTexture(TEXTURE_STONE1);
     PrecacheTexture(TEXTURE_STONE2);
     PrecacheTexture(TEXTURE_STONE3);
@@ -314,14 +345,22 @@ functions:
     PrecacheTexture(TEXTURE_METAL2);
     PrecacheTexture(TEXTURE_METAL3);
     PrecacheTexture(TEXTURE_METAL4);
+    PrecacheTexture(TEXTURE_METAL5);
 
     PrecacheTexture(TEXTURE_WOOD1);
     PrecacheTexture(TEXTURE_WOOD2);
     PrecacheTexture(TEXTURE_WOOD3);
     PrecacheTexture(TEXTURE_WOOD4);
+    PrecacheTexture(TEXTURE_WOOD5);
+    PrecacheTexture(TEXTURE_WOOD6);
+    PrecacheTexture(TEXTURE_WOOD7);
+    PrecacheTexture(TEXTURE_WOOD8);
 
     PrecacheTexture(TEXTURE_GLASS1);
     PrecacheTexture(TEXTURE_GLASS2);
+
+    PrecacheTexture(TEXTURE_FLESH_RED);
+    PrecacheTexture(TEXTURE_FLESH_GREEN);
   }
   /* Get force in given point. */
   void GetForce(INDEX iForce, const FLOAT3D &vPoint, 
@@ -333,6 +372,10 @@ functions:
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
     FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
+    if(m_fHealth>0) {
+      PlayDamageSound();
+    }
+
     if( m_bMoveOnDamage)
     {
       EHit eHit;
@@ -418,9 +461,42 @@ functions:
       break;
       case BMT_FLESH:
       {
-        if(dmtType == DMT_BURNING || dmtType == DMT_SHARP || dmtType == DMT_SHARPSTRONG || dmtType == DMT_EXPLOSION)
+        if(dmtType == DMT_BURNING || dmtType == DMT_SHARP || dmtType == DMT_SHARPSTRONG || dmtType == DMT_EXPLOSION ||
+           dmtType == DMT_AXE)
         {
           fDamageAmmount *= 1.75f;
+        }
+      }
+      break;
+      case BMT_STRONGCONCRETE:
+      {
+        if(dmtType == DMT_EXPLOSION)
+        {
+          fDamageAmmount *= 1.5f;
+        }
+        else
+        {
+          fDamageAmmount = 0;
+        }
+      }
+      break;
+      case BMT_STRONGWOOD:
+      {
+        if(dmtType == DMT_EXPLOSION || dmtType == DMT_BURNING)
+        {
+          fDamageAmmount *= 2.0f;
+        }
+        else
+        {
+          fDamageAmmount = 0;
+        }
+      }
+      break;
+      case BMT_STRONGMETAL:
+      {
+        if(dmtType != DMT_EXPLOSION)
+        {
+          fDamageAmmount = 0;
         }
       }
       break;
@@ -769,6 +845,121 @@ functions:
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundFollow;
       m_soFollow.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
       PlaySound(m_soFollow, sh.m_fnSound, sh.m_iPlayType);
+    }
+  };
+
+  // play damage sound
+  void PlayDamageSound(void) {
+    // if sound entity exists
+    if (m_penSoundDamage!=NULL) {
+      CSoundHolder &sh = (CSoundHolder&)*m_penSoundDamage;
+      CRandomSoundHolder &rsh = (CRandomSoundHolder&)*m_penSoundDamage;
+
+      if(IsOfClass(m_penSoundDamage, "RandomSoundHolder")) {
+        m_soDamage.Set3DParameters(FLOAT(rsh.m_rFallOffRange), FLOAT(rsh.m_rHotSpotRange), rsh.m_fVolume, rsh.m_fPitch);
+        switch(rsh.m_iRandomCheck) {
+          default:
+            {
+             PlaySound(rsh.m_soSound1, rsh.m_fnSound1, rsh.m_iPlayType);
+             break;
+            }
+            case 1:
+            {
+             PlaySound(rsh.m_soSound2, rsh.m_fnSound2, rsh.m_iPlayType);
+             break;
+            }
+            case 2:
+            {
+             PlaySound(rsh.m_soSound3, rsh.m_fnSound3, rsh.m_iPlayType);
+             break;
+            }
+            case 3:
+            {
+             PlaySound(rsh.m_soSound4, rsh.m_fnSound4, rsh.m_iPlayType);
+             break;
+            }
+            case 4:
+            {
+             PlaySound(rsh.m_soSound5, rsh.m_fnSound5, rsh.m_iPlayType);
+             break;
+            }
+            case 5:
+            {
+             PlaySound(rsh.m_soSound6, rsh.m_fnSound6, rsh.m_iPlayType);
+             break;
+            }
+            case 6:
+            {
+             PlaySound(rsh.m_soSound7, rsh.m_fnSound7, rsh.m_iPlayType);
+             break;
+            }
+            case 7:
+            {
+             PlaySound(rsh.m_soSound8, rsh.m_fnSound8, rsh.m_iPlayType);
+             break;
+            }
+        }
+      } else {
+        m_soDamage.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
+        PlaySound(m_soDamage, sh.m_fnSound, sh.m_iPlayType);
+      }
+    }
+  };
+
+  // play break sound
+  void PlayBreakSound(void) {
+    // if sound entity exists
+    if (m_penSoundBreak!=NULL) {
+      CSoundHolder &sh = (CSoundHolder&)*m_penSoundBreak;
+      CRandomSoundHolder &rsh = (CRandomSoundHolder&)*m_penSoundBreak;
+      if(IsOfClass(m_penSoundBreak, "RandomSoundHolder")) {
+        m_soDamage.Set3DParameters(FLOAT(rsh.m_rFallOffRange), FLOAT(rsh.m_rHotSpotRange), rsh.m_fVolume, rsh.m_fPitch);
+        switch(rsh.m_iRandomCheck) {
+          default:
+            {
+             PlaySound(rsh.m_soSound1, rsh.m_fnSound1, rsh.m_iPlayType);
+             break;
+            }
+            case 1:
+            {
+             PlaySound(rsh.m_soSound2, rsh.m_fnSound2, rsh.m_iPlayType);
+             break;
+            }
+            case 2:
+            {
+             PlaySound(rsh.m_soSound3, rsh.m_fnSound3, rsh.m_iPlayType);
+             break;
+            }
+            case 3:
+            {
+             PlaySound(rsh.m_soSound4, rsh.m_fnSound4, rsh.m_iPlayType);
+             break;
+            }
+            case 4:
+            {
+             PlaySound(rsh.m_soSound5, rsh.m_fnSound5, rsh.m_iPlayType);
+             break;
+            }
+            case 5:
+            {
+             PlaySound(rsh.m_soSound6, rsh.m_fnSound6, rsh.m_iPlayType);
+             break;
+            }
+            case 6:
+            {
+             PlaySound(rsh.m_soSound7, rsh.m_fnSound7, rsh.m_iPlayType);
+             break;
+            }
+            case 7:
+            {
+             PlaySound(rsh.m_soSound8, rsh.m_fnSound8, rsh.m_iPlayType);
+             break;
+            }
+        }
+      } else {
+        m_soBreak.Set3DParameters(FLOAT(sh.m_rFallOffRange), FLOAT(sh.m_rHotSpotRange), sh.m_fVolume, sh.m_fPitch);
+        PlaySound(m_soBreak, sh.m_fnSound, sh.m_iPlayType);
+      }
     }
   };
 
@@ -1229,6 +1420,9 @@ procedures:
         // get your size
         FLOATaabbox3D box;
         GetSize(box);
+
+        PlayBreakSound();
+
         if( m_ctDebrises>0)
         {
           FLOAT fEntitySize = pow(box.Size()(1)*box.Size()(2)*box.Size()(3)/m_ctDebrises, 1.0f/3.0f)*m_fCubeFactor;
@@ -1264,6 +1458,22 @@ procedures:
                 DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD4, fEntitySize, box);
             break;
 
+            case BDT_WOOD5:
+                DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD5, fEntitySize, box);
+            break;
+
+            case BDT_WOOD6:
+                DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD6, fEntitySize, box);
+            break;
+
+            case BDT_WOOD7:
+                DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD7, fEntitySize, box);
+            break;
+
+            case BDT_WOOD8:
+                DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD8, fEntitySize, box);
+            break;
+
             case BDT_METAL1:
                 DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_METAL1, fEntitySize, box);
             break;
@@ -1278,6 +1488,10 @@ procedures:
 
             case BDT_METAL4:
                 DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_METAL4, fEntitySize, box);
+            break;
+
+            case BDT_METAL5:
+                DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_METAL5, fEntitySize, box);
             break;
 
             case BDT_GLASS1:
@@ -1306,6 +1520,14 @@ procedures:
 
             case BDT_CRETE5:
                 DebrisInitialize(EIBT_ROCK, MODEL_STONE, TEXTURE_CRETE5, fEntitySize, box);
+            break;
+
+            case BDT_FLESH1:
+                DebrisInitialize(EIBT_FLESH, MODEL_FLESH, TEXTURE_FLESH_RED, fEntitySize, box);
+            break;
+
+            case BDT_FLESH2:
+                DebrisInitialize(EIBT_FLESH, MODEL_FLESH, TEXTURE_FLESH_GREEN, fEntitySize, box);
             break;
           }
         }

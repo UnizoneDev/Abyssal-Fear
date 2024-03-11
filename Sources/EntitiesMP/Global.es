@@ -375,14 +375,21 @@ enum MessageFont {
   2 FNT_CONSOLE      "Console",
 };
 
+enum MessagePosition {
+  0 POS_CENTER       "Center",
+  1 POS_LEFT         "Left",
+  2 POS_RIGHT        "Right",
+};
+
 // event for printing centered message
 event ECenterMessage {
-  CTString strMessage,          // the message
-  TIME tmLength,                // how long to keep it
-  enum MessageSound mssSound,   // sound to play
-  enum MessageFont mfFont,      // whether demonic or english
-  FLOAT fMessagePositionX,      // left or right
-  FLOAT fMessagePositionY,      // up or down
+  CTString strMessage,             // the message
+  TIME tmLength,                   // how long to keep it
+  enum MessageSound mssSound,      // sound to play
+  enum MessageFont mfFont,         // type of font
+  FLOAT fMessagePositionX,         // left or right
+  FLOAT fMessagePositionY,         // up or down
+  enum MessagePosition mpPosition, // alignment
 };
 
 // event for sending computer message to a player

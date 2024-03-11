@@ -86,6 +86,7 @@ void CCastRay::Init(CEntity *penOrigin, const FLOAT3D &vOrigin, const FLOAT3D &v
   cr_fTestR = 0;
   cr_bHitBlockSightPortals = TRUE;
   cr_bHitBlockMeleePortals = TRUE;
+  cr_bHitBlockHitscanPortals = TRUE;							
 
 	cr_bFindBone = TRUE;
 	cr_iBoneHit	 = -1;
@@ -538,6 +539,14 @@ void CCastRay::TestBrushSector(CBrushSector *pbscSector)
             continue;
           }
         }
+		// if polygon blocks hitscan attacks
+        if (ulFlags2 & BPOF2_BLOCKHITSCAN)
+        {
+            if (!cr_bHitBlockHitscanPortals) {
+                // skip this polygon
+                continue;
+            }
+        }
         // if it is translucent or selected
         if (ulFlags&(BPOF_TRANSLUCENT|BPOF_TRANSPARENT|BPOF_SELECTED)) {
           // if translucent portals should be passed through
@@ -615,7 +624,8 @@ void CCastRay::TestBrushSector(CBrushSector *pbscSector)
             cr_pbpoBrushPolygon = &bpoPolygon;
           }
           else if ((cr_bHitBlockSightPortals && ulFlags2&BPOF2_BLOCKSIGHT && !cr_bPhysical) ||
-              (cr_bHitBlockMeleePortals && ulFlags2 & BPOF2_BLOCKMELEE && !cr_bPhysical))
+              (cr_bHitBlockMeleePortals && ulFlags2 & BPOF2_BLOCKMELEE && !cr_bPhysical) ||
+              (cr_bHitBlockHitscanPortals && ulFlags2 & BPOF2_BLOCKHITSCAN && !cr_bPhysical))
           {
             // remember hit coordinates
             cr_fHitDistance = fHitDistance;

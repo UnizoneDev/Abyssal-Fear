@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep.
+/* Copyright (c) 2021-2024 Uni Musuotankarep
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %}
 
 uses "EntitiesMP/BasicEffects";
+uses "EntitiesMP/Debris";
 
 enum ExplosiveBarrelType {
   0 EBT_EXPLOSIVE        "Explosive Barrel",
@@ -40,6 +41,10 @@ properties:
   1 CTString m_strName                    "Name" 'N' = "Explosive Barrel",              // class name
   2 enum ExplosiveBarrelType m_ebType     "Type" = EBT_EXPLOSIVE,                       // type
   3 CSoundObject m_soSound,        // sound channel
+  4 INDEX m_ctDebrises          "Debris count" = 12,
+  5 FLOAT m_fCandyEffect        "Debris blow power" = 0.0f,
+  6 FLOAT m_fCubeFactor         "Cube factor" = 1.0f,
+  7 COLOR m_colDebrises         "Color of debrises" = C_WHITE,
 
 
 components:
@@ -54,6 +59,14 @@ components:
   7 texture TEXTURE_BARRELWOOD2   "Models\\Props\\Barrel2\\Barrel2b.tex",
   8 texture TEXTURE_BARRELWOOD3   "Models\\Props\\Barrel2\\Barrel2c.tex",
 
+  // ************** DEBRIS PARTS **************
+ 50 model     MODEL_WOOD         "Models\\Effects\\Debris\\WoodDebris.mdl",
+ 51 model     MODEL_METAL        "Models\\Effects\\Debris\\MetalDebris.mdl",
+ 52 texture   TEXTURE_WOOD1      "Models\\Effects\\Debris\\WoodDebris5.tex",
+ 53 texture   TEXTURE_WOOD2      "Models\\Effects\\Debris\\WoodDebris6.tex",
+ 54 texture   TEXTURE_WOOD3      "Models\\Effects\\Debris\\WoodDebris7.tex",
+ 55 texture   TEXTURE_METAL1     "Models\\Effects\\Debris\\MetalDebris5.tex",
+
   // ********** BULLET RICOCHETS **********
  100 sound   SOUND_METAL_BULLET1    "Sounds\\Materials\\Metal\\BulletMetal1.wav",
  101 sound   SOUND_METAL_BULLET2    "Sounds\\Materials\\Metal\\BulletMetal2.wav",
@@ -65,7 +78,13 @@ components:
  106 sound   SOUND_WOOD_BULLET2     "Sounds\\Materials\\Wood\\BulletWood2.wav",
  107 sound   SOUND_WOOD_BULLET3     "Sounds\\Materials\\Wood\\BulletWood3.wav",
  108 sound   SOUND_WOOD_BULLET4     "Sounds\\Materials\\Wood\\BulletWood4.wav",
- 109 sound   SOUND_WOOD_BULLET5     "Sounds\\Materials\\Wood\\BulletWood5.wav"
+ 109 sound   SOUND_WOOD_BULLET5     "Sounds\\Materials\\Wood\\BulletWood5.wav",
+
+  // ********** DESTROYED SOUNDS **********
+ 110 sound   SOUND_METAL_DESTROY1   "Sounds\\Breakables\\MetalBreak3.wav",
+ 111 sound   SOUND_METAL_DESTROY2   "Sounds\\Breakables\\MetalBreak4.wav",
+ 112 sound   SOUND_WOOD_DESTROY1    "Sounds\\Breakables\\WoodBreak2.wav",
+ 113 sound   SOUND_WOOD_DESTROY2    "Sounds\\Breakables\\WoodBreak3.wav"
 
 
 functions:
@@ -80,6 +99,21 @@ functions:
     PrecacheModel(MODEL_BARREL);
     PrecacheTexture(TEXTURE_BARREL1);
     PrecacheTexture(TEXTURE_BARREL2);
+    PrecacheTexture(TEXTURE_BARRELWOOD1);
+    PrecacheTexture(TEXTURE_BARRELWOOD2);
+    PrecacheTexture(TEXTURE_BARRELWOOD3);
+
+    PrecacheModel(MODEL_WOOD);
+    PrecacheModel(MODEL_METAL);
+    PrecacheTexture(TEXTURE_METAL1);
+    PrecacheTexture(TEXTURE_WOOD1);
+    PrecacheTexture(TEXTURE_WOOD2);
+    PrecacheTexture(TEXTURE_WOOD3);
+
+    PrecacheSound(SOUND_METAL_DESTROY1);
+    PrecacheSound(SOUND_METAL_DESTROY2);
+    PrecacheSound(SOUND_WOOD_DESTROY1);
+    PrecacheSound(SOUND_WOOD_DESTROY2);
     PrecacheSound(SOUND_METAL_BULLET1);
     PrecacheSound(SOUND_METAL_BULLET2);
     PrecacheSound(SOUND_METAL_BULLET3);
@@ -151,6 +185,17 @@ functions:
     penEffect->Initialize(eSpawnEffect);
   };
 
+  void DebrisInitialize(EntityInfoBodyType eibtMaterialType, SLONG sModelID, SLONG sTextureID, FLOAT fEntSize, FLOATaabbox3D fBox)
+  {
+    FLOAT fEntitySize = pow(fBox.Size()(1)*fBox.Size()(2)*fBox.Size()(3)/m_ctDebrises, 1.0f/3.0f)*m_fCubeFactor;
+    Debris_Begin(eibtMaterialType, DPT_NONE, BET_NONE, fEntitySize, FLOAT3D(1.0f,2.0f,3.0f),
+    FLOAT3D(0,0,0), 1.0f+m_fCandyEffect/2.0f, m_fCandyEffect, m_colDebrises);
+                    for(INDEX iDebris = 0; iDebris<m_ctDebrises; iDebris++) {
+                        Debris_Spawn(this, this, sModelID, sTextureID, 0, 0, 0, IRnd()%4, 1.0f,
+                        FLOAT3D(FRnd()*0.8f+0.1f, FRnd()*0.8f+0.1f, FRnd()*0.8f+0.1f));
+                    }
+  }
+
 procedures:
 
 
@@ -204,18 +249,91 @@ procedures:
           resume;
       }
       on (EDeath) : {
-          if(m_ebType == EBT_EXPLOSIVE) {
-            InflictRangeDamage(this, DMT_EXPLOSION, 100.0f, GetPlacement().pl_PositionVector + FLOAT3D(0.0f, 1.0f, 0.0f), 4.0f, 8.0f, DBPT_GENERIC);
-            BarrelExplosion();
-            SwitchToEditorModel();
-            SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
-            SetCollisionFlags(ECF_IMMATERIAL);
-            Destroy();
-          } else {
-            SwitchToEditorModel();
-            SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
-            SetCollisionFlags(ECF_IMMATERIAL);
-            Destroy();
+          // get your size
+          FLOATaabbox3D box;
+          GetSize(box);
+          FLOAT fEntitySize = pow(box.Size()(1)*box.Size()(2)*box.Size()(3)/m_ctDebrises, 1.0f/3.0f)*m_fCubeFactor;
+
+          switch(m_ebType) {
+            case EBT_EXPLOSIVE:
+            {
+              switch(IRnd()%2)
+              {
+                case 0: PlaySound(m_soSound, SOUND_METAL_DESTROY1, SOF_3D); break;
+                case 1: PlaySound(m_soSound, SOUND_METAL_DESTROY2, SOF_3D); break;
+                default: ASSERTALWAYS("Explosive barrel unknown break sound");
+              }
+              DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_METAL1, fEntitySize, box);
+              InflictRangeDamage(this, DMT_EXPLOSION, 100.0f, GetPlacement().pl_PositionVector + FLOAT3D(0.0f, 1.0f, 0.0f), 4.0f, 8.0f, DBPT_GENERIC);
+              BarrelExplosion();
+              SwitchToEditorModel();
+              SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
+              SetCollisionFlags(ECF_IMMATERIAL);
+              Destroy();
+            }
+            break;
+            case EBT_GREY:
+            {
+              switch(IRnd()%2)
+              {
+                case 0: PlaySound(m_soSound, SOUND_METAL_DESTROY1, SOF_3D); break;
+                case 1: PlaySound(m_soSound, SOUND_METAL_DESTROY2, SOF_3D); break;
+                default: ASSERTALWAYS("Explosive barrel unknown break sound");
+              }
+              DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_METAL1, fEntitySize, box);
+              SwitchToEditorModel();
+              SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
+              SetCollisionFlags(ECF_IMMATERIAL);
+              Destroy();
+            }
+            break;
+            case EBT_WOOD1:
+            {
+              switch(IRnd()%2)
+              {
+                case 0: PlaySound(m_soSound, SOUND_WOOD_DESTROY1, SOF_3D); break;
+                case 1: PlaySound(m_soSound, SOUND_WOOD_DESTROY2, SOF_3D); break;
+                default: ASSERTALWAYS("Explosive barrel unknown break sound");
+              }
+              DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD1, fEntitySize, box);
+              SwitchToEditorModel();
+              SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
+              SetCollisionFlags(ECF_IMMATERIAL);
+              Destroy();
+            }
+            break;
+            case EBT_WOOD2:
+            {
+              switch(IRnd()%2)
+              {
+                case 0: PlaySound(m_soSound, SOUND_WOOD_DESTROY1, SOF_3D); break;
+                case 1: PlaySound(m_soSound, SOUND_WOOD_DESTROY2, SOF_3D); break;
+                default: ASSERTALWAYS("Explosive barrel unknown break sound");
+              }
+              DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD2, fEntitySize, box);
+              SwitchToEditorModel();
+              SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
+              SetCollisionFlags(ECF_IMMATERIAL);
+              Destroy();
+            }
+            break;
+            case EBT_WOOD3:
+            {
+              switch(IRnd()%2)
+              {
+                case 0: PlaySound(m_soSound, SOUND_WOOD_DESTROY1, SOF_3D); break;
+                case 1: PlaySound(m_soSound, SOUND_WOOD_DESTROY2, SOF_3D); break;
+                default: ASSERTALWAYS("Explosive barrel unknown break sound");
+              }
+              DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD3, fEntitySize, box);
+              SwitchToEditorModel();
+              SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
+              SetCollisionFlags(ECF_IMMATERIAL);
+              Destroy();
+            }
+            break;
+
+            default: break;
           }
           
           stop;

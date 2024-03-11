@@ -23,6 +23,25 @@ uses "EntitiesMP/EnemyBase";
 
 %{
 
+  static INDEX idGnawBeastAnim_TPose = -1;
+  static INDEX idGnawBeastAnim_Stand = -1;
+  static INDEX idGnawBeastAnim_Walk  = -1;
+  static INDEX idGnawBeastAnim_Backpedal  = -1;
+  static INDEX idGnawBeastAnim_Run   = -1;
+  static INDEX idGnawBeastAnim_Run2  = -1;
+  static INDEX idGnawBeastAnim_Run3  = -1;
+  static INDEX idGnawBeastAnim_Wound   = -1;
+  static INDEX idGnawBeastAnim_Jump    = -1;
+  static INDEX idGnawBeastAnim_Melee1  = -1;
+  static INDEX idGnawBeastAnim_Melee2  = -1;
+  static INDEX idGnawBeastAnim_Melee3  = -1;
+  static INDEX idGnawBeastAnim_Melee4  = -1;
+  static INDEX idGnawBeastAnim_DeathFront = -1;
+  static INDEX idGnawBeastAnim_DeathBack  = -1;
+  static INDEX idGnawBeastBox_Stand  = -1;
+  static INDEX idGnawBeastBox_DeathFront   = -1;
+  static INDEX idGnawBeastBox_DeathBack    = -1;
+
 // info structure
 static EntityInfo eiGnawBeast = {
   EIBT_FLESH, 400.0f,
@@ -44,7 +63,7 @@ properties:
   
 components:
   1 class   CLASS_BASE				"Classes\\EnemyBase.ecl",
-  2 model   MODEL_GNAWBEAST		    "Models\\NPCs\\GnawBeast\\GnawBeast.mdl",
+  2 skamodel MODEL_GNAWBEAST        "Models\\NPCs\\GnawBeastSKA\\GnawBeast.smc",
   3 texture TEXTURE_GNAWBEAST		"Models\\NPCs\\GnawBeast\\GnawBeast.tex",
 
   10 sound   SOUND_HIT              "Models\\NPCs\\Abomination\\Sounds\\Hit.wav",
@@ -57,6 +76,31 @@ components:
   17 sound   SOUND_DEATH            "Models\\NPCs\\GnawBeast\\Sounds\\Death.wav",
 
 functions:
+
+  void CGnawBeast(void) {
+  // Get animation IDs
+  idGnawBeastAnim_TPose       = ska_GetIDFromStringTable("TPOSE");
+  idGnawBeastAnim_Stand       = ska_GetIDFromStringTable("STAND");
+  idGnawBeastAnim_Walk        = ska_GetIDFromStringTable("WALK");
+  idGnawBeastAnim_Run         = ska_GetIDFromStringTable("RUN");
+  idGnawBeastAnim_Run2        = ska_GetIDFromStringTable("RUN2");
+  idGnawBeastAnim_Run3        = ska_GetIDFromStringTable("RUN3");
+  idGnawBeastAnim_Wound       = ska_GetIDFromStringTable("WOUND");
+  idGnawBeastAnim_Jump        = ska_GetIDFromStringTable("JUMP");
+  idGnawBeastAnim_Backpedal   = ska_GetIDFromStringTable("BACKPEDAL");
+  idGnawBeastAnim_Melee1      = ska_GetIDFromStringTable("MELEE1");
+  idGnawBeastAnim_Melee2      = ska_GetIDFromStringTable("MELEE2");
+  idGnawBeastAnim_Melee3      = ska_GetIDFromStringTable("MELEE3");
+  idGnawBeastAnim_Melee4      = ska_GetIDFromStringTable("MELEE4");
+  idGnawBeastAnim_DeathFront  = ska_GetIDFromStringTable("DEATHFRONT");
+  idGnawBeastAnim_DeathBack   = ska_GetIDFromStringTable("DEATHBACK");
+
+  // Get collision box IDs
+  idGnawBeastBox_Stand       = ska_GetIDFromStringTable("Stand");
+  idGnawBeastBox_DeathFront  = ska_GetIDFromStringTable("DeathFront");
+  idGnawBeastBox_DeathBack   = ska_GetIDFromStringTable("DeathBack");
+};
+
   // describe how this enemy killed player
   virtual CTString GetPlayerKillDescription(const CTString &strPlayerName, const EDeath &eDeath)
   {
@@ -123,8 +167,8 @@ functions:
   // damage anim
   INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     INDEX iAnim;
-    iAnim = GNAWBEAST_ANIM_WOUND;
-    StartModelAnim(iAnim, 0);
+    iAnim = idGnawBeastAnim_Wound;
+    GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
     return iAnim;
   };
 
@@ -136,12 +180,12 @@ functions:
       FLOAT fDamageDir = m_vDamage%vFront;
 
       if (fDamageDir<0) {
-          iAnim = GNAWBEAST_ANIM_DEATHFRONT;
+          iAnim = idGnawBeastAnim_DeathFront;
         } else {
-          iAnim = GNAWBEAST_ANIM_DEATHBACK;
+          iAnim = idGnawBeastAnim_DeathBack;
         }
 
-    StartModelAnim(iAnim, 0);
+    GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
     return iAnim;
   };
 
@@ -152,13 +196,19 @@ functions:
   };
 
   void DeathNotify(void) {
-    if(GetModelObject()->GetAnim()==GNAWBEAST_ANIM_DEATHFRONT)
+    if(GetModelInstance()->IsAnimationPlaying(idGnawBeastAnim_DeathFront))
     {
-      ChangeCollisionBoxIndexWhenPossible(GNAWBEAST_COLLISION_BOX_DEATHBOX_FRONT);
+      INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idGnawBeastBox_DeathFront);
+      ASSERT(iBoxIndex>=0);
+      ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
+      SetSkaColisionInfo();
     }
     else
     {
-      ChangeCollisionBoxIndexWhenPossible(GNAWBEAST_COLLISION_BOX_DEATHBOX_BACK);
+      INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idGnawBeastBox_DeathFront);
+      ASSERT(iBoxIndex>=0);
+      ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
+      SetSkaColisionInfo();
     }
     
     en_fDensity = 500.0f;
@@ -166,11 +216,11 @@ functions:
   
   // virtual anim functions
   void StandingAnim(void) {
-    StartModelAnim(GNAWBEAST_ANIM_STAND, AOF_LOOPING|AOF_NORESTART);
+    GetModelInstance()->AddAnimation(idGnawBeastAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void WalkingAnim(void) {
-    StartModelAnim(GNAWBEAST_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+    GetModelInstance()->AddAnimation(idGnawBeastAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void RunningAnim(void) {
@@ -180,12 +230,13 @@ functions:
         if(m_bRandomRunAnim) {
           switch(m_iRunAnim)
           {
-              case 0: StartModelAnim(GNAWBEAST_ANIM_RUN, AOF_LOOPING|AOF_NORESTART); break;
-              case 1: StartModelAnim(GNAWBEAST_ANIM_RUN2, AOF_LOOPING|AOF_NORESTART); break;
+              case 0: GetModelInstance()->AddAnimation(idGnawBeastAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
+              case 1: GetModelInstance()->AddAnimation(idGnawBeastAnim_Run2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
+              case 2: GetModelInstance()->AddAnimation(idGnawBeastAnim_Run3,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
               default: ASSERTALWAYS("GnawBeast unknown run animation");
           }
         } else {
-          StartModelAnim(GNAWBEAST_ANIM_RUN3, AOF_LOOPING|AOF_NORESTART);
+          GetModelInstance()->AddAnimation(idGnawBeastAnim_Run3,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
         }
       }
   };
@@ -195,7 +246,7 @@ functions:
   };
 
   void JumpingAnim(void) {
-    StartModelAnim(GNAWBEAST_ANIM_JUMP, AOF_LOOPING|AOF_NORESTART);
+    GetModelInstance()->AddAnimation(idGnawBeastAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   // virtual sound functions
@@ -237,10 +288,10 @@ functions:
     // close attack
     switch(IRnd()%4)
     {
-      case 0: StartModelAnim(GNAWBEAST_ANIM_MELEE1, 0); break;
-      case 1: StartModelAnim(GNAWBEAST_ANIM_MELEE2, 0); break;
-      case 2: StartModelAnim(GNAWBEAST_ANIM_MELEE3, 0); break;
-      case 3: StartModelAnim(GNAWBEAST_ANIM_MELEE4, 0); break;
+      case 0: GetModelInstance()->AddAnimation(idGnawBeastAnim_Melee1,AN_CLEAR,1,0); break;
+      case 1: GetModelInstance()->AddAnimation(idGnawBeastAnim_Melee2,AN_CLEAR,1,0); break;
+      case 2: GetModelInstance()->AddAnimation(idGnawBeastAnim_Melee3,AN_CLEAR,1,0); break;
+      case 3: GetModelInstance()->AddAnimation(idGnawBeastAnim_Melee4,AN_CLEAR,1,0); break;
       default: ASSERTALWAYS("Gnaw Beast unknown melee animation");
     }
     m_bFistHit = FALSE;
@@ -273,7 +324,7 @@ functions:
   // before main loop
   PreMainLoop(EVoid)
   {
-    m_iRunAnim = IRnd()%2;
+    m_iRunAnim = IRnd()%3;
     
     return EReturn();
   }
@@ -284,7 +335,7 @@ functions:
  ************************************************************/
   Main(EVoid) {
     // declare yourself as a model
-    InitAsModel();
+    InitAsSkaModel();
     SetPhysicsFlags(EPF_MODEL_WALKING|EPF_HASLUNGS);
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
@@ -300,9 +351,8 @@ functions:
     // set your appearance and texture
     
         
-        SetModel(MODEL_GNAWBEAST);
-        SetModelMainTexture(TEXTURE_GNAWBEAST);
-        GetModelObject()->StretchModel(FLOAT3D(1.125f, 1.125f, 1.125f));
+        SetSkaModel(MODEL_GNAWBEAST);
+        GetModelInstance()->StretchModel(FLOAT3D(1.125f, 1.125f, 1.125f));
         ModelChangeNotify();
 
         if(m_bStartsOutSlow) {

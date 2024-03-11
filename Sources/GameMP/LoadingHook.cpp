@@ -100,10 +100,10 @@ static void LoadingHook_t(CProgressHookInfo *pphi)
       }
   }
 
-  if (ulLevelMask != 0 && !_pNetwork->IsPlayingDemo()) {
+  if (!_pNetwork->IsPlayingDemo()) {
       // map hook
-      extern void RenderMap(CDrawPort * pdp, ULONG ulLevelMask, CProgressHookInfo * pphi);
-      RenderMap(&dpHook, ulLevelMask, pphi);
+      extern void RenderMap(CDrawPort * pdp, CProgressHookInfo * pphi);
+      RenderMap(&dpHook, pphi);
 
       // finish rendering
       dpHook.Unlock();

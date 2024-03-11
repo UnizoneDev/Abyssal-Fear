@@ -57,6 +57,7 @@ thumbnail "Thumbnails\\WastePerson.tbn";
 properties:
   1 BOOL m_bFistHit = FALSE,
   2 enum WastePersonType m_wpChar "Character" 'C' = WPC_BROWNMALE,   // character
+  3 FLOAT m_fBlockWait = 0.0f,
   
 components:
   1 class   CLASS_BASE				"Classes\\EnemyDive.ecl",
@@ -256,13 +257,24 @@ functions:
       return EReturn();
     }
 
-    StartModelAnim(WASTERMALE_ANIM_BLOCK1, 0);
+    switch(IRnd()%3) {
+      case 0: StartModelAnim(WASTERMALE_ANIM_BLOCK1, 0); break;
+      case 1: StartModelAnim(WASTERMALE_ANIM_BLOCK2, 0); break;
+      case 2: StartModelAnim(WASTERMALE_ANIM_BLOCK3, 0); break;
+      default: ASSERTALWAYS("Waster unknown blocking animation");
+    }
 
     autowait(0.25f);
 
     m_bIsBlocking = TRUE;
 
-    autowait(1.25f);
+    if(GetModelObject()->GetAnim() == WASTERMALE_ANIM_BLOCK2 || GetModelObject()->GetAnim() == WASTERMALE_ANIM_BLOCK3) {
+      m_fBlockWait = 1.0f;
+    } else {
+      m_fBlockWait = 1.45f;
+    }
+
+    autowait(m_fBlockWait);
 
     m_bIsBlocking = FALSE;
 
@@ -381,7 +393,7 @@ functions:
         }
 
         if(m_wpChar == WPC_BROWNMALE || m_wpChar == WPC_BLACKMALE) {
-          InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+          InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 8.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         } else {
           InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 5.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
@@ -489,7 +501,7 @@ functions:
         }
 
         if(m_wpChar == WPC_BROWNMALE || m_wpChar == WPC_BLACKMALE) {
-          InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+          InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 8.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         } else {
           InflictDirectDamage(m_penEnemy, this, DMT_SHARP, 5.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }

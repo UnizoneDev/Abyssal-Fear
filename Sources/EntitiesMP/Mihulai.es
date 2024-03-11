@@ -28,6 +28,16 @@ enum MihulaiType {
 
 %{
 
+  static INDEX idMihulaiAnim_TPose   = -1;
+  static INDEX idMihulaiAnim_Stand   = -1;
+  static INDEX idMihulaiAnim_Walk    = -1;
+  static INDEX idMihulaiAnim_Wound   = -1;
+  static INDEX idMihulaiAnim_Jump    = -1;
+  static INDEX idMihulaiAnim_Melee   = -1;
+  static INDEX idMihulaiAnim_Death   = -1;
+  static INDEX idMihulaiBox_Stand    = -1;
+  static INDEX idMihulaiBox_Death    = -1;
+
 // info structure
 static EntityInfo eiMihulai = {
   EIBT_FLESH, 175.0f,
@@ -47,14 +57,29 @@ properties:
   
 components:
   1 class   CLASS_BASE				"Classes\\EnemyBase.ecl",
-  2 model   MODEL_MIHULAI		    "Models\\NPCs\\Mihulai\\Mihulai.mdl",
-  3 texture TEXTURE_MIHULAI1        "Models\\NPCs\\Shambler\\Shambler1.tex",
-  4 texture TEXTURE_MIHULAI2        "Models\\NPCs\\Shambler\\Shambler1b.tex",
+  2 skamodel MODEL_MIHULAI		    "Models\\NPCs\\MihulaiSKA\\Mihulai.smc",
+  3 skamodel MODEL_MIHULAIRED       "Models\\NPCs\\MihulaiSKA\\MihulaiRed.smc",
 
   10 sound   SOUND_HIT              "Models\\NPCs\\Abomination\\Sounds\\Hit.wav",
   11 sound   SOUND_SWING            "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
 
 functions:
+
+  void CMihulai(void) {
+  // Get mihulai animation IDs
+  idMihulaiAnim_TPose       = ska_GetIDFromStringTable("TPOSE");
+  idMihulaiAnim_Stand       = ska_GetIDFromStringTable("STAND");
+  idMihulaiAnim_Walk        = ska_GetIDFromStringTable("WALK");
+  idMihulaiAnim_Wound       = ska_GetIDFromStringTable("WOUND");
+  idMihulaiAnim_Jump        = ska_GetIDFromStringTable("JUMP");
+  idMihulaiAnim_Melee       = ska_GetIDFromStringTable("MELEE");
+  idMihulaiAnim_Death       = ska_GetIDFromStringTable("DEATH");
+
+  // Get mihulai collision box IDs
+  idMihulaiBox_Stand       = ska_GetIDFromStringTable("Stand");
+  idMihulaiBox_Death       = ska_GetIDFromStringTable("Death");
+};
+
   // describe how this enemy killed player
   virtual CTString GetPlayerKillDescription(const CTString &strPlayerName, const EDeath &eDeath)
   {
@@ -98,6 +123,11 @@ functions:
         // must always blowup
         m_fBlowUpAmount = 0;
       }
+
+      if(GetHealth() <= 50.0f) {
+        SpawnReminder(this, 5.0f, MIHULAI_RUNAWAY_VAL);
+        m_bCoward = TRUE;
+      }
     }
   };
 
@@ -105,16 +135,16 @@ functions:
   // damage anim
   INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     INDEX iAnim;
-    iAnim = MIHULAI_ANIM_WOUND;
-    StartModelAnim(iAnim, 0);
+    iAnim = idMihulaiAnim_Wound;
+    GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
     return iAnim;
   };
 
   // death
   INDEX AnimForDeath(void) {
     INDEX iAnim;
-    iAnim = MIHULAI_ANIM_DEATH;
-    StartModelAnim(iAnim, 0);
+    iAnim = idMihulaiAnim_Death;
+    GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
     return iAnim;
   };
 
@@ -125,21 +155,24 @@ functions:
   };
 
   void DeathNotify(void) {
-    ChangeCollisionBoxIndexWhenPossible(MIHULAI_COLLISION_BOX_DEATH_BOX);
+    INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idMihulaiBox_Death);
+    ASSERT(iBoxIndex>=0);
+    ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
+    SetSkaColisionInfo();
     en_fDensity = 500.0f;
   };
 
   // virtual anim functions
   void StandingAnim(void) {
-    StartModelAnim(MIHULAI_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART);
+    GetModelInstance()->AddAnimation(idMihulaiAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void WalkingAnim(void) {
-    StartModelAnim(MIHULAI_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+    GetModelInstance()->AddAnimation(idMihulaiAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void RunningAnim(void) {
-    StartModelAnim(MIHULAI_ANIM_WALK, AOF_LOOPING|AOF_NORESTART);
+    GetModelInstance()->AddAnimation(idMihulaiAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void RotatingAnim(void) {
@@ -147,8 +180,24 @@ functions:
   };
 
   void JumpingAnim(void) {
-    StartModelAnim(MIHULAI_ANIM_JUMP, AOF_LOOPING|AOF_NORESTART);
+    GetModelInstance()->AddAnimation(idMihulaiAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
+
+  // --------------------------------------------------------------------------------------
+  /* Handle an event, return false if the event is not handled. */
+  // --------------------------------------------------------------------------------------
+  BOOL HandleEvent(const CEntityEvent &ee)
+  {
+    if (ee.ee_slEvent == EVENTCODE_EReminder) {
+      EReminder eReminder = ((EReminder &) ee);
+      if(eReminder.iValue == MIHULAI_RUNAWAY_VAL) {
+        m_bCoward = FALSE;
+        return TRUE;
+      }
+    }
+
+    return CEnemyBase::HandleEvent(ee);
+  }
 
 
   procedures:
@@ -166,7 +215,7 @@ functions:
 
   // jump on enemy
   JumpOnEnemy(EVoid) {
-    StartModelAnim(MIHULAI_ANIM_JUMP, 0);
+    GetModelInstance()->AddAnimation(idMihulaiAnim_Jump,AN_CLEAR,1,0);
 
     // jump
     FLOAT3D vDir = (m_penEnemy->GetPlacement().pl_PositionVector -
@@ -179,7 +228,7 @@ functions:
 
     // animation - IGNORE DAMAGE WOUND -
     SpawnReminder(this, 0.5f, 0);
-    m_iChargeHitAnimation = MIHULAI_ANIM_JUMP;
+    m_iChargeHitAnimation = idMihulaiAnim_Jump;
     m_fChargeHitDamage = 9.0f;
     m_fChargeHitAngle = 0.0f;
     m_fChargeHitSpeed = 15.0f;
@@ -190,7 +239,7 @@ functions:
 
   SlashEnemySingle(EVoid) {
     // close attack
-    StartModelAnim(MIHULAI_ANIM_MELEE, 0);
+    GetModelInstance()->AddAnimation(idMihulaiAnim_Melee,AN_CLEAR,1,0);
 
     m_bFistHit = FALSE;
     autowait(0.35f);
@@ -284,11 +333,11 @@ functions:
    ************************************************************/
   Main(EVoid) {
     // declare yourself as a model
-    InitAsModel();
+    InitAsSkaModel();
     SetPhysicsFlags(EPF_MODEL_WALKING|EPF_HASLUNGS);
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
-    m_ftFactionType = FT_LESSER;
+    m_ftFactionType = FT_WILDLIFE;
     SetHealth(100.0f);
     m_fMaxHealth = 100.0f;
     m_fDamageWounded = 40.0f;
@@ -300,13 +349,13 @@ functions:
     // set your appearance and texture
     
         
-        SetModel(MODEL_MIHULAI);
+        
         if(m_mhChar == MHC_NORMAL1) {
-          SetModelMainTexture(TEXTURE_MIHULAI1);
+          SetSkaModel(MODEL_MIHULAI);
         } else {
-          SetModelMainTexture(TEXTURE_MIHULAI2);
+          SetSkaModel(MODEL_MIHULAIRED);
         }
-        GetModelObject()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+        GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
         ModelChangeNotify();
 
         m_fWalkSpeed = FRnd() + 3.5f;

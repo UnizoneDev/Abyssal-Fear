@@ -213,6 +213,9 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheSound(SOUND_BULLET_WATER);
     pdec->PrecacheModel(MODEL_BULLET_STAIN);
     pdec->PrecacheTexture(TEXTURE_BULLET_STAIN);
+    pdec->PrecacheModel(MODEL_INVISIBLE_PLANE);
+    pdec->PrecacheTexture(TEXTURE_INVISIBLE_PLANE);
+
     pdec->PrecacheSound(SOUND_BULLET_GRASS);
     pdec->PrecacheSound(SOUND_BULLET_WOOD);
     pdec->PrecacheSound(SOUND_BULLET_SNOW);
@@ -331,6 +334,9 @@ void CBasicEffect_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     ASSERT(FALSE);
   }
 }
+
+extern FLOAT sam_tmBulletFadeWait;
+
 %}
 
 class CBasicEffect : CRationalEntity {
@@ -1079,7 +1085,7 @@ functions:
     ModelChangeNotify();
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_SAND;
@@ -1122,7 +1128,7 @@ functions:
     moHole.mo_colBlendColor = 0x805030FF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_RED_SAND;
@@ -1160,7 +1166,7 @@ functions:
     SetModel(MODEL_BULLET_STAIN);
     SetModelMainTexture(TEXTURE_BULLET_STAIN);
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     if( bSmoke)
@@ -1313,7 +1319,7 @@ functions:
     moHole.mo_colBlendColor = 0x80f080FF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_GRASS;
@@ -1360,7 +1366,7 @@ functions:
     moHole.mo_colBlendColor = 0xffc080FF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_WOOD;
@@ -1385,7 +1391,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_SNOW;
@@ -1432,7 +1438,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_METAL;
@@ -1457,7 +1463,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_CARPET;
@@ -1504,7 +1510,7 @@ functions:
     moHole.mo_colBlendColor = 0xFFFFFFFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_GLASS;
@@ -1546,7 +1552,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_DIRT;
@@ -1571,7 +1577,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_TILE;
@@ -1596,7 +1602,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_CHAINLINK;
@@ -1621,7 +1627,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_GRATE;
@@ -1664,7 +1670,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_MUD;
@@ -1689,7 +1695,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_VENT;
@@ -1714,7 +1720,7 @@ functions:
     moHole.mo_colBlendColor = 0xFFFFFFFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_COMPUTER;
@@ -1739,7 +1745,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_FUSEBOX;
@@ -1791,7 +1797,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_GRAVEL;
@@ -1816,7 +1822,7 @@ functions:
     moHole.mo_colBlendColor = 0x7f7f7fFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_GLITCH;
@@ -1863,7 +1869,7 @@ functions:
     moHole.mo_colBlendColor = 0x33CCFFFF;
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_ICE;
@@ -1905,7 +1911,7 @@ functions:
     ModelChangeNotify();
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_LAVA;
@@ -1947,7 +1953,7 @@ functions:
     ModelChangeNotify();
 
     SetNormalWithRandomBanking();
-    m_fWaitTime = 2.0f;
+    m_fWaitTime = sam_tmBulletFadeWait;
     m_fFadeTime = 2.0f;
     m_bLightSource = FALSE;
     m_eptType = EPT_BULLET_CEMENT;

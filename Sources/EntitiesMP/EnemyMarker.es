@@ -47,7 +47,7 @@ properties:
  23 enum BoolEType m_betCrouch "Crouch" = BET_IGNORE,
  24 enum BoolEType m_betAnosmic  "Anosmic" = BET_IGNORE,
  25 enum SquadCommandType m_sctCommand  "Command Type" = SCT_TAKECOVER,
- 26 CEntityPointer m_penReachTarget "Reach target",                 // reach target
+ 26 CEntityPointer m_penReachTarget "Reach target",                   // reach target
  27 enum EventEType m_eetReachType  "Reach event type" = EET_TRIGGER, // death event type
 
  18 BOOL m_bStartTactics          "Start Tactics" = FALSE, 

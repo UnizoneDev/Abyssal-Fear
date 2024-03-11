@@ -45,6 +45,7 @@ thumbnail "Thumbnails\\AmmoItem.tbn";
 
 properties:
   1 enum AmmoItemType  m_EaitType    "Type" 'Y' = AIT_BULLETS,     // health type
+  2 FLOAT m_fCustomValue "Value Override" = 0.0f,                  // editable value
 
 components:
   0 class   CLASS_BASE        "Classes\\Item.ecl",
@@ -139,35 +140,47 @@ functions:
     switch (m_EaitType) {
       case AIT_BULLETS:
         m_fValue = 17.0f;
+        if(m_fCustomValue > 0) {
+          m_fValue = m_fCustomValue;
+        }
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 30.0f; 
         m_strDescription.PrintF("Bullets: %d", (int) m_fValue);
         // set appearance
         AddItem(MODEL_BULLETS, TEXTURE_BULLETS, 0, 0, 0);
-        StretchItem(FLOAT3D(4.5f, 4.5f, 4.5f));
+        StretchItem(FLOAT3D(2.5f, 2.5f, 2.5f));
         break;
       case AIT_SHELLS:
         m_fValue = 4.0f;
+        if(m_fCustomValue > 0) {
+          m_fValue = m_fCustomValue;
+        }
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 30.0f; 
         m_strDescription.PrintF("Shells: %d", (int) m_fValue);
         // set appearance
         AddItem(MODEL_SHELLS, TEXTURE_SHELLS, 0, 0, 0);
-        StretchItem(FLOAT3D(4.5f, 4.5f, 4.5f));
+        StretchItem(FLOAT3D(2.5f, 2.5f, 2.5f));
         break;
       case AIT_MEDIUM_BULLETS:
         m_fValue = 30.0f;
+        if(m_fCustomValue > 0) {
+          m_fValue = m_fCustomValue;
+        }
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 30.0f; 
         m_strDescription.PrintF("Medium Bullets: %d", (int) m_fValue);
         // set appearance
         AddItem(MODEL_MEDIUM_BULLETS, TEXTURE_MEDIUM_BULLETS, 0, 0, 0);
-        StretchItem(FLOAT3D(4.5f, 4.5f, 4.5f));
+        StretchItem(FLOAT3D(2.5f, 2.5f, 2.5f));
         break;
       case AIT_STRONG_BULLETS:
         m_fValue = 7.0f;
+        if(m_fCustomValue > 0) {
+          m_fValue = m_fCustomValue;
+        }
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 30.0f; 
         m_strDescription.PrintF("Strong Bullets: %d", (int) m_fValue);
         // set appearance
         AddItem(MODEL_STRONG_BULLETS, TEXTURE_STRONG_BULLETS, 0, 0, 0);
-        StretchItem(FLOAT3D(4.5f, 4.5f, 4.5f));
+        StretchItem(FLOAT3D(2.5f, 2.5f, 2.5f));
         break;
       default: ASSERTALWAYS("Uknown ammo");
     }

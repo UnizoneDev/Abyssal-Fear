@@ -71,7 +71,7 @@ static CStaticStackArray<GFXTexCoord> _uvUVMapForModify;
 static GfxWrap _aShaderTexWrap[2] = { GFX_REPEAT, GFX_REPEAT };
 
 
-// [Uni] OpenGL stuff
+// [Uni] OpenGL shader stuff
 static BOOL _bUseVertexShaders = FALSE;
 static BOOL _bUseFragmentShaders = FALSE;
 static ULONG _ulProgram = 0;   // current shader program
@@ -836,16 +836,6 @@ void shaSetProgramIndex(const char* strUniform, INDEX iIndex)
 void shaSetProgramFloat(const char* strUniform, FLOAT fFloat)
 {
     gfxSetShaderProgramFloat(strUniform, _ulProgram, fFloat);
-}
-
-void shaCreateVertexShader(const char* strShader, ULONG ulProgram)
-{
-    gfxCreateVertexProgram(strShader, ulProgram);
-}
-
-void shaCreateFragmentShader(const char* strShader, ULONG ulProgram)
-{
-    gfxCreateFragmentProgram(strShader, ulProgram);
 }
 
 

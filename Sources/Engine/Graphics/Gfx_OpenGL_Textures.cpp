@@ -165,25 +165,25 @@ extern void UploadTexture_OGL(ULONG* pulTexture, PIX pixSizeU, PIX pixSizeV,
             if (pixSizeU == 0) pixSizeU = 1;
             if (pixSizeV == 0) pixSizeV = 1;
             pixSize = pixSizeU * pixSizeV;
-            __asm {
-                pxor    mm0, mm0
-                mov     esi, D[pulSrc]
-                mov     edi, D[pulDst]
-                mov     ecx, D[pixSize]
-                pixLoop:
-                movd    mm1, D[esi + 0]
-                    movd    mm2, D[esi + 4]
-                    punpcklbw mm1, mm0
-                    punpcklbw mm2, mm0
-                    paddw   mm1, mm2
-                    psrlw   mm1, 1
-                    packuswb mm1, mm0
-                    movd    D[edi], mm1
-                    add     esi, 4 * 2
-                    add     edi, 4
-                    dec     ecx
-                    jnz     pixLoop
-                    emms
+			
+            UBYTE *dptr = (UBYTE*)pulDst;
+            UBYTE *sptr = (UBYTE*)pulSrc;
+
+            for (PIX i = 0; i < pixSize; i++)
+            {
+                for (PIX j = 0; j < 4; j++)
+                {
+                    *dptr = (UBYTE)((((UWORD)sptr[0]) + ((UWORD)sptr[4])) >> 1);
+                    dptr++;
+                    sptr++;
+                }
+                sptr += 4;
+									   
+									  
+								  
+							   
+								   
+						
             }
             // upload mipmap
             if (bUseSubImage) {

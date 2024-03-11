@@ -43,25 +43,31 @@ properties:
  13 BOOL m_bUseWatcher            "Use watcher" = FALSE,    // use individual watcher
  14 BOOL m_bFlying                "Flying" 'F' = FALSE,     // flying model
  16 FLOAT m_fWaitTime = 0.0f,
+ 17 BOOL m_bInitialWait           "Use initial wait" = FALSE,    // wait for a little bit when spawned
+ 18 FLOAT m_fInitialWait1         "Initial wait time" = 2.0f,
+ 19 FLOAT m_fInitialWait2         "Additional wait time" = 1.0f,
 
  20 CTFileName m_fnMdl           "Model" 'M' = CTFILENAME("Models\\Editor\\Axis.mdl"),
  21 CTFileName m_fnTex           "Texture" 'X' = CTString(""),
- 22 ANIMATION m_iAnim            "Animation" =0,
+ 22 ANIMATION m_iAnim            "Animation" = 0,
+ 23 CTFileName m_fnSpecularTex   "Specular texture" = CTString(""),
+ 24 CTFileName m_fnReflectionTex "Reflection texture" = CTString(""),
+ 29 CTFileName m_fnBumpTex       "Bump texture" = CTString(""),
 
  25 CTFileName m_fnAtt1Mdl       "Attachment 1 Model" = CTString(""),
  26 CTFileName m_fnAtt1Tex       "Attachment 1 Texture" = CTString(""),
- 27 INDEX m_iAtt1Position        "Attachment 1 position"=0,
- 28 ANIMATION m_iAtt1Anim        "Attachment 1 animation"=0,
+ 27 INDEX m_iAtt1Position        "Attachment 1 position" = 0,
+ 28 ANIMATION m_iAtt1Anim        "Attachment 1 animation" = 0,
 
  30 CTFileName m_fnAtt2Mdl       "Attachment 2 Model" = CTString(""),
  31 CTFileName m_fnAtt2Tex       "Attachment 2 Texture" = CTString(""),
- 32 INDEX m_iAtt2Position        "Attachment 2 position"=1,
- 33 ANIMATION m_iAtt2Anim        "Attachment 2 animation"=0,
+ 32 INDEX m_iAtt2Position        "Attachment 2 position" = 1,
+ 33 ANIMATION m_iAtt2Anim        "Attachment 2 animation" = 0,
 
  35 CTFileName m_fnAtt3Mdl       "Attachment 3 Model" = CTString(""),
  36 CTFileName m_fnAtt3Tex       "Attachment 3 Texture" = CTString(""),
- 37 INDEX m_iAtt3Position        "Attachment 3 position"=1,
- 38 ANIMATION m_iAtt3Anim        "Attachment 3 animation"=0,
+ 37 INDEX m_iAtt3Position        "Attachment 3 position" = 1,
+ 38 ANIMATION m_iAtt3Anim        "Attachment 3 animation" = 0,
 
 components:
   1 class   CLASS_WATCHPLAYERS    "Classes\\WatchPlayers.ecl",
@@ -135,6 +141,71 @@ functions:
     // if got to end
     if (penNextTarget==NULL) {
       return FALSE;
+    }
+
+    CEnvironmentMarker *pem = (CEnvironmentMarker *)&*m_penTarget;
+    if(pem->m_penRandomTarget1 != NULL) {
+      switch(IRnd()%2) {
+        case 0: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+        case 1: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penRandomTarget1; break;
+        default: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+      }
+    }
+
+    if(pem->m_penRandomTarget2 != NULL) {
+      switch(IRnd()%2) {
+        case 0: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+        case 1: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penRandomTarget2; break;
+        default: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+      }
+    }
+
+    if(pem->m_penRandomTarget3 != NULL) {
+      switch(IRnd()%2) {
+        case 0: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+        case 1: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penRandomTarget3; break;
+        default: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+      }
+    }
+
+    if(pem->m_penRandomTarget4 != NULL) {
+      switch(IRnd()%2) {
+        case 0: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+        case 1: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penRandomTarget4; break;
+        default: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+      }
+    }
+
+    if(pem->m_penRandomTarget5 != NULL) {
+      switch(IRnd()%2) {
+        case 0: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+        case 1: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penRandomTarget5; break;
+        default: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+      }
+    }
+
+    if(pem->m_penRandomTarget6 != NULL) {
+      switch(IRnd()%2) {
+        case 0: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+        case 1: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penRandomTarget6; break;
+        default: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+      }
+    }
+
+    if(pem->m_penRandomTarget7 != NULL) {
+      switch(IRnd()%2) {
+        case 0: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+        case 1: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penRandomTarget7; break;
+        default: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+      }
+    }
+
+    if(pem->m_penRandomTarget8 != NULL) {
+      switch(IRnd()%2) {
+        case 0: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+        case 1: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penRandomTarget8; break;
+        default: m_penTarget = ((CEnvironmentMarker&)*m_penTarget).m_penTarget; break;
+      }
     }
 
     // remember next marker as current target
@@ -233,6 +304,15 @@ functions:
     GetModelObject()->PlayAnim(m_iAnim, AOF_LOOPING);
     if( m_fnTex != CTString("")) {
       GetModelObject()->mo_toTexture.SetData_t(m_fnTex);
+    }
+    if( m_fnSpecularTex != CTString("")) {
+      GetModelObject()->mo_toSpecular.SetData_t(m_fnSpecularTex);
+    }
+    if( m_fnReflectionTex != CTString("")) {
+      GetModelObject()->mo_toReflection.SetData_t(m_fnReflectionTex);
+    }
+    if( m_fnBumpTex != CTString("")) {
+      GetModelObject()->mo_toBump.SetData_t(m_fnBumpTex);
     }
 
     GetModelObject()->RemoveAllAttachmentModels();
@@ -387,6 +467,10 @@ procedures:
       PlayDefaultAnim();
       autocall MoveToMarker() EEnd;
 
+      // when reaching the marker
+      CEnvironmentMarker *pem = (CEnvironmentMarker *)&*m_penTarget;
+      SendToTarget(pem->m_penReachTarget, pem->m_eetReachType, this); // Send an event to death target.
+
       // if no more targets wait forever in last anim (if marker anim exist otherwise in default anim)
       if (m_penTarget==NULL || ((CEnvironmentMarker&)*m_penTarget).m_penTarget==NULL) {
         autowait();
@@ -417,7 +501,9 @@ procedures:
     Initialize();
 
     // wait until game starts
-    autowait(FRnd()*2.0f+1.0f);
+    if(m_bInitialWait) {
+      autowait(FRnd()*m_fInitialWait1+m_fInitialWait2);
+    }
 
     // initialize watcher
     if (m_bUseWatcher) {

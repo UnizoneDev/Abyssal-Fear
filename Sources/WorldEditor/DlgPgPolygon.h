@@ -56,6 +56,7 @@ public:
 	CCtrlEditBoolean	m_bSticky;
 	CCtrlEditBoolean	m_bBlockSight;
 	CCtrlEditBoolean	m_bBlockMelee;
+	CCtrlEditBoolean	m_bBlockHitscan;
 	//}}AFX_DATA
 
 

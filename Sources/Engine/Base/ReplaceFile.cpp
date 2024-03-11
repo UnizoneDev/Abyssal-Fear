@@ -875,7 +875,7 @@ void ReadModelInstanceNew_t(CTStream& strm, CModelInstance& mi, BOOL bMarkInStoc
     ReadAnimQueue_t(strm, mi);
     ReadColisionBoxes_t(strm, mi);
     ReadOffsetAndChildren_t(strm, mi);
-    strm.ExpectID_t("ME03"); // model instance end 02
+    strm.ExpectID_t("ME03"); // model instance end 03
 }
 
 void ReadModelInstance_t(CTStream& strm, CModelInstance& mi, BOOL bMarkInStock)

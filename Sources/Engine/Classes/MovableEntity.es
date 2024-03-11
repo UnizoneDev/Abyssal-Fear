@@ -1600,13 +1600,16 @@ out:;
     _pfPhysicsProfile.StartTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
     _pfPhysicsProfile.IncrementTimerAveragingCounter(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
 
+    en_ulPhysicsFlags |= EPF_ONLADDER;
+
     // use only vertical components of the movement
     FLOAT3D vTranslationVertical;
     GetParallelComponent(vTranslationAbsolute, en_vGravityDir, vTranslationVertical);
 
-    //CPrintF("Trying: (%g) ", vTranslationVertical(2));
+    //CPrintF("Trying: (%g) ", vTranslationVertical(3));
     // if the movement has no substantial value
     if(vTranslationVertical.Length()<0.001f) {
+      en_ulPhysicsFlags &=~EPF_ONLADDER;
       //CPrintF("no value\n");
       // don't do it
       _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
@@ -1728,6 +1731,7 @@ out:;
         // move is unsuccessful
         _pfPhysicsProfile.StopTimer(CPhysicsProfile::PTI_TRYTOCLIMBLADDER);
         //CPrintF("FAILED\n");
+        en_ulPhysicsFlags &=~EPF_ONLADDER;
         return FALSE;
       }
 
@@ -2021,6 +2025,8 @@ out:;
           ASSERT(IsValidFloat(vSliding(1)));
           ASSERT(IsValidFloat(_vSlideDir(1)));
           ASSERT(IsValidFloat(_vSlideOffDir(1)));
+
+          en_ulPhysicsFlags &=~EPF_ONLADDER;
 
           // if entity hit a brush polygon
           if (cmMove.cm_pbpoHit!=NULL) {

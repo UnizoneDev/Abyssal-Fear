@@ -22,16 +22,17 @@ uses "EntitiesMP/EnemyBase";
 uses "EntitiesMP/Projectile";
 
 enum CustomEnemyBehaviorType {
-  0 CEBT_CHASER    "Chaser",          // chaser variant
-  1 CEBT_MELEE     "Melee Grunt",     // melee only variant
-  2 CEBT_RANGED    "Ranged Grunt",    // melee and ranged variant
-  3 CEBT_DEFENSIVE "Defensive Grunt", // melee only variant that can block attacks
-  4 CEBT_LEAP      "Leaping Grunt",   // melee only variant that can leap or charge
-  5 CEBT_STRAFE    "Strafing Grunt",  // melee only variant that can strafe and backpedal
-  6 CEBT_TACTICAL  "Tactical Grunt",  // melee and ranged variant that can strafe and backpedal
-  7 CEBT_WANDER    "Wanderer",        // wanderer variant
-  8 CEBT_CHARGER   "Charger",         // melee only variant that can rush
-  9 CEBT_COMBAT    "Combative Grunt", // melee only variant that can block attacks, strafe and backpedal
+  0 CEBT_CHASER        "Chaser",          // chaser variant
+  1 CEBT_MELEE         "Melee Grunt",     // melee only variant
+  2 CEBT_RANGED        "Ranged Grunt",    // melee and ranged variant
+  3 CEBT_DEFENSIVE     "Defensive Grunt", // melee only variant that can block attacks
+  4 CEBT_LEAP          "Leaping Grunt",   // melee only variant that can leap or charge
+  5 CEBT_STRAFE        "Strafing Grunt",  // melee only variant that can strafe and backpedal
+  6 CEBT_TACTICAL      "Tactical Grunt",  // melee and ranged variant that can strafe and backpedal
+  7 CEBT_WANDER        "Wanderer",        // wanderer variant
+  8 CEBT_CHARGER       "Charger",         // melee only variant that can rush
+  9 CEBT_COMBAT        "Combative Grunt", // melee only variant that can block attacks, strafe and backpedal
+ 10 CEBT_COMBATRANGED  "Ranged Combative Grunt", // melee and ranged variant that can block attacks, strafe and backpedal
 };
 
 enum CustomEnemySizeType {
@@ -51,19 +52,19 @@ static EntityInfo eiCustomEnemy = {
 };
 
 static EntityInfo eiCustomEnemyTall = {
-  EIBT_FLESH, 200.0f,
+  EIBT_FLESH, 400.0f,
   0.0f, 2.0f, 0.0f,     // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };
 
 static EntityInfo eiCustomEnemyShort = {
-  EIBT_FLESH, 200.0f,
+  EIBT_FLESH, 150.0f,
   0.0f, 1.5f, 0.0f,     // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };
 
 static EntityInfo eiCustomEnemyTiny = {
-  EIBT_FLESH, 200.0f,
+  EIBT_FLESH, 150.0f,
   0.0f, 1.25f, 0.0f,    // source (eyes)
   0.0f, 1.0f, 0.0f,     // target (body)
 };
@@ -79,7 +80,6 @@ properties:
   1 BOOL m_bFistHit = FALSE,
   2 enum CustomEnemyBehaviorType m_cebtAIType "Behavior Type" = CEBT_CHASER,
  72 enum CustomEnemySizeType m_cestSizeType "Size Type" = CEST_NORMAL,
-  3 BOOL m_bAllowInfighting "Allow Infighting" = FALSE,
   4 FLOAT m_fCustomHealth "Custom Health" = 100.0f,
   5 FLOAT m_fCustomDamageWounded "Custom Wounded Damage" = 150.0f,
   6 FLOAT m_fCustomWalkSpeed "Custom Walk Speed" = 3.0f,
@@ -152,6 +152,9 @@ properties:
  69 FLOAT m_fCustomRangedEndTime   "Custom Ranged End Time" = 0.50f,
  70 FLOAT m_fCustomRangedLockOnTime  "Custom Ranged Lock On Time" = 0.50f,
  71 FLOAT m_fCustomStrafeTime        "Custom Strafe Time" = 1.0f,
+ 73 FLOAT m_fCustomProjectileY  "Custom Projectile Y Position" = 1.0f,
+ 74 FLOAT m_fCustomProjectileX  "Custom Projectile X Position" = 0.0f,
+ 75 FLOAT m_fCustomProjectileZ  "Custom Projectile Z Position" = 0.0f,
 
   {
     CTextureObject m_toCustomTexture;
@@ -497,11 +500,11 @@ functions:
 
   Fire(EVoid) : CEnemyBase::Fire
   {
-    if(m_cebtAIType == CEBT_RANGED || m_cebtAIType == CEBT_TACTICAL) {
+    if(m_cebtAIType == CEBT_RANGED || m_cebtAIType == CEBT_TACTICAL || m_cebtAIType == CEBT_COMBATRANGED) {
       autocall RangedAttack() EEnd;
     }
 
-    if(m_cebtAIType == CEBT_TACTICAL) {
+    if(m_cebtAIType == CEBT_TACTICAL || m_cebtAIType == CEBT_COMBATRANGED) {
       m_fLockOnEnemyTime = m_fCustomStrafeTime;
 
       m_iRandomMovementChoice = IRnd()%m_iStrafeChance;
@@ -520,7 +523,7 @@ functions:
   {
     INDEX iRandomChoice = IRnd()%m_iMeleeBlockChance;
 
-    if(m_cebtAIType == CEBT_DEFENSIVE || m_cebtAIType == CEBT_COMBAT) {
+    if(m_cebtAIType == CEBT_DEFENSIVE || m_cebtAIType == CEBT_COMBAT || m_cebtAIType == CEBT_COMBATRANGED) {
       if(iRandomChoice == 1) {
         autocall BlockEnemyMelee() EReturn;
         return EReturn();
@@ -531,7 +534,7 @@ functions:
       autocall MeleeAttack() EEnd;
     }
 
-    if(m_cebtAIType == CEBT_STRAFE || m_cebtAIType == CEBT_TACTICAL || m_cebtAIType == CEBT_COMBAT) {
+    if(m_cebtAIType == CEBT_STRAFE || m_cebtAIType == CEBT_TACTICAL || m_cebtAIType == CEBT_COMBAT || m_cebtAIType == CEBT_COMBATRANGED) {
       m_fLockOnEnemyTime = m_fCustomStrafeTime;
 
       m_iRandomMovementChoice = IRnd()%m_iStrafeChance;
@@ -579,7 +582,7 @@ functions:
     autowait(m_fCustomRangedStartTime + FRnd()/4);
 
     StartModelAnim(m_iEnemyRangedAnim, 0);
-    ShootProjectile(m_ptCustomProjectile, FLOAT3D(0.0f, 1.0f, 0.0f), ANGLE3D(0, 0, 0));
+    ShootProjectile(m_ptCustomProjectile, FLOAT3D(m_fCustomProjectileX, m_fCustomProjectileY, m_fCustomProjectileZ), ANGLE3D(0, 0, 0));
     PlaySound(m_soSound, m_fnmFireSound, SOF_3D);
 
     autowait(m_fCustomRangedEndTime + FRnd()/3);

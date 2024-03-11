@@ -88,7 +88,7 @@ enum DamageType {
   22 DMT_BLUNT      "Blunt",        // caused by blunt weapons
   23 DMT_STING      "Sting",        // caused by an abomination stinging their target
   24 DMT_RIFLE      "Rifle Bullets",  // caused by stronger bullets from rifles
-  25 DMT_PUNCH      "Punch",          // caused by a gnaw beast's strong fists
+  25 DMT_PUNCH      "Punch",          // caused by a gnaw beast's strong fists or an unblockable blunt attack
   26 DMT_SHARPSTRONG "Sharp Strong",  // caused by an unblockable bladed attack
 9999 DMT_NONE       "no damage",    // internal
 };
@@ -109,6 +109,13 @@ enum DamageBodyPartType {
  12 DBPT_RIGHTLEG     "",
  13 DBPT_RIGHTHAND    "",
  14 DBPT_RIGHTARM     "",
+ 15 DBPT_RIGHTLOWERLEG     "",
+ 16 DBPT_RIGHTLOWERARM     "",
+ 17 DBPT_LEFTLOWERLEG      "",
+ 18 DBPT_LEFTLOWERARM      "",
+ 19 DBPT_BACK              "",     // I've fallen and I can't get up!
+ 20 DBPT_TAIL              "",     // Poor Tom.
+ 21 DBPT_FACE              "",     // Do you kiss jesus with that mouth?
 };
 
 event EDamage {  // entity has been damaged

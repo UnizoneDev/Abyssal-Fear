@@ -120,8 +120,8 @@ SHADER_MAIN(Distortion)
     {
         for (INDEX itxc = 0; itxc < ctTexCoords; itxc++)
         {
-            ptxcNew[itxc].u = ptxcOld[itxc].v * fMulDistortion * sin((ptxcNew[itxc].u + (_pTimer->GetLerpedCurrentTick() * fDistortionAmount)));
-            ptxcNew[itxc].v = ptxcOld[itxc].u * fMulDistortion * sin((ptxcNew[itxc].v + (_pTimer->GetLerpedCurrentTick() * fDistortionAmount)));
+            ptxcNew[itxc].u = ptxcOld[itxc].u * fMulDistortion * sin((ptxcNew[itxc].u + (_pTimer->GetLerpedCurrentTick() * fDistortionAmount)));
+            ptxcNew[itxc].v = ptxcOld[itxc].v * fMulDistortion * sin((ptxcNew[itxc].v + (_pTimer->GetLerpedCurrentTick() * fDistortionAmount)));
         }
 
         shaSetTexCoords(ptxcNew);

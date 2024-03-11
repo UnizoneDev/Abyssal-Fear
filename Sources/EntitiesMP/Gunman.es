@@ -469,6 +469,7 @@ functions:
     crRay.cr_bHitTranslucentPortals = FALSE;
     crRay.cr_bHitBlockSightPortals = TRUE;
     crRay.cr_bHitBlockMeleePortals = FALSE;
+    crRay.cr_bHitBlockHitscanPortals = TRUE;
     en_pwoWorld->CastRay(crRay);
 
     // if hit nothing (no brush) the entity can be seen

@@ -1423,7 +1423,7 @@ void RM_SetLightDirection(FLOAT3D &vLightDir)
   _vLightDir = vLightDir * (-1);
 }
 
-// calculate object matrices for givem model instance
+// calculate object matrices for given model instance
 void RM_SetObjectMatrices(CModelInstance &mi)
 {
   ULONG ulFlags = RM_GetRenderFlags();
@@ -2522,6 +2522,7 @@ void RM_RenderSKA(CModelInstance &mi)
 
   extern INDEX ska_bShowColision;
   extern INDEX ska_bShowSkeleton;
+  extern INDEX ska_bShowBBox;			 
 
   // show skeleton
   if(ska_bShowSkeleton || RM_GetFlags() & RMF_SHOWSKELETON) {
@@ -2550,6 +2551,13 @@ void RM_RenderSKA(CModelInstance &mi)
     }
   }
 
+  // show all frames bounding box
+  if (ska_bShowBBox) {
+      RM_SetObjectMatrices(mi);
+      ColisionBox &cbAllFrames = mi.mi_cbAllFramesBBox;
+      RM_RenderColisionBox(mi, cbAllFrames, C_mlRED);
+  }
+  
   // reset arrays
   ClearRenArrays();
 }

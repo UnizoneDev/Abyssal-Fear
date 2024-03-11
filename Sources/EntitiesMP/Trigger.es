@@ -63,6 +63,7 @@ properties:
  18 enum MessageFont m_mfType "Font Type" = FNT_NORMAL,
  100 FLOAT m_fMessagePosX "Message Position X" = 0.5f,
  101 FLOAT m_fMessagePosY "Message Position Y" = 0.85f,
+ 102 enum MessagePosition m_mpType "Message Alignment Type" = POS_CENTER,
 
  30 FLOAT m_fWaitTime             "Wait" 'W' = 0.0f,          // wait before send events
  31 BOOL m_bAutoStart             "Auto start" 'A' = FALSE,   // trigger auto starts
@@ -84,6 +85,7 @@ properties:
  92 FLOAT m_tmLastTriggered          = 0.0f,
  93 FLOAT m_fRandDelayFactor      "Random delay factor"    = 0.5f,
  94 FLOAT m_fWaitInternal = 1.0f,
+ 103 FLOAT m_fRandomWaitTime      "Random Wait" = 0.0f,          // randomizer value for wait
 
 
 components:
@@ -158,7 +160,7 @@ functions:
         {
             PrintCenterMessage(this, m_penCaused, 
               TranslateConst(m_strMessage), 
-              m_fMessageTime, m_mssMessageSound, m_mfType, m_fMessagePosX, m_fMessagePosY);
+              m_fMessageTime, m_mssMessageSound, m_mfType, m_fMessagePosX, m_fMessagePosY, m_mpType);
         }
       }
     }
@@ -203,8 +205,13 @@ procedures:
     // if needed wait some time before event is send
     if (m_fWaitTime > 0.0f)
     {
-      
-      wait (m_fWaitTime) {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }
@@ -283,7 +290,7 @@ procedures:
             } else if (m_bTellCount) {
               CTString strRemaining;
               strRemaining.PrintF(TRANS("%d more to go..."), m_iCountTmp);
-              PrintCenterMessage(this, m_penCaused, strRemaining, 3.0f, MSS_NONE, FNT_NORMAL, m_fMessagePosX, m_fMessagePosY);
+              PrintCenterMessage(this, m_penCaused, strRemaining, 3.0f, MSS_NONE, FNT_NORMAL, m_fMessagePosX, m_fMessagePosY, m_mpType);
             }
           }
         // else send event

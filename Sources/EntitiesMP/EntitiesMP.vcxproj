@@ -198,6 +198,8 @@
     <ClCompile Include="CustomFire.cpp" />
     <ClCompile Include="DateChecker.cpp" />
     <ClCompile Include="DeadFace.cpp" />
+	<ClCompile Include="DebrisSka.cpp" />
+    <ClCompile Include="Decal.cpp" />
     <ClCompile Include="DoomImp.cpp" />
     <ClCompile Include="EnemySquad.cpp" />
     <ClCompile Include="EnemyTouchField.cpp" />
@@ -213,7 +215,6 @@
 	<ClCompile Include="InventoryItem.cpp" />
     <ClCompile Include="Kahari.cpp" />
     <ClCompile Include="Korotuprok.cpp" />
-    <ClCompile Include="LadderBrush.cpp" />
     <ClCompile Include="LoopingTrigger.cpp" />
     <ClCompile Include="Mihulai.cpp" />
     <ClCompile Include="MutantFreak.cpp" />
@@ -869,9 +870,13 @@
     <ClInclude Include="DeadFace.h" />
     <ClInclude Include="DeadFace_tables.h" />
     <ClInclude Include="Debris.h" />
+	<ClInclude Include="DebrisSka.h" />
+    <ClInclude Include="DebrisSka_tables.h" />
     <ClInclude Include="Debris_tables.h" />
     <ClInclude Include="DebugEntityStatesDisplay.h" />
     <ClInclude Include="DebugEntityStatesDisplay_tables.h" />
+	<ClInclude Include="Decal.h" />
+    <ClInclude Include="Decal_tables.h" />
     <ClInclude Include="DoomImp.h" />
     <ClInclude Include="DoomImp_tables.h" />
     <ClInclude Include="DoorController.h" />
@@ -952,8 +957,6 @@
     <ClInclude Include="KeyItem_tables.h" />
     <ClInclude Include="Korotuprok.h" />
     <ClInclude Include="Korotuprok_tables.h" />
-    <ClInclude Include="LadderBrush.h" />
-    <ClInclude Include="LadderBrush_tables.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Lightning.h" />
     <ClInclude Include="Lightning_tables.h" />
@@ -1753,17 +1756,6 @@ ecc EntitiesMP/%(Filename).es </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="LadderBrush.es">
-      <FileType>Document</FileType>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
-ecc EntitiesMP/%(Filename).es </Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
-ecc EntitiesMP/%(Filename).es </Command>
     </CustomBuild>
     <CustomBuild Include="Light.es">
       <FileType>Document</FileType>
@@ -2754,6 +2746,32 @@ ecc EntitiesMP/%(Filename).es </Command>
   </ItemGroup>																							 
 <ItemGroup>
     <CustomBuild Include="InfernalSpecter.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+<ItemGroup>
+    <CustomBuild Include="Decal.es">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">cd $(SolutionDir)
+ecc EntitiesMP/%(Filename).es </Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">EntitiesMP/%(Filename).es</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="DebrisSka.es">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">cd $(SolutionDir)
 ecc EntitiesMP/%(Filename).es </Command>

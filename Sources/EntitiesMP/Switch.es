@@ -303,12 +303,11 @@ procedures:
               ULONG ulKey = (1<<INDEX(m_kitKey));
               if (penPlayer->m_ulKeys&ulKey) {
                 // use the key
-                penPlayer->m_ulKeys&=~ulKey;
                 SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
               } else {
                 PlayUseSound();
                 if (m_strUseMessage!="") {
-                  PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+                  PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
                 }
                 if(m_penUseTarget != NULL) {
                   SendToTarget(m_penUseTarget, m_eetEvent, eTrigger.penCaused);
@@ -339,7 +338,7 @@ procedures:
 
         if (CanReactOnEntity(eLock.penCaused) && m_bUseable) {
           if (m_strLockedMessage!="") {
-            PrintCenterMessage(this, eLock.penCaused, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+            PrintCenterMessage(this, eLock.penCaused, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
           }
           if(m_penLockedTarget != NULL) {
             SendToTarget(m_penLockedTarget, m_eetEvent, eLock.penCaused);
@@ -354,7 +353,7 @@ procedures:
 
         if (CanReactOnEntity(eUnlock.penCaused) && m_bUseable) {
           if (m_strUnlockedMessage!="") {
-            PrintCenterMessage(this, eUnlock.penCaused, TranslateConst(m_strUnlockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+            PrintCenterMessage(this, eUnlock.penCaused, TranslateConst(m_strUnlockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
           }
           if(m_penUnlockedTarget != NULL) {
             SendToTarget(m_penUnlockedTarget, m_eetEvent, eUnlock.penCaused);
@@ -397,12 +396,11 @@ procedures:
               ULONG ulKey = (1<<INDEX(m_kitKey));
               if (penPlayer->m_ulKeys&ulKey) {
                 // use the key
-                penPlayer->m_ulKeys&=~ulKey;
                 SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
               } else {
                 PlayUseSound();
                 if (m_strUseMessage!="") {
-                  PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+                  PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
                 }
                 if(m_penUseTarget != NULL) {
                   SendToTarget(m_penUseTarget, m_eetEvent, eTrigger.penCaused);
@@ -446,7 +444,7 @@ procedures:
 
         if (CanReactOnEntity(eLock.penCaused) && m_bUseable) {
           if (m_strLockedMessage!="") {
-            PrintCenterMessage(this, eLock.penCaused, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+            PrintCenterMessage(this, eLock.penCaused, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
           }
           if(m_penLockedTarget != NULL) {
             SendToTarget(m_penLockedTarget, m_eetEvent, eLock.penCaused);
@@ -461,7 +459,7 @@ procedures:
 
         if (CanReactOnEntity(eUnlock.penCaused) && m_bUseable) {
           if (m_strUnlockedMessage!="") {
-            PrintCenterMessage(this, eUnlock.penCaused, TranslateConst(m_strUnlockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+            PrintCenterMessage(this, eUnlock.penCaused, TranslateConst(m_strUnlockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
           }
           if(m_penUnlockedTarget != NULL) {
             SendToTarget(m_penUnlockedTarget, m_eetEvent, eUnlock.penCaused);

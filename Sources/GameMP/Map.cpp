@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "LCDDrawing.h"
 
 static CTextureObject atoIconsUZ[26];
+static CTextureObject toLoadingScreen;
 
 PIX aIconCoordsUZ[][2] =
 {
@@ -111,59 +112,9 @@ BOOL ObtainMapData(void)
 {
     try {
         // the second encounter
-        atoIconsUZ[0].SetData_t(CTFILENAME("Levels\\LevelsMP\\LimboStart.tex"));
-        atoIconsUZ[1].SetData_t(CTFILENAME("Levels\\LevelsMP\\LimboCave.tex"));
-        atoIconsUZ[2].SetData_t(CTFILENAME("Levels\\LevelsMP\\LimboTemple.tex"));
-        atoIconsUZ[3].SetData_t(CTFILENAME("Levels\\LevelsMP\\LimboNearEnd.tex"));
-        atoIconsUZ[4].SetData_t(CTFILENAME("Levels\\LevelsMP\\LimboEnd.tex"));
-        atoIconsUZ[5].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level05.tex"));
-        atoIconsUZ[6].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level06.tex"));
-        atoIconsUZ[7].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level07.tex"));
-        atoIconsUZ[8].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level08.tex"));
-        atoIconsUZ[9].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level09.tex"));
-        atoIconsUZ[10].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level10.tex"));
-        atoIconsUZ[11].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level11.tex"));
-        atoIconsUZ[12].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level12.tex"));
-        atoIconsUZ[13].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level13.tex"));
-        atoIconsUZ[14].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level14.tex"));
-        atoIconsUZ[15].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level15.tex"));
-        atoIconsUZ[16].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level16.tex"));
-        atoIconsUZ[17].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level17.tex"));
-        atoIconsUZ[18].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level18.tex"));
-        atoIconsUZ[19].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level19.tex"));
-        atoIconsUZ[20].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level20.tex"));
-        atoIconsUZ[21].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level21.tex"));
-        atoIconsUZ[22].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level22.tex"));
-        atoIconsUZ[23].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level23.tex"));
-        atoIconsUZ[24].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level24.tex"));
-        atoIconsUZ[25].SetData_t(CTFILENAME("TexturesMP\\Computer\\Map\\Level25.tex"));
+        toLoadingScreen.SetData_t(CTFILENAME("TexturesMP\\General\\LoadingScreen.tex"));
         // force constant textures
-        ((CTextureData*)atoIconsUZ[0].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[1].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[2].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[3].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[4].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[5].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[6].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[7].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[8].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[9].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[10].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[11].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[12].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[13].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[14].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[15].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[16].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[17].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[18].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[19].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[20].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[21].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[22].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[23].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[24].GetData())->Force(TEX_CONSTANT);
-        ((CTextureData*)atoIconsUZ[25].GetData())->Force(TEX_CONSTANT);
+        ((CTextureData*)toLoadingScreen.GetData())->Force(TEX_CONSTANT);
     }
     catch (char* strError) {
         CPrintF("%s\n", strError);
@@ -174,54 +125,21 @@ BOOL ObtainMapData(void)
 
 void ReleaseMapData(void)
 {
-    atoIconsUZ[0].SetData(NULL);
-    atoIconsUZ[1].SetData(NULL);
-    atoIconsUZ[2].SetData(NULL);
-    atoIconsUZ[3].SetData(NULL);
-    atoIconsUZ[4].SetData(NULL);
-    atoIconsUZ[5].SetData(NULL);
-    atoIconsUZ[6].SetData(NULL);
-    atoIconsUZ[7].SetData(NULL);
-    atoIconsUZ[8].SetData(NULL);
-    atoIconsUZ[9].SetData(NULL);
-    atoIconsUZ[10].SetData(NULL);
-    atoIconsUZ[11].SetData(NULL);
-    atoIconsUZ[12].SetData(NULL);
-    atoIconsUZ[13].SetData(NULL);
-    atoIconsUZ[14].SetData(NULL);
-    atoIconsUZ[15].SetData(NULL);
-    atoIconsUZ[16].SetData(NULL);
-    atoIconsUZ[17].SetData(NULL);
-    atoIconsUZ[18].SetData(NULL);
-    atoIconsUZ[19].SetData(NULL);
-    atoIconsUZ[20].SetData(NULL);
-    atoIconsUZ[21].SetData(NULL);
-    atoIconsUZ[22].SetData(NULL);
-    atoIconsUZ[23].SetData(NULL);
-    atoIconsUZ[24].SetData(NULL);
-    atoIconsUZ[25].SetData(NULL);
+    toLoadingScreen.SetData(NULL);
 }
 
-void RenderMap(CDrawPort* pdp, ULONG ulLevelMask, CProgressHookInfo* pphi)
+void RenderMap(CDrawPort* pdp, CProgressHookInfo* pphi)
 {
     if (!ObtainMapData())
     {
         ReleaseMapData();
         return;
-    }
-
-    PIX(*aIconCoords)[2] = aIconCoordsUZ;
-    CTextureObject* atoIcons = atoIconsUZ;
-    INDEX(*aPathPrevNextLevels)[2] = aPathPrevNextLevelsUZ;
-
-    CTextureObject* atoUZIcons = atoIconsUZ;
-
-    INDEX ctLevels = ARRAYCOUNT(aIconCoordsUZ);
+    }								   
 
     PIX pixdpw = pdp->GetWidth();
     PIX pixdph = pdp->GetHeight();
     PIX imgw = 512;
-    PIX imgh = 480;
+    PIX imgh = 512;
     FLOAT fStretch = 0.25f;
 
     // determine max available picture stretch
@@ -240,22 +158,15 @@ void RenderMap(CDrawPort* pdp, ULONG ulLevelMask, CProgressHookInfo* pphi)
     PIX pixSY = Max(PIX((pixdph - imgh * fStretch) / 2), PIX(0));
 
     PIX pixC1S = pixSX;                       // column 1 start pixel
-    PIX pixR1S = pixSY;                       // raw 1 start pixel
-
-    for (INDEX iIcon = 0; iIcon < ctLevels; iIcon++)
-    {
-        // if level's icon should be rendered
-        if (ulLevelMask & (1UL << iIcon))
-        {
-            PIX pixX = aIconCoords[iIcon][0] * fStretch + pixC1S;
-            PIX pixY = aIconCoords[iIcon][1] * fStretch + pixR1S;
-            CTextureObject* pto = &atoIcons[iIcon];
-            PIX pixImgW = ((CTextureData*)pto->GetData())->GetPixWidth() * fStretch;
-            PIX pixImgH = ((CTextureData*)pto->GetData())->GetPixHeight() * fStretch;
-            pdp->PutTexture(pto, PIXaabbox2D(PIX2D(pixX, pixY), PIX2D(pixX + pixImgW, pixY + pixImgH)), C_WHITE | 255);
-        }
-    }
-
+    PIX pixR1S = pixSY;                       // raw 1 start pixel							 
+		 
+    PIX pixX = 0 * fStretch + pixC1S;
+    PIX pixY = 0 * fStretch + pixR1S;
+    CTextureObject* pto = &toLoadingScreen;
+    PIX pixImgW = ((CTextureData*)pto->GetData())->GetPixWidth() * fStretch;
+    PIX pixImgH = ((CTextureData*)pto->GetData())->GetPixHeight() * fStretch;
+    pdp->PutTexture(pto, PIXaabbox2D(PIX2D(pixX, pixY), PIX2D(pixX + pixImgW, pixY + pixImgH)), C_WHITE | 255);
+		 
     if (pphi != NULL)
     {
         // set font
@@ -264,10 +175,10 @@ void RenderMap(CDrawPort* pdp, ULONG ulLevelMask, CProgressHookInfo* pphi)
         pdp->SetTextAspect(1.0f);
 
         INDEX iPosX, iPosY;
-        COLOR colText = RGBToColor(200, 128, 56) | CT_OPAQUE;
+        COLOR colText = RGBToColor(255, 255, 255) | CT_OPAQUE;
 
         iPosX = 200;
-        iPosY = 330;
+        iPosY = 400;
 
         PIX pixhtcx = pixC1S + iPosX * fStretch;
         PIX pixhtcy = pixR1S + iPosY * fStretch;

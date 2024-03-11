@@ -30,6 +30,10 @@ event ESpawnSpray {
   COLOR colBurnColor,              // burn color
 };
 
+%{
+  extern FLOAT sam_tmSprayFadeWait;
+%}
+
 class CBloodSpray: CRationalEntity {
 name      "Blood Spray";
 thumbnail "";
@@ -174,10 +178,10 @@ procedures:
       m_fGA = 30.0f;
     }
 
-    FLOAT fWaitTime = 4.0f;
+    FLOAT fWaitTime = sam_tmSprayFadeWait;
     if( m_sptType==SPT_ELECTRICITY_SPARKS || m_sptType==SPT_ELECTRICITY_SPARKS_NO_BLOOD)
     {
-      fWaitTime = 4.0f;
+      fWaitTime = sam_tmSprayFadeWait;
     }
     autowait(fWaitTime);
     Destroy();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep.
+/* Copyright (c) 2021-2024 Uni Musuotankarep
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -124,7 +124,7 @@ void AdjustBones(void) {
     FLOAT fPitchTowardsPlayer = GetRelativePitch(-vToPlayer); // CEnemyBase method
 
     fHeadingTowardsPlayer = Clamp(fHeadingTowardsPlayer, -45.0f, 45.0f); // Limit
-    fPitchTowardsPlayer = Clamp(fPitchTowardsPlayer, -45.0f, -30.0f); // Limit
+    fPitchTowardsPlayer = Clamp(fPitchTowardsPlayer, -15.0f, 15.0f); // Limit
 
     FLOAT fDiff = fHeadingTowardsPlayer - m_fToPlayer;
     FLOAT fDiffPitch = fPitchTowardsPlayer - m_fToPlayerPitch;
@@ -136,7 +136,7 @@ void AdjustBones(void) {
     if (rb != NULL) {
         // Set rotation via quaternion
         FLOATquat3D quat;
-        quat.FromEuler(ANGLE3D(0.0f, m_fToPlayerPitch, -m_fToPlayer));
+        quat.FromEuler(ANGLE3D(0.0f, -m_fToPlayerPitch, -m_fToPlayer));
         rb->rb_arRot.ar_qRot = quat;
     }
 }

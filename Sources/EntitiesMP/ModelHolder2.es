@@ -589,18 +589,18 @@ functions:
     case ST_NONE:
       {
         SetFlags(GetFlags()&~ENF_CLUSTERSHADOWS);
-        //SetFlags(GetFlags()&~ENF_POLYGONALSHADOWS);
+        SetFlags(GetFlags()&~ENF_POLYGONALSHADOWS);
         break;
       }
     case ST_CLUSTER:
       {
         SetFlags(GetFlags()|ENF_CLUSTERSHADOWS);
-        //SetFlags(GetFlags()&~ENF_POLYGONALSHADOWS);
+        SetFlags(GetFlags()&~ENF_POLYGONALSHADOWS);
         break;
       }
     case ST_POLYGONAL:
       {
-        //SetFlags(GetFlags()|ENF_POLYGONALSHADOWS);
+        SetFlags(GetFlags()|ENF_POLYGONALSHADOWS);
         SetFlags(GetFlags()&~ENF_CLUSTERSHADOWS);
         break;
       }

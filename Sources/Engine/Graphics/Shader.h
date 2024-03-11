@@ -205,25 +205,6 @@ ENGINE_API void shaDepthFunc(GfxComp eComp);
 // Set texture wrapping 
 ENGINE_API void shaSetTextureWrapping( enum GfxWrap eWrapU, enum GfxWrap eWrapV);
 
-// Set if shaders are used
-ENGINE_API BOOL shaUseHWShaders(void);
-ENGINE_API BOOL shaUseVertexShaders(void);
-ENGINE_API BOOL shaUseFragmentShaders(void);
-
-// Enable/Disable vertex and fragment shaders
-ENGINE_API void shaEnableVertexShaders(void);
-ENGINE_API void shaEnableFragmentShaders(void);
-ENGINE_API void shaDisableVertexShaders(void);
-ENGINE_API void shaDisableFragmentShaders(void);
-
-// Get/Set shader variables
-ENGINE_API ULONG shaGetProgram(void);
-ENGINE_API void shaSetProgram(ULONG ulProgram);
-ENGINE_API void shaSetProgramIndex(const char* strUniform, INDEX iIndex);
-ENGINE_API void shaSetProgramFloat(const char* strUniform, FLOAT fFloat);
-ENGINE_API void shaCreateVertexShader(const char* strShader, ULONG ulProgram);
-ENGINE_API void shaCreateFragmentShader(const char* strShader, ULONG ulProgram);
-
 // Set uvmap for fog
 ENGINE_API void shaSetFogUVMap(GFXTexCoord *paFogUVMap);
 // Set uvmap for haze
@@ -233,6 +214,22 @@ ENGINE_API void shaSetHazeColorArray(GFXColor *paHazeColors);
 
 // Is overbrightning enabled
 ENGINE_API BOOL shaOverBrightningEnabled(void);
+// [Uni] Set if shaders are used
+ENGINE_API BOOL shaUseHWShaders(void);
+ENGINE_API BOOL shaUseVertexShaders(void);
+ENGINE_API BOOL shaUseFragmentShaders(void);
+
+// [Uni] Enable/Disable vertex and fragment shaders
+ENGINE_API void shaEnableVertexShaders(void);
+ENGINE_API void shaEnableFragmentShaders(void);
+ENGINE_API void shaDisableVertexShaders(void);
+ENGINE_API void shaDisableFragmentShaders(void);
+
+// [Uni] Get/Set shader variables
+ENGINE_API ULONG shaGetProgram(void);
+ENGINE_API void shaSetProgram(ULONG ulProgram);
+ENGINE_API void shaSetProgramIndex(const char* strUniform, INDEX iIndex);
+ENGINE_API void shaSetProgramFloat(const char* strUniform, FLOAT fFloat);
 
 #if (defined _MSC_VER)
  #define DECLSPEC_DLLEXPORT _declspec (dllexport)

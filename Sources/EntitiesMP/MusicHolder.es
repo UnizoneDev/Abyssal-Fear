@@ -19,7 +19,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/EnemyBase.h"
 #include "EntitiesMP/EnemySpawner.h"
 #include "EntitiesMP/Trigger.h"
-#include "EntitiesMP/Woman.h"
 %}
 
 
@@ -145,10 +144,6 @@ functions:
         if (!penEnemy->m_bTemplate) {
           // count one
           m_ctEnemiesInWorld++;
-		      // if this is a woman kamikaze carrier, add another one to count
-		      if (IsOfClass(pen, "Woman")) {
-			      if (((CWoman *)&*pen)->m_bKamikazeCarrier) { m_ctEnemiesInWorld++; }
-		      }
         }
       // if spawner
       } else if (IsDerivedFromClass(pen, "Enemy Spawner")) {
@@ -157,12 +152,6 @@ functions:
         if (penSpawner->m_estType!=EST_TELEPORTER) {
           // add total count
           m_ctEnemiesInWorld+=penSpawner->m_ctTotal;
-          // if this spawner points to a woman kamikaze carrier template, increase count once more
-          if (penSpawner->m_penTarget) {
-            if (IsOfClass(penSpawner->m_penTarget, "Woman")) {
-              if (((CWoman *)&*penSpawner->m_penTarget)->m_bKamikazeCarrier) { m_ctEnemiesInWorld+=penSpawner->m_ctTotal; }
-            }
-          }
         }
       // if trigger
       } else if (IsDerivedFromClass(pen, "Trigger")) {

@@ -318,7 +318,7 @@ struct PlayerControls {
   BOOL bWeaponPrev;
   BOOL bWeaponFlip;
   
-  BOOL bWalk;
+  BOOL bRun;
   BOOL bStrafe;
   BOOL bFire;
   BOOL bAltFire;
@@ -427,8 +427,12 @@ static FLOAT ctl_fButtonRotationSpeedB = 150.0f;
 // modifier for axis strafing
 static FLOAT ctl_fAxisStrafingModifier = 1.0f;
 
+// [Uni] extra variables for devious methods and changeable options
 extern INDEX sam_bDisallowExit = FALSE;
 extern INDEX sam_bDisallowConsole = FALSE;
+extern FLOAT sam_tmCorpseFadeWait = 10.0f;
+extern FLOAT sam_tmSprayFadeWait = 10.0f;
+extern FLOAT sam_tmBulletFadeWait = 10.0f;
 
 // game sets this for player hud and statistics and hiscore sound playing
 DECL_DLL extern INDEX plr_iHiScore = 0.0f;
@@ -522,7 +526,7 @@ DECL_DLL void ctl_ComposeActionPacket(const CPlayerCharacter &pc, CPlayerAction 
   //paAction.pa_vTranslation  = penThis->m_vLocalTranslation;
 
   // if walking
-  if(pctlCurrent.bWalk) {
+  if(!pctlCurrent.bRun) {
     // make forward/backward and sidestep speeds slower
     paAction.pa_vTranslation(3) /= 2.0f;
     paAction.pa_vTranslation(1) /= 2.0f;
@@ -738,7 +742,7 @@ void CPlayer_OnInitClass(void)
   _pShell->DeclareSymbol("user INDEX ctl_bLookDown;",         &pctlCurrent.bLookDown);
   _pShell->DeclareSymbol("user INDEX ctl_bLookBankingLeft;",  &pctlCurrent.bLookBankingLeft);
   _pShell->DeclareSymbol("user INDEX ctl_bLookBankingRight;", &pctlCurrent.bLookBankingRight );
-  _pShell->DeclareSymbol("user INDEX ctl_bWalk;",           &pctlCurrent.bWalk);
+  _pShell->DeclareSymbol("user INDEX ctl_bRun;",            &pctlCurrent.bRun);
   _pShell->DeclareSymbol("user INDEX ctl_bStrafe;",         &pctlCurrent.bStrafe);
   _pShell->DeclareSymbol("user INDEX ctl_bFire;",           &pctlCurrent.bFire);
   _pShell->DeclareSymbol("user INDEX ctl_bAltFire;",        &pctlCurrent.bAltFire);
@@ -850,6 +854,9 @@ void CPlayer_OnInitClass(void)
 
   _pShell->DeclareSymbol("INDEX sam_bDisallowExit;", &sam_bDisallowExit);
   _pShell->DeclareSymbol("INDEX sam_bDisallowConsole;", &sam_bDisallowConsole);
+  _pShell->DeclareSymbol("persistent user FLOAT sam_tmCorpseFadeWait  ;", &sam_tmCorpseFadeWait  );
+  _pShell->DeclareSymbol("persistent user FLOAT sam_tmSprayFadeWait  ;", &sam_tmSprayFadeWait  );
+  _pShell->DeclareSymbol("persistent user FLOAT sam_tmBulletFadeWait  ;", &sam_tmBulletFadeWait  );
 
   // call player weapons persistant variable initialization
   extern void CPlayerWeapons_Init(void);
@@ -1074,6 +1081,7 @@ properties:
  48 BOOL m_bPendingMessage = FALSE,   // message sound pending to be played
  47 FLOAT m_tmMessagePlay = 0.0f,     // when to play the message sound
  200 enum MessageFont m_mfFont = FNT_NORMAL,
+ 213 enum MessagePosition m_mpPosition = POS_CENTER,
  
  44 CEntityPointer m_penMainMusicHolder,
 
@@ -1083,6 +1091,7 @@ properties:
  54 FLOAT m_tmSpraySpawned = -1.0f,
  55 FLOAT m_fSprayDamage = 0.0f,
  56 CEntityPointer m_penSpray,
+ 212 enum DamageType m_dmtLastDamageType = DMT_NONE,
 
  // sounds
  60 CSoundObject m_soWeapon0,
@@ -2420,6 +2429,9 @@ functions:
   // listen from a given viewer
   void ListenFromEntity(CEntity *penListener, const CPlacement3D &plSound)
   {
+    // if an abomination stung the player
+    FLOAT tmSinceStinging = _pTimer->CurrentTick() - m_tmStungTime;
+
     FLOATmatrix3D mRotation;
     MakeRotationMatrixFast(mRotation, plSound.pl_OrientationAngle);
     sliSound.sli_vPosition = plSound.pl_PositionVector;
@@ -2427,7 +2439,7 @@ functions:
     sliSound.sli_fVolume = 1.0f;
     sliSound.sli_vSpeed = en_vCurrentTranslationAbsolute;
     sliSound.sli_penEntity = penListener;
-    if (m_pstState == PST_DIVE) {
+    if (m_pstState == PST_DIVE || tmSinceStinging < 0.0f) {
       sliSound.sli_fFilter = 20.0f;
     } else {
       sliSound.sli_fFilter = 0.0f;
@@ -2459,13 +2471,13 @@ functions:
       // print a message
       PIX pixDPWidth  = pdp->GetWidth();
       PIX pixDPHeight = pdp->GetHeight();
-      FLOAT fScale = (FLOAT)pixDPWidth/640.0f;
+      FLOAT fScale = (FLOAT)pixDPHeight/480.0f;
       pdp->SetFont( _pfdDisplayFont);
       pdp->SetTextScaling( fScale);
       pdp->SetTextAspect( 1.0f);
       CTString strMsg;
       strMsg.PrintF(TRANS("%s connected"), GetPlayerName());
-      pdp->PutTextCXY( strMsg, pixDPWidth*0.5f, pixDPHeight*0.5f, SE_COL_BLUE_NEUTRAL_LT|CT_OPAQUE);
+      pdp->PutTextCXY( strMsg, pixDPWidth*0.5f, pixDPHeight*0.5f, SE_COL_GREEN_DARK|CT_OPAQUE);
     }
   }
 
@@ -2503,6 +2515,7 @@ functions:
       RenderTextFX(pdp);
       RenderCredits(pdp);
       RenderHudPicFX(pdp);
+      RenderOverlay(pdp);
 
       if(hud_bShowAll && bShowExtras) {
         // let the player entity render its interface
@@ -2512,15 +2525,13 @@ functions:
           plLight.pl_PositionVector, _colViewerLight, _colViewerAmbient, 
           penViewer==this && (GetFlags()&ENF_ALIVE), iEye);
       }
-
-      RenderOverlay(pdp);
     }
     Stereo_SetBuffer(STEREO_BOTH);
 
     // determine and cache main drawport, size and relative scale
     PIX pixDPWidth  = pdp->GetWidth();
     PIX pixDPHeight = pdp->GetHeight();
-    FLOAT fScale = (FLOAT)pixDPWidth/640.0f;
+    FLOAT fScale = (FLOAT)pixDPHeight/480.0f;
 
     // print center message
     if (_pTimer->CurrentTick()<m_tmCenterMessageEnd) {
@@ -2538,7 +2549,18 @@ functions:
       }
       pdp->SetTextScaling( fScale);
       pdp->SetTextAspect( 1.0f);
-      pdp->PutTextCXY( m_strCenterMessage, pixDPWidth*m_fMessagePosX, pixDPHeight*m_fMessagePosY, C_WHITE|0xDD);
+      if(m_mpPosition == POS_LEFT)
+      {
+        pdp->PutText( m_strCenterMessage, pixDPWidth*m_fMessagePosX, pixDPHeight*m_fMessagePosY, C_WHITE|0xDD);
+      }
+      else if(m_mpPosition == POS_RIGHT)
+      {
+        pdp->PutTextR( m_strCenterMessage, pixDPWidth*m_fMessagePosX, pixDPHeight*m_fMessagePosY, C_WHITE|0xDD);
+      }
+      else
+      {
+        pdp->PutTextCXY( m_strCenterMessage, pixDPWidth*m_fMessagePosX, pixDPHeight*m_fMessagePosY, C_WHITE|0xDD);
+      }
     // print picked item
     } else if (_pTimer->CurrentTick()<m_tmLastPicked+PICKEDREPORT_TIME) {
       pdp->SetFont( _pfdDisplayFont);
@@ -2633,7 +2655,7 @@ functions:
     if (_pTimer->CurrentTick()<m_tmCenterMessageEnd) {
       PIX pixDPWidth  = pdp->GetWidth();
       PIX pixDPHeight = pdp->GetHeight();
-      FLOAT fScale = (FLOAT)pixDPWidth/640.0f;
+      FLOAT fScale = (FLOAT)pixDPHeight/480.0f;
       if(m_mfFont == FNT_CONSOLE)
       {
         pdp->SetFont( _pfdConsoleFont);
@@ -2648,7 +2670,18 @@ functions:
       }
       pdp->SetTextScaling( fScale);
       pdp->SetTextAspect( 1.0f);
-      pdp->PutTextCXY( m_strCenterMessage, pixDPWidth*m_fMessagePosX, pixDPHeight*m_fMessagePosY, C_WHITE|0xDD);
+      if(m_mpPosition == POS_LEFT)
+      {
+        pdp->PutTextLXY( m_strCenterMessage, pixDPWidth*m_fMessagePosX, pixDPHeight*m_fMessagePosY, C_WHITE|0xDD);
+      }
+      else if(m_mpPosition == POS_RIGHT)
+      {
+        pdp->PutTextRXY( m_strCenterMessage, pixDPWidth*m_fMessagePosX, pixDPHeight*m_fMessagePosY, C_WHITE|0xDD);
+      }
+      else
+      {
+        pdp->PutTextCXY( m_strCenterMessage, pixDPWidth*m_fMessagePosX, pixDPHeight*m_fMessagePosY, C_WHITE|0xDD);
+      }
     }
   }
 
@@ -3018,17 +3051,15 @@ functions:
       ESpawnBlood eSpawnBlood;
       eSpawnBlood.colBurnColor=C_WHITE|CT_OPAQUE;
       
-      if( m_fMaxDamageAmmount > 10.0f)
-      {
-        eSpawnBlood.fDamagePower = 1.35f;
-      }
-      else if(m_fSprayDamage+fDamageAmmount>50.0f)
-      {
-        eSpawnBlood.fDamagePower = 0.85f;
-      }
-      else
-      {
-        eSpawnBlood.fDamagePower = 0.65f;
+      if( m_fMaxDamageAmmount > 10.0f) {
+        eSpawnBlood.fDamagePower = 1.25f;
+        eSpawnBlood.iAmount = 16;
+      } else if(m_fSprayDamage+fDamageAmmount>50.0f) {
+        eSpawnBlood.fDamagePower = 1.0f;
+        eSpawnBlood.iAmount = 12;
+      } else {
+        eSpawnBlood.fDamagePower = 0.75f;
+        eSpawnBlood.iAmount = 10;
       }
 
       eSpawnBlood.sptType = SPT_BLOOD;
@@ -3040,7 +3071,7 @@ functions:
       GetNormalComponent( vHitPointRelative, en_vGravityDir, vReflectingNormal);
       vReflectingNormal.Normalize();
       
-      vReflectingNormal(1)/=5.0f;
+      vReflectingNormal(1) /= 5.0f;
     
       FLOAT3D vProjectedComponent = vReflectingNormal*(vDirection%vReflectingNormal);
       FLOAT3D vSpilDirection = vDirection-vProjectedComponent*2.0f-en_vGravityDir*0.5f;
@@ -3208,6 +3239,8 @@ functions:
     if( !cht_bBuddha && !CheatsEnabled() ) {
       DamageImpact(dmtType, fSubHealth, vHitPoint, vDirection);
     }
+
+    m_dmtLastDamageType = dmtType;
 
     // receive damage
     CPlayerEntity::ReceiveDamage( penInflictor, dmtType, fSubHealth, vHitPoint, vDirection, dbptType);
@@ -4302,13 +4335,12 @@ functions:
         vTranslation(2) = 0.0f;
       }
 
-      // TODO: check for ladders
-      /*
-      if(en_ulPhysicsFlags&EPF_ONLADDER) {
-        FLOAT fZ = vTranslation(3);
-        vTranslation += FLOAT3D(0,fZ,0);
+      // check for ladders
+      if(GetPhysicsFlags() & EPF_ONLADDER) {
+        
+      } else {
+        
       }
-      */
 
       // set translation
       SetDesiredTranslation(vTranslation);
@@ -5278,6 +5310,7 @@ functions:
     m_bIsStung          = FALSE,
     m_bIsBlocking       = FALSE,
     m_bIsOnTurret       = FALSE,
+    m_ulKeys = 0;
 
     // initialize animator
     ((CPlayerAnimator&)*m_penAnimator).Initialize();
@@ -6845,6 +6878,7 @@ procedures:
         m_mfFont = eMsg.mfFont;
         m_fMessagePosX = eMsg.fMessagePositionX;
         m_fMessagePosY = eMsg.fMessagePositionY;
+        m_mpPosition = eMsg.mpPosition;
         resume;
       }
       on (EVoiceMessage eMsg) : {
@@ -6911,7 +6945,9 @@ procedures:
             case PMWT_HUGE: vPush *= 1.1f; break;
             default: break;
           }
-          penPushable->GiveImpulseTranslationAbsolute(FLOAT3D(vPush(1), 0.0f, vPush(3)));
+          if(penPushable->m_bPushable) {
+            penPushable->GiveImpulseTranslationAbsolute(FLOAT3D(vPush(1), 0.0f, vPush(3)));
+          }
         }
 
         resume;

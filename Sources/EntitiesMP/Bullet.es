@@ -58,6 +58,7 @@ properties:
   8 INDEX m_iBullet = 0,                // bullet for lerped launch
   9 enum DamageType m_EdtDamage = DMT_BULLET,   // damage type
   10 FLOAT m_fBulletSize = 0.0f,      // bullet can have radius, for hitting models only
+  11 enum DamageBodyPartType m_dbptBodyPart = DBPT_GENERIC,
 
 components:
   1 class   CLASS_BASIC_EFFECT "Classes\\BasicEffect.ecl"
@@ -141,6 +142,7 @@ functions:
     crRay.cr_bHitTranslucentPortals = TRUE;
     crRay.cr_bHitBlockSightPortals = FALSE;
     crRay.cr_bHitBlockMeleePortals = FALSE;
+    crRay.cr_bHitBlockHitscanPortals = TRUE;
     crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;
     crRay.cr_bPhysical = FALSE;
     crRay.cr_fTestR = m_fBulletSize;
@@ -167,10 +169,17 @@ functions:
       {
         break;
       }
+
+      if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("Head")) {
+        m_dbptBodyPart = DBPT_HEAD;
+      } else {
+        m_dbptBodyPart = DBPT_GENERIC;
+      }
+
       // apply damage
       const FLOAT fDamageMul = GetSeriousDamageMultiplier(m_penOwner);
       InflictDirectDamage(crRay.cr_penHit, m_penOwner, m_EdtDamage, m_fDamage*fDamageMul,
-                            crRay.cr_vHit, vHitDirection, DBPT_GENERIC);
+                            crRay.cr_vHit, vHitDirection, m_dbptBodyPart);
 
       m_vHitPoint = crRay.cr_vHit;
 

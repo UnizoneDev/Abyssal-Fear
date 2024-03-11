@@ -242,7 +242,7 @@ procedures:
         on (EPass ePass) : {
           if (CanReactOnEntity(ePass.penOther)) {
             if (m_strLockedMessage!="") {
-              PrintCenterMessage(this, ePass.penOther, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+              PrintCenterMessage(this, ePass.penOther, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
             }
             if (m_penLockedTarget!=NULL) {
               SendToTarget(m_penLockedTarget, EET_TRIGGER, ePass.penOther);
@@ -278,7 +278,6 @@ procedures:
             ULONG ulKey = (1<<INDEX(m_kitKey));
             if (penPlayer->m_ulKeys&ulKey) {
               // use the key
-              penPlayer->m_ulKeys&=~ulKey;
               // open the door
               TriggerDoor();
 
@@ -286,7 +285,7 @@ procedures:
               // tell the key bearer that the key was used
               CTString strMsg;
               strMsg.PrintF(TRANS("%s used"), GetKeyName(m_kitKey));
-              PrintCenterMessage(this, ePass.penOther, strMsg, 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+              PrintCenterMessage(this, ePass.penOther, strMsg, 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
               */
               // become automatic door
               jump DoorAuto();
@@ -322,7 +321,7 @@ procedures:
         on (EPass ePass) : {
           if (CanReactOnEntity(ePass.penOther)) {
             if (m_strLockedMessage!="") {
-              PrintCenterMessage(this, ePass.penOther, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f);
+              PrintCenterMessage(this, ePass.penOther, TranslateConst(m_strLockedMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
             }
             if (m_penLockedTarget!=NULL) {
               SendToTarget(m_penLockedTarget, EET_TRIGGER, ePass.penOther);

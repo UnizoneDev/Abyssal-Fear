@@ -154,8 +154,10 @@ procedures:
       CEntityPointer &penTarget = (&m_penTarget0)[i];
       if (penTarget!=NULL && 
         !IsOfClass(penTarget, "ModelHolder2") &&
+        !IsOfClass(penTarget, "ModelHolder3") &&
+        !IsOfClass(penTarget, "UZModelHolder") &&
         !IsOfClass(penTarget, "Light")) {
-        WarningMessage("All targets must be ModelHolder2 or Light!");
+        WarningMessage("All targets must be ModelHolder2, ModelHolder3, UZModelHolder, or Light!");
         penTarget=NULL;
       }
     }

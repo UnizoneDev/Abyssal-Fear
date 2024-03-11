@@ -89,7 +89,7 @@ properties:
 // 51 FLOAT m_fStretchRndY    "Stretch RND Y (%)"   =  0.2f, // random stretch height
 // 53 FLOAT m_fStretchRndZ    "Stretch RND Z (%)"   =  0.2f, // random stretch depth
    54 FLOAT m_fStretchRndAll  "Stretch RND All (%)" =  0.0f, // random stretch all
-   55 FLOAT3D m_fStretchRandom = FLOAT3D(1, 1, 1),
+   55 ANGLE3D m_fStretchRandom "Random StretchXYZ" = FLOAT3D(1.0f, 1.0f, 1.0f),
 
  // destruction values
 // 60 CEntityPointer m_penDestruction "Destruction" 'Q' COLOR(C_BLACK|0x20),    // model destruction entity
