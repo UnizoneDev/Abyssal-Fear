@@ -829,6 +829,11 @@ void CLayerMixer::AddOneLayerPoint(CBrushShadowLayer* pbsl, UBYTE* pubMask, UBYT
 // add one layer spot light without diffusion and mask
 void CLayerMixer::AddSpot(void)
 {
+    // adjust params for diffusion lighting
+    SLONG slMax1oL = MAX_SLONG;
+    _slLightStep = FloatToInt(_slLightStep * _fMinLightDistance * _f1oFallOff);
+    if (_slLightStep != 0) slMax1oL = (256 << 8) / _slLightStep + 256;
+
     // prepare some local variables
     __int64 mmDDL2oDU = _slDDL2oDU;
     __int64 mmDDL2oDV = _slDDL2oDV;
@@ -855,11 +860,18 @@ void CLayerMixer::AddSpot(void)
             // if the point is not masked
             if (slL2Point < FTOX)
             {
-                SLONG slL = (slL2Point >> SHIFTX) & (SQRTTABLESIZE - 1);  // and is just for degenerate cases
-                SLONG slIntensity = _slLightMax;
-                slL = aubSqrt[slL];
-                if (slL > _slHotSpot) {
-                    slIntensity = ((255 - slL) * _slLightStep);
+                SLONG sl1oL = (slL2Point >> SHIFTX) & (SQRTTABLESIZE - 1);  // and is just for degenerate cases
+                sl1oL = auw1oSqrt[sl1oL];
+
+                SLONG slIntensity = _slLightMax; // ecx, D [_slLightMax]
+
+                // calculate intensities and do actual drawing of shadow pixel ARGB
+                if (sl1oL < slMax1oL) {
+                    // mov     eax, D [sl1oL]
+                    // mov     ecx, D [slIntensity]
+                    // lea     ecx, [eax-256]
+                    // imul    ecx, D [_slLightStep]
+                    slIntensity = ((sl1oL - 256) * _slLightStep);
                 }
 
                 ULONG* pulPixel = (ULONG*)pubLayer;
@@ -901,6 +913,11 @@ void CLayerMixer::AddSpot(void)
 // add one layer spot light without diffusion and with mask
 void CLayerMixer::AddMaskSpot(UBYTE* pubMask, UBYTE ubMask)
 {
+    // adjust params for diffusion lighting
+    SLONG slMax1oL = MAX_SLONG;
+    _slLightStep = FloatToInt(_slLightStep * _fMinLightDistance * _f1oFallOff);
+    if (_slLightStep != 0) slMax1oL = (256 << 8) / _slLightStep + 256;
+
     // prepare some local variables
     __int64 mmDDL2oDU = _slDDL2oDU;
     __int64 mmDDL2oDV = _slDDL2oDV;
@@ -927,13 +944,18 @@ void CLayerMixer::AddMaskSpot(UBYTE* pubMask, UBYTE ubMask)
             // if the point is not masked
             if ((*pubMask & ubMask) && (slL2Point < FTOX))
             {
-                // calculate intensities and do actual drawing of shadow pixel ARGB
-                SLONG slL = (slL2Point >> SHIFTX) & (SQRTTABLESIZE - 1);  // and is just for degenerate cases
-                SLONG slIntensity = _slLightMax;
-                slL = aubSqrt[slL];
+                SLONG sl1oL = (slL2Point >> SHIFTX) & (SQRTTABLESIZE - 1);  // and is just for degenerate cases
+                sl1oL = auw1oSqrt[sl1oL];
 
-                if (slL > _slHotSpot) {
-                    slIntensity = ((255 - slL) * _slLightStep);
+                SLONG slIntensity = _slLightMax; // ecx, D [_slLightMax]
+
+                // calculate intensities and do actual drawing of shadow pixel ARGB
+                if (sl1oL < slMax1oL) {
+                    // mov     eax, D [sl1oL]
+                    // mov     ecx, D [slIntensity]
+                    // lea     ecx, [eax-256]
+                    // imul    ecx, D [_slLightStep]
+                    slIntensity = ((sl1oL - 256) * _slLightStep);
                 }
 
                 ULONG* pulPixel = (ULONG*)pubLayer;
@@ -1075,58 +1097,19 @@ BOOL CLayerMixer::PrepareOneLayerSpot(CBrushShadowLayer* pbsl, BOOL bNoMask)
 // add one layer to the shadow map (pubMask=NULL for no mask)
 void CLayerMixer::AddOneLayerSpot(CBrushShadowLayer* pbsl, UBYTE* pubMask, UBYTE ubMask)
 {
-    // try to prepare layer for this point light
+    // try to prepare layer for this spot light
     _pfWorldEditingProfile.StartTimer(CWorldEditingProfile::PTI_ADDONELAYERSPOT);
     if (!PrepareOneLayerSpot(pbsl, pubMask == NULL)) {
         _pfWorldEditingProfile.StopTimer(CWorldEditingProfile::PTI_ADDONELAYERSPOT);
         return;
     }
 
-    // determine light influence dimensions
-    _iPixCt = pbsl->bsl_pixSizeU >> lm_iMipShift;
-    _iRowCt = pbsl->bsl_pixSizeV >> lm_iMipShift;
-    PIX pixMinU = pbsl->bsl_pixMinU >> lm_iMipShift;
-    PIX pixMinV = pbsl->bsl_pixMinV >> lm_iMipShift;
-    ASSERT(pixMinU == 0 && pixMinV == 0);
-    // clamp influence to polygon size
-    if (_iPixCt > lm_pixPolygonSizeU && pubMask == NULL) _iPixCt = lm_pixPolygonSizeU;
-    if (_iRowCt > lm_pixPolygonSizeV)                  _iRowCt = lm_pixPolygonSizeV;
-    _slModulo = (lm_pixCanvasSizeU - _iPixCt) * BYTES_PER_TEXEL;
-    _pulLayer = lm_pulShadowMap;
-
-    // if there is no influence, do nothing
-    if ((pbsl->bsl_pixSizeU >> lm_iMipShift) == 0 || (pbsl->bsl_pixSizeV >> lm_iMipShift) == 0
-        || _iPixCt <= 0 || _iRowCt <= 0) {
-        _pfWorldEditingProfile.StopTimer(CWorldEditingProfile::PTI_ADDONELAYERSPOT);
-        return;
-    }
-
-    // get the light source of the layer
-    lm_plsLight = pbsl->bsl_plsLightSource;
-    const FLOAT3D& vLight = lm_plsLight->ls_penEntity->GetPlacement().pl_PositionVector;
-    AnglesToDirectionVector(lm_plsLight->ls_penEntity->GetPlacement().pl_OrientationAngle,
-        lm_vLightDirection);
-    // calculate intensity
-    FLOAT fIntensity = 1.0f;
-    if (!(lm_pbpoPolygon->bpo_ulFlags & BPOF_NOPLANEDIFFUSION)) {
-        fIntensity = -((lm_pbpoPolygon->bpo_pbplPlane->bpl_plAbsolute) % lm_vLightDirection);
-        fIntensity = ClampDn(fIntensity, 0.0f);
-    }
-    // calculate light color and ambient
-    lm_colLight = lm_plsLight->GetLightColor();
-    pbsl->bsl_colLastAnim = lm_colLight;
-    ULONG ulIntensity = NormFloatToByte(fIntensity);
-    ulIntensity = (ulIntensity << CT_RSHIFT) | (ulIntensity << CT_GSHIFT) | (ulIntensity << CT_BSHIFT);
-    lm_colLight = MulColors(lm_colLight, ulIntensity);
-    lm_colLight = AdjustColor(lm_colLight, _slShdHueShift, _slShdSaturation);
-
     // masked or non-masked?
     if (pubMask == NULL) {
-        AddSpot();
-    }
-    else {
-        // masked
-        AddMaskSpot(pubMask, ubMask);
+      AddSpot();
+    } else {
+      // masked
+      AddMaskSpot(pubMask, ubMask);
     }
 
     // all done

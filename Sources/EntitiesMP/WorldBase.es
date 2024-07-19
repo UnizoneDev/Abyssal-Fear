@@ -843,6 +843,26 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_astSurfaceTypes[55].st_fClimbSlopeCos = Cos(45.0f);
   pwo->wo_astSurfaceTypes[55].st_ulFlags = STF_NOIMPACT;
 
+  ASSERT(56==SURFACE_ELECTRIC_METAL);
+  pwo->wo_astSurfaceTypes[56].st_strName = "Electric Metal";
+  pwo->wo_astSurfaceTypes[56].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[56].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[56].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[56].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[56].st_iWalkDamageType = DMT_SHOCK;
+  pwo->wo_astSurfaceTypes[56].st_fWalkDamageAmount = 10.0f;
+  pwo->wo_astSurfaceTypes[56].st_tmWalkDamageFrequency = 0.75f;
+
+  ASSERT(57==SURFACE_ELECTRIC_GRATE);
+  pwo->wo_astSurfaceTypes[57].st_strName = "Electric Grate";
+  pwo->wo_astSurfaceTypes[57].st_fFriction = 1.0f;
+  pwo->wo_astSurfaceTypes[57].st_fStairsHeight = 1.0f;
+  pwo->wo_astSurfaceTypes[57].st_fJumpSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[57].st_fClimbSlopeCos = Cos(45.0f);
+  pwo->wo_astSurfaceTypes[57].st_iWalkDamageType = DMT_SHOCK;
+  pwo->wo_astSurfaceTypes[57].st_fWalkDamageAmount = 10.0f;
+  pwo->wo_astSurfaceTypes[57].st_tmWalkDamageFrequency = 0.75f;
+
   // contents
   pwo->wo_actContentTypes[0].ct_strName = "Air";
   pwo->wo_actContentTypes[0].ct_fDensity = 0.0f;
@@ -1003,58 +1023,6 @@ void CWorldBase_OnWorldInit(CWorld *pwo)
   pwo->wo_aetEnvironmentTypes[17].et_strName = "Hallucination";
   pwo->wo_aetEnvironmentTypes[17].et_iType = EAX_ENVIRONMENT_DIZZY;
   pwo->wo_aetEnvironmentTypes[17].et_fSize = 4.2f;
-
-  pwo->wo_aetEnvironmentTypes[18].et_strName = "Nightmare Extreme";
-  pwo->wo_aetEnvironmentTypes[18].et_iType = EAX_ENVIRONMENT_PSYCHOTIC;
-  pwo->wo_aetEnvironmentTypes[18].et_fSize = 1.25f;
-
-  pwo->wo_aetEnvironmentTypes[19].et_strName = "Dream Extreme";
-  pwo->wo_aetEnvironmentTypes[19].et_iType = EAX_ENVIRONMENT_DRUGGED;
-  pwo->wo_aetEnvironmentTypes[19].et_fSize = 4.8f;
-
-  pwo->wo_aetEnvironmentTypes[20].et_strName = "Hallucination Extreme";
-  pwo->wo_aetEnvironmentTypes[20].et_iType = EAX_ENVIRONMENT_DIZZY;
-  pwo->wo_aetEnvironmentTypes[20].et_fSize = 2.1f;
-
-  pwo->wo_aetEnvironmentTypes[21].et_strName = "Sewers 2";
-  pwo->wo_aetEnvironmentTypes[21].et_iType = EAX_ENVIRONMENT_SEWERPIPE;
-  pwo->wo_aetEnvironmentTypes[21].et_fSize = 4.5f;
-
-  pwo->wo_aetEnvironmentTypes[22].et_strName = "Cave 2";
-  pwo->wo_aetEnvironmentTypes[22].et_iType = EAX_ENVIRONMENT_CAVE;
-  pwo->wo_aetEnvironmentTypes[22].et_fSize = 20.5f;
-
-  pwo->wo_aetEnvironmentTypes[23].et_strName = "Hallway";
-  pwo->wo_aetEnvironmentTypes[23].et_iType = EAX_ENVIRONMENT_HALLWAY;
-  pwo->wo_aetEnvironmentTypes[23].et_fSize = 4.5f;
-
-  pwo->wo_aetEnvironmentTypes[24].et_strName = "Hallway 2";
-  pwo->wo_aetEnvironmentTypes[24].et_iType = EAX_ENVIRONMENT_CARPETEDHALLWAY;
-  pwo->wo_aetEnvironmentTypes[24].et_fSize = 7.5f;
-
-  pwo->wo_aetEnvironmentTypes[25].et_strName = "Nightmare Chaotic";
-  pwo->wo_aetEnvironmentTypes[25].et_iType = EAX_ENVIRONMENT_PSYCHOTIC;
-  pwo->wo_aetEnvironmentTypes[25].et_fSize = 0.78f;
-
-  pwo->wo_aetEnvironmentTypes[26].et_strName = "Dream Chaotic";
-  pwo->wo_aetEnvironmentTypes[26].et_iType = EAX_ENVIRONMENT_DRUGGED;
-  pwo->wo_aetEnvironmentTypes[26].et_fSize = 9.4f;
-
-  pwo->wo_aetEnvironmentTypes[27].et_strName = "Hallucination Chaotic";
-  pwo->wo_aetEnvironmentTypes[27].et_iType = EAX_ENVIRONMENT_DIZZY;
-  pwo->wo_aetEnvironmentTypes[27].et_fSize = 1.25f;
-
-  pwo->wo_aetEnvironmentTypes[28].et_strName = "Insanity 1";
-  pwo->wo_aetEnvironmentTypes[28].et_iType = EAX_ENVIRONMENT_PSYCHOTIC;
-  pwo->wo_aetEnvironmentTypes[28].et_fSize = 7.39f;
-
-  pwo->wo_aetEnvironmentTypes[29].et_strName = "Insanity 2";
-  pwo->wo_aetEnvironmentTypes[29].et_iType = EAX_ENVIRONMENT_DRUGGED;
-  pwo->wo_aetEnvironmentTypes[29].et_fSize = 2.1f;
-
-  pwo->wo_aetEnvironmentTypes[30].et_strName = "Insanity 3";
-  pwo->wo_aetEnvironmentTypes[30].et_iType = EAX_ENVIRONMENT_DIZZY;
-  pwo->wo_aetEnvironmentTypes[30].et_fSize = 4.68f;
 
   // declare console variables
   _pShell->DeclareSymbol("user void MakeWorldStatistics(void);",  &MakeWorldStatistics);
@@ -1397,12 +1365,22 @@ properties:
   32 CEntityPointer m_penHaze2 "Haze 2",
   33 CEntityPointer m_penHaze3 "Haze 3",
   34 CEntityPointer m_penHaze4 "Haze 4",
+  35 CEntityPointer m_penHaze5 "Haze 5",
+  36 CEntityPointer m_penHaze6 "Haze 6",
+  37 CEntityPointer m_penHaze7 "Haze 7",
+  38 CEntityPointer m_penHaze8 "Haze 8",
+  39 CEntityPointer m_penHaze9 "Haze 9",
 
   40 CEntityPointer m_penMirror0 "Mirror 0" 'M',
   41 CEntityPointer m_penMirror1 "Mirror 1",
   42 CEntityPointer m_penMirror2 "Mirror 2",
   43 CEntityPointer m_penMirror3 "Mirror 3",
   44 CEntityPointer m_penMirror4 "Mirror 4",
+  45 CEntityPointer m_penMirror5 "Mirror 5",
+  46 CEntityPointer m_penMirror6 "Mirror 6",
+  47 CEntityPointer m_penMirror7 "Mirror 7",
+  48 CEntityPointer m_penMirror8 "Mirror 8",
+  49 CEntityPointer m_penMirror9 "Mirror 9",
 
   50 CEntityPointer m_penGradient0 "Gradient 0" 'R',
   51 CEntityPointer m_penGradient1 "Gradient 1",
@@ -1472,7 +1450,7 @@ functions:
 
     // if mirror marker
     ulFirst = offsetof(CWorldBase, m_penMirror0);
-    ulLast  = offsetof(CWorldBase, m_penMirror4);
+    ulLast  = offsetof(CWorldBase, m_penMirror9);
     strClass = "Mirror Marker";
     if( (slPropertyOffset>=ulFirst) && (slPropertyOffset<=ulLast) ) {
       return (IsDerivedFromClass(penTarget, strClass));
@@ -1488,7 +1466,7 @@ functions:
 
     // if haze marker
     ulFirst = offsetof(CWorldBase, m_penHaze0);
-    ulLast  = offsetof(CWorldBase, m_penHaze4);
+    ulLast  = offsetof(CWorldBase, m_penHaze9);
     strClass = "Haze Marker";
     if( (slPropertyOffset>=ulFirst) && (slPropertyOffset<=ulLast) ) {
       return (IsDerivedFromClass(penTarget, strClass));
@@ -1591,7 +1569,7 @@ functions:
   /* Get haze type name, return empty string if not used. */
   const CTString &GetHazeName(INDEX iHaze)
   {
-    INDEX ctHazeMarkers = &m_penHaze4-&m_penHaze0+1;
+    INDEX ctHazeMarkers = &m_penHaze8-&m_penHaze0+1;
     static const CTString strDummyName("");
     static const CTString strMarkerUnused("Marker not set");
     if (iHaze<ctHazeMarkers){
@@ -1608,7 +1586,7 @@ functions:
   /* Get haze, return FALSE for none. */
   BOOL GetHaze(INDEX iHaze, class CHazeParameters &hpHaze, FLOAT3D &vViewDir)
   {
-    INDEX ctHazeMarkers = &m_penHaze4-&m_penHaze0+1;
+    INDEX ctHazeMarkers = &m_penHaze8-&m_penHaze0+1;
     if (iHaze<ctHazeMarkers){
       CHazeMarker *phm = (CHazeMarker *)&*(&m_penHaze0)[iHaze];
       if (phm != NULL) {
@@ -1639,7 +1617,7 @@ functions:
     case 8: { static const CTString str("std mirror 8"); return str; }; break;
     default: {
       iMirror-=9;
-      INDEX ctMirrorMarkers = &m_penMirror4-&m_penMirror0+1;
+      INDEX ctMirrorMarkers = &m_penMirror8-&m_penMirror0+1;
       if (iMirror<ctMirrorMarkers){
         CMirrorMarker *pfm = (CMirrorMarker *)&*(&m_penMirror0)[iMirror];
         if (pfm != NULL) {
@@ -1664,7 +1642,7 @@ functions:
       return TRUE;
     }
     iMirror-=9;
-    INDEX ctMirrorMarkers = &m_penMirror4-&m_penMirror0+1;
+    INDEX ctMirrorMarkers = &m_penMirror8-&m_penMirror0+1;
     if (iMirror<ctMirrorMarkers){
       CMirrorMarker *pmm = (CMirrorMarker *)&*(&m_penMirror0)[iMirror];
       if (pmm != NULL) {

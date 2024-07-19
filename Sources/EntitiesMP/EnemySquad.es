@@ -129,7 +129,6 @@ void CountSquadMembers(void)
   m_cenMembers.Count();
 }
 
-virtual void BlockingAnim(void) {};
 virtual void LeaderCommandAnim(void) {};
 virtual void CoveringAnim(void) {};
 virtual void PeakLeftAnim(void) {};
@@ -137,7 +136,6 @@ virtual void PeakRightAnim(void) {};
 virtual void ReloadAnim(void) {};
 virtual void QuestionSound(void) {};
 virtual void AnswerSound(void) {};
-virtual void TauntSound(void) {};
 virtual void LeaderAlertSound(void) {};
 
 /////////////////////////
@@ -302,10 +300,12 @@ procedures:
         // if enemy needs to jump
         if (pem->m_betJump==BET_TRUE)
         {
+            m_bJump = TRUE;
             m_fJumpSpeed = m_fJumpHeight;
         }
         else
         {
+            m_bJump = FALSE;
             m_fJumpSpeed = 0.0f;
         }
       }
@@ -333,6 +333,32 @@ procedures:
         else
         {
             m_bCrouch = FALSE;
+        }
+      }
+
+      if(m_bCanFlee == TRUE)
+      {
+        // if enemy needs to flee
+        if(pem->m_betFlee==BET_TRUE)
+        {
+          m_bCoward = TRUE;
+        }
+        else
+        {
+          m_bCoward = FALSE;
+        }
+      }
+
+      if (m_bCanClimb == TRUE)
+      {
+        // if enemy needs to climb
+        if (pem->m_betClimb==BET_TRUE)
+        {
+            m_bClimb = TRUE;
+        }
+        else
+        {
+            m_bClimb = FALSE;
         }
       }
 
@@ -366,9 +392,12 @@ procedures:
       SetBoolFromBoolEType(m_bDormant,  pem->m_betDormant);
       SetBoolFromBoolEType(m_bAnosmic,  pem->m_betAnosmic);
 
+      // when reaching the marker
+      SendToTarget(pem->m_penReachTarget, pem->m_eetReachType, this); // Send an event to reach target.
+
       // if should start tactics
       if (pem->m_bStartTactics){
-        // start to see/hear
+        // start to see/hear/smell
         m_bBlind = FALSE;
         m_bDeaf = FALSE;
         m_bDormant = FALSE;
@@ -381,7 +410,7 @@ procedures:
       // if should patrol there
       if (pem->m_fPatrolTime>0.0f) {
         // spawn a reminder to notify us when the time is up
-        SpawnReminder(this, pem->m_fPatrolTime, 0);
+        SpawnReminder(this, pem->m_fPatrolTime, ENEMY_PATROL_VAL);
         // wait
         wait() {
           // initially
@@ -390,7 +419,11 @@ procedures:
             call CEnemyBase::DoPatrolling(); 
           }
           // if time is up
-          on (EReminder) : {
+          on (EReminder eReminder) : {
+            // [Cecil] Enemy loop
+            if (eReminder.iValue == ENEMY_STEP_VAL) {
+              pass;
+            }
             // stop patroling
             stop;
           }
@@ -412,6 +445,12 @@ procedures:
 
       // take next marker in loop
       m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget;
+
+      if(m_penMarker == NULL) {
+        StopMoving();
+        StandingAnim();
+        return EReturn();
+      }
 
       CEnemyMarker *pem = (CEnemyMarker *)&*m_penMarker;
       if(pem->m_penRandomTarget1 != NULL) {

@@ -31,7 +31,7 @@ void TranscriptEsc(CTString &str)
   char *pchDst = (char *)(const char *)str;
   // if quoted
   if (pchDst[0] == '"') {
-    int len = strlen(pchDst);
+    size_t len = strlen(pchDst);
     pchDst[len-1] = 0;
     memmove(pchDst, pchDst+1, len-1);
   }

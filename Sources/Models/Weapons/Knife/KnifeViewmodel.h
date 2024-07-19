@@ -14,6 +14,9 @@
 // Names of collision boxes
 #define KNIFEVIEWMODEL_COLLISION_BOX_PART_NAME 0
 
+// Names of hit boxes
+#define KNIFEVIEWMODEL_HIT_BOX_PART_NAME 0
+
 // Attaching position names
 #define KNIFEVIEWMODEL_ATTACHMENT_THEKNIFE 0
 

@@ -724,3 +724,33 @@ CTString RemoveSpecialCodes( const CTString &str)
   *pcDst = 0;
   return strRet;
 }
+
+// [Uni] Convert string to all uppercase
+CTString CTString::ToUpper(void) const
+{
+    // make a copy of the string to hold the result - we will rewrite it witho only uppercase letters
+    CTString strResult = *this;
+    INDEX i = strResult.Length();
+
+    while (--i >= 0)
+    {
+      strResult.str_String[i] = toupper(strResult[i]);
+    }
+    
+    return strResult;
+}
+
+// [Uni] Convert string to all lowercase
+CTString CTString::ToLower(void) const
+{
+    // make a copy of the string to hold the result - we will rewrite it witho only lowercase letters
+    CTString strResult = *this;
+    INDEX i = strResult.Length();
+
+    while (--i >= 0)
+    {
+      strResult.str_String[i] = tolower(strResult[i]);
+    }
+
+    return strResult;
+}

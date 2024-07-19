@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "Models/Weapons/SMG/SMGItem.h"
 #include "Models/Weapons/MetalPipe/PipeWeapon.h"
 #include "Models/Weapons/StrongPistol/StrongPistolItem.h"
+#include "Models/Weapons/WoodenPlank/PlankWeapon.h"
 
 #include "EntitiesMP/PlayerWeapons.h"
 
@@ -39,7 +40,8 @@ enum WeaponItemType {
   3 WIT_SHOTGUN           "Shotgun",
   4 WIT_SMG               "Submachine Gun",
   5 WIT_PIPE              "Metal Pipe",
-  6 WIT_STRONGPISTOL      "Strong Pistol"
+  6 WIT_STRONGPISTOL      "Strong Pistol",
+  7 WIT_PLANK             "Wooden Plank"
 };
 
 // event for sending through receive item
@@ -82,7 +84,7 @@ components:
 
 // ************** KNIFE **************
  38 model   MODEL_KNIFEITEM             "Models\\Weapons\\Knife\\KnifeWeapon.mdl",
- 39 texture TEXTURE_KNIFEITEM           "Models\\Weapons\\Knife\\KnifeWeaponNew.tex",
+ 39 texture TEXTURE_KNIFEITEM           "Models\\Weapons\\Knife\\KnifeItem.tex",
 
 // ************** PIPE **************
  40 model   MODEL_PIPEITEM               "Models\\Weapons\\MetalPipe\\PipeWeapon.mdl",
@@ -91,6 +93,10 @@ components:
 // ************** PISTOL **************
  42 model   MODEL_STRONGPISTOLITEM               "Models\\Weapons\\StrongPistol\\StrongPistolItem.mdl",
  43 texture TEXTURE_STRONGPISTOLITEM             "Models\\Weapons\\StrongPistol\\StrongPistol.tex",
+
+// ************** PLANK **************
+ 44 model   MODEL_PLANKITEM               "Models\\Weapons\\WoodenPlank\\PlankWeapon.mdl",
+ 45 texture TEXTURE_PLANKITEM             "Models\\Weapons\\WoodenPlank\\WoodenPlank.tex",
 
 // ************** REFLECTIONS **************
 200 texture TEX_REFL_BWRIPLES01         "Models\\ReflectionTextures\\BWRiples01.tex",
@@ -108,11 +114,13 @@ components:
 // ************** SOUNDS **************
 213 sound SOUND_PICK             "Sounds\\Items\\PistolPickup.wav",
 214 sound SOUND_KNIFE_PICK       "Sounds\\Items\\KnifePickup.wav",
+215 sound SOUND_SHOTGUN_PICK     "Models\\NPCs\\Gunman\\Sounds\\ShotgunPumpNew.wav",
 
 functions:
   void Precache(void) {
     PrecacheSound(SOUND_PICK);
     PrecacheSound(SOUND_KNIFE_PICK);
+    PrecacheSound(SOUND_SHOTGUN_PICK);
     switch (m_EwitType) {
       case WIT_KNIFE:           CPlayerWeapons_Precache(1<<(INDEX(WEAPON_KNIFE          )-1)); break;
       case WIT_PISTOL:          CPlayerWeapons_Precache(1<<(INDEX(WEAPON_PISTOL         )-1)); break;
@@ -121,6 +129,7 @@ functions:
       case WIT_SMG:             CPlayerWeapons_Precache(1<<(INDEX(WEAPON_SMG            )-1)); break;
       case WIT_PIPE:            CPlayerWeapons_Precache(1<<(INDEX(WEAPON_PIPE           )-1)); break;
       case WIT_STRONGPISTOL:    CPlayerWeapons_Precache(1<<(INDEX(WEAPON_STRONGPISTOL   )-1)); break;
+      case WIT_PLANK:           CPlayerWeapons_Precache(1<<(INDEX(WEAPON_PLANK          )-1)); break;
     }
   }
   /* Fill in entity statistics - for AI purposes only */
@@ -202,6 +211,14 @@ functions:
         AddItem(MODEL_STRONGPISTOLITEM, TEXTURE_STRONGPISTOLITEM, 0, 0, 0);
         StretchItem( bDM ?  vDMStretch : FLOAT3D(2.5f, 2.5f, 2.5f));
         break;
+
+    // *********** PIPE ***********
+      case WIT_PLANK:
+        m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 10.0f; 
+        m_strDescription.PrintF("Wooden Plank");
+        AddItem(MODEL_PLANKITEM, TEXTURE_PLANKITEM, 0, 0, 0);
+        StretchItem( bDM ?  vDMStretch : FLOAT3D(2.0f, 2.0f, 2.0f));
+        break;
     }
 };
 
@@ -232,6 +249,9 @@ procedures:
       if(m_EwitType == WIT_KNIFE) {
         PlaySound(m_soPick, SOUND_KNIFE_PICK, SOF_3D);
         m_fPickSoundLen = GetSoundLength(SOUND_KNIFE_PICK);
+      } else if (m_EwitType == WIT_SHOTGUN) {
+        PlaySound(m_soPick, SOUND_SHOTGUN_PICK, SOF_3D);
+        m_fPickSoundLen = GetSoundLength(SOUND_SHOTGUN_PICK);
       } else {
         PlaySound(m_soPick, SOUND_PICK, SOF_3D);
         m_fPickSoundLen = GetSoundLength(SOUND_PICK);

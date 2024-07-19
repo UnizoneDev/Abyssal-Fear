@@ -116,6 +116,9 @@ void CDlgBarTreeView::ShowControlGroup(INDEX iGroup)
     case GR_SHADERS:
       pdlgCurrent = &m_dlgShader;
     break;
+    case GR_FRAMEEVENT:
+      pdlgCurrent = &m_dlgFrameEvent;
+    break;
     default:
       pdlgCurrent = NULL;
     break;
@@ -902,6 +905,27 @@ void CDlgBarTreeView::SelItemChanged(HTREEITEM hSelected)
       SetCustomTabText(L"All frames");
     }
     break;
+    case NT_FRAMEEVENT:
+    {
+        FrameEvent* pfe = (FrameEvent*)ni.ni_pPtr;
+        INDEX iIndex = -1;
+        // get frame event
+        INDEX ctfe = pmiSelected->mi_feEvents.Count();
+        // for each frame event in array
+        for (INDEX ife = 0; ife < ctfe; ife++) {
+            FrameEvent* pfe2 = &pmiSelected->mi_feEvents[ife];
+            if (pfe == pfe2) {
+                iIndex = ife;
+                break;
+            }
+        }
+        if (iIndex < 0) return;
+        // set it to be curent frame event
+        pmiSelected->mi_iCurrentEvent = iIndex;
+        ShowControlGroup(GR_FRAMEEVENT);
+        SetCustomTabText(L"Frame Event");
+    }
+    break;
     default:
       // no custom group
       //iShowCustomGroup = -1;
@@ -963,6 +987,16 @@ void CDlgBarTreeView::SelItemChanged(HTREEITEM hSelected)
   m_tbAFBBPosZ.SetWindowText(  CString(CTString(0,"%g",fPosZ)));
   // change custom controls visibility
 //  ShowControlGroup(iVisibleGroup);
+  // show frame event values
+  if ((pmiSelected->mi_iCurrentEvent >= 0) && (pmiSelected->mi_iCurrentEvent < pmiSelected->mi_feEvents.Count()))
+  {
+      FrameEvent& fe = pmiSelected->mi_feEvents[pmiSelected->mi_iCurrentEvent];
+      INDEX iFrame = fe.GetFrame();
+      INDEX iEvent = fe.GetEvent();
+      m_tbFevName.SetWindowText(CString(fe.GetName()));
+      m_tbFevFrame.SetWindowText(CString(CTString(0, "%g", iFrame)));
+      m_tbFevEvent.SetWindowText(CString(CTString(0, "%g", iEvent)));
+  }
 }
 
 // calculate size of tree view
@@ -1048,6 +1082,7 @@ CSize CDlgBarTreeView::CalcDynamicLayout(int nLength, DWORD nMode)
   ResizeDlgWithChildren(&m_dlgTexture,rcDlg);
   ResizeDlgWithChildren(&m_dlgListOpt,rcDlg);
   ResizeDlgWithChildren(&m_dlgShader,rcDlg);
+  ResizeDlgWithChildren(&m_dlgFrameEvent, rcDlg);
 
   AdjustSplitter();
 
@@ -1197,6 +1232,7 @@ BOOL CDlgBarTreeView::Create( CWnd* pParentWnd, UINT nIDTemplate, UINT nStyle, U
   m_dlgTexture.Create(IDD_TEXTURE,pTabCtrl);
   m_dlgListOpt.Create(IDD_LIST_OPTIONS,pTabCtrl);
   m_dlgShader.Create(IDD_SHADER,pTabCtrl);
+  m_dlgFrameEvent.Create(IDD_FRAMEEVENT, pTabCtrl);
 
 
   CRect rcDummy = CRect(0,0,100,20);
@@ -1210,6 +1246,7 @@ BOOL CDlgBarTreeView::Create( CWnd* pParentWnd, UINT nIDTemplate, UINT nStyle, U
   AddDialogControls(&m_dlgLod);
   AddDialogControls(&m_dlgBone);
   AddDialogControls(&m_dlgShader);
+  AddDialogControls(&m_dlgFrameEvent);
 
   // subclass controls in parent dialog
   m_tbOffPosX.SubclassDlgItem(IDC_TB_OFFSET_POSX, &m_dlgParent);
@@ -1255,6 +1292,11 @@ BOOL CDlgBarTreeView::Create( CWnd* pParentWnd, UINT nIDTemplate, UINT nStyle, U
 
   // set width of shader combo box
   ((CComboBox*)m_dlgShader.GetDlgItem(IDC_CB_SHADER))->SetDroppedWidth(200);
+
+  // subclass controls in frame event dialog
+  m_tbFevName.SubclassDlgItem(IDC_TB_FEVNAME, &m_dlgFrameEvent);
+  m_tbFevFrame.SubclassDlgItem(IDC_TB_FEVFRAME, &m_dlgFrameEvent);
+  m_tbFevEvent.SubclassDlgItem(IDC_TB_FEVEVENT, &m_dlgFrameEvent);
 
   CMainFrame* pMainFrame = STATIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
   pMainFrame->m_ctrlMIStretch.SetFont(m_dlgShader.GetFont(),FALSE);
@@ -1309,6 +1351,8 @@ HTREEITEM CDlgBarTreeView::AddModelInst(CModelInstance &mi, CModelInstance *pmiP
   AddColisionBoxes(mi,hItem);
   // add all frames colision box
   AddAllFramesBBox(mi,hItem);
+  // add frame events
+  AddFrameEvents(mi, hItem);
   // add model instance children
   INDEX ctmi = mi.mi_cmiChildren.Count();
   // for each child in model isntance
@@ -1316,6 +1360,7 @@ HTREEITEM CDlgBarTreeView::AddModelInst(CModelInstance &mi, CModelInstance *pmiP
     // add child 
     AddModelInst(mi.mi_cmiChildren[imi],&mi,hItem);
   }
+  
   return hItem;
 }
 
@@ -1439,6 +1484,20 @@ void CDlgBarTreeView::AddAllFramesBBox(CModelInstance &mi,HTREEITEM hParent)
   HTREEITEM hAllFramesBBox = m_TreeCtrl.InsertItem( TVIF_IMAGE | TVIF_SELECTEDIMAGE , L"",  6, 6, TVIS_SELECTED, TVIF_STATE, 0, hParent, 0);
   m_TreeCtrl.SetItemText(hAllFramesBBox,L"All frames BBox");
   m_TreeCtrl.SetItemData(hAllFramesBBox,AddNode(NT_ALLFRAMESBBOX,&cb,&mi));
+}
+// add frame events to tree view
+void CDlgBarTreeView::AddFrameEvents(CModelInstance& mi, HTREEITEM hParent)
+{
+    INDEX ctfe = mi.mi_feEvents.Count();
+    // for each frame event
+    for (INDEX ife = 0; ife < ctfe; ife++)
+    {
+        // add frame event
+        FrameEvent& fe = mi.mi_feEvents[ife];
+        HTREEITEM hFrameEvent = m_TreeCtrl.InsertItem(TVIF_IMAGE | TVIF_SELECTEDIMAGE, L"", 0, 0, TVIS_SELECTED, TVIF_STATE, 0, hParent, 0);
+        m_TreeCtrl.SetItemText(hFrameEvent, CString(fe.GetName()));
+        m_TreeCtrl.SetItemData(hFrameEvent, AddNode(NT_FRAMEEVENT, &fe, &mi));
+    }
 }
 
 // add anim set to tree view
@@ -1736,6 +1795,11 @@ void CDlgBarTreeView::ResetControls()
   m_tbColPosZ.SetWindowText(L"");
 
   m_tbDistance.SetWindowText(L"");
+
+  m_tbFevName.SetWindowText(L"");
+  m_tbFevFrame.SetWindowText(L"");
+  m_tbFevEvent.SetWindowText(L"");
+
   //GET_CTRL(IDC_CB_TEXNAME)->SetWindowText("");
 }
 

@@ -28,6 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "Models/Weapons/SMG/SMGItem.h"
 #include "Models/Weapons/MetalPipe/PipeWeapon.h"
 #include "Models/Weapons/StrongPistol/StrongPistolItem.h"
+#include "Models/Weapons/WoodenPlank/PlankWeapon.h"
 %}
 
 uses "EntitiesMP/Player";
@@ -125,6 +126,12 @@ void CPlayerAnimator_Precache(ULONG ulAvailable)
     pdec->PrecacheModel(MODEL_STRONGPISTOLITEM                );
     pdec->PrecacheTexture(TEXTURE_STRONGPISTOLITEM            );
   }
+
+  // precache weapons player has
+  if ( ulAvailable&(1<<(WEAPON_PLANK-1)) ) {
+    pdec->PrecacheModel(MODEL_PLANK                 );
+    pdec->PrecacheTexture(TEXTURE_PLANK);
+  }
 }
 %}
 
@@ -207,6 +214,10 @@ components:
 // ************** COLT **************
  70 model   MODEL_STRONGPISTOLITEM            "Models\\Weapons\\StrongPistol\\StrongPistolItem.mdl",
  71 texture TEXTURE_STRONGPISTOLITEM          "Models\\Weapons\\StrongPistol\\StrongPistol.tex",
+
+// ************** PLANK **************
+ 80 model   MODEL_PLANK                 "Models\\Weapons\\WoodenPlank\\PlankWeapon.mdl",
+ 81 texture TEXTURE_PLANK               "Models\\Weapons\\WoodenPlank\\WoodenPlank.tex",
 
 // ************** GOLDEN SWASTIKA **************
 180 model   MODEL_GOLDSWASTIKA                "Models\\Items\\Keys\\GoldenSwastika\\Swastika.mdl",
@@ -319,7 +330,7 @@ functions:
     CModelObject *pmoBodyRen = GetBodyRen();
     CModelObject *pmoBodyDef = GetBody();
     // for each weapon attachment
-    for (INDEX iWeapon = BODY_ATTACHMENT_PISTOL; iWeapon<=BODY_ATTACHMENT_STRONGPISTOL; iWeapon++) {
+    for (INDEX iWeapon = BODY_ATTACHMENT_PISTOL; iWeapon<=BODY_ATTACHMENT_WOODENPLANK; iWeapon++) {
       CAttachmentModelObject *pamoWeapDef = pmoBodyDef->GetAttachmentModel(iWeapon);
       CAttachmentModelObject *pamoWeapRen = pmoBodyRen->GetAttachmentModel(iWeapon);
       // if it doesn't exist in either
@@ -391,6 +402,11 @@ functions:
     // *********** DESERT EAGLE ***********
       case WEAPON_STRONGPISTOL:
         AddWeaponAttachment(BODY_ATTACHMENT_STRONGPISTOL, MODEL_STRONGPISTOLITEM, TEXTURE_STRONGPISTOLITEM, 0, 0, 0);
+        break;
+
+    // *********** PLANK ***********
+      case WEAPON_PLANK:
+        AddWeaponAttachment(BODY_ATTACHMENT_WOODENPLANK, MODEL_PLANK, TEXTURE_PLANK, 0, 0, 0);
         break;
       
       default:
@@ -488,18 +504,27 @@ functions:
 
   // animate banking
   void AnimateBanking(void) {
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
     // moving -> change banking
     if (m_bMoving) {
       // move banking left
       if (m_iMovingSide == 0) {
-        m_fMoveBanking += 0.35f;
+        if(pl.en_vCurrentTranslationAbsolute.Length() > 5.0f) {
+          m_fMoveBanking += 0.35f;
+        } else {
+          m_fMoveBanking += 0.175f;
+        }
         if (m_fMoveBanking > 1.0f) { 
           m_fMoveBanking = 1.0f;
           m_iMovingSide = 1;
         }
       // move banking right
       } else {
-        m_fMoveBanking -= 0.35f;
+        if(pl.en_vCurrentTranslationAbsolute.Length() > 5.0f) {
+          m_fMoveBanking -= 0.35f;
+        } else {
+          m_fMoveBanking -= 0.175f;
+        }
         if (m_fMoveBanking < -1.0f) {
           m_fMoveBanking = -1.0f;
           m_iMovingSide = 0;
@@ -892,7 +917,7 @@ functions:
       switch (iWeapon) {
         case WEAPON_NONE: case WEAPON_HOLSTERED:
           break;
-        case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_PIPE: case WEAPON_STRONGPISTOL:
+        case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_PIPE: case WEAPON_STRONGPISTOL: case WEAPON_PLANK:
           iAnim += BODY_ANIM_COLT_SWIM_STAND-BODY_ANIM_COLT_STAND;
           break;
         case WEAPON_SHOTGUN: case WEAPON_SMG:
@@ -926,7 +951,7 @@ functions:
       case WEAPON_NONE: case WEAPON_HOLSTERED:
         SetBodyAnimation(iNone, ulFlags);
         break;
-      case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_PIPE: case WEAPON_STRONGPISTOL:
+      case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_PIPE: case WEAPON_STRONGPISTOL: case WEAPON_PLANK:
         if (m_bSwim) { iColt += BODY_ANIM_COLT_SWIM_STAND-BODY_ANIM_COLT_STAND; }
         SetBodyAnimation(iColt, ulFlags);
         break;
@@ -996,6 +1021,9 @@ functions:
         break;
       case WEAPON_STRONGPISTOL:
         pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_STRONGPISTOL);
+        break;
+      case WEAPON_PLANK:
+        pmoModel->RemoveAttachmentModel(BODY_ATTACHMENT_WOODENPLANK);
         break;
       default:
         ASSERT(FALSE);

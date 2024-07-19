@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 uses "EntitiesMP/ModelHolder2";
 uses "EntitiesMP/KeyItem";
+uses "EntitiesMP/PuzzleItem";
 uses "EntitiesMP/Player";
 
 enum SwitchType {
@@ -30,6 +31,11 @@ enum SwitchType {
 enum SwitchPosition {
   0 SWP_UP     "Up",
   1 SWP_DOWN   "Down",
+};
+
+enum SwitchLockType {
+  0 SWLT_KEY      "Key",
+  1 SWLT_PUZZLE   "Puzzle Item",
 };
 
 class CSwitch: CModelHolder2 {
@@ -89,6 +95,8 @@ properties:
 135 CSoundObject m_soUse,
 136 CTStringTrans m_strUseMessage "Use message" = "",
 137 CEntityPointer m_penUseTarget  "Use target" COLOR(C_dMAGENTA|0xFF),   // target to trigger when used
+138 enum PuzzleItemType m_pitItem  "Puzzle Item" = PIT_LEVERHANDLE,  // puzzle item type (for locked door)
+139 enum SwitchLockType m_swltItem "Lock Type" = SWLT_KEY,
 
 
 components:
@@ -142,6 +150,7 @@ functions:
     slUsedMemory += m_strLockedMessage.Length();
     slUsedMemory += m_strUnlockedMessage.Length();
     slUsedMemory += m_strUseMessage.Length();
+    slUsedMemory += 5* sizeof(CSoundObject); // only 5
     return slUsedMemory;
   }
 
@@ -301,16 +310,34 @@ procedures:
               CPlayer *penPlayer = (CPlayer*)&*eTrigger.penCaused;
               // if he has the key
               ULONG ulKey = (1<<INDEX(m_kitKey));
-              if (penPlayer->m_ulKeys&ulKey) {
-                // use the key
-                SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
-              } else {
-                PlayUseSound();
-                if (m_strUseMessage!="") {
-                  PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
+              ULONG ulPuzzle = (1<<INDEX(m_pitItem));
+
+              if(m_swltItem == SWLT_KEY) {
+                if (penPlayer->m_ulKeys&ulKey) {
+                  // use the key
+                  SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
+                  } else {
+                  PlayUseSound();
+                  if (m_strUseMessage!="") {
+                    PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
+                  }
+                  if(m_penUseTarget != NULL) {
+                    SendToTarget(m_penUseTarget, m_eetEvent, eTrigger.penCaused);
+                  }
                 }
-                if(m_penUseTarget != NULL) {
-                  SendToTarget(m_penUseTarget, m_eetEvent, eTrigger.penCaused);
+              } else {
+                if (penPlayer->m_ulPuzzleItems&ulPuzzle) {
+                  // use the key
+                  penPlayer->m_ulPuzzleItems&=~ulPuzzle;
+                  SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
+                  } else {
+                  PlayUseSound();
+                  if (m_strUseMessage!="") {
+                    PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
+                  }
+                  if(m_penUseTarget != NULL) {
+                    SendToTarget(m_penUseTarget, m_eetEvent, eTrigger.penCaused);
+                  }
                 }
               }
             }
@@ -394,16 +421,34 @@ procedures:
               CPlayer *penPlayer = (CPlayer*)&*eTrigger.penCaused;
               // if he has the key
               ULONG ulKey = (1<<INDEX(m_kitKey));
-              if (penPlayer->m_ulKeys&ulKey) {
-                // use the key
-                SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
-              } else {
-                PlayUseSound();
-                if (m_strUseMessage!="") {
-                  PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
+              ULONG ulPuzzle = (1<<INDEX(m_pitItem));
+              
+              if(m_swltItem == SWLT_KEY) {
+                if (penPlayer->m_ulKeys&ulKey) {
+                  // use the key
+                  SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
+                  } else {
+                  PlayUseSound();
+                  if (m_strUseMessage!="") {
+                    PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
+                  }
+                  if(m_penUseTarget != NULL) {
+                    SendToTarget(m_penUseTarget, m_eetEvent, eTrigger.penCaused);
+                  }
                 }
-                if(m_penUseTarget != NULL) {
-                  SendToTarget(m_penUseTarget, m_eetEvent, eTrigger.penCaused);
+              } else {
+                if (penPlayer->m_ulPuzzleItems&ulPuzzle) {
+                  // use the key
+                  penPlayer->m_ulPuzzleItems&=~ulPuzzle;
+                  SendToTarget(this, EET_UNLOCK, eTrigger.penCaused);
+                  } else {
+                  PlayUseSound();
+                  if (m_strUseMessage!="") {
+                    PrintCenterMessage(this, eTrigger.penCaused, TranslateConst(m_strUseMessage), 3.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
+                  }
+                  if(m_penUseTarget != NULL) {
+                    SendToTarget(m_penUseTarget, m_eetEvent, eTrigger.penCaused);
+                  }
                 }
               }
             }

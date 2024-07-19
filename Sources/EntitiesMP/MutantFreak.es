@@ -259,7 +259,7 @@ procedures:
         vDirection.Normalize();
         if(m_mfChar == MFC_MUTANT1)
         {
-          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {
@@ -292,7 +292,7 @@ procedures:
         vDirection.Normalize();
         if(m_mfChar == MFC_MUTANT1)
         {
-          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 20.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {
@@ -325,7 +325,7 @@ procedures:
         vDirection.Normalize();
         if(m_mfChar == MFC_MUTANT1)
         {
-          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 30.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 20.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {

@@ -184,3 +184,19 @@ void DoReflectionLayer(INDEX iReflectionTexture,INDEX iReflectionColor,BOOL bFul
   shaCullFace(GFX_BACK);
   shaRender();
 }
+
+void DoBumpLayer(INDEX iBumpTexture, INDEX iBumpColor)
+{
+  if (shaUseHWShaders())
+  {
+    return;
+  }
+}
+
+void DoNormalLayer(INDEX iNormalTexture, INDEX iNormalColor)
+{
+  if (shaUseHWShaders())
+  {
+    return;
+  }
+}

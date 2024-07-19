@@ -1357,7 +1357,7 @@ void CServer::Handle(INDEX iClient, CNetworkMessage &nmMessage)
       if (bSaved) {
         // read client index
         INDEX iPlayer = 0;
-        nmMessage.ReadBits(&iPlayer, 4);
+        nmMessage.ReadBits(&iPlayer, NET_MAXPLAYERS_EXP);
         CPlayerBuffer &plb = srv_aplbPlayers[iPlayer];
         // if the player is not on that client
         if (plb.plb_iClient!=iClient) {

@@ -40,7 +40,7 @@ features  "HasName", "IsTargetable";
 
 properties:
 
-  1 CTString m_strName          "Name" 'N' = "ControllableTurret",
+  1 CTString m_strName          "Name" 'N' = "Controllable Turret",
   2 CEntityPointer m_penCaused,    // for checking who caused it
   3 enum ControllableTurretType m_ctType    "Type" 'Y' = CTT_BULLETHITSCAN,
   4 BOOL m_bUseable = FALSE,      // set while the switch can be triggered
@@ -111,7 +111,7 @@ functions:
   SLONG GetUsedMemory(void)
   {
     // initial
-    SLONG slUsedMemory = sizeof(CControllableTurret) - sizeof(CRationalEntity) + CRationalEntity::GetUsedMemory();
+    SLONG slUsedMemory = sizeof(CControllableTurret) - sizeof(CMovableModelEntity) + CMovableModelEntity::GetUsedMemory();
     // add some more
     slUsedMemory += m_strMessage.Length();
     return slUsedMemory;

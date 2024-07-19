@@ -142,7 +142,7 @@ functions:
         break;
       case KIT_KEYSILVER:
         // set appearance
-        AddItem(MODEL_KEYSILVER, TEXTURE_KEYSILVER, TEX_REFL_METAL01, TEX_SPEC_STRONG, 0);
+        AddItem(MODEL_KEYSILVER, TEXTURE_KEYSILVER, TEX_REFL_METAL01, TEX_SPEC_MEDIUM, 0);
         StretchItem(FLOAT3D(1.25f, 1.25f, 1.25f));
         m_iSoundComponent = SOUND_KEY;
         break;
@@ -178,7 +178,7 @@ procedures:
   Main() {
     Initialize();     // initialize base class
     StartModelAnim(ITEMHOLDER_ANIM_DEFAULT_ANIMATION, AOF_LOOPING|AOF_NORESTART);
-    ForceCollisionBoxIndexChange(ITEMHOLDER_COLLISION_BOX_MEDIUM);
+    ForceCollisionBoxIndexChange(ITEMHOLDER_COLLISION_BOX_SMALL);
     SetProperties();  // set properties
 
     jump CItem::ItemLoop();

@@ -28,7 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/DynamicContainer.h>
 #include <Engine/Graphics/Shader.h>
 
-// nubers are same as in models.h
+// numbers are same as in models.h
 #define SKA_HEIGHT_EQ_WIDTH 0
 #define SKA_LENGTH_EQ_WIDTH 1
 #define SKA_LENGTH_EQ_HEIGHT 2
@@ -125,6 +125,33 @@ struct PlayedAnim
     INDEX pa_GroupID;    // Group ID
 };
 
+// [Uni] add new SKA features below
+struct FrameEvent
+{
+public:
+    FrameEvent() {};
+    FrameEvent(INDEX iFrame, INDEX iEvent) {
+        SetFrame(iFrame);
+        SetEvent(iEvent);
+    };
+    inline INDEX& GetFrame() { return fe_iFrame; }
+    inline INDEX& GetEvent() { return fe_iEvent; }
+    inline void SetFrame(INDEX& iFrame) { fe_iFrame = iFrame; }
+    inline void SetEvent(INDEX& iEvent) { fe_iEvent = iEvent; }
+
+    inline void SetName(CTString strName) {
+        fe_strName = strName;
+        fe_iEventID = ska_GetIDFromStringTable(fe_strName);
+    }
+    inline const CTString& GetName() { return fe_strName; }
+    inline const INDEX GetID() { return fe_iEventID; }
+
+private:
+    INDEX fe_iFrame;
+    INDEX fe_iEvent;
+    CTString fe_strName;
+    INDEX fe_iEventID;
+};
 class ENGINE_API CModelInstance
 {
 public:
@@ -152,9 +179,9 @@ public:
     // Find mesh instance in model instance
     MeshInstance* FindMeshInstance(INDEX iMeshID);
     // Find texture instance in all mesh instances in model instance
-    TextureInstance* FindTexureInstance(INDEX iTexID);
+    TextureInstance* FindTextureInstance(INDEX iTexID);
     // Find texture instance in given mesh instance
-    TextureInstance* FindTexureInstance(INDEX iTexID, MeshInstance& mshi);
+    TextureInstance* FindTextureInstance(INDEX iTexID, MeshInstance& mshi);
 
 
     // Copy mesh instance for other model instance
@@ -214,6 +241,10 @@ public:
     BOOL IsAnimationPlaying(INDEX iAnimID);
     // Add flags to animation playing in anim queue
     BOOL AddFlagsToPlayingAnim(INDEX iAnimID, ULONG ulFlags);
+	// [Uni] Get number of animation frames
+    INDEX GetAnimFrameCount(INDEX iAnimID);
+    // [Uni] Get specific frame of animation
+    INDEX GetAnimFrame(INDEX iAnimID, INDEX iFrameNum);
 
     // Model color
     COLOR& GetModelColor(void);
@@ -223,6 +254,8 @@ public:
     BOOL HasShadow(FLOAT fMipFactor);
     BOOL IsModelVisible(FLOAT fMipFactor);
     void AddSimpleShadow(const FLOAT fIntensity, const FLOATplane3D& plShadowPlane);
+	void RenderShadow(const CPlacement3D& plLight, const FLOAT fFallOff, const FLOAT fHotSpot, 
+                      const FLOAT fIntensity, const FLOATplane3D& plShadowPlane);
     void GetModelVertices(CStaticStackArray<FLOAT3D>& avVertices, FLOATmatrix3D& mRotation, FLOAT3D& vPosition, FLOAT fNormalOffset, FLOAT fDistance);
 
     // Colision boxes
@@ -239,6 +272,19 @@ public:
     // Remove colision box from model instance
     void RemoveColisionBox(INDEX iIndex);
 
+    // [Uni] set all frames bounding box
+    void SetAllFramesBBox(FLOAT3D vMin, FLOAT3D vMax);
+
+    // [Uni] Frame events
+    FrameEvent& GetFrameEvent(INDEX ife);
+    FrameEvent& GetCurrentFrameEvent();
+    INDEX GetFrameEventFrame(INDEX iIndex);
+    INDEX GetFrameEventType(INDEX iIndex);
+    INDEX GetFrameEventIndex(INDEX iEventID);
+    // [Uni] Add new frame event to model instance
+    void AddFrameEvent(CTString strName, INDEX iFrame, INDEX iEvent);
+    // [Uni] Remove frame event from model instance
+    void RemoveFrameEvent(INDEX iIndex);
     // Copy model instance data from other mi
     void Copy(CModelInstance& miOther);
     // Synchronize with another model (copy animations/attachments positions etc from there)
@@ -266,6 +312,8 @@ public:
     FLOAT3D mi_vStretch;    // stretch of this model instance
     ColisionBox mi_cbAllFramesBBox; // all frames colision box
     CTFileName mi_fnSourceFile;     // source file name of this model instance (used only for ska studio)
+	CStaticArray<struct FrameEvent> mi_feEvents; // [Uni] array of frame events
+    INDEX mi_iCurrentEvent;   // index of current frame event in frame event array
 
 private:
     INDEX mi_iModelID;      // ID of this model instance (this is ID for mi_strName)

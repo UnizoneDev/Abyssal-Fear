@@ -57,7 +57,7 @@ procedures:
     wait(){
         on (ETrigger eTrigger) : {
             CEntity *penCaused;
-            penCaused = FixupCausedToPlayer(this, eTrigger.penCaused, FALSE);
+            penCaused = FixupCausedToPlayer(this, eTrigger.penCaused);
             if( IsDerivedFromClass(penCaused, "Player"))
             {
               m_penCaused = penCaused;

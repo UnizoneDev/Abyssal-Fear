@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "SeriousSkaStudioDoc.h"
 #include "SeriousSkaStudioView.h"
 
+#include <Engine/Base/ByteSwap.h>
 #include <Engine/Templates/Stock_CMesh.h>
 #include <Engine/Templates/Stock_CSkeleton.h>
 #include <Engine/Templates/Stock_CAnimSet.h>
@@ -120,6 +121,8 @@ BEGIN_MESSAGE_MAP(CSeriousSkaStudioView, CView)
 	ON_COMMAND(ID_RELOAD_TEXTURE, OnReloadTexture)
 	ON_COMMAND(ID_RECREATE_TEXTURE, OnRecreateTexture)
 	ON_COMMAND(ID_BROWSE_TEXTURE, OnBrowseTexture)
+    ON_COMMAND(ID_TAKE_SCREENSHOT, OnTakeScreenShot)
+    ON_COMMAND(ID_ADD_FRAMEEVENT, OnAddFrameEvent)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -414,7 +417,7 @@ void CSeriousSkaStudioView::RenderView(CDrawPort *pdp)
     // set placement of model
     CPlacement3D pl;
     pl.pl_OrientationAngle = m_angModelAngle;
-    FLOAT fZPos = pDoc->m_fSpeedZ*fmod(_pTimer->GetLerpedCurrentTick(),pDoc->m_fLoopSecends);
+    FLOAT fZPos = pDoc->m_fSpeedZ * fmod(_pTimer->GetLerpedCurrentTick(), pDoc->m_fLoopSecends);
     pl.pl_PositionVector   = FLOAT3D(0.0f, 0.0f, -fZPos);
     RM_SetObjectPlacement(pl);
 
@@ -1698,6 +1701,20 @@ void CSeriousSkaStudioView::OnAddColisionbox()
   pDoc->MarkAsChanged();
 }
 
+void CSeriousSkaStudioView::OnAddFrameEvent()
+{
+    if (pmiSelected == NULL) return;
+    CSeriousSkaStudioDoc* pDoc = GetDocument();
+
+    INDEX ctfe = pmiSelected->mi_feEvents.Count();
+    INDEX iFrame = 0;
+    INDEX iEvent = 0;
+    CTString strName = CTString(0, "Default %d", ctfe);
+    pmiSelected->AddFrameEvent(strName, iFrame, iEvent);
+    theApp.UpdateRootModelInstance();
+    pDoc->MarkAsChanged();
+}
+
 // delete selected item in tree view control
 void CSeriousSkaStudioView::OnDeleteselected() 
 {
@@ -1876,6 +1893,30 @@ void CSeriousSkaStudioView::OnDeleteselected()
       pmiSelected->RemoveColisionBox(iIndex);
       // update root model instance
       theApp.UpdateRootModelInstance();
+    }
+    break;
+    case NT_FRAMEEVENT:
+    {
+        FrameEvent* pfeSelected = (FrameEvent*)pni->ni_pPtr;
+        // find frame event
+        INDEX iIndex = -1;
+        // count frame events
+        INDEX ctfe = pmiSelected->mi_feEvents.Count();
+        // for each frame event in model instance
+        for (INDEX ife = 0; ife < ctfe; ife++) {
+            FrameEvent* pfe2 = &pmiSelected->mi_feEvents[ife];
+            if (pfeSelected == pfe2) {
+                // remember index of selected frame event
+                iIndex = ife;
+                break;
+            }
+        }
+        // return if no index
+        if (iIndex < 0) return;
+        // remove frame event from mi
+        pmiSelected->RemoveFrameEvent(iIndex);
+        // update root model instance
+        theApp.UpdateRootModelInstance();
     }
     break;
   }
@@ -2165,12 +2206,12 @@ void CSeriousSkaStudioView::OnChangeAmbientcolor()
   memset(&cc, 0, sizeof(CHOOSECOLOR));
   cc.lStructSize = sizeof(CHOOSECOLOR);
   cc.Flags = CC_FULLOPEN | CC_RGBINIT;
-  cc.rgbResult = ByteSwap(pDoc->m_colAmbient);
+  cc.rgbResult = ByteSwap32(pDoc->m_colAmbient);
   cc.hwndOwner = GetSafeHwnd();
   cc.lpCustColors = (LPDWORD) acrCustClr;
   if(ChooseColor(&cc))
   {
-    COLOR colAmbient = ByteSwap(cc.rgbResult);
+    COLOR colAmbient = ByteSwap32(cc.rgbResult);
     colAmbient |= 0xFF;
     pDoc->m_colAmbient  = colAmbient;
   }
@@ -2203,12 +2244,12 @@ void CSeriousSkaStudioView::OnChangeLightcolor()
   memset(&cc, 0, sizeof(CHOOSECOLOR));
   cc.lStructSize = sizeof(CHOOSECOLOR);
   cc.Flags = CC_FULLOPEN | CC_RGBINIT;
-  cc.rgbResult = ByteSwap(pDoc->m_colLight);
+  cc.rgbResult = ByteSwap32(pDoc->m_colLight);
   cc.hwndOwner = GetSafeHwnd();
   cc.lpCustColors = (LPDWORD) acrCustClr;
   if(ChooseColor(&cc))
   {
-    COLOR colDiffuse = ByteSwap(cc.rgbResult);
+    COLOR colDiffuse = ByteSwap32(cc.rgbResult);
     colDiffuse |= 0xFF;
     pDoc->m_colLight = colDiffuse;
   }
@@ -2478,4 +2519,33 @@ void CSeriousSkaStudioView::OnBrowseTexture()
   } else {
     ASSERT(FALSE); // Current client dialog must be texture dialog
   }
+}
+
+void CSeriousSkaStudioView::OnTakeScreenShot()
+{
+    // redraw view
+    if (m_pdpDrawPort->Lock())
+    {
+        RenderView(m_pdpDrawPort);
+        m_pdpDrawPort->Unlock();
+    }
+    m_pvpViewPort->SwapBuffers();
+
+    // grab screen creating image info
+    CImageInfo iiImageInfo;
+    m_pdpDrawPort->GrabScreen(iiImageInfo, 1);
+
+    CTFileName fnSSFileName = _EngineGUI.FileRequester("Select name for screen shot",
+        FILTER_TGA FILTER_END, "Take screen shoots directory",
+        "ScreenShots\\", "", NULL, FALSE);
+    if (fnSSFileName == "") return;
+
+    // try to
+    try {
+        // save image info into file
+        iiImageInfo.SaveTGA_t(fnSSFileName);
+    }
+    catch (char* strError) {
+        AfxMessageBox(CString(strError));
+    }
 }

@@ -21,11 +21,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 %{
 
-BOOL ConsiderNonPlayers(CEntity*pen) 
+BOOL ConsiderNonPlayersETF(CEntity*pen) 
 {
   return !IsDerivedFromClass(pen, "Player");
 }
-BOOL ConsiderEnemies(CEntity*pen) 
+BOOL ConsiderEnemiesETF(CEntity*pen) 
 {
   return IsDerivedFromClass(pen, "Enemy Base");
 }
@@ -138,9 +138,9 @@ procedures:
           // check for entities inside
           CEntity *penNewIn;
           if (m_bEnemiesOnly) {
-            penNewIn = TouchingEntity(ConsiderEnemies, m_penLastIn);
+            penNewIn = TouchingEntity(ConsiderEnemiesETF, m_penLastIn);
           } else {
-            penNewIn = TouchingEntity(ConsiderNonPlayers, m_penLastIn);
+            penNewIn = TouchingEntity(ConsiderNonPlayersETF, m_penLastIn);
           }
           // if there are no entities in anymore
           if (penNewIn==NULL) {

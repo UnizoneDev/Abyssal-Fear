@@ -53,6 +53,9 @@ public:
 	int		m_iBrowseModeRadio;
 	CString	m_strSectorName;
 	int		m_radioInclude;
+	CCtrlEditBoolean	m_bNoSight;
+	CCtrlEditBoolean	m_bNoSound;
+	CCtrlEditBoolean	m_bNoSmell;
 	//}}AFX_DATA
 
 

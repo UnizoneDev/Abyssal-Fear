@@ -675,12 +675,7 @@ extern void UpdateVideoOptionsButtons(INDEX iSelected)
   const BOOL _bVideoOptionsChanged = (iSelected != -1);
 
   const BOOL bOGLEnabled = _pGfx->HasAPI(GAT_OGL);
-#ifdef SE1_D3D
-  const BOOL bD3DEnabled = _pGfx->HasAPI(GAT_D3D);
-  ASSERT(bOGLEnabled || bD3DEnabled);
-#else // 
   ASSERT(bOGLEnabled);
-#endif // SE1_D3D
 
   CDisplayAdapter &da = _pGfx->gl_gaAPI[SwitchToAPI(gmCurrent.gm_mgDisplayAPITrigger.mg_iSelected)]
     .ga_adaAdapter[gmCurrent.gm_mgDisplayAdaptersTrigger.mg_iSelected];
@@ -693,11 +688,7 @@ extern void UpdateVideoOptionsButtons(INDEX iSelected)
   FillAdaptersList();
 
   // show or hide buttons
-  gmCurrent.gm_mgDisplayAPITrigger.mg_bEnabled = bOGLEnabled
-#ifdef SE1_D3D
-    && bD3DEnabled
-#endif // SE1_D3D
-    ;
+  gmCurrent.gm_mgDisplayAPITrigger.mg_bEnabled = bOGLEnabled;
   gmCurrent.gm_mgDisplayAdaptersTrigger.mg_bEnabled = _ctAdapters>1;
   gmCurrent.gm_mgApply.mg_bEnabled = _bVideoOptionsChanged;
   // determine which should be visible
@@ -863,6 +854,11 @@ extern void RefreshSoundFormat(void)
   gmCurrent.gm_mgMPEGVolume.mg_iCurPos = (INDEX)(_pShell->GetFLOAT("snd_fMusicVolume")*VOLUME_STEPS + 0.5f);
   gmCurrent.gm_mgMPEGVolume.ApplyCurrentPosition();
 
+  gmCurrent.gm_mgVoiceVolume.mg_iMinPos = 0;
+  gmCurrent.gm_mgVoiceVolume.mg_iMaxPos = VOLUME_STEPS;
+  gmCurrent.gm_mgVoiceVolume.mg_iCurPos = (INDEX)(_pShell->GetFLOAT("snd_fVoiceVolume") * VOLUME_STEPS + 0.5f);
+  gmCurrent.gm_mgVoiceVolume.ApplyCurrentPosition();
+
   gmCurrent.gm_mgMasterVolume.mg_iMinPos = 0;
   gmCurrent.gm_mgMasterVolume.mg_iMaxPos = VOLUME_STEPS;
   gmCurrent.gm_mgMasterVolume.mg_iCurPos = (INDEX)(_pShell->GetFLOAT("snd_fMasterVolume") * VOLUME_STEPS + 0.5f);
@@ -927,6 +923,14 @@ static void MPEGSliderChange(void)
   gmCurrent.gm_mgMPEGVolume.ApplyCurrentPosition();
 }
 
+static void VoiceSliderChange(void)
+{
+    CAudioOptionsMenu& gmCurrent = _pGUIM->gmAudioOptionsMenu;
+
+    gmCurrent.gm_mgVoiceVolume.mg_iCurPos -= 5;
+    gmCurrent.gm_mgVoiceVolume.ApplyCurrentPosition();
+}
+
 static void OnMPEGVolumeChange(INDEX iCurPos)
 {
   _pShell->SetFLOAT("snd_fMusicVolume", iCurPos / FLOAT(VOLUME_STEPS));
@@ -935,6 +939,11 @@ static void OnMPEGVolumeChange(INDEX iCurPos)
 static void OnMasterVolumeChange(INDEX iCurPos)
 {
     _pShell->SetFLOAT("snd_fMasterVolume", iCurPos / FLOAT(VOLUME_STEPS));
+}
+
+static void OnVoiceVolumeChange(INDEX iCurPos)
+{
+    _pShell->SetFLOAT("snd_fVoiceVolume", iCurPos / FLOAT(VOLUME_STEPS));
 }
 
 static void MasterSliderChange(void)
@@ -954,6 +963,8 @@ void InitActionsForAudioOptionsMenu()
   gmCurrent.gm_mgWaveVolume.mg_pActivatedFunction = WaveSliderChange;
   gmCurrent.gm_mgMPEGVolume.mg_pOnSliderChange = &OnMPEGVolumeChange;
   gmCurrent.gm_mgMPEGVolume.mg_pActivatedFunction = MPEGSliderChange;
+  gmCurrent.gm_mgVoiceVolume.mg_pOnSliderChange = &OnVoiceVolumeChange;
+  gmCurrent.gm_mgVoiceVolume.mg_pActivatedFunction = VoiceSliderChange;
   gmCurrent.gm_mgMasterVolume.mg_pOnSliderChange = &OnMasterVolumeChange;
   gmCurrent.gm_mgMasterVolume.mg_pActivatedFunction = MasterSliderChange;
   gmCurrent.gm_mgApply.mg_pActivatedFunction = &ApplyAudioOptions;

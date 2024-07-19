@@ -36,10 +36,12 @@ enum ProjectileType {
   2 PRT_AFTERBURNER_DEBRIS    "Afterburner debris",
   3 PRT_GUNMAN_BULLET         "Gunman Bullet",
   4 PRT_DOOMIMP_FIREBALL      "Doom Imp Fireball",
-  5 PRT_MUTANT_SPIT           "Mutant Spit",
+  5 PRT_ABOMINATION_SPIT      "Abomination Spit",
   6 PRT_SHOOTER_FIREBALL      "Shooter Fireball",
   7 PRT_SHOOTER_SPIT          "Shooter Spit",
   8 PRT_SHAMBLER_BLOOD_BUNDLE "Shambler Blood Bundle",
+  9 PRT_ELITE_SPIT            "Elite Spit",
+ 10 PRT_MUTANT_SPIT           "Mutant Spit",
 };
 
 enum ProjectileMovingType {
@@ -106,11 +108,17 @@ void CProjectile_OnPrecache(CDLLEntityClass *pdec, INDEX iUser)
     pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_SHOCKWAVE);
     pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_FIREBALL_PLANE);
     break;
-  case PRT_MUTANT_SPIT:
+  case PRT_ABOMINATION_SPIT:
   case PRT_SHOOTER_SPIT:
   case PRT_SHAMBLER_BLOOD_BUNDLE:
+  case PRT_ELITE_SPIT:
     pdec->PrecacheModel(MODEL_BLOODSPIT);
     pdec->PrecacheTexture(TEX_BLOODSPIT);
+    pdec->PrecacheClass(CLASS_BLOOD_SPRAY);
+    break;
+  case PRT_MUTANT_SPIT:
+    pdec->PrecacheModel(MODEL_BLOODSPIT);
+    pdec->PrecacheTexture(TEX_MUTANTSPIT);
     pdec->PrecacheClass(CLASS_BLOOD_SPRAY);
     break;
   default:
@@ -182,9 +190,10 @@ components:
   9 model   MODEL_BULLET        "Models\\Weapons\\Pistol\\Projectile\\Bullet.mdl",
  10 texture TEX_BULLET          "Models\\Weapons\\Pistol\\Projectile\\Bullet.tex",
 
-// ********** BULLET **********
+// ********** SPIT **********
  11 model   MODEL_BLOODSPIT        "Models\\NPCs\\Abomination\\Projectile\\MutantBloodSpit.mdl",
  12 texture TEX_BLOODSPIT          "Models\\NPCs\\Abomination\\Projectile\\BloodProjectileEffect.tex",
+ 13 texture TEX_MUTANTSPIT         "Models\\NPCs\\Mutant\\Projectile\\MutantProjectileEffect.tex",
 
 // ********** SHOOTERS **********
 160 model   MODEL_SHTR_WOODEN_DART  "ModelsMP\\Enemies\\Shooters\\Arrow01.mdl",
@@ -370,6 +379,14 @@ functions:
       case PRT_SHOOTER_FIREBALL:
         Particles_Fireball01Trail(this);
         break;
+      case PRT_ABOMINATION_SPIT:
+      case PRT_SHOOTER_SPIT:
+      case PRT_SHAMBLER_BLOOD_BUNDLE:
+      case PRT_ELITE_SPIT:
+        Particles_BloodTrail(this);
+        break;
+      case PRT_MUTANT_SPIT:
+        break;
     }
   }
 
@@ -418,7 +435,7 @@ functions:
 };
 
 
-void MutantBloodExplosion(void) {
+void AbominationBloodExplosion(void) {
   // spawn particle debris
   CPlacement3D plSpray = GetPlacement();
   CEntityPointer penSpray = CreateEntity( plSpray, CLASS_BLOOD_SPRAY);
@@ -428,6 +445,22 @@ void MutantBloodExplosion(void) {
   eSpawnSpray.fDamagePower = 4.0f;
   eSpawnSpray.fSizeMultiplier = 0.5f;
   eSpawnSpray.sptType = SPT_BLOOD;
+  eSpawnSpray.vDirection = en_vCurrentTranslationAbsolute/32.0f;
+  eSpawnSpray.penOwner = this;
+  penSpray->Initialize( eSpawnSpray);
+};
+
+
+void MutantBloodExplosion(void) {
+  // spawn particle debris
+  CPlacement3D plSpray = GetPlacement();
+  CEntityPointer penSpray = CreateEntity( plSpray, CLASS_BLOOD_SPRAY);
+  penSpray->SetParent( this);
+  ESpawnSpray eSpawnSpray;
+  eSpawnSpray.colBurnColor=C_WHITE|CT_OPAQUE;
+  eSpawnSpray.fDamagePower = 4.0f;
+  eSpawnSpray.fSizeMultiplier = 0.5f;
+  eSpawnSpray.sptType = SPT_SLIME;
   eSpawnSpray.vDirection = en_vCurrentTranslationAbsolute/32.0f;
   eSpawnSpray.penOwner = this;
   penSpray->Initialize( eSpawnSpray);
@@ -570,7 +603,7 @@ void DoomImpFireball(void) {
 /************************************************************
  *                   MUTANT PROJECTILE                      *
  ************************************************************/
-void MutantBloodSpit(void) {
+void AbominationBloodSpit(void) {
   // set appearance
   InitAsModel();
   SetPhysicsFlags(EPF_PROJECTILE_FLYING);
@@ -581,7 +614,7 @@ void MutantBloodSpit(void) {
   LaunchAsPropelledProjectile(FLOAT3D(0.0f, 0.0f, -15.0f), (CMovableEntity*)(CEntity*)m_penLauncher);
   SetDesiredRotation(ANGLE3D(0, 0, 0));
   m_fFlyTime = 5.0f;
-  m_fDamageAmount = 15.0f;
+  m_fDamageAmount = 10.0f;
   m_fSoundRange = 0.0f;
   m_bExplode = FALSE;
   m_bLightSource = FALSE;
@@ -668,6 +701,54 @@ void ShamblerBloodBundle(void) {
   m_pmtMove = PMT_BLOODBUNDLE;
 };
 
+/********************************************************************
+ *                   ELITE TWITCHER PROJECTILE                      *
+ ********************************************************************/
+void EliteBloodSpit(void) {
+  // set appearance
+  InitAsModel();
+  SetPhysicsFlags(EPF_PROJECTILE_FLYING);
+  SetCollisionFlags(ECF_PROJECTILE_MAGIC);
+  SetModel(MODEL_BLOODSPIT);
+  SetModelMainTexture(TEX_BLOODSPIT);
+  // start moving
+  LaunchAsPropelledProjectile(FLOAT3D(0.0f, 0.0f, -18.5f), (CMovableEntity*)(CEntity*)m_penLauncher);
+  SetDesiredRotation(ANGLE3D(0, 0, 0));
+  m_fFlyTime = 5.0f;
+  m_fDamageAmount = 15.0f;
+  m_fSoundRange = 0.0f;
+  m_bExplode = FALSE;
+  m_bLightSource = FALSE;
+  m_bCanHitHimself = FALSE;
+  m_bCanBeDestroyed = FALSE;
+  m_fWaitAfterDeath = 0.0f;
+  m_pmtMove = PMT_FLYING;
+};
+
+/************************************************************
+ *                   MUTANT PROJECTILE                      *
+ ************************************************************/
+void MutantBloodSpit(void) {
+  // set appearance
+  InitAsModel();
+  SetPhysicsFlags(EPF_PROJECTILE_FLYING);
+  SetCollisionFlags(ECF_PROJECTILE_MAGIC);
+  SetModel(MODEL_BLOODSPIT);
+  SetModelMainTexture(TEX_MUTANTSPIT);
+  // start moving
+  LaunchAsPropelledProjectile(FLOAT3D(0.0f, 0.0f, -20.0f), (CMovableEntity*)(CEntity*)m_penLauncher);
+  SetDesiredRotation(ANGLE3D(0, 0, 0));
+  m_fFlyTime = 5.0f;
+  m_fDamageAmount = 3.0f;
+  m_fSoundRange = 0.0f;
+  m_bExplode = FALSE;
+  m_bLightSource = FALSE;
+  m_bCanHitHimself = FALSE;
+  m_bCanBeDestroyed = FALSE;
+  m_fWaitAfterDeath = 0.0f;
+  m_pmtMove = PMT_FLYING;
+};
+
 /************************************************************
  *             C O M M O N   F U N C T I O N S              *
  ************************************************************/
@@ -721,6 +802,10 @@ void ProjectileTouch(CEntityPointer penHit)
                  GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
     }
   
+  // check for acid damage
+  } else if(m_prtType == PRT_MUTANT_SPIT) {
+    InflictDirectDamage(penHit, m_penLauncher, DMT_ACID, m_fDamageAmount*fDamageMul,
+               GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
   // don't damage the same entity twice (wind blast)
   } else {
     InflictDirectDamage(penHit, m_penLauncher, DMT_PROJECTILE, m_fDamageAmount*fDamageMul,
@@ -1413,10 +1498,12 @@ procedures:
       case PRT_AFTERBURNER_DEBRIS: AfterburnerDebris(); break;
       case PRT_GUNMAN_BULLET: GunmanBullet(); break;
       case PRT_DOOMIMP_FIREBALL: DoomImpFireball(); break;
-      case PRT_MUTANT_SPIT: MutantBloodSpit(); break;
+      case PRT_ABOMINATION_SPIT: AbominationBloodSpit(); break;
       case PRT_SHOOTER_FIREBALL: ShooterFireball(); break;
       case PRT_SHOOTER_SPIT: ShooterBloodSpit(); break;
       case PRT_SHAMBLER_BLOOD_BUNDLE: ShamblerBloodBundle(); break;
+      case PRT_ELITE_SPIT: EliteBloodSpit(); break;
+      case PRT_MUTANT_SPIT: MutantBloodSpit(); break;
       default: ASSERTALWAYS("Unknown projectile type");
     }
 
@@ -1447,9 +1534,12 @@ procedures:
       case PRT_DOOMIMP_FIREBALL: 
       case PRT_SHOOTER_FIREBALL: 
       FireballExplosion(); break;
-      case PRT_MUTANT_SPIT:
+      case PRT_ABOMINATION_SPIT:
       case PRT_SHOOTER_SPIT:
       case PRT_SHAMBLER_BLOOD_BUNDLE:
+      case PRT_ELITE_SPIT:
+      AbominationBloodExplosion(); break;
+      case PRT_MUTANT_SPIT:
       MutantBloodExplosion(); break;
     }
 

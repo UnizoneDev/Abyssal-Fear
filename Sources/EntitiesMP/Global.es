@@ -72,6 +72,12 @@ event ELock {        // lock or pause this object
 event EUnlock {      // unlock or unpause this object
   CEntityPointer penCaused,
 }; 
+event EOpen {        // open this object
+  CEntityPointer penCaused,
+}; 
+event EClose {       // close this object
+  CEntityPointer penCaused,
+}; 
 
 enum BoolEType {
   0 BET_TRUE      "True",   // true
@@ -97,6 +103,8 @@ enum EventEType {
  14 EET_STOPANOSMIA       "Stop anosmia event",         // enemy stop being anosmic
  15 EET_LOCK              "Lock event",                 // lock event
  16 EET_UNLOCK            "Unlock event",               // unlock event
+ 17 EET_OPEN              "Open event",                 // open event
+ 18 EET_CLOSE             "Close event",                // close event
 };
 
 
@@ -165,6 +173,17 @@ enum SmellType {
   2 SMLT_MEAT         "",     // FRESH MEAT?!!?
   3 SMLT_GARBAGE      "",     // take the trash out!
   4 SMLT_BLOOD        "",     // the fear of blood tends to create fear for the flesh
+};
+
+enum ConversationSoundType {
+  0 CONSNDT_NONE       "",     // internal
+  1 CONSNDT_IDLE       "",     // talking to self
+  2 CONSNDT_QUESTION   "",     // ask something
+  3 CONSNDT_ANSWER     "",     // answer question
+  4 CONSNDT_SCARED     "",     // alert
+  5 CONSNDT_HELP       "",     // beg for help
+  6 CONSNDT_NOTICE     "",     // remark about a weird sight
+  7 CONSNDT_WARN       "",     // alert others about danger
 };
 
 // hit enum
@@ -256,6 +275,8 @@ enum SprayParticlesType {
  15 SPT_TREE01      "Tree 01",      // tree 01
  16 SPT_COLOREDSTONE "Colored stone", // colored stone
  17 SPT_SMOKE       "Smoke",        // Smoke of Black Stickmen
+ 18 SPT_METAL       "Metal",        // metal
+ 19 SPT_GLASS       "Glass",        // glass
 };
 
 // weapon bits
@@ -266,9 +287,9 @@ enum WeaponBits {
   3 WB_03   "Pistol",
   4 WB_04   "Shotgun",
   5 WB_05   "SMG",
-  6 WB_06   "Pipe",
+  6 WB_06   "Metal Pipe",
   7 WB_07   "Strong Pistol",
-  8 WB_08   "",
+  8 WB_08   "Wooden Plank",
   9 WB_09   "",
  10 WB_10   "",
  11 WB_11   "",
@@ -334,6 +355,55 @@ enum VisibilityBits {
  15 VB_15   "Bit 15",
 };
 
+enum NumberCodeOperatorType {
+  0 NCOT_ADD      "Add +",
+  1 NCOT_SUBTRACT "Subtract -",
+  2 NCOT_MULTIPLY "Multiply *",
+  3 NCOT_DIVIDE   "Divide /",
+  4 NCOT_ASSIGN   "Assign =",
+};
+
+event EChangeIntegerValue {
+  enum NumberCodeOperatorType EncodopType,
+  INDEX iValue,
+  INDEX iChangedValue,
+};
+
+event EChangeInteger64Value {
+  enum NumberCodeOperatorType EncodopType,
+  INDEX64 i64Value,
+  INDEX64 i64ChangedValue,
+};
+
+event EChangeFloatValue {
+  enum NumberCodeOperatorType EncodopType,
+  FLOAT fValue,
+  FLOAT fChangedValue,
+};
+
+event EChangeDoubleValue {
+  enum NumberCodeOperatorType EncodopType,
+  DOUBLE dValue,
+  DOUBLE dChangedValue,
+};
+
+event EChangeColorValue {
+  COLOR cValue,
+  TIME tmLength,        // how long it takes to change from A to B
+};
+
+event EChangeFloat3DValue {
+  enum NumberCodeOperatorType EncodopType,
+  FLOAT3D vValue,
+  FLOAT3D vChangedValue,
+};
+
+event EChangeDouble3DValue {
+  enum NumberCodeOperatorType EncodopType,
+  DOUBLE3D vdValue,
+  DOUBLE3D vdChangedValue,
+};
+
 event ESound {
   enum SoundType EsndtSound,
   CEntityPointer penTarget,
@@ -369,6 +439,11 @@ event EOverlayFX {
   CEntityPointer penSender,
 };
 
+event EConversationSound {
+  enum ConversationSoundType EconsndtSound,
+  CEntityPointer penTarget,
+};
+
 enum MessageFont {
   0 FNT_NORMAL       "Normal",
   1 FNT_RUNIC        "Demon Sigils",
@@ -400,9 +475,6 @@ event EComputerMessage {
 // event for voice message to a player
 event EVoiceMessage {
   CTFileName fnmMessage,        // the message file
-};
-
-event EHitBySpaceShipBeam {
 };
 
 class CGlobal : CEntity {

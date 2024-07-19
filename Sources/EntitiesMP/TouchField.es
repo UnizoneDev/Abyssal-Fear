@@ -19,6 +19,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/Projectile.h"
 %}
 
+enum TouchfieldEntityType {
+  0 TET_PLAYERS "Players Only",
+  1 TET_ENEMIES "Enemies Only",
+  2 TET_NONPLAYERS "Non-Players Only",
+  3 TET_NONENEMIES "Non-Enemies Only",
+  4 TET_PLAYERSENEMIES "Players And Enemies Only",
+  5 TET_ALL "All Entities",
+};
+
 %{
 
 BOOL ConsiderAll(CEntity*pen) 
@@ -28,6 +37,22 @@ BOOL ConsiderAll(CEntity*pen)
 BOOL ConsiderPlayers(CEntity*pen) 
 {
   return IsDerivedFromClass(pen, "Player");
+}
+BOOL ConsiderNonPlayers(CEntity*pen) 
+{
+  return !IsDerivedFromClass(pen, "Player");
+}
+BOOL ConsiderEnemies(CEntity*pen) 
+{
+  return IsDerivedFromClass(pen, "Enemy Base");
+}
+BOOL ConsiderNonEnemies(CEntity*pen) 
+{
+  return !IsDerivedFromClass(pen, "Enemy Base");
+}
+BOOL ConsiderPlayersAndEnemies(CEntity*pen) 
+{
+  return (IsDerivedFromClass(pen, "Player") || IsDerivedFromClass(pen, "Enemy Base"));
 }
 %}
 
@@ -44,7 +69,7 @@ properties:
   7 CEntityPointer m_penExit      "Exit Target" COLOR(C_dRED|0xFF), // target to send event to
   8 enum EventEType m_eetExit     "Exit Event" = EET_TRIGGER,      // event to send on exit
   4 BOOL m_bActive                "Active" 'A' = TRUE,              // is field active
-  5 BOOL m_bPlayersOnly           "Players only" 'P' = TRUE,        // reacts only on players
+  5 enum TouchfieldEntityType m_tetEntities "Entity type" = TET_PLAYERS,  // entities to consider worthy
   6 FLOAT m_tmExitCheck           "Exit check time" 'X' = 0.0f,     // how often to check for exit
   9 BOOL m_bBlockNonPlayers       "Block non-players" 'B' = FALSE,  // everything except players cannot pass
 
@@ -108,7 +133,7 @@ procedures:
         }
         
         // if should react only on players and not player,
-        if (m_bPlayersOnly && !IsDerivedFromClass(ep.penOther, "Player")) {
+        if (m_tetEntities == TET_PLAYERS && !IsDerivedFromClass(ep.penOther, "Player")) {
           // ignore
           resume;
         }
@@ -137,10 +162,14 @@ procedures:
         on (ETimer) : {
           // check for entities inside
           CEntity *penNewIn;
-          if (m_bPlayersOnly) {
-            penNewIn = TouchingEntity(ConsiderPlayers, m_penLastIn);
-          } else {
-            penNewIn = TouchingEntity(ConsiderAll, m_penLastIn);
+          switch(m_tetEntities)
+          {
+            case TET_PLAYERS: penNewIn = TouchingEntity(ConsiderPlayers, m_penLastIn); break;
+            case TET_ENEMIES: penNewIn = TouchingEntity(ConsiderEnemies, m_penLastIn); break;
+            case TET_NONPLAYERS: penNewIn = TouchingEntity(ConsiderNonPlayers, m_penLastIn); break;
+            case TET_NONENEMIES: penNewIn = TouchingEntity(ConsiderNonEnemies, m_penLastIn); break;
+            case TET_PLAYERSENEMIES: penNewIn = TouchingEntity(ConsiderPlayersAndEnemies, m_penLastIn); break;
+            case TET_ALL: penNewIn = TouchingEntity(ConsiderAll, m_penLastIn); break;
           }
           // if there are no entities in anymore
           if (penNewIn==NULL) {

@@ -20,6 +20,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 uses "EntitiesMP/Marker";
 
+enum MovingBrushStateType {
+  0 MBST_NONE   "None",
+  1 MBST_OPEN   "Opened",
+  2 MBST_CLOSE  "Closed",
+};
+
 class CMovingBrushMarker: CMarker {
 name      "Moving Brush Marker";
 thumbnail "Thumbnails\\MovingBrushMarker.tbn";
@@ -52,6 +58,8 @@ properties:
  20 CEntityPointer m_penSoundStart    "Sound start entity" 'Q',   // sound start entity
  21 CEntityPointer m_penSoundStop     "Sound stop entity" 'Z',    // sound stop entity
  22 CEntityPointer m_penSoundFollow   "Sound follow entity" 'F',  // sound follow entity
+
+ 27 enum MovingBrushStateType m_mbstStateType "Marker State Type" = MBST_NONE,
 
 
 components:

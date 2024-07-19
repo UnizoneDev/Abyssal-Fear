@@ -740,57 +740,60 @@ ULONG CLayerMaker::MakeOneShadowMaskMip(INDEX iMip)
       FlipShadowMask(iMip);
   // if the light is spot
   } else if (lm_plsLight->ls_ulFlags & LSF_SPOT) {
-      // prepare parallel projection as if viewing from polygon and the shadow map is screen
-      CParallelProjection3D prProjection;
-      prProjection.ScreenBBoxL() = FLOATaabbox2D(
-          FLOAT2D(pixLayerMinU,
-              pixLayerMinV),
-          FLOAT2D(pixLayerMinU + pixLayerSizeU,
-              pixLayerMinV + pixLayerSizeV)
-      );
-      prProjection.AspectRatioL() = 1.0f;
-      prProjection.NearClipDistanceL() = 0.00f;
-      prProjection.pr_vZoomFactors(1) =
-          prProjection.pr_vZoomFactors(2) = 1024.0f / (1 << iMipLevel);
-
-      FLOAT3D vDirection;
-      AnglesToDirectionVector(
-          lm_plsLight->ls_penEntity->GetPlacement().pl_OrientationAngle,
-          vDirection);
-      // if polygon is turned away from the light
-      if ((vDirection % (const FLOAT3D&)lm_pbpoPolygon->bpo_pbplPlane->bpl_plAbsolute) > -0.001) {
-          // layer is all dark
-          return BSLF_ALLDARK;
+      // prepare perspective projection as if viewing from light and the shadow map is screen
+      CPerspectiveProjection3D prProjection;
+      if (!(lm_pbpoPolygon->bpo_ulFlags & BPOF_DARKCORNERS)) {
+          prProjection.ScreenBBoxL() = FLOATaabbox2D(
+              FLOAT2D(pixLayerMinU - fpixHotU + 1,
+                  pixLayerMinV - fpixHotV + 1),
+              FLOAT2D(pixLayerMinU + pixLayerSizeU - fpixHotU + 1,
+                  pixLayerMinV + pixLayerSizeV - fpixHotV + 1)
+          );
       }
+      else {
+          prProjection.ScreenBBoxL() = FLOATaabbox2D(
+              FLOAT2D(pixLayerMinU - fpixHotU,
+                  pixLayerMinV - fpixHotV),
+              FLOAT2D(pixLayerMinU + pixLayerSizeU - fpixHotU,
+                  pixLayerMinV + pixLayerSizeV - fpixHotV)
+          );
+      }
+      prProjection.AspectRatioL() = 1.0f;
 
-      vDirection = vDirection * lm_mToInverseMapping;
+      prProjection.NearClipDistanceL() = lm_plsLight->ls_fNearClipDistance;
+      prProjection.FarClipDistanceL()
+          = lm_fLightPlaneDistance - lm_plsLight->ls_fFarClipDistance; //-fEpsilon/2; !!!! use minimal epsilon for polygon
+      prProjection.ppr_fMetersPerPixel = (1 << iMipLevel) / 1024.0f;
+      prProjection.ppr_fViewerDistance = lm_fLightPlaneDistance;
 
-      prProjection.pr_vStepFactors(1) = -vDirection(1) / vDirection(3);
-      prProjection.pr_vStepFactors(2) = -vDirection(2) / vDirection(3);
-
-      prProjection.pr_vStepFactors(1) *= prProjection.pr_vZoomFactors(1);
-      prProjection.pr_vStepFactors(2) *= prProjection.pr_vZoomFactors(2);
-
-      CPlacement3D plCenter;
-      plCenter.pl_OrientationAngle = lm_aInverseMappingOrientation;
-      plCenter.pl_PositionVector =
-          vO
-          + vStepU * (FLOAT(pixLayerSizeU) / 2 - 0.5f) // !!!!
-          + vStepV * (FLOAT(pixLayerSizeV) / 2);//+5.0f);
-      prProjection.ViewerPlacementL() = plCenter;
-
-      // render the view to the shadow layer (but ignore the target polygon)
+      CPlacement3D plLight;
+      plLight.pl_OrientationAngle = lm_aMappingOrientation;
+      plLight.pl_PositionVector = lm_vLight;
+      prProjection.ViewerPlacementL() = plLight;
       CAnyProjection3D apr;
       apr = prProjection;
+
+      // ignore the target polygon during rendering
       ULONG ulFlagsBefore = lm_pbpoPolygon->bpo_ulFlags;
       lm_pbpoPolygon->bpo_ulFlags |= BPOF_INVISIBLE;
-      ulLighted &= RenderShadows(*lm_pwoWorld, *(CEntity*)NULL, apr,
-          lm_pbpoPolygon->bpo_boxBoundingBox, pubLayer, pixLayerSizeU, pixLayerSizeV,
-          lm_plsLight->ls_ubPolygonalMask);
+      // if light is not illumination light
+      if (lm_plsLight->ls_ubPolygonalMask == 0) {
+          // just render starting at the light entity position
+          ulLighted &= RenderShadows(*lm_pwoWorld, *lm_plsLight->ls_penEntity,
+              apr, FLOATaabbox3D(),
+              pubLayer, pixLayerSizeU, pixLayerSizeV,
+              lm_plsLight->ls_ubPolygonalMask);
+          // if light is illumination light
+      }
+      else {
+          // add entire box around target polygon and light position to rendering
+          FLOATaabbox3D box = lm_pbpoPolygon->bpo_boxBoundingBox;
+          box |= lm_plsLight->ls_penEntity->GetPlacement().pl_PositionVector;
+          ulLighted &= RenderShadows(*lm_pwoWorld, *(CEntity*)NULL, apr, box,
+              pubLayer, pixLayerSizeU, pixLayerSizeV,
+              lm_plsLight->ls_ubPolygonalMask);
+      }
       lm_pbpoPolygon->bpo_ulFlags = ulFlagsBefore;
-
-      // flip the shadow mask around v axis (left-right)
-      FlipShadowMask(iMip);
   // if the light is point
   } else {
 

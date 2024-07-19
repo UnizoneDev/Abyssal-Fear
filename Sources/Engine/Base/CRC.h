@@ -44,11 +44,27 @@ inline void CRC_AddLONG( ULONG &ulCRC, ULONG ul)
   CRC_AddBYTE(ulCRC, UBYTE(ul>> 0));
 };
 
+inline void CRC_AddQUAD(ULONG& ulCRC, UQUAD uq)
+{
+	CRC_AddBYTE(ulCRC, UBYTE(uq >> 56));
+	CRC_AddBYTE(ulCRC, UBYTE(uq >> 48));
+	CRC_AddBYTE(ulCRC, UBYTE(uq >> 40));
+	CRC_AddBYTE(ulCRC, UBYTE(uq >> 32));
+	CRC_AddBYTE(ulCRC, UBYTE(uq >> 24));
+	CRC_AddBYTE(ulCRC, UBYTE(uq >> 16));
+	CRC_AddBYTE(ulCRC, UBYTE(uq >> 8));
+	CRC_AddBYTE(ulCRC, UBYTE(uq >> 0));
+};
+
 inline void CRC_AddFLOAT(ULONG &ulCRC, FLOAT f)
 {
   CRC_AddLONG(ulCRC, *(ULONG*)&f);
 };
 
+inline void CRC_AddDOUBLE(ULONG& ulCRC, DOUBLE d)
+{
+  CRC_AddQUAD(ulCRC, *(UQUAD*)&d);
+};
 // add memory block to a CRC value
 inline void CRC_AddBlock(ULONG &ulCRC, UBYTE *pubBlock, ULONG ulSize)
 {

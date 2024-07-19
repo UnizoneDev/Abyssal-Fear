@@ -35,6 +35,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define SOF_MUSIC        (1L<<6)   // use music-volume master control instead of sound-volume
 #define SOF_NONGAME      (1L<<7)   // game sounds are not mixed while the game is paused
 #define SOF_NOFILTER     (1L<<8)   // used to disable listener-specific filters - i.e. underwater
+#define SOF_VOICE        (1L<<9)   // [Uni] use voice-volume master control instead of sound-volume
 
 #define SOF_PAUSED       (1L<<28)  // playing, but paused (internal)
 #define SOF_LOADED       (1L<<29)  // sound just loaded (internal)
@@ -147,7 +148,7 @@ public:
   };
   // Set pitch shifting
   inline void SetPitch( FLOAT fPitch) { // 1.0 for normal (<1 = slower, >1 = faster playing)
-    ASSERT( fPitch > 0);
+    ASSERT(fPitch <= SL_PITCH_MAX && fPitch >= SL_PITCH_MIN);
     so_spNew.sp_fPitchShift = fPitch;
   };
   // Set phase shifting

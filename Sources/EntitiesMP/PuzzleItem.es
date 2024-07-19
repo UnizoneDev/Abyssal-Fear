@@ -65,6 +65,7 @@ features  "IsImportant";
 properties:
   1 enum PuzzleItemType m_pitType    "Type" 'Y' = PIT_LEVERHANDLE,     // puzzle item
   3 INDEX m_iSoundComponent = 0,
+  5 FLOAT m_fSize "Size" = 1.0f,
 
 components:
   0 class   CLASS_BASE        "Classes\\Item.ecl",
@@ -173,6 +174,7 @@ functions:
         m_iSoundComponent = SOUND_KEY;
         break;
     }
+    GetModelObject()->StretchModel(FLOAT3D(m_fSize, m_fSize, m_fSize));
   };
 
 procedures:
@@ -198,7 +200,7 @@ procedures:
   Main() {
     Initialize();     // initialize base class
     StartModelAnim(ITEMHOLDER_ANIM_DEFAULT_ANIMATION, AOF_LOOPING|AOF_NORESTART);
-    ForceCollisionBoxIndexChange(ITEMHOLDER_COLLISION_BOX_MEDIUM);
+    ForceCollisionBoxIndexChange(ITEMHOLDER_COLLISION_BOX_SMALL);
     SetProperties();  // set properties
 
     jump CItem::ItemLoop();

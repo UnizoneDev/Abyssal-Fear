@@ -169,6 +169,7 @@ CEntity::CEntity(void)
   en_ulPhysicsFlags = 0;
   en_ulCollisionFlags = 0;
   en_ctReferences = 0;
+  en_ulRenderingFlags = 0;
   en_ulID = 0;
   en_RenderType = RT_NONE;
   en_fSpatialClassificationRadius = -1.0f;
@@ -1054,6 +1055,7 @@ void CEntity::FallDownToFloor( void)
     crRay.cr_bHitTranslucentPortals = TRUE;
     crRay.cr_bHitBlockSightPortals = FALSE;
     crRay.cr_bHitBlockMeleePortals = FALSE;
+	crRay.cr_bHitBlockHitscanPortals = FALSE;
     crRay.cr_bPhysical = TRUE;
     GetWorld()->CastRay(crRay);
     if( (crRay.cr_penHit != NULL) && (crRay.cr_vHit(2) > fMaxY)) {
@@ -1232,6 +1234,11 @@ void CEntity::SetCollisionFlags(ULONG ulFlags)
   FindCollisionInfo();
 }
 
+void CEntity::SetRenderingFlags(ULONG ulFlags)
+{
+    // remember the new flags
+    en_ulRenderingFlags = ulFlags;
+}
 void CEntity::SetParent(CEntity *penNewParent)
 {
   // if there is a parent already
@@ -1554,6 +1561,7 @@ CCollisionInfo::CCollisionInfo(const CCollisionInfo &ciOrg)
   ci_fHandleR   = ciOrg.ci_fHandleR   ;
   ci_boxCurrent = ciOrg.ci_boxCurrent ;
   ci_ulFlags    = ciOrg.ci_ulFlags    ;
+  ci_absBoxes   = ciOrg.ci_absBoxes   ;
 }
 /* Create collision info for a model. */
 void CCollisionInfo::FromModel(CEntity *penModel, INDEX iBox)
@@ -2454,6 +2462,8 @@ void CEntity::SetSkaColisionInfo()
   FindCollisionInfo();
 }
 
+// Ska Model manipulation
+/* Set the ska model data for model entity. */
 void CEntity::SetSkaModel_t(const CTString& fnmModel)
 {
     ASSERT(en_RenderType == RT_SKAMODEL || en_RenderType == RT_SKAEDITORMODEL);
@@ -2461,7 +2471,7 @@ void CEntity::SetSkaModel_t(const CTString& fnmModel)
     try {
         // if model instance doesn't exist
         if (en_pmiModelInstance == NULL) {
-            en_pmiModelInstance = CreateModelInstance("");
+            en_pmiModelInstance = CreateModelInstance("Temp");
         }
         ASSERT(en_pmiModelInstance != NULL);
         ObtainModelInstance_t(*en_pmiModelInstance, fnmModel);
@@ -2513,7 +2523,7 @@ void CEntity::SetSkaModel(SLONG idSkaModelComponent)
     CModelInstance *pmiComponent = pecSkaModel->ec_pmidSkaModel->mid_pModelInstance;
 
     if (en_pmiModelInstance == NULL) {
-        en_pmiModelInstance = CreateModelInstance("");
+        en_pmiModelInstance = CreateModelInstance("Temp");
     }
 
     en_pmiModelInstance->Copy(*pmiComponent);
@@ -2553,6 +2563,12 @@ void CEntity::StartModelAnim(INDEX iNewModelAnim, ULONG ulFlags)
   en_pmoModelObject->PlayAnim(iNewModelAnim, ulFlags);
 }
 
+/* [Uni] Start new animation for ska model entity. */
+void CEntity::StartSkaModelAnim(INDEX iNewModelAnim, ULONG ulFlags, FLOAT fStrength, INDEX iGroup, FLOAT fSpeedMul)
+{
+  ASSERT(en_RenderType == RT_SKAMODEL || en_RenderType == RT_SKAEDITORMODEL);
+  en_pmiModelInstance->AddAnimation(iNewModelAnim, ulFlags, fStrength, iGroup, fSpeedMul);
+}
 /* Set the main texture data for model entity. */
 void CEntity::SetModelMainTexture(const CTFileName &fnmTexture)
 {
@@ -2715,6 +2731,10 @@ void EntityAdjustShaderParamsCallback(void *pData,INDEX iSurfaceID,CShader *pSha
 {
   ((CEntity*)pData)->AdjustShaderParams(iSurfaceID,pShader,spParams);
 }
+void EntityFrameEventCallback(void *pData, INDEX iEventID)
+{
+  ((CEntity*)pData)->AdjustFrameEvents(iEventID);
+}
 
 // Returns true if bone exists and sets two given vectors as start and end point of specified bone
 BOOL CEntity::GetBoneRelPosition(INDEX iBoneID, FLOAT3D &vStartPoint, FLOAT3D &vEndPoint)
@@ -2744,6 +2764,10 @@ void CEntity::AdjustShaderParams(INDEX iSurfaceID,CShader *pShader,ShaderParams 
 {
 }
 
+// [Uni] Callback function for ska model frame events
+void CEntity::AdjustFrameEvents(INDEX iEventID)
+{
+}
 // precache given component
 void CEntity::PrecacheModel(SLONG slID)
 {
@@ -2902,11 +2926,11 @@ CModelData *CEntity::GetModelDataForComponent(SLONG slID)
 }
 
 // Get data for a ska model component
-CModelInstanceData* CEntity::GetModelInstanceDataForComponent(SLONG slID)
+CModelInstance* CEntity::GetModelInstanceForComponent(SLONG slID)
 {
     CEntityComponent* pec = ComponentForTypeAndID(ECT_SKAMODEL, slID);
     if (pec != NULL) {
-        return pec->ec_pmidSkaModel;
+        return pec->ec_pmidSkaModel->mid_pModelInstance;
     }
     else {
         return NULL;
@@ -3183,6 +3207,7 @@ static BOOL CheckModelRangeDamage(
     crRay.cr_bHitTranslucentPortals = FALSE;
     crRay.cr_bHitBlockSightPortals = FALSE;
     crRay.cr_bHitBlockMeleePortals = FALSE;
+	crRay.cr_bHitBlockHitscanPortals = FALSE;
     crRay.cr_bPhysical = TRUE;
     en.en_pwoWorld->CastRay(crRay);
     if (crRay.cr_penHit==NULL) {
@@ -3548,6 +3573,8 @@ void CEntity::Read_t( CTStream *istr) // throw char *
     en_ulFlags&=~ENF_PREDICTABLE; // have to clear it to be able to set it back
     SetPredictable(TRUE);
   }
+
+  (*istr) >> en_ulRenderingFlags;
 }
 
 /*
@@ -3605,6 +3632,8 @@ void CEntity::Write_t( CTStream *ostr) // throw char *
     // read the light source layer list
     pls->Write_t(ostr);
   }}
+
+  (*ostr) << en_ulRenderingFlags;
 }
 
 
@@ -3623,6 +3652,7 @@ void CEntity::ChecksumForSync(ULONG &ulCRC, INDEX iExtensiveSyncCheck)
     CRC_AddLONG(ulCRC, en_ulPhysicsFlags);
     CRC_AddLONG(ulCRC, en_ulCollisionFlags);
     CRC_AddLONG(ulCRC, en_ctReferences);
+    CRC_AddLONG(ulCRC, en_ulRenderingFlags);
   }
   CRC_AddLONG(ulCRC, en_RenderType);
   if (iExtensiveSyncCheck>0) {
@@ -3658,6 +3688,7 @@ void CEntity::DumpSync_t(CTStream &strm, INDEX iExtensiveSyncCheck)  // throw ch
     strm.FPrintF_t("en_ulPhysicsFlags:   0x%08X\n", en_ulPhysicsFlags);
     strm.FPrintF_t("en_ulCollisionFlags: 0x%08X\n", en_ulCollisionFlags);
     strm.FPrintF_t("en_ctReferences: %d\n", en_ctReferences);
+	strm.FPrintF_t("en_ulRenderingFlags: 0x%08X\n", en_ulRenderingFlags);
   }
   strm.FPrintF_t("en_RenderType: %d\n", en_RenderType);
   strm.FPrintF_t("en_ulID: 0x%08x\n", en_ulID);
@@ -3752,7 +3783,7 @@ SLONG CEntity::GetUsedMemory(void)
   }
   // add collision info (if any)
   if( en_pciCollisionInfo!=NULL) {
-    slUsedMemory += sizeof(CCollisionInfo) + (en_pciCollisionInfo->ci_absSpheres.sa_Count * sizeof(CMovingSphere));
+    slUsedMemory += sizeof(CCollisionInfo) + (en_pciCollisionInfo->ci_absSpheres.sa_Count * sizeof(CMovingSphere) + (en_pciCollisionInfo->ci_absBoxes.sa_Count * sizeof(CMovingBox)));
   }
   // add last positions memory (if any)
   if( en_plpLastPositions!=NULL) {

@@ -16,6 +16,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 1043
 %{
 #include "StdH.h"
+#include "EntitiesMP/Player.h"
 %}
 
 uses "EntitiesMP/EnemyBase";
@@ -104,6 +105,19 @@ properties:
  23 CTFileName m_fnmActiveSound    "Active Sound" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareAttack1.wav"),
  60 CTFileName m_fnmPainSound      "Pain Sound" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareWound3.wav"),
 
+ 76 CTFileName m_fnmSightSound2    "Sight Sound 2" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareSight1.wav"),
+ 77 CTFileName m_fnmSightSound3    "Sight Sound 3" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareSight1.wav"),
+ 78 CTFileName m_fnmIdleSound2     "Idle Sound 2" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareSight1.wav"),
+ 79 CTFileName m_fnmIdleSound3     "Idle Sound 3" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareSight1.wav"),
+ 80 CTFileName m_fnmWoundSound2    "Wound Sound 2" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareWound1.wav"),
+ 81 CTFileName m_fnmWoundSound3    "Wound Sound 3" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareWound1.wav"),
+ 82 CTFileName m_fnmDeathSound2    "Death Sound 2" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareDeath1.wav"),
+ 83 CTFileName m_fnmDeathSound3    "Death Sound 3" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareDeath1.wav"),
+ 84 CTFileName m_fnmActiveSound2   "Active Sound 2" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareAttack1.wav"),
+ 85 CTFileName m_fnmActiveSound3   "Active Sound 3" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareAttack1.wav"),
+ 86 CTFileName m_fnmPainSound2     "Pain Sound 2" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareWound3.wav"),
+ 87 CTFileName m_fnmPainSound3     "Pain Sound 3" = CTFILENAME("Models\\NPCs\\Twitcher\\Sounds\\NightmareWound3.wav"),
+
  24 ANIMATION m_iEnemyStandAnim        "Stand Animation" = 0,
  63 ANIMATION m_iEnemyStandFightAnim   "Stand Fight Animation" = 0,
  25 ANIMATION m_iEnemyWalkAnim         "Walk Animation" = 0,
@@ -123,6 +137,7 @@ properties:
 
  35 CTFileName m_fnmMissSound      "Miss Sound" = CTFILENAME("Models\\Weapons\\Knife\\Sounds\\Swing.wav"),
  36 CTFileName m_fnmHitSound       "Hit Sound" = CTFILENAME("Models\\NPCs\\Abomination\\Sounds\\Hit.wav"),
+ 88 CTFileName m_fnmBlockHitSound  "Block Hit Sound" = CTFILENAME("Models\\NPCs\\Abomination\\Sounds\\Hit.wav"),
  37 CTFileName m_fnmFireSound      "Fire Sound" = CTFILENAME("Models\\NPCs\\Gunman\\Sounds\\PistolAttack.wav"),
  38 INDEX m_iDeathCollisionBox     "Death Collision Box" = 0,
  41 enum ProjectileType m_ptCustomProjectile "Custom Projectile" = PRT_GUNMAN_BULLET,
@@ -221,23 +236,37 @@ functions:
   void Precache(void) {
     CEnemyBase::Precache();
     m_aps.Precache(m_fnmSightSound);
+    m_aps.Precache(m_fnmSightSound2);
+    m_aps.Precache(m_fnmSightSound3);
     m_aps.Precache(m_fnmIdleSound);
+    m_aps.Precache(m_fnmIdleSound2);
+    m_aps.Precache(m_fnmIdleSound3);
     m_aps.Precache(m_fnmWoundSound);
+    m_aps.Precache(m_fnmWoundSound2);
+    m_aps.Precache(m_fnmWoundSound3);
     m_aps.Precache(m_fnmDeathSound);
+    m_aps.Precache(m_fnmDeathSound2);
+    m_aps.Precache(m_fnmDeathSound3);
     m_aps.Precache(m_fnmActiveSound);
+    m_aps.Precache(m_fnmActiveSound2);
+    m_aps.Precache(m_fnmActiveSound3);
     m_aps.Precache(m_fnmMissSound);
     m_aps.Precache(m_fnmHitSound);
+    m_aps.Precache(m_fnmBlockHitSound);
     m_aps.Precache(m_fnmFireSound);
     m_aps.Precache(m_fnmPainSound);
+    m_aps.Precache(m_fnmPainSound2);
+    m_aps.Precache(m_fnmPainSound3);
     PrecacheClass(CLASS_PROJECTILE, PRT_FLAME);
     PrecacheClass(CLASS_PROJECTILE, PRT_SHOOTER_FLAME);
     PrecacheClass(CLASS_PROJECTILE, PRT_AFTERBURNER_DEBRIS);
     PrecacheClass(CLASS_PROJECTILE, PRT_GUNMAN_BULLET);
     PrecacheClass(CLASS_PROJECTILE, PRT_DOOMIMP_FIREBALL);
-    PrecacheClass(CLASS_PROJECTILE, PRT_MUTANT_SPIT);
+    PrecacheClass(CLASS_PROJECTILE, PRT_ABOMINATION_SPIT);
     PrecacheClass(CLASS_PROJECTILE, PRT_SHOOTER_FIREBALL);
     PrecacheClass(CLASS_PROJECTILE, PRT_SHOOTER_SPIT);
     PrecacheClass(CLASS_PROJECTILE, PRT_SHAMBLER_BLOOD_BUNDLE);
+    PrecacheClass(CLASS_PROJECTILE, PRT_MUTANT_SPIT);
   };
 
   /* Get anim data for given animation property - return NULL for none. */
@@ -276,7 +305,7 @@ functions:
   void ReceiveDamage(CEntity *penInflictor, enum DamageType dmtType,
     FLOAT fDamageAmmount, const FLOAT3D &vHitPoint, const FLOAT3D &vDirection, enum DamageBodyPartType dbptType) 
   {
-    if(m_bAllowInfighting) {
+    if(m_ibtBehavior != IBT_NONE) {
       CEnemyBase::ReceiveDamage(penInflictor, dmtType, fDamageAmmount, vHitPoint, vDirection, dbptType);
       if(IsOfClass(penInflictor, "Custom Enemy")) {
         SetTargetHardForce(penInflictor);
@@ -391,27 +420,63 @@ functions:
   };
 
   void SightSound(void) {
-    PlaySound(m_soSound, m_fnmSightSound, SOF_3D);
+    switch(IRnd()%3)
+    {
+      case 0: PlaySound(m_soVoice, m_fnmSightSound, SOF_3D); break;
+      case 1: PlaySound(m_soVoice, m_fnmSightSound2, SOF_3D); break;
+      case 2: PlaySound(m_soVoice, m_fnmSightSound3, SOF_3D); break;
+      default: ASSERTALWAYS("Custom Enemy unknown sight sound");
+    }
   };
 
   void IdleSound(void) {
-    PlaySound(m_soSound, m_fnmIdleSound, SOF_3D);
+    switch(IRnd()%3)
+    {
+      case 0: PlaySound(m_soVoice, m_fnmIdleSound, SOF_3D); break;
+      case 1: PlaySound(m_soVoice, m_fnmIdleSound2, SOF_3D); break;
+      case 2: PlaySound(m_soVoice, m_fnmIdleSound3, SOF_3D); break;
+      default: ASSERTALWAYS("Custom Enemy unknown idle sound");
+    }
   };
 
   void WoundSound(void) {
-    PlaySound(m_soSound, m_fnmWoundSound, SOF_3D);
+    switch(IRnd()%3)
+    {
+      case 0: PlaySound(m_soVoice, m_fnmWoundSound, SOF_3D); break;
+      case 1: PlaySound(m_soVoice, m_fnmWoundSound2, SOF_3D); break;
+      case 2: PlaySound(m_soVoice, m_fnmWoundSound3, SOF_3D); break;
+      default: ASSERTALWAYS("Custom Enemy unknown wound sound");
+    }
   };
 
   void DeathSound(void) {
-    PlaySound(m_soSound, m_fnmDeathSound, SOF_3D);
+    switch(IRnd()%3)
+    {
+      case 0: PlaySound(m_soVoice, m_fnmDeathSound, SOF_3D); break;
+      case 1: PlaySound(m_soVoice, m_fnmDeathSound2, SOF_3D); break;
+      case 2: PlaySound(m_soVoice, m_fnmDeathSound3, SOF_3D); break;
+      default: ASSERTALWAYS("Custom Enemy unknown death sound");
+    }
   };
 
   void ActiveSound(void) {
-    PlaySound(m_soSound, m_fnmActiveSound, SOF_3D);
+    switch(IRnd()%3)
+    {
+      case 0: PlaySound(m_soVoice, m_fnmActiveSound, SOF_3D); break;
+      case 1: PlaySound(m_soVoice, m_fnmActiveSound2, SOF_3D); break;
+      case 2: PlaySound(m_soVoice, m_fnmActiveSound3, SOF_3D); break;
+      default: ASSERTALWAYS("Custom Enemy unknown active sound");
+    }
   };
 
   void PainSound(void) {
-    PlaySound(m_soSound, m_fnmPainSound, SOF_3D);
+    switch(IRnd()%3)
+    {
+      case 0: PlaySound(m_soVoice, m_fnmPainSound, SOF_3D); break;
+      case 1: PlaySound(m_soVoice, m_fnmPainSound2, SOF_3D); break;
+      case 2: PlaySound(m_soVoice, m_fnmPainSound3, SOF_3D); break;
+      default: ASSERTALWAYS("Custom Enemy unknown pain sound");
+    }
   };
 
   // --------------------------------------------------------------------------------------
@@ -458,7 +523,7 @@ functions:
       // don't target your allies
       if(enEB.GetFaction() == this->GetFaction())
       {
-        if(m_bAllowInfighting && IsOfClass(penNewTarget, "Custom Enemy")) {
+        if(m_ibtBehavior != IBT_NONE && IsOfClass(penNewTarget, "Custom Enemy")) {
           return TRUE;
         }
         return FALSE;
@@ -560,9 +625,39 @@ functions:
     
     if (m_bFistHit) {
       if (CalcDist(m_penEnemy) < m_fCustomMeleeRange) {
-        PlaySound(m_soSound, m_fnmHitSound, SOF_3D);
+
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
+
+        FLOAT3D vProperDamageDir = (vDirection.ManhattanNorm() > m_fBlockDirAmount) ? vDirection : -en_vGravityDir;
+        vProperDamageDir = (vProperDamageDir - en_vGravityDir * m_fBlockDirAmount).Normalize();
+        
+        if(IsOfClass(m_penEnemy, "Player")) {
+          CPlayer &pl = (CPlayer&)*m_penEnemy;
+
+          if(pl.m_bIsBlocking == TRUE) {
+            if (pl.GetPlaneFrustumAngle(vProperDamageDir) < Cos(pl.m_fBlockAmount)) {
+              PlaySound(m_soSound, m_fnmBlockHitSound, SOF_3D);
+            } else {
+              PlaySound(m_soSound, m_fnmHitSound, SOF_3D);
+            }
+          } else {
+            PlaySound(m_soSound, m_fnmHitSound, SOF_3D);
+          }
+        } else if(IsDerivedFromClass(m_penEnemy, "Enemy Base")) {
+          CEnemyBase &eb = (CEnemyBase&)*m_penEnemy;
+
+          if(eb.m_bIsBlocking == TRUE) {
+            if (eb.GetPlaneFrustumAngle(vProperDamageDir) < Cos(eb.m_fBlockAmount)) {
+              PlaySound(m_soSound, m_fnmBlockHitSound, SOF_3D);
+            } else {
+              PlaySound(m_soSound, m_fnmHitSound, SOF_3D);
+            }
+          } else {
+            PlaySound(m_soSound, m_fnmHitSound, SOF_3D);
+          }
+        }
+
         InflictDirectDamage(m_penEnemy, this, m_dmtMeleeType, m_fCustomMeleeDamage, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
       }
     } else {

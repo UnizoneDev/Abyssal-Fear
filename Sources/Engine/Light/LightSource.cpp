@@ -49,6 +49,8 @@ CLightSource::CLightSource(void)
   ls_plftLensFlare = NULL;
   ls_paoLightAnimation = NULL;
   ls_paoAmbientLightAnimation = NULL;
+  ls_fInnerCone = -1;
+  ls_fOuterCone = -1;
 }
 // destructor
 CLightSource::~CLightSource(void)
@@ -687,6 +689,8 @@ void CLightSource::SetLightSourceWithNoDiscarding( const CLightSource &lsOrigina
   ls_plftLensFlare            = lsOriginal.ls_plftLensFlare;
   ls_paoLightAnimation        = lsOriginal.ls_paoLightAnimation;
   ls_paoAmbientLightAnimation = lsOriginal.ls_paoAmbientLightAnimation;
+  ls_fInnerCone               = lsOriginal.ls_fInnerCone;
+  ls_fOuterCone               = lsOriginal.ls_fOuterCone;
 }
 
 // set properties of the light source and discard shadows if neccessary
@@ -704,7 +708,9 @@ void CLightSource::SetLightSource(const CLightSource &lsOriginal)
     ls_rHotSpot               !=  lsOriginal.ls_rHotSpot               ||
     ls_colColor               !=  lsOriginal.ls_colColor               ||
     ls_colAmbient             !=  lsOriginal.ls_colAmbient             ||
-    ls_ubLightAnimationObject !=  lsOriginal.ls_ubLightAnimationObject;
+    ls_ubLightAnimationObject !=  lsOriginal.ls_ubLightAnimationObject ||
+    ls_fInnerCone             !=  lsOriginal.ls_fInnerCone             ||
+    ls_fOuterCone             !=  lsOriginal.ls_fOuterCone;
   // discard shadows if needed
   if( bDiscardLayers) {
     DiscardShadowLayers();

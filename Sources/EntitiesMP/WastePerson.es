@@ -69,9 +69,9 @@ components:
   7 model   MODEL_WASTERKNIFE		"Models\\NPCs\\WastePeople\\WasterWeapons\\WasterKnife.mdl",
 
   10 sound   SOUND_SWING            "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
-  11 sound   SOUND_SLICE1           "Models\\NPCs\\Twitcher\\Sounds\\Slice1.wav",
-  12 sound   SOUND_SLICE2           "Models\\NPCs\\Twitcher\\Sounds\\Slice2.wav",
-  13 sound   SOUND_SLICE3           "Models\\NPCs\\Twitcher\\Sounds\\Slice3.wav",
+  11 sound   SOUND_SLICE1           "Sounds\\Weapons\\MetalBladeBigSlice1.wav",
+  12 sound   SOUND_SLICE2           "Sounds\\Weapons\\MetalBladeBigSlice2.wav",
+  13 sound   SOUND_SLICE3           "Sounds\\Weapons\\MetalBladeBigSlice3.wav",
   14 sound   SOUND_CLASH1           "Sounds\\Weapons\\MetalBladeClash1.wav",
   15 sound   SOUND_CLASH2           "Sounds\\Weapons\\MetalBladeClash2.wav",
   16 sound   SOUND_CLASH3           "Sounds\\Weapons\\MetalBladeClash3.wav",
@@ -298,7 +298,11 @@ functions:
 
     INDEX iRandomChoice = IRnd()%4;
 
-    if(iRandomChoice == 1)
+    CPlayer &enPL = (CPlayer&)*m_penEnemy;
+    CPlayerWeapons *penWeapons = enPL.GetPlayerWeapons();
+
+    if(iRandomChoice == 1 && (penWeapons->m_iCurrentWeapon == WEAPON_KNIFE || penWeapons->m_iCurrentWeapon == WEAPON_AXE
+                           || penWeapons->m_iCurrentWeapon == WEAPON_PIPE))
     {
       autocall BlockEnemyMelee() EReturn;
       return EReturn();
@@ -526,10 +530,10 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_LESSER;
-    SetHealth(200.0f);
-    m_fMaxHealth = 200.0f;
-    m_fDamageWounded = 90.0f;
-    m_iScore = 10000;
+    SetHealth(175.0f);
+    m_fMaxHealth = 175.0f;
+    m_fDamageWounded = 80.0f;
+    m_iScore = 5000;
     en_tmMaxHoldBreath = 30.0f;
     en_fDensity = 1000.0f;
     m_fBlowUpSize = 2.0f;

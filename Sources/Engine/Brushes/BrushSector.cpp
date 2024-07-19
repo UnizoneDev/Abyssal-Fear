@@ -51,6 +51,7 @@ extern void AssureFPT_53(void);
 CBrushSector::CBrushSector(void) 
 : bsc_ulFlags(0)
 , bsc_ulFlags2(0)
+, bsc_ulFlags3(0)
 , bsc_ulTempFlags(0)
 , bsc_ulVisFlags(0)
 , bsc_strName("")

@@ -71,6 +71,8 @@ public:
 #define FILTER_TXT            "Text files (*.txt)\0*.txt\0"
 #define FILTER_LST            "List files (*.lst)\0*.lst\0"
 #define FILTER_SMC            "SMC files (*.smc)\0*.smc\0"
+#define FILTER_OGG            "Music files (*.ogg)\0*.ogg\0"
+#define FILTER_AUDIO          "Audio files (*.wav;*.ogg)\0*.wav;*.ogg\0"
 #define FILTER_END            "\0"
   /* File requester with thumbnail display */
   ENGINEGUI_API CTFileName FileRequester( char *pchrTitle="Choose file",

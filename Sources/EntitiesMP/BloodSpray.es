@@ -77,6 +77,8 @@ functions:
     case SPT_BEAST_PROJECTILE_SPRAY:
     case SPT_AIRSPOUTS:
     case SPT_GOO:
+    case SPT_METAL:
+    case SPT_GLASS:
     {
       Particles_BloodSpray(m_sptType, GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
         m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower, m_colBurnColor);

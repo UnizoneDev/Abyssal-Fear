@@ -41,7 +41,8 @@ static INDEX _ctPolygonsLoaded;
 #define BSCV_WITHNAME                   1
 #define BSCV_WITHFLAGS2                 2
 #define BSCV_WITHVISFLAGS               3
-#define BSCV_CURRENT                    BSCV_WITHVISFLAGS
+#define BSCV_WITHFLAGS3                 4
+#define BSCV_CURRENT                    BSCV_WITHFLAGS3
 
 /*
  * Write to stream.
@@ -273,6 +274,7 @@ void CBrushSector::Write_t( CTStream *postrm) // throw char *
   (*postrm)<<bsc_ulFlags;
   (*postrm)<<bsc_ulFlags2;
   (*postrm)<<bsc_ulVisFlags;
+  (*postrm)<<bsc_ulFlags3;						
 
   (*postrm).WriteID_t("VTXs");  // 'vertices'
   // write the number of vertices in brush
@@ -400,6 +402,9 @@ void CBrushSector::Read_t( CTStream *pistrm) // throw char *
   }
   if (iBSCVersion>=BSCV_WITHVISFLAGS) {
     (*pistrm)>>bsc_ulVisFlags;
+  }
+  if (iBSCVersion >= BSCV_WITHFLAGS3) {
+    (*pistrm) >> bsc_ulFlags3;
   }
   // clear sector flags for selection
   bsc_ulFlags &= ~(BSCF_SELECTED | BSCF_SELECTEDFORCSG);

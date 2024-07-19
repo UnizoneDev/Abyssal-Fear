@@ -52,6 +52,7 @@ BOOL _bFileReplacingApplied;
 #endif
 
 extern INDEX wed_bUseBaseForReplacement;
+extern INDEX wed_bUseGenericTextureReplacement; // [Cecil] Used here
 
 static CTFileName CallFileRequester(char* achrTitle, char* achrSelectedFile, char* pFilter)
 {
@@ -171,7 +172,8 @@ void SetTextureWithPossibleReplacing_t(CTextureObject& to, CTFileName& fnmTextur
             }
             else
             {
-                if (_pShell->GetINDEX("wed_bUseGenericTextureReplacement")) {
+				// [Cecil] Used variable directly
+                if (wed_bUseGenericTextureReplacement) {
                     fnmTexture = CTString("Textures\\Editor\\Default.tex");
                     to.SetData_t(fnmTexture);
                 }
@@ -522,9 +524,25 @@ void WriteOffsetAndChildren(CTStream& strm, CModelInstance& mi)
     }
 }
 
+void WriteFrameEvents(CTStream& strm, CModelInstance& mi)
+{
+    strm.WriteID_t("MIFE");
+    // write frame events and index of current frame event
+    INDEX ctfe = mi.mi_feEvents.Count();
+    strm << ctfe;
+    // for each frame event
+    for (INDEX ife = 0; ife < ctfe; ife++) {
+        FrameEvent& fe = mi.mi_feEvents[ife];
+        // write frame event
+        strm << fe.GetFrame();
+        strm << fe.GetEvent();
+        strm << fe.GetName();
+    }
+}
+
 void WriteModelInstance_t(CTStream& strm, CModelInstance& mi, BOOL bFromStock)
 {
-    strm.WriteID_t("MI03"); // model instance 03
+    strm.WriteID_t("MI04"); // model instance 04
 
     // [SEE]
     if (bFromStock && mi.mi_pmidData != NULL) {
@@ -547,7 +565,8 @@ void WriteModelInstance_t(CTStream& strm, CModelInstance& mi, BOOL bFromStock)
     WriteAnimQueue_t(strm, mi);
     WriteColisionBoxes(strm, mi);
     WriteOffsetAndChildren(strm, mi);
-    strm.WriteID_t("ME03"); // model instance end 03
+	WriteFrameEvents(strm, mi);
+    strm.WriteID_t("ME04"); // model instance end 04
 }
 
 
@@ -839,10 +858,32 @@ void ReadOffsetAndChildren_t(CTStream& strm, CModelInstance& mi)
     }
 }
 
-void ReadModelInstanceNew_t(CTStream& strm, CModelInstance& mi, BOOL bMarkInStock)
+void ReadFrameEvents_t(CTStream& strm, CModelInstance& mi)
 {
-    strm.ExpectID_t("MI03");  // model instance 03
+    INDEX ctfe = 0;
+    strm.ExpectID_t("MIFE");  // model instance frame events
+    // read frame events
+    strm >> ctfe;
+    mi.mi_feEvents.New(ctfe);
+    // for each frame event
+    for (INDEX ife = 0; ife < ctfe; ife++) {
+        FrameEvent& fe = mi.mi_feEvents[ife];
+        CTString strName;
+        // read frame event
+        strm >> fe.GetFrame();
+        strm >> fe.GetEvent();
+        strm >> strName;
+        fe.SetName(strName);
+    }
+}
 
+void ReadModelInstanceNew_t(CTStream& strm, CModelInstance& mi, BOOL bMarkInStock, BOOL bFrameEvents)
+{
+    if (bFrameEvents) {
+      strm.ExpectID_t("MI04");  // model instance 04
+    } else {
+      strm.ExpectID_t("MI03");  // model instance 03
+    }
     if (strm.PeekID_t() == CChunkID("MISF")) {
         strm.ExpectID_t("MISF");
 
@@ -875,7 +916,16 @@ void ReadModelInstanceNew_t(CTStream& strm, CModelInstance& mi, BOOL bMarkInStoc
     ReadAnimQueue_t(strm, mi);
     ReadColisionBoxes_t(strm, mi);
     ReadOffsetAndChildren_t(strm, mi);
-    strm.ExpectID_t("ME03"); // model instance end 03
+
+    if (bFrameEvents) {
+      ReadFrameEvents_t(strm, mi);
+    }
+
+    if (bFrameEvents) {
+      strm.ExpectID_t("ME04");  // model instance end 04
+    } else {
+      strm.ExpectID_t("ME03");  // model instance end 03
+    }
 }
 
 void ReadModelInstance_t(CTStream& strm, CModelInstance& mi, BOOL bMarkInStock)
@@ -886,7 +936,11 @@ void ReadModelInstance_t(CTStream& strm, CModelInstance& mi, BOOL bMarkInStock)
         // is model instance writen in new format
     }
     else if (strm.PeekID_t() == CChunkID("MI03")) {
-        ReadModelInstanceNew_t(strm, mi, bMarkInStock);
+        ReadModelInstanceNew_t(strm, mi, bMarkInStock, FALSE);
+        // [Uni] is model instance writen in newer format
+    }
+    else if (strm.PeekID_t() == CChunkID("MI04")) {
+        ReadModelInstanceNew_t(strm, mi, bMarkInStock, TRUE);
         // unknown format
     }
     else {

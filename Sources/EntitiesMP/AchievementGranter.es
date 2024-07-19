@@ -136,14 +136,12 @@ procedures:
     // spawn in world editor
     autowait(0.1f);
 
-    
     wait() {
       on (ETrigger) : {
           AddProgress();
           resume;
       }
     }
-    
 
     // cease to exist
     Destroy();

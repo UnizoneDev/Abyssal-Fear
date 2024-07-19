@@ -40,14 +40,31 @@ public:
 // interface:
 };
 
+/*
+ * [Uni] Bounding box also used for movement clipping.
+ */
+class ENGINE_API CMovingBox {
+public:
+    // implementation:
+    FLOAT3D mb_vCenter;        // box center in space of moving entity
+    FLOATaabbox3D mb_boxSize;  // box min and max values
+
+    FLOAT3D mb_vRelativeCenter0; // start point of box center in space of standing entity
+    FLOAT3D mb_vRelativeCenter1; // end point of box center in space of standing entity
+    FLOATaabbox3D mb_boxMovement; // the movement path in space of standing entity
+public:
+    // interface:
+};
 // Used for caching collision info for models
 #define CIF_IGNOREHEADING     (1L<<0) // heading rotation can be ignored
 #define CIF_IGNOREROTATION    (1L<<1) // any rotation can be ignored
 #define CIF_CANSTANDONHANDLE  (1L<<2) // entity can stand on its handle sphere
 #define CIF_BRUSH             (1L<<3) // entity is a brush
+#define CIF_USEBOXES          (1L<<4) // [Uni] entity uses boxes instead of spheres
 class ENGINE_API CCollisionInfo {
 public:
   CStaticArray<CMovingSphere> ci_absSpheres;  // collision spheres of the model
+  CStaticArray<CMovingBox> ci_absBoxes;       // [Uni] collision boxes of the model
   FLOAT ci_fMinHeight, ci_fMaxHeight;         // height span of the model
   FLOAT ci_fHandleY;  // y coordinate of handle sphere to stand on
   FLOAT ci_fHandleR;  // radius of handle sphere to stand on
@@ -68,7 +85,7 @@ public:
   // get maximum radius of entity in xz plane (relative to entity handle)
   FLOAT GetMaxFloorRadius(void);
 
-  inline void Clear(void) { ci_absSpheres.Clear(); };
+  inline void Clear(void) { ci_absSpheres.Clear(); ci_absBoxes.Clear(); };
 };
 
 

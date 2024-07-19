@@ -111,172 +111,6 @@ inline SLONG  Abs(const SLONG sl) { return labs(sl); }
 
 
 /*
-inline FLOAT Min( const FLOAT fA, const FLOAT fB)
-{
-  FLOAT fRet;
-  __asm {
-    fld     D [fA]
-    fld     D [fB]
-    fucomi  st(0),st(1)
-    fcmovnb st(0),st(1)
-    ffree   st(1)
-    fstp    D [fRet]
-  }
-  return fRet;
-}
-
-inline FLOAT Max( const FLOAT fA, const FLOAT fB)
-{
-  FLOAT fRet;
-  __asm {
-    fld     D [fA]
-    fld     D [fB]
-    fucomi  st(0),st(1)
-    fcmovb  st(0),st(1)
-    ffree   st(1)
-    fstp    D [fRet]
-  }
-  return fRet;
-}
-
-
-inline SLONG Min( const SLONG slA, const SLONG slB)
-{
-  SLONG slRet;
-  __asm {
-    mov     eax,D [slA]
-    cmp     eax,D [slB]
-    cmovg   eax,D [slB]
-    mov     D [slRet],eax
-  }
-  return slRet;
-}
-
-inline ULONG Min( const ULONG slA, const ULONG slB)
-{
-  ULONG ulRet;
-  __asm {
-    mov     eax,D [slA]
-    cmp     eax,D [slB]
-    cmova   eax,D [slB]
-    mov     D [ulRet],eax
-  }
-  return ulRet;
-}
-
-inline SLONG Max( const SLONG slA, const SLONG slB)
-{
-  SLONG slRet;
-  __asm {
-    mov     eax,D [slA]
-    cmp     eax,D [slB]
-    cmovl   eax,D [slB]
-    mov     D [slRet],eax
-  }
-  return slRet;
-}
-
-inline ULONG Max( const ULONG slA, const ULONG slB)
-{
-  ULONG ulRet;
-  __asm {
-    mov     eax,D [slA]
-    cmp     eax,D [slB]
-    cmovb   eax,D [slB]
-    mov     D [ulRet],eax
-  }
-  return ulRet;
-}
-
-
-
-inline FLOAT ClampUp( const FLOAT f, const FLOAT fuplimit)
-{
-  FLOAT fRet;
-  __asm {
-    fld     D [fuplimit]
-    fld     D [f]
-    fucomi  st(0),st(1)
-    fcmovnb st(0),st(1)
-    fstp    D [fRet]
-    fstp    st(0)
-  }
-  return fRet;
-}
-
-inline FLOAT ClampDn( const FLOAT f, const FLOAT fdnlimit)
-{
-  FLOAT fRet;
-  __asm {
-    fld     D [fdnlimit]
-    fld     D [f]
-    fucomi  st(0),st(1)
-    fcmovb  st(0),st(1)
-    fstp    D [fRet]
-    fstp    st(0)
-  }
-  return fRet;
-}
-
-inline FLOAT Clamp( const FLOAT f, const FLOAT fdnlimit, const FLOAT fuplimit)
-{
-  FLOAT fRet;
-  __asm {
-    fld     D [fdnlimit]
-    fld     D [fuplimit]
-    fld     D [f]
-    fucomi  st(0),st(2)
-    fcmovb  st(0),st(2)
-    fucomi  st(0),st(1)
-    fcmovnb st(0),st(1)
-    fstp    D [fRet]
-    fcompp
-  }
-  return fRet;
-}
-
-
-inline SLONG ClampDn( const SLONG sl, const SLONG sldnlimit)
-{
-  SLONG slRet;
-  __asm {
-    mov     eax,D [sl]
-    cmp     eax,D [sldnlimit]
-    cmovl   eax,D [sldnlimit]
-    mov     D [slRet],eax
-  }
-  return slRet;
-}
-
-inline SLONG ClampUp( const SLONG sl, const SLONG sluplimit)
-{
-  SLONG slRet;
-  __asm {
-    mov     eax,D [sl]
-    cmp     eax,D [sluplimit]
-    cmovg   eax,D [sluplimit]
-    mov     D [slRet],eax
-  }
-  return slRet;
-}
-
-inline SLONG Clamp( const SLONG sl, const SLONG sldnlimit, const SLONG sluplimit)
-{
-  SLONG slRet;
-  __asm {
-    mov     eax,D [sl]
-    cmp     eax,D [sldnlimit]
-    cmovl   eax,D [sldnlimit]
-    cmp     eax,D [sluplimit]
-    cmovg   eax,D [sluplimit]
-    mov     D [slRet],eax
-  }
-  return slRet;
-}
-
-*/
-
-/*
  *  fast functions
  */
 
@@ -326,6 +160,7 @@ inline SLONG FastLog2(SLONG x)
     return r;
 }
 
+/*
 // returns log2 of first larger value that is a power of 2
 inline SLONG FastMaxLog2(SLONG x)
 {
@@ -360,6 +195,7 @@ inline SLONG FastMaxLog2(SLONG x)
 #error Fill this in for your platform.
 #endif
 }
+*/
 
 
 

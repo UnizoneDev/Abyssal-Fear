@@ -43,6 +43,7 @@ properties:
  10 FLOAT m_tmLastSpawned = -1000.0f, // to avoid telefragging in deathmatch
  11 INDEX m_iTakeAmmo        "Take Ammo"  = 0x0,
  12 BOOL m_bNoRespawnInPlace "No Respawn In Place" 'R'  = FALSE,
+ 13 INDEX m_iTakeKeys        "Take Keys"  = 0x0,
 
 components:
   1 model   MODEL_MARKER     "Models\\Editor\\PlayerStart.mdl",

@@ -25,6 +25,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Base/Console.h>
 #include <Engine/Templates/StaticStackArray.h>
 #include <Engine/Templates/StaticStackArray.cpp>
+#include <Engine/Math/Vector.h>
 
 // Config value of multiple types
 class ENGINE_API ConfigValue {
@@ -32,17 +33,23 @@ class ENGINE_API ConfigValue {
     BOOL bString;
     BOOL bFloat;
     BOOL bBool;
+	BOOL bVector;
 
     CTString strValue;
     FLOAT fValue;
     INDEX iValue;
     BOOL bValue;
+	FLOAT3D vValue;
+    DOUBLE dValue;
+    INDEX64 i64Value;
+    DOUBLE3D vdValue;
 
     void SetString(const CTString& str) {
         strValue = str;
         bString = TRUE;
         bFloat = FALSE;
         bBool = FALSE;
+        bVector = FALSE;
     };
 
     void SetNumber(const FLOAT f) {
@@ -50,6 +57,7 @@ class ENGINE_API ConfigValue {
         bString = FALSE;
         bFloat = TRUE;
         bBool = FALSE;
+		bVector = FALSE;
     };
 
     void SetIndex(const INDEX i) {
@@ -57,6 +65,7 @@ class ENGINE_API ConfigValue {
         bString = FALSE;
         bFloat = FALSE;
         bBool = FALSE;
+		bVector = FALSE;
     };
 
     void SetBool(const BOOL b) {
@@ -64,6 +73,39 @@ class ENGINE_API ConfigValue {
         bString = FALSE;
         bFloat = FALSE;
         bBool = TRUE;
+	    bVector = FALSE;
+    };
+
+    void SetVector(const FLOAT3D& v) {
+        vValue = v;
+        bString = FALSE;
+        bFloat = FALSE;
+        bBool = FALSE;
+        bVector = TRUE;
+    };
+
+    void SetVectorDouble(const DOUBLE3D& vd) {
+        vdValue = vd;
+        bString = FALSE;
+        bFloat = FALSE;
+        bBool = FALSE;
+        bVector = TRUE;
+    };
+
+    void SetIndex64(const INDEX64 i64) {
+        i64Value = i64;
+        bString = FALSE;
+        bFloat = FALSE;
+        bBool = FALSE;
+        bVector = FALSE;
+    };
+
+    void SetNumberDouble(const DOUBLE d) {
+        dValue = d;
+        bString = FALSE;
+        bFloat = TRUE;
+        bBool = FALSE;
+        bVector = FALSE;
     };
 };
 

@@ -152,6 +152,13 @@ procedures:
     m_iSizeL= Clamp(m_iSizeL, INDEX(2), INDEX(256));
     m_iSizeH= Clamp(m_iSizeH, INDEX(2), INDEX(256));
 
+    wait() {
+      on (EBegin) : { resume; }
+      otherwise() : {
+        resume;
+      }
+    }
+
     return;
   }
 };

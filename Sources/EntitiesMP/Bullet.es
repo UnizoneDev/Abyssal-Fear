@@ -20,6 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 uses "EntitiesMP/BasicEffects";
 uses "Engine/Classes/MovableEntity";
+uses "EntitiesMP/Player";
+uses "EntitiesMP/UZModelHolder";
+uses "EntitiesMP/UZSkaModelHolder";
 
 
 // input parameters for bullet
@@ -172,6 +175,20 @@ functions:
 
       if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("Head")) {
         m_dbptBodyPart = DBPT_HEAD;
+      } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("Neck")) {
+        m_dbptBodyPart = DBPT_NECK;
+      } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("Pelvis")) {
+        m_dbptBodyPart = DBPT_GROIN;
+      } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("LowerTorso")) {
+        m_dbptBodyPart = DBPT_GUT;
+      } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("L_Hand")) {
+        m_dbptBodyPart = DBPT_LEFTHAND;
+      } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("R_Hand")) {
+        m_dbptBodyPart = DBPT_RIGHTHAND;
+      } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("L_Foot")) {
+        m_dbptBodyPart = DBPT_LEFTFOOT;
+      } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("R_Foot")) {
+        m_dbptBodyPart = DBPT_RIGHTFOOT;
       } else {
         m_dbptBodyPart = DBPT_GENERIC;
       }
@@ -257,13 +274,7 @@ functions:
               vHitNormal = FLOAT3D(0,0,0);
             }
 
-            if(IsOfClass(penOfFlesh, "Gizmo") ||
-               IsOfClass(penOfFlesh, "Beast"))
-            {
-              // spawn green blood hit spill effect
-              SpawnHitTypeEffect(this, BHT_ACID, bSound, vHitNormal, crRay.cr_vHit, vHitDirection, vDistance);
-            }
-            else if(IsOfClass(penOfFlesh, "BlackStickman"))
+            if(IsOfClass(penOfFlesh, "BlackStickman"))
             {
               // spawn black blood hit spill effect
               SpawnHitTypeEffect(this, BHT_BLACKFLESH, bSound, vHitNormal, crRay.cr_vHit, vHitDirection, vDistance);
@@ -274,6 +285,100 @@ functions:
               SpawnHitTypeEffect(this, BHT_FLESH, bSound, vHitNormal, crRay.cr_vHit, vHitDirection, vDistance);
             }
             break;
+          }
+        }
+
+        else if(crRay.cr_penHit->GetRenderType()==RT_SKAMODEL) {
+          if(IsOfClass(m_penOwner, "Player")) {
+          BOOL bRender=TRUE;
+          FLOAT3D vSpillDir=-((CPlayer&)*m_penOwner).en_vGravityDir*0.5f;
+          SprayParticlesType sptType=SPT_NONE;
+          COLOR colParticles=C_WHITE|CT_OPAQUE;
+          FLOAT fPower=2.0f;
+
+          if( IsOfClass(crRay.cr_penHit, "UZSkaModelHolder")) {
+            bRender = TRUE;
+            CUZSkaModelHolder *puzmh=(CUZSkaModelHolder*)crRay.cr_penHit;
+              switch(puzmh->m_pmmType)
+              {
+                case PMMT_WOOD:
+                case PMMT_WOODGLASS:
+                  sptType = SPT_WOOD;
+                  break;
+                case PMMT_FLESH:
+                  sptType = SPT_BLOOD;
+                  break;
+                case PMMT_LEAVES:
+                  sptType = SPT_WOOD;
+                  break;
+                case PMMT_CONCRETE:
+                case PMMT_STONE:
+                  sptType = SPT_STONES;
+                  break;
+                case PMMT_METAL:
+                  sptType = SPT_METAL;
+                  break;
+                case PMMT_GLASS:
+                  sptType = SPT_GLASS;
+                  break;
+                default: break;
+                }
+                colParticles=puzmh->m_colBurning;
+              }
+            FLOATaabbox3D boxCutted=FLOATaabbox3D(FLOAT3D(0,0,0),FLOAT3D(1,1,1));
+            if(bRender)
+            {
+              crRay.cr_penHit->en_pmiModelInstance->GetCurrentColisionBox( boxCutted);
+              ((CPlayer&)*m_penOwner).AddGoreSpray( crRay.cr_vHit, crRay.cr_vHit, sptType,
+                vSpillDir, boxCutted, fPower, colParticles);
+            }
+          }
+        }
+
+        else if(crRay.cr_penHit->GetRenderType()==RT_MODEL) {
+          if(IsOfClass(m_penOwner, "Player")) {
+          BOOL bRender=TRUE;
+          FLOAT3D vSpillDir=-((CPlayer&)*m_penOwner).en_vGravityDir*0.5f;
+          SprayParticlesType sptType=SPT_NONE;
+          COLOR colParticles=C_WHITE|CT_OPAQUE;
+          FLOAT fPower=2.0f;
+
+          if( IsOfClass(crRay.cr_penHit, "UZModelHolder")) {
+            bRender = TRUE;
+            CUZModelHolder *puzmh=(CUZModelHolder*)crRay.cr_penHit;
+              switch(puzmh->m_pmmType)
+              {
+                case PMMT_WOOD:
+                case PMMT_WOODGLASS:
+                  sptType = SPT_WOOD;
+                  break;
+                case PMMT_FLESH:
+                  sptType = SPT_BLOOD;
+                  break;
+                case PMMT_LEAVES:
+                  sptType = SPT_WOOD;
+                  break;
+                case PMMT_CONCRETE:
+                case PMMT_STONE:
+                  sptType = SPT_STONES;
+                  break;
+                case PMMT_METAL:
+                  sptType = SPT_METAL;
+                  break;
+                case PMMT_GLASS:
+                  sptType = SPT_GLASS;
+                  break;
+                default: break;
+                }
+                colParticles=puzmh->m_colBurning;
+              }
+            FLOATaabbox3D boxCutted=FLOATaabbox3D(FLOAT3D(0,0,0),FLOAT3D(1,1,1));
+            if(bRender)
+            {
+              crRay.cr_penHit->en_pmoModelObject->GetCurrentFrameBBox( boxCutted);
+              ((CPlayer&)*m_penOwner).AddGoreSpray( crRay.cr_vHit, crRay.cr_vHit, sptType,
+                vSpillDir, boxCutted, fPower, colParticles);
+            }
           }
         }
 

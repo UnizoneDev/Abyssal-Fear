@@ -19,9 +19,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 204
 %{
 #include "StdH.h"
-
-#define SL_PITCH_MIN (0.01F)
-#define SL_PITCH_MAX (100.0F)
 %}
 
 uses "EntitiesMP/ModelDestruction";
@@ -47,7 +44,7 @@ properties:
  12 INDEX m_iPlayType = 0,
  13 CSoundObject m_soSound,         // sound channel
  14 BOOL m_bDestroyable     "Destroyable" 'Q' = FALSE,
- 15 FLOAT m_fPitch         "Pitch" = 1.0F,
+ 15 FLOAT m_fPitch         "Pitch" 'P' = 1.0F,
  16 BOOL m_b3D             "3D" = TRUE,
  17 BOOL m_bPauseable      "Pauseable" = FALSE,
  18 FLOAT m_fFilterAmount  "Filter Amount" = 0.0f,

@@ -71,9 +71,6 @@
     <ClCompile Include="StdH\StdH.cpp">
       <Filter>Source Files\Common sources</Filter>
     </ClCompile>
-    <ClCompile Include="AirWave.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AmmoItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -113,9 +110,6 @@
     <ClCompile Include="CameraMarker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Catman.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Copier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -123,12 +117,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CreditsHolder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Cyborg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CyborgBike.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Damager.cpp">
@@ -141,9 +129,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DoorController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Dragonman.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EffectMarker.cpp">
@@ -185,16 +170,10 @@
     <ClCompile Include="Fireworks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Fishman.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Flame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FogMarker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GhostBusterRay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Global.cpp">
@@ -215,9 +194,6 @@
     <ClCompile Include="HealthItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Huanman.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HudPicHolder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -231,15 +207,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Lightning.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mamut.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mamutman.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mantaman.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Marker.cpp">
@@ -290,9 +257,6 @@
     <ClCompile Include="PhotoAlbum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Pipebomb.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -317,19 +281,7 @@
     <ClCompile Include="Projectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PyramidSpaceShip.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PyramidSpaceShipMarker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Reminder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RobotDriving.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RobotFlying.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RollingStone.cpp">
@@ -494,9 +446,6 @@
     <ClCompile Include="BeamEffector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextureSwitcher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BloodUni.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -554,6 +503,40 @@
     <ClCompile Include="DebrisSka.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="Snatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Stalker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ControllableSwitch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UZSkaModelHolder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SkaSwitch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NumberCodeHolder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorChanger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomExplosion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mutant.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TextureConfig.cpp">
+      <Filter>Source Files\Common sources</Filter>
+    </ClCompile>
+    <ClCompile Include="PolygonChanger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Flesh\Classes\Acid.ecl">
@@ -1309,12 +1292,6 @@
     <CustomBuild Include="PhotoAlbum.es">
       <Filter>Class Files\Effects</Filter>
     </CustomBuild>
-    <CustomBuild Include="PyramidSpaceShip.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
-    <CustomBuild Include="PyramidSpaceShipMarker.es">
-      <Filter>Class Files\Effects</Filter>
-    </CustomBuild>
     <CustomBuild Include="RollingStone.es">
       <Filter>Class Files\Effects</Filter>
     </CustomBuild>
@@ -1390,7 +1367,7 @@
     <CustomBuild Include="BeamEffector.es">
       <Filter>Class Files\Effects</Filter>
     </CustomBuild>
-    <CustomBuild Include="TextureSwitcher.es">
+	<CustomBuild Include="PolygonChanger.es">
       <Filter>Class Files\Tools</Filter>
     </CustomBuild>
     <CustomBuild Include="BloodUni.es">
@@ -1446,6 +1423,33 @@
     </CustomBuild>
     <CustomBuild Include="DebrisSka.es">
       <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+	<CustomBuild Include="Snatcher.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Stalker.es">
+      <Filter>Class Files\Enemies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ControllableSwitch.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="UZSkaModelHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SkaSwitch.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="NumberCodeHolder.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ColorChanger.es">
+      <Filter>Class Files\Tools</Filter>
+    </CustomBuild>
+    <CustomBuild Include="CustomExplosion.es">
+      <Filter>Class Files\Effects</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Mutant.es">
+      <Filter>Class Files\Enemies</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -2229,12 +2233,6 @@
     <ClInclude Include="BeamEffector_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextureSwitcher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureSwitcher_tables.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BloodUni.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -2347,6 +2345,69 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DebrisSka_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+	<ClInclude Include="Snatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Snatcher_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Stalker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Stalker_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllableSwitch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ControllableSwitch_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UZSkaModelHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UZSkaModelHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkaSwitch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkaSwitch_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NumberCodeHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NumberCodeHolder_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorChanger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorChanger_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomExplosion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomExplosion_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mutant.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mutant_tables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TextureConfig.h">
+      <Filter>Header Files\Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PolygonChanger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PolygonChanger_tables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

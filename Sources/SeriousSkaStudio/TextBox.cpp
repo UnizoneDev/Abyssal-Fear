@@ -85,6 +85,11 @@ void CTextBox::ValueChanged()
   if(niSelected.ni_iType == NT_ALLFRAMESBBOX) {
     pcb = &pmiSelected->mi_cbAllFramesBBox;
   }
+  // frame event
+  FrameEvent* pfe = NULL;
+  if (pmiSelected->mi_iCurrentEvent >= 0 && pmiSelected->mi_iCurrentEvent < pmiSelected->mi_feEvents.Count()) {
+      pfe = &pmiSelected->mi_feEvents[pmiSelected->mi_iCurrentEvent];
+  }
 
 
   FLOAT fOffset[6] = {vPos(1),vPos(2),vPos(3),aRot(1),aRot(2),aRot(3)};
@@ -305,6 +310,35 @@ void CTextBox::ValueChanged()
       mi.SetName(strText);
       // update model instance
       theApp.UpdateRootModelInstance();
+    }
+    break;
+    case IDC_TB_FEVNAME:
+    {
+      // change name of frame event
+      if (pfe != NULL) {
+        pfe->SetName(strText);
+        m_TreeCtrl.SetItemText(hSelected, CString(strText));
+      }
+    }
+    break;
+    case IDC_TB_FEVFRAME:
+    {
+        // change frame number of frame event
+        if (pfe != NULL)
+        {
+            INDEX iFrame = atoi(strText);
+            pfe->GetFrame() = iFrame;
+        }
+    }
+    break;
+    case IDC_TB_FEVEVENT:
+    {
+        // change event number of frame event
+        if (pfe != NULL)
+        {
+            INDEX iEvent = atoi(strText);
+            pfe->GetEvent() = iEvent;
+        }
     }
     break;
     default:

@@ -32,7 +32,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define LSF_NONPERSISTENT           (1L<<5)   // not saved (can change during game)
 #define LSF_LENSFLAREONLY           (1L<<6)   // no light, only lens flare
 #define LSF_DYNAMIC                 (1L<<7)   // dynamic light (fast frequent caching, no shadows)
-#define LSF_SPOT                    (1L<<8)   // spot light (can be used for flashlights)
+#define LSF_SPOT                    (1L<<8)   // [Uni] spot light (can be used for flashlights)
 
 class ENGINE_API CLightSource
 {
@@ -57,6 +57,9 @@ public:
 
   FLOAT ls_fNearClipDistance;       // clip plane distance near light
   FLOAT ls_fFarClipDistance;        // clip plane distance near polygon
+
+  FLOAT ls_fInnerCone;              // [Uni] distance before intensity starts to fall off
+  FLOAT ls_fOuterCone;              // [Uni] distance before intensity reaches zero
 
   class CLensFlareType *ls_plftLensFlare;   // type of lens flare to use or NULL for none
   CAnimObject *ls_paoLightAnimation;  // animobject for light animating

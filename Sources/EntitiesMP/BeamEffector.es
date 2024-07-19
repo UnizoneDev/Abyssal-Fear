@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 class CBeamEffector: CMovableModelEntity {
 name      "Beam Effector";
 thumbnail "Thumbnails\\BeamEffector.tbn";
+features  "HasName", "HasDescription", "IsTargetable";
 properties:
 
   1 CTString m_strName            "Name" 'N' = "Beam Effector",
@@ -44,14 +45,6 @@ components:
   2 texture TEXTURE_MARKER            "Models\\Editor\\Vector.tex",
 
 functions:
-
-  const CTString &GetDescription(void) const {
-    ((CTString&)m_strDescription).PrintF("-><none>");
-    if (m_penStartPos!=NULL) {
-      ((CTString&)m_strDescription).PrintF("->%s", m_penStartPos->GetName());
-    }
-    return m_strDescription;
-  }
 
   // particles
   void RenderParticles(void)
@@ -84,6 +77,18 @@ functions:
     } catch (char *strError) {
       WarningMessage(TRANS("Cannot load beam texture: %s"), strError);
     }
+  }
+
+  // returns bytes of memory used by this object
+  SLONG GetUsedMemory(void)
+  {
+    // initial
+    SLONG slUsedMemory = sizeof(CBeamEffector) - sizeof(CMovableModelEntity) + CMovableModelEntity::GetUsedMemory();
+    // add some more
+    slUsedMemory += m_strName.Length();
+    slUsedMemory += m_strDescription.Length();
+    slUsedMemory += m_fnmBeamTexture.Length();
+    return slUsedMemory;
   }
 
 /************************************************************

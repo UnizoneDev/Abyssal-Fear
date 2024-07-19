@@ -24,6 +24,7 @@ typedef union {
 #define	k_ALLFRAMESBBOX	274
 #define	k_ANIMSPEED	275
 #define	k_COLOR	276
+#define	k_FRAMEEVENT	277
 
 
 extern YYSTYPE syylval;

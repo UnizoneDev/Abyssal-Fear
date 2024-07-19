@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define UVMAPS_COUNT  2
 #define COLOR_COUNT   2
 #define FLOAT_COUNT   2
-#define FLAGS_COUNT   2
+#define FLAGS_COUNT   3
 
 #define LAYER0_TEXTURE 0
 #define LAYER0_UVMAP   0
@@ -30,9 +30,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define LAYER1_UVMAP   1
 #define LAYER1_COLOR   1
 #define LAYER1_TILING  1
-
-#define BASE_DOUBLE_SIDED (1UL<<0) // Double sided
-#define BASE_FULL_BRIGHT  (1UL<<1) // Full bright
 
 SHADER_MAIN(MultiLayer)
 {
@@ -145,6 +142,7 @@ SHADER_DESC(MultiLayer, ShaderDesc &shDesc)
   
   shDesc.sd_astrFlagNames[0] = "Double sided";
   shDesc.sd_astrFlagNames[1] = "Full bright";
+  shDesc.sd_astrFlagNames[2] = "Flat shaded";
    
   shDesc.sd_strShaderInfo = "Multi Layer shader";
 }

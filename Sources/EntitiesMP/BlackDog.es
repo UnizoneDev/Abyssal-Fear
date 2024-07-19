@@ -170,8 +170,8 @@ functions:
   void SightSound(void) {
     switch(IRnd()%2)
     {
-        case 0: PlaySound(m_soSound, SOUND_SIGHT1, SOF_3D); break;
-        case 1: PlaySound(m_soSound, SOUND_SIGHT2, SOF_3D); break;
+        case 0: PlaySound(m_soVoice, SOUND_SIGHT1, SOF_3D); break;
+        case 1: PlaySound(m_soVoice, SOUND_SIGHT2, SOF_3D); break;
         default: ASSERTALWAYS("BlackDog unknown sight sound");
     }
   };
@@ -179,14 +179,14 @@ functions:
   void IdleSound(void) {
     switch(IRnd()%2)
     {
-        case 0: PlaySound(m_soSound, SOUND_IDLE1, SOF_3D); break;
-        case 1: PlaySound(m_soSound, SOUND_IDLE2, SOF_3D); break;
+        case 0: PlaySound(m_soVoice, SOUND_IDLE1, SOF_3D); break;
+        case 1: PlaySound(m_soVoice, SOUND_IDLE2, SOF_3D); break;
         default: ASSERTALWAYS("BlackDog unknown idle sound");
     }
   };
 
   void DeathSound(void) {
-    PlaySound(m_soSound, SOUND_DEATH, SOF_3D);
+    PlaySound(m_soVoice, SOUND_DEATH, SOF_3D);
   };
 
 
@@ -282,8 +282,8 @@ functions:
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_WILDLIFE;
     if (m_bdChar==BDT_FLESHHOUND) {
-      SetHealth(175.0f);
-      m_fMaxHealth = 175.0f;
+      SetHealth(150.0f);
+      m_fMaxHealth = 150.0f;
       m_fDamageWounded = 60.0f;
       m_iScore = 5000;
     } else {

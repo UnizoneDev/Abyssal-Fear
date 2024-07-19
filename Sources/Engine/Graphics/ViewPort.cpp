@@ -23,45 +23,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 extern INDEX ogl_bExclusive;
 
-
-// helper for D3D surface
-#ifdef SE1_D3D
-static void CreateSwapChain_D3D( CViewPort *pvp, PIX pixSizeI, PIX pixSizeJ)
-{
-  HRESULT hr;
-  D3DPRESENT_PARAMETERS d3dPresentParams;
-  memset( &d3dPresentParams, 0, sizeof(d3dPresentParams));
-  d3dPresentParams.Windowed = TRUE;
-  d3dPresentParams.BackBufferWidth  = pixSizeI;
-  d3dPresentParams.BackBufferHeight = pixSizeJ;
-  d3dPresentParams.BackBufferFormat = _pGfx->gl_d3dColorFormat;
-  d3dPresentParams.BackBufferCount  = 1;
-  d3dPresentParams.MultiSampleType  = D3DMULTISAMPLE_NONE; // !!!! TODO
-  d3dPresentParams.Flags = D3DPRESENTFLAG_LOCKABLE_BACKBUFFER;
-  d3dPresentParams.SwapEffect = D3DSWAPEFFECT_DISCARD; 
-  d3dPresentParams.hDeviceWindow = pvp->vp_hWnd;
-  ASSERT( pvp->vp_pSwapChain==NULL && pvp->vp_pSurfDepth==NULL);
-  hr = _pGfx->gl_pd3dDevice->CreateAdditionalSwapChain( &d3dPresentParams, &pvp->vp_pSwapChain);
-  D3D_CHECKERROR(hr);
-  hr = _pGfx->gl_pd3dDevice->CreateDepthStencilSurface( pixSizeI, pixSizeJ, _pGfx->gl_d3dDepthFormat,
-                                                        D3DMULTISAMPLE_NONE, &pvp->vp_pSurfDepth);
-  D3D_CHECKERROR(hr);
-  ASSERT( pvp->vp_pSwapChain!=NULL);
-  ASSERT( pvp->vp_pSurfDepth!=NULL);
-}
-
-static void SetAsRenderTarget_D3D( CViewPort *pvp)
-{
-  HRESULT hr;
-  LPDIRECT3DSURFACE8 pColorSurface;
-  hr = pvp->vp_pSwapChain->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &pColorSurface); 
-  D3D_CHECKERROR(hr);
-  hr = _pGfx->gl_pd3dDevice->SetRenderTarget( pColorSurface, pvp->vp_pSurfDepth);
-  D3D_CHECKERROR(hr);
-  D3DRELEASE( pColorSurface, TRUE);
-}
-#endif // SE1_D3D
-
 // helper for OGL
 
 CTempDC::CTempDC(HWND hWnd)
@@ -87,10 +48,6 @@ CViewPort::CViewPort( PIX pixWidth, PIX pixHeight, HWND hWnd) :
 {
   vp_hWnd = NULL;
   vp_hWndParent = hWnd;
-#ifdef SE1_D3D
-  vp_pSwapChain = NULL;
-  vp_pSurfDepth = NULL;
-#endif // SE1_D3D
   vp_ctDisplayChanges = 0;
   OpenCanvas();
   vp_Raster.ra_pvpViewPort = this;
@@ -185,31 +142,16 @@ void CViewPort::OpenCanvas(void)
       (HINSTANCE)GetWindowLong(vp_hWndParent, GWL_HINSTANCE),
 	  NULL);
   ASSERT( vp_hWnd!=NULL);
-#ifdef SE1_D3D
-  // prepare new swap chain for D3D
-  if( _pGfx->gl_eCurrentAPI==GAT_D3D && !bFullScreen) CreateSwapChain_D3D( this, pixWinSizeI, pixWinSizeJ);
-#endif // SE1_D3D
 
   // resize raster
   Resize();
   ShowWindow( vp_hWnd, SW_SHOW);
-#ifdef SE1_D3D
-  // set as rendering target
-  if( _pGfx->gl_eCurrentAPI==GAT_D3D && vp_pSwapChain!=NULL) SetAsRenderTarget_D3D(this);
-#endif // SE1_D3D
 }
 
 
 // close overlaid window
 void CViewPort::CloseCanvas( BOOL bRelease/*=FALSE*/)
 {
-  // release D3D swap chain if allocated
-#ifdef SE1_D3D
-  if( _pGfx->gl_eCurrentAPI==GAT_D3D && bRelease) {
-    if( vp_pSwapChain!=NULL) D3DRELEASE( vp_pSwapChain, TRUE);
-    if( vp_pSurfDepth!=NULL) D3DRELEASE( vp_pSurfDepth, TRUE);
-  }
-#endif // SE1_D3D
   // destroy window
   if( vp_hWnd!=NULL && IsWindow(vp_hWnd)) { 
     BOOL bRes = DestroyWindow(vp_hWnd);
@@ -217,10 +159,6 @@ void CViewPort::CloseCanvas( BOOL bRelease/*=FALSE*/)
   }
   // mark
   vp_hWnd = NULL;
-#ifdef SE1_D3D
-  vp_pSwapChain = NULL;
-  vp_pSurfDepth = NULL;
-#endif // SE1_D3D
 }
 
 
@@ -241,19 +179,6 @@ void CViewPort::Resize(void)
 
   // resize the raster
   vp_Raster.Resize( pixNewWidth, pixNewHeight);
-
-  // "resize" D3D surface (if any)
-#ifdef SE1_D3D
-  if( _pGfx->gl_eCurrentAPI==GAT_D3D && vp_pSwapChain!=NULL) {
-    // release old surface
-    ASSERT( vp_pSurfDepth!=NULL);
-    D3DRELEASE( vp_pSwapChain, TRUE);
-    D3DRELEASE( vp_pSurfDepth, TRUE);
-    // create a new one and set it as current
-    CreateSwapChain_D3D( this, pixNewWidth, pixNewHeight);
-    SetAsRenderTarget_D3D(this);
-  }
-#endif // SE1_D3D
 }
 
 

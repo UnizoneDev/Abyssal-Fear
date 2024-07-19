@@ -31,4 +31,4 @@ extern CAnimSet *_yy_pAnimSet;
 extern INDEX _yy_iIndex;
 extern INDEX _yy_jIndex;
 extern INDEX _yy_iWIndex; // index for weightmaps
-extern INDEX _yy_iMIndex; // index for mophmaps
+extern INDEX _yy_iMIndex; // index for morphmaps

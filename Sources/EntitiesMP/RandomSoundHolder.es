@@ -19,9 +19,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 1015
 %{
 #include "StdH.h"
-
-#define SL_PITCH_MIN (0.01F)
-#define SL_PITCH_MAX (100.0F)
 %}
 
 uses "EntitiesMP/ModelDestruction";
@@ -118,7 +115,7 @@ functions:
     slUsedMemory += m_fnSound6.Length();
     slUsedMemory += m_fnSound7.Length();
     slUsedMemory += m_fnSound8.Length();
-    slUsedMemory += 1* sizeof(CSoundObject);
+    slUsedMemory += 8* sizeof(CSoundObject);
     return slUsedMemory;
   }
 
@@ -176,6 +173,8 @@ procedures:
     wait() {
       // auto play sound
       on (EBegin) : {
+        m_iRandomCheck = IRnd()%8;
+
         if (m_bAutoStart) {
             m_soSound1.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
             m_soSound2.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
@@ -244,6 +243,8 @@ procedures:
       }
       // play sound
       on (EStart) : {
+          m_iRandomCheck = IRnd()%8;
+
           m_soSound1.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
           m_soSound2.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);
           m_soSound3.Set3DParameters(FLOAT(m_rFallOffRange), FLOAT(m_rHotSpotRange), m_fVolume, m_fPitch);

@@ -16,7 +16,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 1047
 %{
 #include "StdH.h"
-#include "Models/NPCs/InfernalSpecter/InfernalSpecter.h"
 %}
 
 uses "EntitiesMP/EnemyBase";
@@ -98,15 +97,14 @@ properties:
   5 CSoundObject m_soFlameStart,
   6 CSoundObject m_soFlameLoopStop,
   7 BOOL m_bFireRun = FALSE,
+  8 BOOL m_bLongFistHit = FALSE,
   
 components:
   1 class   CLASS_BASE				 "Classes\\EnemyBase.ecl",
   2 class   CLASS_PROJECTILE         "Classes\\Projectile.ecl",
 
   3 skamodel MODEL_INFERNALSPECTER        "Models\\NPCs\\InfernalSpecterSKA\\InfernalSpecter.smc",
-  4 texture TEXTURE_INFERNALSPECTER	      "Models\\NPCs\\InfernalSpecter\\InfernalSpecter.tex",
-  5 skamodel MODEL_INFERNALSPECTERSTRONG  "Models\\NPCs\\InfernalSpecterSKA\\InfernalSpecterStrong.smc",
-  6 texture TEXTURE_INFERNALSPECTERSTRONG "Models\\NPCs\\InfernalSpecter\\InfernalSpecterEnraged.tex",
+  4 skamodel MODEL_INFERNALSPECTERSTRONG  "Models\\NPCs\\InfernalSpecterSKA\\InfernalSpecterStrong.smc",
 
   10 sound   SOUND_HIT              "Models\\NPCs\\Abomination\\Sounds\\Hit.wav",
   11 sound   SOUND_SWING            "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
@@ -245,7 +243,7 @@ functions:
     m_soFlameLoopStop.Stop();
     INDEX iAnim;
     iAnim = idInfernalSpecterAnim_Wound;
-    GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
+    StartSkaModelAnim(iAnim,AN_CLEAR,1,0);
     return iAnim;
   };
 
@@ -257,12 +255,12 @@ functions:
       FLOAT fDamageDir = m_vDamage%vFront;
 
       if (fDamageDir<0) {
-          iAnim = idInfernalSpecterAnim_DeathFront;
-        } else {
-          iAnim = idInfernalSpecterAnim_DeathBack;
-        }
+        iAnim = idInfernalSpecterAnim_DeathFront;
+      } else {
+        iAnim = idInfernalSpecterAnim_DeathBack;
+      }
 
-    GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
+    StartSkaModelAnim(iAnim,AN_CLEAR,1,0);
     return iAnim;
   };
 
@@ -294,18 +292,18 @@ functions:
   
   // virtual anim functions
   void StandingAnim(void) {
-    GetModelInstance()->AddAnimation(idInfernalSpecterAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idInfernalSpecterAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void WalkingAnim(void) {
-    GetModelInstance()->AddAnimation(idInfernalSpecterAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idInfernalSpecterAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void RunningAnim(void) {
     if(m_bFireRun) {
-      GetModelInstance()->AddAnimation(idInfernalSpecterAnim_RunFire,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      StartSkaModelAnim(idInfernalSpecterAnim_RunFire,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     } else {
-      GetModelInstance()->AddAnimation(idInfernalSpecterAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+      StartSkaModelAnim(idInfernalSpecterAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
     }
   };
 
@@ -314,7 +312,7 @@ functions:
   };
 
   void JumpingAnim(void) {
-    GetModelInstance()->AddAnimation(idInfernalSpecterAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idInfernalSpecterAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   FLOAT GetLockRotationSpeed(void) { return 500.0f;};
@@ -378,7 +376,9 @@ functions:
         autocall InfernalSpecterFlamethrowerAttack() EEnd;
       }
     } else {
-      jump SlashEnemySingle();
+      if (CalcDist(m_penEnemy) < 3.0f) {
+        jump SlashEnemySingle();
+      }
     }
 
     return EReturn();
@@ -388,25 +388,38 @@ functions:
     // close attack
     switch(IRnd()%2)
     {
-      case 0: GetModelInstance()->AddAnimation(idInfernalSpecterAnim_Melee1,AN_CLEAR,1,0); break;
-      case 1: GetModelInstance()->AddAnimation(idInfernalSpecterAnim_Melee2,AN_CLEAR,1,0); break;
+      case 0: StartSkaModelAnim(idInfernalSpecterAnim_Melee1,AN_CLEAR,1,0); break;
+      case 1: StartSkaModelAnim(idInfernalSpecterAnim_Melee2,AN_CLEAR,1,0); break;
       default: ASSERTALWAYS("Infernal Specter unknown melee animation");
     }
     m_bFistHit = FALSE;
+    m_bLongFistHit = FALSE;
     autowait(0.4f);
-    if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+    FLOAT fShortCloseDistance = 2.5f;
+    if (CalcDist(m_penEnemy) < fShortCloseDistance) {
       m_bFistHit = TRUE;
+      if(GetModelInstance()->IsAnimationPlaying(idInfernalSpecterAnim_Melee1)) {
+        m_bLongFistHit = TRUE;
+      }
     }
     
     if (m_bFistHit) {
-      if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+      if(m_bLongFistHit) {
+        fShortCloseDistance = 3.0f;
+      }
+
+      if (CalcDist(m_penEnemy) < fShortCloseDistance) {
         PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
+
+        FLOAT3D vPosition = m_penEnemy->GetPlacement().pl_PositionVector;
+        vPosition + FLOAT3D(0.0f, 1.25f, 0.0f);
+
         if (m_isChar==ISC_STRONG) {
-          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 15.0f, vPosition, vDirection, DBPT_GENERIC);
         } else {
-          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 10.0f, vPosition, vDirection, DBPT_GENERIC);
         }
       }
     } else {
@@ -431,7 +444,7 @@ functions:
     StandingAnim();
     autowait(0.45f + FRnd()/4);
 
-    GetModelInstance()->AddAnimation(idInfernalSpecterAnim_Fire,AN_CLEAR,1,0);
+    StartSkaModelAnim(idInfernalSpecterAnim_Fire,AN_CLEAR,1,0);
     autowait(0.45f);
     m_fLockOnEnemyTime = 0.1f;
     autocall CEnemyBase::LockOnEnemy() EReturn;
@@ -451,7 +464,7 @@ functions:
     StandingAnim();
     autowait(0.45f + FRnd()/4);
     m_bFireRun = TRUE;
-    GetModelInstance()->AddAnimation(idInfernalSpecterAnim_FireStrong,AN_CLEAR,1,0);
+    StartSkaModelAnim(idInfernalSpecterAnim_FireStrong,AN_CLEAR,1,0);
     autowait(0.45f);
 
     m_soFlameStart.Set3DParameters(50.0f, 5.0f, 2.0f, 1.0f);
@@ -479,7 +492,11 @@ functions:
           FLOAT fPosDistance = vPosDelta.Length();
           SetSpeedsToDesiredPosition(vPosDelta, fPosDistance, m_dtDestination==DT_PLAYERCURRENT);
 
-          m_fMoveSpeed *= 1.5f;
+          if(GetSP()->sp_gdGameDifficulty>=CSessionProperties::GD_HARD) {
+            m_fMoveSpeed *= 1.5f;
+          } else {
+            m_fMoveSpeed *= 1.25f;
+          }
 
           // adjust direction and speed
           m_ulMovementFlags = SetDesiredMovement(); 
@@ -519,14 +536,14 @@ functions:
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_GREATER;
     if(m_isChar == ISC_STRONG) {
-      SetHealth(550.0f);
-      m_fMaxHealth = 550.0f;
+      SetHealth(500.0f);
+      m_fMaxHealth = 500.0f;
       m_fDamageWounded = 210.0f;
       m_iScore = 50000;
     } else {
-      SetHealth(400.0f);
-      m_fMaxHealth = 400.0f;
-      m_fDamageWounded = 80.0f;
+      SetHealth(350.0f);
+      m_fMaxHealth = 350.0f;
+      m_fDamageWounded = 110.0f;
       m_iScore = 25000;
     }
     en_tmMaxHoldBreath = 30.0f;

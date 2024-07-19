@@ -141,44 +141,12 @@ static __forceinline void AddElements(ScenePolygon* pspo)
 {
     const INDEX ctElems = pspo->spo_ctElements;
     INDEX* piDst = _aiElements.Push(ctElems);
-#if ASMOPT == 1
-    __asm {
-        mov     eax, D[pspo]
-        mov     ecx, D[ctElems]
-        mov     edi, D[piDst]
-        mov     esi, D[eax]ScenePolygon.spo_piElements
-        mov     ebx, D[eax]ScenePolygon.spo_iVtx0Pass
-        movd    mm1, ebx
-        movq    mm0, mm1
-        psllq   mm1, 32
-        por     mm1, mm0
-        shr     ecx, 1
-        jz      elemRest
-        elemLoop :
-        movq    mm0, Q[esi]
-            paddd   mm0, mm1
-            movq    Q[edi], mm0
-            add     esi, 8
-            add     edi, 8
-            dec     ecx
-            jnz     elemLoop
-            elemRest :
-        emms
-            test[ctElems], 1
-            jz      elemDone
-            mov     eax, D[esi]
-            add     eax, ebx
-            mov     D[edi], eax
-            elemDone :
-    }
-#else
     const INDEX iVtx0Pass = pspo->spo_iVtx0Pass;
     const INDEX* piSrc = pspo->spo_piElements;
     for (INDEX iElem = 0; iElem < ctElems; iElem++) {
         // make an element in per-pass arrays
         piDst[iElem] = piSrc[iElem] + iVtx0Pass;
     }
-#endif
 }
 
 
@@ -783,48 +751,6 @@ static void RSSetTextureCoords(ScenePolygon* pspoGroup, INDEX iLayer, INDEX iUni
 
         // diffuse mapping
         const FLOAT3D& vO = pspo->spo_amvMapping[iLayer].mv_vO;
-
-#if ASMOPT == 1
-        __asm {
-            mov     esi, D[pspo]
-            mov     edi, D[iMappingOffset]
-            lea     eax, [esi].spo_amvMapping[edi].mv_vO
-            lea     ebx, [esi].spo_amvMapping[edi].mv_vU
-            lea     ecx, [esi].spo_amvMapping[edi].mv_vV
-            mov     edx, D[esi].spo_ctVtx
-            mov     esi, D[pvtx]
-            mov     edi, D[ptex]
-            vtxLoop:
-            fld     D[ebx + 0]
-                fld     D[esi]GFXVertex.x
-                fsub    D[eax + 0]
-                fmul    st(1), st(0)
-                fmul    D[ecx + 0]   // vV(1)*fDX, vU(1)*fDX
-                fld     D[ebx + 4]
-                fld     D[esi]GFXVertex.y
-                fsub    D[eax + 4]
-                fmul    st(1), st(0)
-                fmul    D[ecx + 4]   // vV(2)*fDY, vU(2)*fDY, vV(1)*fDX, vU(1)*fDX
-                fld     D[ebx + 8]
-                fld     D[esi]GFXVertex.z
-                fsub    D[eax + 8]
-                fmul    st(1), st(0)
-                fmul    D[ecx + 8]   // vV(3)*fDZ, vU(3)*fDZ, vV(2)*fDY, vU(2)*fDY, vV(1)*fDX, vU(1)*fDX
-                fxch    st(5)
-                faddp   st(3), st(0) // vU(3)*fDZ, vV(2)*fDY, vU(1)*fDX+vU(2)*fDY, vV(1)*fDX, vV(3)*fDZ
-                fxch    st(1)
-                faddp   st(3), st(0) // vU(3)*fDZ, vU(1)*fDX+vU(2)*fDY, vV(1)*fDX+vV(2)*fDY, vV(3)*fDZ
-                faddp   st(1), st(0) // vU(1)*fDX+vU(2)*fDY+vU(3)*fDZ,  vV(1)*fDX+vV(2)*fDY, vV(3)*fDZ
-                fxch    st(1)
-                faddp   st(2), st(0) // vU(1)*fDX+vU(2)*fDY+vU(3)*fDZ,  vV(1)*fDX+vV(2)*fDY+vV(3)*fDZ
-                fstp    D[edi]GFXTexCoord.s
-                fstp    D[edi]GFXTexCoord.t
-                add     esi, 4 * 4
-                add     edi, 2 * 4
-                dec     edx
-                jnz     vtxLoop
-        }
-#else
         const FLOAT3D& vO = pspo->spo_amvMapping[iLayer].mv_vO;
         const FLOAT3D& vU = pspo->spo_amvMapping[iLayer].mv_vU;
         const FLOAT3D& vV = pspo->spo_amvMapping[iLayer].mv_vV;
@@ -835,7 +761,6 @@ static void RSSetTextureCoords(ScenePolygon* pspoGroup, INDEX iLayer, INDEX iUni
             ptex[i].s = vU(1) * fDX + vU(2) * fDY + vU(3) * fDZ;
             ptex[i].t = vV(1) * fDX + vV(2) * fDY + vV(3) * fDZ;
         }
-#endif
     }
 
     // init array
@@ -1429,10 +1354,8 @@ void RSRenderGroup(ScenePolygon* pspoGroup, ULONG ulGroupFlags, ULONG ulTestedFl
 
     // render one group
     extern INDEX ogl_iMaxBurstSize;
-    extern INDEX d3d_iMaxBurstSize;
     ogl_iMaxBurstSize = Clamp(ogl_iMaxBurstSize, 0L, 9999L);
-    d3d_iMaxBurstSize = Clamp(d3d_iMaxBurstSize, 0L, 9999L);
-    const INDEX iMaxBurstSize = (eAPI == GAT_OGL) ? ogl_iMaxBurstSize : d3d_iMaxBurstSize;
+    const INDEX iMaxBurstSize = ogl_iMaxBurstSize;
 
     // if unlimited lock count
     if (iMaxBurstSize == 0)
@@ -1722,16 +1645,8 @@ void RenderScene(CDrawPort* pDP, ScenePolygon* pspoFirst, CAnyProjection3D& prPr
 {
     // check API
     eAPI = _pGfx->gl_eCurrentAPI;
-#ifdef SE1_D3D
-    ASSERT(eAPI == GAT_OGL || eAPI == GAT_D3D || eAPI == GAT_NONE);
-#else // SE1_D3D
     ASSERT(eAPI == GAT_OGL || eAPI == GAT_NONE);
-#endif // SE1_D3D
-    if (eAPI != GAT_OGL
-#ifdef SE1_D3D
-        && eAPI != GAT_D3D
-#endif // SE1_D3D
-        ) return;
+    if (eAPI != GAT_OGL) return;
 
     // some cvars cannot be altered in multiplayer mode!
     if (_bMultiPlayer) {

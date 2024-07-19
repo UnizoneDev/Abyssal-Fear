@@ -29,8 +29,7 @@ enum BlackStickmanActionType {
 
 enum BlackStickmanCharacterType {
   0 BSCT_NORMAL          "Vantablack",
-  1 BSCT_TRANSLUCENT     "Translucent",
-  2 BSCT_REFLECTIVE      "Purple Reflections",
+  1 BSCT_REFLECTIVE      "Reflective",
 };
 
 enum BlackStickmanBehaviorType {
@@ -76,23 +75,7 @@ properties:
 components:
   1 class   CLASS_BASE            "Classes\\EnemyBase.ecl",
  10 skamodel MODEL_BLACKSTICKMAN  "Models\\NPCs\\BlackStickmanSKA\\BlackStickman.smc",
-
- 20 texture TEXTURE_BLACKSTICKMAN           "Models\\NPCs\\BlackStickman\\blackstickman.tex",
- 21 texture TEXTURE_VANTABLACKSTICKMAN      "Models\\NPCs\\BlackStickman\\vantablackstickman.tex",
- 22 texture TEX_BUMP_DETAIL                 "Models\\NPCs\\BlackStickman\\BlackStickmanDetail.tex",
-
- // ************** REFLECTIONS **************
- 50 texture TEX_REFL_BWRIPLES01         "Models\\ReflectionTextures\\BWRiples01.tex",
- 51 texture TEX_REFL_BWRIPLES02         "Models\\ReflectionTextures\\BWRiples02.tex",
- 52 texture TEX_REFL_LIGHTMETAL01       "Models\\ReflectionTextures\\LightMetal01.tex",
- 53 texture TEX_REFL_LIGHTBLUEMETAL01   "Models\\ReflectionTextures\\LightBlueMetal01.tex",
- 54 texture TEX_REFL_DARKMETAL          "Models\\ReflectionTextures\\DarkMetal.tex",
- 55 texture TEX_REFL_PURPLE01           "Models\\ReflectionTextures\\Purple01.tex",
-
- // ************** SPECULAR **************
- 60 texture TEX_SPEC_WEAK               "Models\\SpecularTextures\\Weak.tex",
- 61 texture TEX_SPEC_MEDIUM             "Models\\SpecularTextures\\Medium.tex",
- 62 texture TEX_SPEC_STRONG             "Models\\SpecularTextures\\Strong.tex",
+ 11 skamodel MODEL_BLACKSTICKMAN_REFLECTIVE  "Models\\NPCs\\BlackStickmanSKA\\BlackStickmanReflective.smc",
 
 
 functions:
@@ -230,16 +213,6 @@ functions:
 
   void Precache(void) {
     CEnemyBase::Precache();
-    PrecacheTexture(TEX_REFL_BWRIPLES01      );
-    PrecacheTexture(TEX_REFL_BWRIPLES02      );
-    PrecacheTexture(TEX_REFL_LIGHTMETAL01    );
-    PrecacheTexture(TEX_REFL_LIGHTBLUEMETAL01);
-    PrecacheTexture(TEX_REFL_DARKMETAL       );
-    PrecacheTexture(TEX_REFL_PURPLE01        );
-    PrecacheTexture(TEX_SPEC_WEAK            );
-    PrecacheTexture(TEX_SPEC_MEDIUM          );
-    PrecacheTexture(TEX_SPEC_STRONG          );
-    PrecacheTexture(TEX_BUMP_DETAIL          );
   };
 
   /* Fill in entity statistics - for AI purposes only */
@@ -315,18 +288,18 @@ functions:
   void ChooseAnimBSAT(void) {
     switch(m_bsatType)
     {
-        case BSAT_WALK: GetModelInstance()->AddAnimation(idBlackStickmanAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+        case BSAT_WALK: StartSkaModelAnim(idBlackStickmanAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
         break;
-        case BSAT_RUN: GetModelInstance()->AddAnimation(idBlackStickmanAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+        case BSAT_RUN: StartSkaModelAnim(idBlackStickmanAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
         break;
-        case BSAT_FLY: GetModelInstance()->AddAnimation(idBlackStickmanAnim_Fly,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+        case BSAT_FLY: StartSkaModelAnim(idBlackStickmanAnim_Fly,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
         break;
     }
   };
 
   // virtual anim functions
   void StandingAnim(void) {
-    GetModelInstance()->AddAnimation(idBlackStickmanAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idBlackStickmanAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void WalkingAnim(void) {
@@ -342,7 +315,7 @@ functions:
   };
 
   void JumpingAnim(void) {
-    GetModelInstance()->AddAnimation(idBlackStickmanAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idBlackStickmanAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   FLOAT GetLockRotationSpeed(void) { return 250.0f;};
@@ -351,8 +324,7 @@ functions:
   procedures:
 
 
-  // wander randomly
-  PerformAttack(EVoid) : CEnemyBase::PerformAttack
+  ChooseMovementType(EVoid)
   {
     while (TRUE)
     {
@@ -380,10 +352,32 @@ functions:
 
       if(m_bsbtType == BSBT_STARE) {
         autocall StareAtPlayer() EReturn;
-      } else if(m_bsbtType != BSBT_STARE) {
+      } else if(m_bsbtType == BSBT_WANDER) {
         autocall RandomWander() EReturn;
+      } else if(m_bsbtType == BSBT_CHASE) {
+        autocall CEnemyBase::PerformAttack() EReturn;
       }
     }
+  }
+
+
+  // wander randomly
+  AttackEnemy(EVoid) : CEnemyBase::AttackEnemy
+  {
+    // initial preparation
+    autocall CEnemyBase::InitializeAttack() EReturn;
+
+    // while you have some enemy
+    while (m_penEnemy != NULL) {
+      // attack it
+      autocall ChooseMovementType() EReturn;
+    }
+
+    // stop attack
+    autocall CEnemyBase::StopAttack() EReturn;
+
+    // return to Active() procedure
+    return EBegin();
   }
 
 
@@ -542,12 +536,8 @@ functions:
       SetSkaModel(MODEL_BLACKSTICKMAN);
       break;
 
-      case BSCT_TRANSLUCENT:
-      SetSkaModel(MODEL_BLACKSTICKMAN);
-      break;
-
       case BSCT_REFLECTIVE:
-      SetSkaModel(MODEL_BLACKSTICKMAN);
+      SetSkaModel(MODEL_BLACKSTICKMAN_REFLECTIVE);
       break;
     }
 
@@ -561,7 +551,7 @@ functions:
         // setup attack distances
         m_fAttackDistance = 100.0f;
         m_fCloseDistance = 7.0f;
-        m_fStopDistance = 3.5f;
+        m_fStopDistance = 1.0f;
         m_fAttackFireTime = 0.5f;
         m_fCloseFireTime = 1.0f;
         m_fIgnoreRange = 200.0f;

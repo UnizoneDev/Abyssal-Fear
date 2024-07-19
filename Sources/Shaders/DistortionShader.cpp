@@ -1,4 +1,4 @@
-/* Copyright (c) 2021-2023 Uni Musuotankarep
+/* Copyright (c) 2021-2024 Uni Musuotankarep
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as published by
 the Free Software Foundation
@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define UVMAPS_COUNT  3
 #define COLOR_COUNT   3
 #define FLOAT_COUNT   3
-#define FLAGS_COUNT   2
+#define FLAGS_COUNT   3
 
 #define BASE_TEXTURE 0
 #define BASE_UVMAP   0
@@ -155,5 +155,6 @@ SHADER_DESC(Distortion, ShaderDesc& shDesc)
     shDesc.sd_astrFloatNames[2] = "Distortion warp amount";
     shDesc.sd_astrFlagNames[0] = "Double sided";
     shDesc.sd_astrFlagNames[1] = "Full bright";
+    shDesc.sd_astrFlagNames[2] = "Flat shaded";
     shDesc.sd_strShaderInfo = "Distortion shader";
 }

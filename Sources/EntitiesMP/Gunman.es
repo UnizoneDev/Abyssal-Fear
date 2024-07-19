@@ -107,9 +107,9 @@ components:
  21 sound   SOUND_HIT                  "Models\\NPCs\\Gunman\\Sounds\\Kick.wav",
  22 sound   SOUND_SWING                "Models\\Weapons\\Knife\\Sounds\\Swing.wav", 
  23 sound   SOUND_FIRE_SHOTGUN         "Models\\NPCs\\Gunman\\Sounds\\ShotgunAttack.wav",
- 24 sound   SOUND_SLICE1               "Models\\NPCs\\Twitcher\\Sounds\\Slice1.wav",
- 82 sound   SOUND_SLICE2               "Models\\NPCs\\Twitcher\\Sounds\\Slice2.wav",
- 83 sound   SOUND_SLICE3               "Models\\NPCs\\Twitcher\\Sounds\\Slice3.wav",
+ 24 sound   SOUND_SLICE1               "Sounds\\Weapons\\MetalBladeBigSlice1.wav",
+ 82 sound   SOUND_SLICE2               "Sounds\\Weapons\\MetalBladeBigSlice2.wav",
+ 83 sound   SOUND_SLICE3               "Sounds\\Weapons\\MetalBladeBigSlice3.wav",
  84 sound   SOUND_CLASH1               "Sounds\\Weapons\\MetalBladeClash1.wav",
  85 sound   SOUND_CLASH2               "Sounds\\Weapons\\MetalBladeClash2.wav",
  86 sound   SOUND_CLASH3               "Sounds\\Weapons\\MetalBladeClash3.wav",
@@ -247,7 +247,7 @@ functions:
     case GMC_LEADER: { pes->es_strName+=" Leader"; } break;
     case GMC_KEY: { pes->es_strName+=" Security"; } break;
     case GMC_PISTOL : { pes->es_strName+=" Officer"; } break;
-    case GMC_BLADED : { pes->es_strName+=" Bladed"; }
+    case GMC_BLADED : { pes->es_strName+=" Bladed"; } break;
     }
     return TRUE;
   }
@@ -449,34 +449,6 @@ functions:
   };
 
 
-  BOOL CanFireAtPlayer(void)
-  {
-    // get ray source and target
-    FLOAT3D vSource, vTarget;
-    GetPositionCastRay(this, m_penEnemy, vSource, vTarget);
-
-    // bullet start position
-    CPlacement3D plBullet;
-    plBullet.pl_OrientationAngle = ANGLE3D(0,0,0);
-    plBullet.pl_PositionVector = FLOAT3D(0, 1.35f, 0);
-    
-    plBullet.RelativeToAbsolute(GetPlacement());
-    vSource = plBullet.pl_PositionVector;
-
-    // cast the ray
-    CCastRay crRay(this, vSource, vTarget);
-    crRay.cr_ttHitModels = CCastRay::TT_NONE;     // check for brushes only
-    crRay.cr_bHitTranslucentPortals = FALSE;
-    crRay.cr_bHitBlockSightPortals = TRUE;
-    crRay.cr_bHitBlockMeleePortals = FALSE;
-    crRay.cr_bHitBlockHitscanPortals = TRUE;
-    en_pwoWorld->CastRay(crRay);
-
-    // if hit nothing (no brush) the entity can be seen
-    return (crRay.cr_penHit==NULL);     
-  }
-
-
   FLOAT GetLockRotationSpeed(void) { return 650.0f;};
 
 
@@ -531,7 +503,7 @@ functions:
       return EReturn();
     }
 
-    if(!CanFireAtPlayer()) {
+    if(!CanFireAtPlayer(1.35f, TRUE)) {
       return EReturn();
     }
 
@@ -563,7 +535,8 @@ functions:
     } 
     else if (m_gmChar == GMC_KEY)
     {
-      autocall GunmanPistolAttack() EEnd;
+      m_fFireTime = m_fCustomFireTime;
+      autocall GunmanPistolFireChoice() EEnd;
       return EReturn();
     }
     else if (m_gmChar == GMC_PISTOL)

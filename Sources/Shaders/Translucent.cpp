@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define UVMAPS_COUNT  1
 #define COLOR_COUNT   1
 #define FLOAT_COUNT   0
-#define FLAGS_COUNT   2
+#define FLAGS_COUNT   3
 
 #define BASE_TEXTURE 0
 #define BASE_UVMAP   0
@@ -68,5 +68,6 @@ SHADER_DESC(Translucent,ShaderDesc &shDesc)
   shDesc.sd_astrColorNames[0] = "Translucent color";
   shDesc.sd_astrFlagNames[0] = "Double sided";
   shDesc.sd_astrFlagNames[1] = "Full bright";
+  shDesc.sd_astrFlagNames[2] = "Flat shaded";
   shDesc.sd_strShaderInfo = "Translucent shader";
 }

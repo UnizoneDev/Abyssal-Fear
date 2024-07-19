@@ -30,23 +30,18 @@ enum PlayerAutoAction {
   6 PAA_LOOKAROUND        "LookAround",       // wait given time and look around
   7 PAA_RUNANDSTOP        "RunAndStop",       // run to this marker and stop at it
   8 PAA_ENDOFGAME         "EndOfGame",        // the game has ended - go to menu
-  9 PAA_APPEARING         "Appearing",        // appearing with stardust effect
- 10 PAA_WAITFOREVER       "WaitForever",      // wait trigger
- 11 PAA_TELEPORT          "Teleport",         // teleport to new location
- 12 PAA_PICKITEM          "PickItem",         // pick item
- 13 PAA_FALLDOWN          "FallDown",         // falling from broken bridge
- 14 PAA_FALLTOABYSS       "FallToAbyss",      // falling down into an abyss
- 15 PAA_RELEASEPLAYER     "ReleasePlayer",    // return control to player from camera and similar
- 16 PAA_TRAVELING_IN_BEAM "TravelingInBeam",  // traveling in space shpi beam
- 17 PAA_LOGO_FIRE_MINIGUN "LogoFireMinigun",  // fire minigun in logo sequence
- 18 PAA_STARTCREDITS      "StartCredits",     // start credits printout
- 19 PAA_STARTINTROSCROLL  "StartIntroScroll", // start intro text scroll
- 20 PAA_STOPSCROLLER      "StopScroller",     // stop intro scroll, or end-of-game credits
- 21 PAA_NOGRAVITY         "NoGravity",        // deactivate gravity influence for player
- 22 PAA_TURNONGRAVITY     "TurnOnGravity",    // turn on gravity
- 23 PAA_LOGO_FIRE_INTROSE "SE Logo Fire",       // for SE intro
- 24 PAA_INTROSE_SELECT_WEAPON "SE Logo draw weapon",
- 25 PAA_STOPANDWAIT       "StopAndWait",      // stop immediately and wait
+  9 PAA_WAITFOREVER       "WaitForever",      // wait trigger
+ 10 PAA_TELEPORT          "Teleport",         // teleport to new location
+ 11 PAA_PICKITEM          "PickItem",         // pick item
+ 12 PAA_FALLDOWN          "FallDown",         // falling from broken bridge
+ 13 PAA_FALLTOABYSS       "FallToAbyss",      // falling down into an abyss
+ 14 PAA_RELEASEPLAYER     "ReleasePlayer",    // return control to player from camera and similar
+ 15 PAA_STARTCREDITS      "StartCredits",     // start credits printout
+ 16 PAA_STARTINTROSCROLL  "StartIntroScroll", // start intro text scroll
+ 17 PAA_STOPSCROLLER      "StopScroller",     // stop intro scroll, or end-of-game credits
+ 18 PAA_NOGRAVITY         "NoGravity",        // deactivate gravity influence for player
+ 19 PAA_TURNONGRAVITY     "TurnOnGravity",    // turn on gravity
+ 20 PAA_STOPANDWAIT       "StopAndWait",      // stop immediately and wait
 };
 
 class CPlayerActionMarker: CMarker {

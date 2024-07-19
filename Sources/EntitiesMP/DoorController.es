@@ -54,6 +54,8 @@ properties:
   10 BOOL m_bLocked = FALSE,  // for lock/unlock door
   11 CEntityPointer m_penCaused,    // for trigger relaying
   16 BOOL m_bEnemiesOnly         "Enemies Only" 'E' = FALSE,
+  17 enum EventEType m_eetEvent1     "Event type Target 01" = EET_TRIGGER,  // type of event to send
+  18 enum EventEType m_eetEvent2     "Event type Target 02" = EET_TRIGGER,
 
 
 components:
@@ -111,10 +113,10 @@ functions:
   void TriggerDoor(void)
   {
     if (m_penTarget1!=NULL) {
-      SendToTarget(m_penTarget1, EET_TRIGGER, m_penCaused);
+      SendToTarget(m_penTarget1, m_eetEvent1, m_penCaused);
     }
     if (m_penTarget2!=NULL) {
-      SendToTarget(m_penTarget2, EET_TRIGGER, m_penCaused);
+      SendToTarget(m_penTarget2, m_eetEvent2, m_penCaused);
     }
   }
 

@@ -472,6 +472,7 @@ void CObjectCSG::DoCSGSplitting(
     oc_poscSectorA->osc_ulFlags[0]    = itoscA->osc_ulFlags[0];
     oc_poscSectorA->osc_ulFlags[1]    = itoscA->osc_ulFlags[1];
     oc_poscSectorA->osc_ulFlags[2]    = itoscA->osc_ulFlags[2];
+    oc_poscSectorA->osc_ulFlags[3]    = itoscA->osc_ulFlags[3];
     oc_poscSectorA->osc_strName    = itoscA->osc_strName;
 
     // for each of polygons in that sector
@@ -527,6 +528,7 @@ void CObjectCSG::DoCSGSplitting(
         oc_poscSectorB->osc_ulFlags[0] = itoscB->osc_ulFlags[0];
         oc_poscSectorB->osc_ulFlags[1] = itoscB->osc_ulFlags[1];
         oc_poscSectorB->osc_ulFlags[2] = itoscB->osc_ulFlags[2];
+		oc_poscSectorB->osc_ulFlags[3] = itoscB->osc_ulFlags[3];
         oc_poscSectorB->osc_strName    = itoscB->osc_strName;
 
         // create portal A1-B1 polygon

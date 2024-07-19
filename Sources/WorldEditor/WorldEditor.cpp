@@ -48,7 +48,6 @@ FLOAT _fLastMipBrushingOptionUsed = -10000.0f;
 extern INDEX wed_iMaxFPSActive = 500;
 extern FLOAT wed_fFrontClipDistance = 0.5f;
 extern struct GameGUI_interface *_pGameGUI = NULL;
-extern INDEX wed_bUseGenericTextureReplacement = FALSE;
 
 CTFileName fnmPersistentSymbols = CTString("Scripts\\PersistentSymbols.ini");
 
@@ -542,7 +541,7 @@ void CWorldEditorApp::MyParseCommandLine(void)
       return;
     } else if (strWord=="+game") {
       CTString strMod = GetNextParam();
-      if (strMod!="SeriousSam") { // (we ignore default mod - always use base dir in that case)
+      if (strMod!="AbyssalFear") { // (we ignore default mod - always use base dir in that case)
         cmd_strMod = strMod;
         _fnmMod = "Mods\\"+strMod+"\\";
       }
@@ -598,9 +597,9 @@ BOOL CWorldEditorApp::SubInitInstance()
 
   // settings will be saved into registry instead of ini file
   if (_strModExt=="") {
-    SetRegistryKey( CString("SeriousEngine"));
+    SetRegistryKey( CString("Unizone"));
   } else {
-    SetRegistryKey( CString("SeriousEngine\\"+_strModExt));
+    SetRegistryKey( CString("Unizone\\"+_strModExt));
   }
 
   CPrintF("%s", cmd_strOutput);
@@ -689,7 +688,6 @@ BOOL CWorldEditorApp::SubInitInstance()
   _pShell->DeclareSymbol("user INDEX wed_bSaveTestGameFirstTime;", &wed_bSaveTestGameFirstTime);
   _pShell->DeclareSymbol("persistent user INDEX wed_iMaxFPSActive;", &wed_iMaxFPSActive);
   _pShell->DeclareSymbol("persistent user FLOAT wed_fFrontClipDistance;", &wed_fFrontClipDistance);
-  _pShell->DeclareSymbol("persistent user INDEX wed_bUseGenericTextureReplacement;", &wed_bUseGenericTextureReplacement);
 
   // functions that are used to change rendering preferences while testing game
   _pShell->DeclareSymbol("user void WED_ApplyChildSettings0(void);", &WED_ApplyChildSettings0);

@@ -88,7 +88,7 @@ functions:
     {
       case IIT_PAINKILLERS:
         StartModelAnim( ITEMHOLDER_ANIM_DEFAULT_ANIMATION, AOF_LOOPING|AOF_NORESTART);
-        ForceCollisionBoxIndexChange( ITEMHOLDER_COLLISION_BOX_MEDIUM);
+        ForceCollisionBoxIndexChange( ITEMHOLDER_COLLISION_BOX_SMALL);
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 40.0f; 
         m_strDescription.PrintF("Painkillers");
         AddItem(  MODEL_PAINKILLERS, TEXTURE_PAINKILLERS, 0, 0, 0);  // set appearance

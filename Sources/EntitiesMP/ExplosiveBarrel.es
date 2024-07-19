@@ -18,17 +18,36 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "StdH.h"
 #include "Models/Props/Barrel1/Barrel1.h"
 #include "Models/Props/Barrel2/Barrel2.h"
+#include "Models/Props/Urban/TrashCan/TrashCan.h"
+#include "Models/Props/Crate1/Crate1.h"
+#include "Models/Items/Ammo/PistolClip/PistolClip.h"
+#include "Models/Items/Ammo/SMGClip/SMGAmmo.h"
+#include "Models/Items/Ammo/ShotgunShells/ShotgunAmmo.h"
+#include "Models/Items/Ammo/StrongPistolClip/StrongPistolClip.h"
+#include "Models/Items/Inventory/Painkillers/Painkillers.h"
 %}
 
 uses "EntitiesMP/BasicEffects";
 uses "EntitiesMP/Debris";
+uses "EntitiesMP/AmmoItem";
+uses "EntitiesMP/InventoryItem";
+uses "EntitiesMP/UZModelHolder";
+uses "EntitiesMP/UZSkaModelHolder";
 
 enum ExplosiveBarrelType {
   0 EBT_EXPLOSIVE        "Explosive Barrel",
   1 EBT_GREY             "Grey Barrel",
   2 EBT_WOOD1            "Wooden Barrel 1",
   3 EBT_WOOD2            "Wooden Barrel 2",
-  4 EBT_WOOD3            "Wooden Barrel 3"
+  4 EBT_WOOD3            "Wooden Barrel 3",
+  5 EBT_TRASHCAN         "Trash Can",
+  6 EBT_CRATE1           "Wooden Crate 1",
+};
+
+enum ExplosiveBarrelItemType {
+  0 EBIT_NONE       "None",
+  1 EBIT_AMMO       "Ammo",
+  2 EBIT_INVENTORY  "Inventory Item",
 };
 
 class CExplosiveBarrel: CMovableModelEntity {
@@ -45,7 +64,11 @@ properties:
   5 FLOAT m_fCandyEffect        "Debris blow power" = 0.0f,
   6 FLOAT m_fCubeFactor         "Cube factor" = 1.0f,
   7 COLOR m_colDebrises         "Color of debrises" = C_WHITE,
-
+  8 enum AmmoItemType m_EaitType "Ammo Type" = AIT_BULLETS,
+  9 FLOAT m_fCustomAmmoValue "Ammo Value Override" = 0.0f,
+ 10 enum InventoryItemType m_iitType "Inventory Item Type" = IIT_PAINKILLERS,
+ 11 enum ExplosiveBarrelItemType m_ebitType "Drop Item Type" = EBIT_NONE,
+ 12 enum PushableModelWeightType m_pmwType "Weight type" = PMWT_SMALL,   // weight type for pulling
 
 components:
   
@@ -58,6 +81,15 @@ components:
   6 texture TEXTURE_BARRELWOOD1   "Models\\Props\\Barrel2\\Barrel2.tex",
   7 texture TEXTURE_BARRELWOOD2   "Models\\Props\\Barrel2\\Barrel2b.tex",
   8 texture TEXTURE_BARRELWOOD3   "Models\\Props\\Barrel2\\Barrel2c.tex",
+
+  9 model   MODEL_TRASHCAN        "Models\\Props\\Urban\\TrashCan\\TrashCan.mdl",
+ 10 texture TEXTURE_TRASHCAN      "Models\\Props\\Urban\\TrashCan\\TrashCan.tex",
+
+ 11 class   CLASS_AMMO            "Classes\\AmmoItem.ecl",
+ 12 class   CLASS_INVENTORY_ITEM  "Classes\\InventoryItem.ecl",
+
+ 13 model   MODEL_CRATE1       "Models\\Props\\Crate1\\Crate1.mdl",
+ 14 texture TEXTURE_CRATE1     "Models\\Props\\Crate1\\crate3.tex",
 
   // ************** DEBRIS PARTS **************
  50 model     MODEL_WOOD         "Models\\Effects\\Debris\\WoodDebris.mdl",
@@ -84,7 +116,24 @@ components:
  110 sound   SOUND_METAL_DESTROY1   "Sounds\\Breakables\\MetalBreak3.wav",
  111 sound   SOUND_METAL_DESTROY2   "Sounds\\Breakables\\MetalBreak4.wav",
  112 sound   SOUND_WOOD_DESTROY1    "Sounds\\Breakables\\WoodBreak2.wav",
- 113 sound   SOUND_WOOD_DESTROY2    "Sounds\\Breakables\\WoodBreak3.wav"
+ 113 sound   SOUND_WOOD_DESTROY2    "Sounds\\Breakables\\WoodBreak3.wav",
+ 114 sound   SOUND_TRASHCAN_DESTROY "Sounds\\Breakables\\TrashCanBreak1.wav",
+
+  // ********* AMMO *********
+ 200 model   MODEL_BULLETS         "Models\\Items\\Ammo\\PistolClip\\PistolClip.mdl",
+ 201 texture TEXTURE_BULLETS       "Models\\Weapons\\Pistol\\Pistol.tex",
+
+ 202 model   MODEL_SHELLS         "Models\\Items\\Ammo\\ShotgunShells\\ShotgunAmmo.mdl",
+ 203 texture TEXTURE_SHELLS       "Models\\Items\\Ammo\\ShotgunShells\\ShotgunShell.tex",
+
+ 204 model   MODEL_MEDIUM_BULLETS         "Models\\Items\\Ammo\\SMGClip\\SMGAmmo.mdl",
+ 205 texture TEXTURE_MEDIUM_BULLETS       "Models\\Weapons\\SMG\\SMG.tex",
+
+ 206 model   MODEL_STRONG_BULLETS         "Models\\Items\\Ammo\\StrongPistolClip\\StrongPistolClip.mdl",
+ 207 texture TEXTURE_STRONG_BULLETS       "Models\\Weapons\\StrongPistol\\StrongPistol.tex",
+
+ 208 model   MODEL_PAINKILLERS   "Models\\Items\\Inventory\\Painkillers\\Painkillers.mdl",
+ 209 texture TEXTURE_PAINKILLERS "Models\\Items\\Inventory\\Painkillers\\Painkillers.tex",
 
 
 functions:
@@ -95,13 +144,79 @@ functions:
     return slUsedMemory;
   };
 
+  virtual CEntityPointer SpawnAmmo(void) {
+    CPlacement3D plSpawn = GetPlacement();
+    plSpawn.pl_PositionVector += FLOAT3D(0.0f, 1.0f, 0.0f) * GetRotationMatrix();
+    plSpawn.pl_OrientationAngle(1) = FRnd() * 360.0f;
+
+    return CreateEntity(plSpawn, CLASS_AMMO);
+  };
+
+  virtual CEntityPointer SpawnInventoryItem(void) {
+    CPlacement3D plSpawn = GetPlacement();
+    plSpawn.pl_PositionVector += FLOAT3D(0.0f, 1.0f, 0.0f) * GetRotationMatrix();
+    plSpawn.pl_OrientationAngle(1) = FRnd() * 360.0f;
+
+    return CreateEntity(plSpawn, CLASS_INVENTORY_ITEM);
+  };
+
+  /* Drop item */
+  void DropItem(void) {
+    if(m_ebitType == PMIT_AMMO) {
+      CEntityPointer pen = SpawnAmmo();
+      pen->Initialize();
+
+      CAmmoItem *penAmmo = (CAmmoItem*)&*pen;
+      penAmmo->m_bDropped = TRUE;
+      penAmmo->m_bPickupOnce = TRUE;
+      penAmmo->m_EaitType = m_EaitType;
+      switch(penAmmo->m_EaitType) {
+        case AIT_BULLETS:
+        penAmmo->m_fValue = 17.0f;
+        break;
+        case AIT_SHELLS:
+        penAmmo->m_fValue = 4.0f;
+        break;
+        case AIT_MEDIUM_BULLETS:
+        penAmmo->m_fValue = 30.0f;
+        break;
+        case AIT_STRONG_BULLETS:
+        penAmmo->m_fValue = 7.0f;
+        break;
+        default:
+        break;
+      }
+
+      if(m_fCustomAmmoValue > 0) {
+        penAmmo->m_fValue = m_fCustomAmmoValue;
+      }
+
+      pen->Reinitialize();
+    } else if (m_ebitType == PMIT_INVENTORY) {
+      CEntityPointer pen = SpawnInventoryItem();
+      pen->Initialize();
+
+      CInventoryItem *penInventory = (CInventoryItem*)&*pen;
+      penInventory->m_bDropped = TRUE;
+      penInventory->m_bPickupOnce = TRUE;
+      penInventory->m_iitType = m_iitType;
+
+      pen->Reinitialize();
+    }
+  }
+
   void Precache(void) {
     PrecacheModel(MODEL_BARREL);
     PrecacheTexture(TEXTURE_BARREL1);
     PrecacheTexture(TEXTURE_BARREL2);
+    PrecacheModel(MODEL_BARRELWOOD);
     PrecacheTexture(TEXTURE_BARRELWOOD1);
     PrecacheTexture(TEXTURE_BARRELWOOD2);
     PrecacheTexture(TEXTURE_BARRELWOOD3);
+    PrecacheModel(MODEL_TRASHCAN);
+    PrecacheTexture(TEXTURE_TRASHCAN);
+    PrecacheModel(MODEL_CRATE1);
+    PrecacheTexture(TEXTURE_CRATE1);
 
     PrecacheModel(MODEL_WOOD);
     PrecacheModel(MODEL_METAL);
@@ -114,6 +229,7 @@ functions:
     PrecacheSound(SOUND_METAL_DESTROY2);
     PrecacheSound(SOUND_WOOD_DESTROY1);
     PrecacheSound(SOUND_WOOD_DESTROY2);
+    PrecacheSound(SOUND_TRASHCAN_DESTROY);
     PrecacheSound(SOUND_METAL_BULLET1);
     PrecacheSound(SOUND_METAL_BULLET2);
     PrecacheSound(SOUND_METAL_BULLET3);
@@ -124,12 +240,28 @@ functions:
     PrecacheSound(SOUND_WOOD_BULLET3);
     PrecacheSound(SOUND_WOOD_BULLET4);
     PrecacheSound(SOUND_WOOD_BULLET5);
+
     PrecacheClass(CLASS_BASIC_EFFECT, BET_EXPLOSIVEBARREL);
     PrecacheClass(CLASS_BASIC_EFFECT, BET_EXPLOSION_DEBRIS);
     PrecacheClass(CLASS_BASIC_EFFECT, BET_EXPLOSION_SMOKE);
     PrecacheClass(CLASS_BASIC_EFFECT, BET_EXPLOSIONSTAIN);
     PrecacheClass(CLASS_BASIC_EFFECT, BET_SHOCKWAVE);
     PrecacheClass(CLASS_BASIC_EFFECT, BET_EXPLOSIVEBARREL_PLANE);
+
+    PrecacheClass(CLASS_AMMO);
+    PrecacheClass(CLASS_INVENTORY_ITEM);
+
+    PrecacheModel(MODEL_BULLETS);
+    PrecacheTexture(TEXTURE_BULLETS);
+    PrecacheModel(MODEL_SHELLS);
+    PrecacheTexture(TEXTURE_SHELLS);
+    PrecacheModel(MODEL_MEDIUM_BULLETS);
+    PrecacheTexture(TEXTURE_MEDIUM_BULLETS);
+    PrecacheModel(MODEL_STRONG_BULLETS);
+    PrecacheTexture(TEXTURE_STRONG_BULLETS);
+
+    PrecacheModel(MODEL_PAINKILLERS);
+    PrecacheTexture(TEXTURE_PAINKILLERS);
   };
 
   /* Receive damage */
@@ -206,12 +338,16 @@ procedures:
     SetCollisionFlags(ECF_MODEL);
     SetHealth(50.0f);
 
+    AddToMovers();
+
     switch(m_ebType) {
       case EBT_EXPLOSIVE: { SetModel(MODEL_BARREL); SetModelMainTexture(TEXTURE_BARREL1); } break;
-      case EBT_GREY: { SetModel(MODEL_BARREL); SetModelMainTexture(TEXTURE_BARREL2); } break;
-      case EBT_WOOD1: { SetModel(MODEL_BARRELWOOD); SetModelMainTexture(TEXTURE_BARRELWOOD1); } break;
-      case EBT_WOOD2: { SetModel(MODEL_BARRELWOOD); SetModelMainTexture(TEXTURE_BARRELWOOD2); } break;
-      case EBT_WOOD3: { SetModel(MODEL_BARRELWOOD); SetModelMainTexture(TEXTURE_BARRELWOOD3); } break;
+      case EBT_GREY:      { SetModel(MODEL_BARREL); SetModelMainTexture(TEXTURE_BARREL2); } break;
+      case EBT_WOOD1:     { SetModel(MODEL_BARRELWOOD); SetModelMainTexture(TEXTURE_BARRELWOOD1); } break;
+      case EBT_WOOD2:     { SetModel(MODEL_BARRELWOOD); SetModelMainTexture(TEXTURE_BARRELWOOD2); } break;
+      case EBT_WOOD3:     { SetModel(MODEL_BARRELWOOD); SetModelMainTexture(TEXTURE_BARRELWOOD3); } break;
+      case EBT_TRASHCAN:  { SetModel(MODEL_TRASHCAN); SetModelMainTexture(TEXTURE_TRASHCAN); } break;
+      case EBT_CRATE1:    { SetModel(MODEL_CRATE1); SetModelMainTexture(TEXTURE_CRATE1); } break;
       default: break;
     }
 
@@ -225,8 +361,56 @@ procedures:
           m_soSound.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f+FRnd()*0.2f);
           resume;
       }
+      on (ETouch eTouch) : {
+        if(IsOfClass(eTouch.penOther, "ExplosiveBarrel")) {
+          FLOAT3D vPush = eTouch.penOther->GetPlacement().pl_PositionVector - GetPlacement().pl_PositionVector;
+          switch(m_pmwType)
+          {
+            case PMWT_SMALL: vPush *= 2.0f; break;
+            case PMWT_MEDIUM: vPush *= 1.65f; break;
+            case PMWT_BIG: vPush *= 1.35f; break;
+            case PMWT_HUGE: vPush *= 1.1f; break;
+            default: break;
+          }
+          CExplosiveBarrel *penPushable = (CExplosiveBarrel*)&*eTouch.penOther;
+          penPushable->GiveImpulseTranslationAbsolute(FLOAT3D(vPush(1), 0.0f, vPush(3)));
+        }
+        
+        if(IsOfClass(eTouch.penOther, "UZModelHolder")) {
+          FLOAT3D vPush = eTouch.penOther->GetPlacement().pl_PositionVector - GetPlacement().pl_PositionVector;
+          switch(m_pmwType)
+          {
+            case PMWT_SMALL: vPush *= 2.0f; break;
+            case PMWT_MEDIUM: vPush *= 1.65f; break;
+            case PMWT_BIG: vPush *= 1.35f; break;
+            case PMWT_HUGE: vPush *= 1.1f; break;
+            default: break;
+          }
+          CUZModelHolder *penPushable = (CUZModelHolder*)&*eTouch.penOther;
+          if(penPushable->m_bPushable) {
+            penPushable->GiveImpulseTranslationAbsolute(FLOAT3D(vPush(1), 0.0f, vPush(3)));
+          }
+        }
+
+        if(IsOfClass(eTouch.penOther, "UZSkaModelHolder")) {
+          FLOAT3D vPush = eTouch.penOther->GetPlacement().pl_PositionVector - GetPlacement().pl_PositionVector;
+          switch(m_pmwType)
+          {
+            case PMWT_SMALL: vPush *= 2.0f; break;
+            case PMWT_MEDIUM: vPush *= 1.65f; break;
+            case PMWT_BIG: vPush *= 1.35f; break;
+            case PMWT_HUGE: vPush *= 1.1f; break;
+            default: break;
+          }
+          CUZSkaModelHolder *penPushable = (CUZSkaModelHolder*)&*eTouch.penOther;
+          if(penPushable->m_bPushable) {
+            penPushable->GiveImpulseTranslationAbsolute(FLOAT3D(vPush(1), 0.0f, vPush(3)));
+          }
+        }
+        resume;
+      }
       on (EDamage eDamage) : {
-          if(m_ebType == EBT_EXPLOSIVE || m_ebType == EBT_GREY) {
+          if(m_ebType == EBT_EXPLOSIVE || m_ebType == EBT_GREY || m_ebType == EBT_TRASHCAN) {
             switch(IRnd()%5) {
               case 0: { PlaySound(m_soSound, SOUND_METAL_BULLET1, SOF_3D); } break;
               case 1: { PlaySound(m_soSound, SOUND_METAL_BULLET2, SOF_3D); } break;
@@ -249,6 +433,7 @@ procedures:
           resume;
       }
       on (EDeath) : {
+          DropItem();
           // get your size
           FLOATaabbox3D box;
           GetSize(box);
@@ -269,7 +454,6 @@ procedures:
               SwitchToEditorModel();
               SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
               SetCollisionFlags(ECF_IMMATERIAL);
-              Destroy();
             }
             break;
             case EBT_GREY:
@@ -284,7 +468,6 @@ procedures:
               SwitchToEditorModel();
               SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
               SetCollisionFlags(ECF_IMMATERIAL);
-              Destroy();
             }
             break;
             case EBT_WOOD1:
@@ -299,7 +482,6 @@ procedures:
               SwitchToEditorModel();
               SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
               SetCollisionFlags(ECF_IMMATERIAL);
-              Destroy();
             }
             break;
             case EBT_WOOD2:
@@ -314,7 +496,6 @@ procedures:
               SwitchToEditorModel();
               SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
               SetCollisionFlags(ECF_IMMATERIAL);
-              Destroy();
             }
             break;
             case EBT_WOOD3:
@@ -329,7 +510,29 @@ procedures:
               SwitchToEditorModel();
               SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
               SetCollisionFlags(ECF_IMMATERIAL);
-              Destroy();
+            }
+            break;
+            case EBT_TRASHCAN:
+            {
+              PlaySound(m_soSound, SOUND_TRASHCAN_DESTROY, SOF_3D);
+              DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_METAL1, fEntitySize, box);
+              SwitchToEditorModel();
+              SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
+              SetCollisionFlags(ECF_IMMATERIAL);
+            }
+            break;
+            case EBT_CRATE1:
+            {
+              switch(IRnd()%2)
+              {
+                case 0: PlaySound(m_soSound, SOUND_WOOD_DESTROY1, SOF_3D); break;
+                case 1: PlaySound(m_soSound, SOUND_WOOD_DESTROY2, SOF_3D); break;
+                default: ASSERTALWAYS("Explosive barrel unknown break sound");
+              }
+              DebrisInitialize(EIBT_WOOD, MODEL_WOOD, TEXTURE_WOOD1, fEntitySize, box);
+              SwitchToEditorModel();
+              SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
+              SetCollisionFlags(ECF_IMMATERIAL);
             }
             break;
 
@@ -342,6 +545,7 @@ procedures:
       otherwise() : { resume; }
     }
     
+    autowait(2.0f);
 
     // cease to exist
     Destroy();

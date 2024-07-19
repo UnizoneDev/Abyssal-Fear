@@ -323,7 +323,7 @@ void CColoredButton::OnMouseMove(UINT nFlags, CPoint point)
   CButton::OnMouseMove(nFlags, point);
 }
 
-int CColoredButton::OnToolHitTest( CPoint point, TOOLINFO* pTI ) const
+INT_PTR CColoredButton::OnToolHitTest( CPoint point, TOOLINFO* pTI ) const
 {
   UBYTE ubR, ubG, ubB;
   UBYTE ubH, ubS, ubV, ubA;
@@ -337,7 +337,7 @@ int CColoredButton::OnToolHitTest( CPoint point, TOOLINFO* pTI ) const
   
   CTString strColor;
   strColor.PrintF( "HSV=(%d,%d,%d),   RGB=(%d,%d,%d),    Alpha=%d", ubH, ubS, ubV, ubR, ubG, ubB, ubA);
-  pTI->lpszText = (wchar_t *)malloc(sizeof(wchar_t) * (strlen(strColor)+1));
+  pTI->lpszText = (wchar_t*)malloc(sizeof(wchar_t) * (strlen(strColor) + 1));
   wcscpy( pTI->lpszText, CString(strColor));
   RECT rectToolTip;
   rectToolTip.left = 50;
@@ -345,7 +345,7 @@ int CColoredButton::OnToolHitTest( CPoint point, TOOLINFO* pTI ) const
   rectToolTip.top = 50;
   rectToolTip.bottom = 60;
   pTI->hwnd = GetParent()->m_hWnd;
-  pTI->uId = (UINT) m_hWnd;
+  pTI->uId = (DWORD_PTR) m_hWnd;
   pTI->rect = rectToolTip;
   pTI->uFlags = TTF_IDISHWND;
   return 1;

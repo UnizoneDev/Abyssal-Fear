@@ -26,7 +26,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Network/MessageDispatcher.h>
 #include <Engine/Templates/StaticArray.h>
 
-#define SERVER_CLIENTS 32 // [Cecil] 16 -> 32
+#define NET_MAXPLAYERS_EXP 5 // 2^5 = 32 max players
+#define SERVER_CLIENTS (1 << NET_MAXPLAYERS_EXP) // [Cecil] 16 -> (1 << NET_MAXPLAYERS_EXP)
 #define NET_MAXGAMECOMPUTERS SERVER_CLIENTS      // max overall computers in game
 #define NET_MAXGAMEPLAYERS NET_MAXGAMECOMPUTERS  // max overall players in game
 #define NET_MAXLOCALPLAYERS   4                  // max players on a single machine

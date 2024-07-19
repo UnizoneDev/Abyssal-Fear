@@ -1215,9 +1215,6 @@ static ULONG ogl_CreateVertexProgram(const char *strVertexProgram, ULONG ulProgr
         strm.GetLine_t(strLine);
     }
 
-    strm.Close();
-
-    ulProgram = pglCreateProgram();
     GLuint ulVertexShader = pglCreateShader(GL_VERTEX_SHADER);
     GLint slProgramStatus = GL_TRUE;
 
@@ -1260,9 +1257,6 @@ static ULONG ogl_CreateFragmentProgram(const char *strFragmentProgram, ULONG ulP
         strm.GetLine_t(strLine);
     }
 
-    strm.Close();
-
-    ulProgram = pglCreateProgram();
     GLuint ulFragmentShader = pglCreateShader(GL_FRAGMENT_SHADER);
     GLint slProgramStatus = GL_TRUE;
 
@@ -1323,4 +1317,39 @@ static void ogl_SetShaderProgramFloat(const char* strUniform, ULONG ulHandle, FL
 {
     ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
     pglUniform1f(pglGetUniformLocation(ulHandle, strUniform), fVariable);
+}
+
+static void ogl_SetShaderProgramVector2(const char* strUniform, ULONG ulHandle, FLOAT fVarX, FLOAT fVarY)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    pglUniform2f(pglGetUniformLocation(ulHandle, strUniform), fVarX, fVarY);
+}
+
+static void ogl_SetShaderProgramVector3(const char* strUniform, ULONG ulHandle, FLOAT fVarX, FLOAT fVarY, FLOAT fVarZ)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    pglUniform3f(pglGetUniformLocation(ulHandle, strUniform), fVarX, fVarY, fVarZ);
+}
+
+static void ogl_SetShaderProgramVector4(const char* strUniform, ULONG ulHandle, FLOAT fVarX, FLOAT fVarY, FLOAT fVarZ, FLOAT fVarW)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    pglUniform4f(pglGetUniformLocation(ulHandle, strUniform), fVarX, fVarY, fVarZ, fVarW);
+}
+
+// set shading mode
+static void ogl_ShadeFunc(GfxShadingMode eFunc)
+{
+    // check consistency
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_OGL);
+    _sfStats.StartTimer(CStatForm::STI_GFXAPI);
+
+    switch (eFunc) {
+      case GFX_SMOOTH: pglShadeModel(GL_SMOOTH); break;
+      case GFX_FLAT:   pglShadeModel(GL_FLAT); break;
+      default:  ASSERTALWAYS("Wrong shading mode!");
+    } // check
+    OGL_CHECKERROR;
+
+    _sfStats.StopTimer(CStatForm::STI_GFXAPI);
 }

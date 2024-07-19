@@ -96,11 +96,13 @@ extern void MimicTexParams_OGL(CTexParams& tpLocal)
     { // prepare temp vars
         GLuint eWrapU = _tpGlobal[GFX_iActiveTexUnit].tp_eWrapU == GFX_REPEAT ? GL_REPEAT : GL_CLAMP;
         GLuint eWrapV = _tpGlobal[GFX_iActiveTexUnit].tp_eWrapV == GFX_REPEAT ? GL_REPEAT : GL_CLAMP;
+
         // eventually re-adjust clamping params in case of clamp_to_edge extension
         if (_pGfx->gl_ulFlags & GLF_EXT_EDGECLAMP) {
             if (eWrapU == GL_CLAMP) eWrapU = GL_CLAMP_TO_EDGE;
             if (eWrapV == GL_CLAMP) eWrapV = GL_CLAMP_TO_EDGE;
         }
+
         // set clamping params and update local texture clamping modes
         pglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, eWrapU);
         pglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, eWrapV);
@@ -165,7 +167,7 @@ extern void UploadTexture_OGL(ULONG* pulTexture, PIX pixSizeU, PIX pixSizeV,
             if (pixSizeU == 0) pixSizeU = 1;
             if (pixSizeV == 0) pixSizeV = 1;
             pixSize = pixSizeU * pixSizeV;
-			
+            
             UBYTE *dptr = (UBYTE*)pulDst;
             UBYTE *sptr = (UBYTE*)pulSrc;
 
@@ -178,13 +180,8 @@ extern void UploadTexture_OGL(ULONG* pulTexture, PIX pixSizeU, PIX pixSizeV,
                     sptr++;
                 }
                 sptr += 4;
-									   
-									  
-								  
-							   
-								   
-						
             }
+
             // upload mipmap
             if (bUseSubImage) {
                 pglTexSubImage2D(GL_TEXTURE_2D, iMip, 0, 0, pixSizeU, pixSizeV,

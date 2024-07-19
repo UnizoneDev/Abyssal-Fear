@@ -112,7 +112,7 @@ functions:
     PrecacheSound(SOUND_SIGHT2);
     PrecacheSound(SOUND_WOUND);
     PrecacheSound(SOUND_DEATH);
-    PrecacheClass(CLASS_PROJECTILE, PRT_MUTANT_SPIT);
+    PrecacheClass(CLASS_PROJECTILE, PRT_ABOMINATION_SPIT);
   };
 
   /* Fill in entity statistics - for AI purposes only */
@@ -206,8 +206,8 @@ functions:
   void IdleSound(void) {
     switch(IRnd()%2)
     {
-      case 0: PlaySound(m_soSound, SOUND_IDLE1, SOF_3D); break;
-      case 1: PlaySound(m_soSound, SOUND_IDLE2, SOF_3D); break;
+      case 0: PlaySound(m_soVoice, SOUND_IDLE1, SOF_3D); break;
+      case 1: PlaySound(m_soVoice, SOUND_IDLE2, SOF_3D); break;
       default: ASSERTALWAYS("Abomination unknown idle sound");
     }
   };
@@ -215,18 +215,18 @@ functions:
   void SightSound(void) {
     switch(IRnd()%2)
     {
-      case 0: PlaySound(m_soSound, SOUND_SIGHT1, SOF_3D); break;
-      case 1: PlaySound(m_soSound, SOUND_SIGHT2, SOF_3D); break;
+      case 0: PlaySound(m_soVoice, SOUND_SIGHT1, SOF_3D); break;
+      case 1: PlaySound(m_soVoice, SOUND_SIGHT2, SOF_3D); break;
       default: ASSERTALWAYS("Abomination unknown sight sound");
     }
   };
 
   void WoundSound(void) {
-    PlaySound(m_soSound, SOUND_WOUND, SOF_3D);
+    PlaySound(m_soVoice, SOUND_WOUND, SOF_3D);
   };
 
   void DeathSound(void) {
-    PlaySound(m_soSound, SOUND_DEATH, SOF_3D);
+    PlaySound(m_soVoice, SOUND_DEATH, SOF_3D);
   };
 
 
@@ -342,9 +342,9 @@ functions:
 
     StartModelAnim(ABOMINATION_ANIM_SPIT, 0);
     autowait(0.375f);
-    ShootProjectile(PRT_MUTANT_SPIT, FLOAT3D(-0.25f, 4.75f, 0.0f), ANGLE3D(2.0f, 0, 0));
-    ShootProjectile(PRT_MUTANT_SPIT, FLOAT3D(0.0f, 4.75f, 0.0f), ANGLE3D(0, 0, 0));
-    ShootProjectile(PRT_MUTANT_SPIT, FLOAT3D(0.25f, 4.75f, 0.0f), ANGLE3D(-2.0f, 0, 0));
+    ShootProjectile(PRT_ABOMINATION_SPIT, FLOAT3D(-0.25f, 4.75f, 0.0f), ANGLE3D(2.0f, 0, 0));
+    ShootProjectile(PRT_ABOMINATION_SPIT, FLOAT3D(0.0f, 4.75f, 0.0f), ANGLE3D(0, 0, 0));
+    ShootProjectile(PRT_ABOMINATION_SPIT, FLOAT3D(0.25f, 4.75f, 0.0f), ANGLE3D(-2.0f, 0, 0));
     PlaySound(m_soSound, SOUND_HIT, SOF_3D);
 
     autowait(0.5f + FRnd()/3);

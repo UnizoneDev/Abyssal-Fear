@@ -233,6 +233,8 @@ void CEntity::Copy(CEntity &enOther, ULONG ulFlags)
       en_plpLastPositions = new CLastPositions(*enOther.en_plpLastPositions);
     }
   }
+
+  en_ulRenderingFlags = enOther.en_ulRenderingFlags;
 }
 
 /*

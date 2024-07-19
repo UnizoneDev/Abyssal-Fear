@@ -200,7 +200,7 @@ void CPlayerSource::WriteActionPacket(CNetworkMessage &nm)
   // write all in the message
   BOOL bActive = 1;
   nm.WriteBits(&bActive, 1);
-  nm.WriteBits(&pls_Index, 4);  // your index
+  nm.WriteBits(&pls_Index, NET_MAXPLAYERS_EXP);  // your index
   nm.WriteBits(&iPing, 10);     // your ping
   nm<<pls_paAction;             // action
   //CPrintF("%.2f - written: %d\n", _pTimer->GetRealTimeTick(), SLONG(pls_paAction.pa_llCreated));

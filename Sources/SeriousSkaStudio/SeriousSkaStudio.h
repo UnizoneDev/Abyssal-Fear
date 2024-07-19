@@ -62,6 +62,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define NT_COLISIONBOX     10
 #define NT_ALLFRAMESBBOX   11
 #define NT_MESHSURFACE     12
+#define NT_FRAMEEVENT      13 // [Uni] useful for footsteps, specific triggers, etc.
+#define NT_HITBOX          14 // [Uni] just so we don't have to rely on bones for locational damage
 
 class CSeriousSkaStudioApp : public CWinApp
 {

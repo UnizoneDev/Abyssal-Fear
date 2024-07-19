@@ -60,7 +60,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/DynamicStackArray.cpp>
 
 extern BOOL _bSomeDarkExists;
-extern INDEX d3d_bAlternateDepthReads;
 
 // general coordinate stack referenced by the scene polygons
 extern CStaticStackArray<GFXVertex3> _avtxScene;
@@ -377,6 +376,9 @@ void CRenderer::AddInitialSectors(void)
     if(re_penViewer->en_RenderType==CEntity::RT_MODEL ||
        re_penViewer->en_RenderType==CEntity::RT_EDITORMODEL) {
       AddModelEntity(re_penViewer);
+    } else if (re_penViewer->en_RenderType == CEntity::RT_SKAMODEL ||
+               re_penViewer->en_RenderType == CEntity::RT_SKAEDITORMODEL) {
+      AddSkaModelEntity(re_penViewer);
     }
   // if a viewer polygons are given
   } else if (re_pcspoViewPolygons!=NULL) {
@@ -711,11 +713,7 @@ void CRenderer::Render(void)
   // force finishing of all OpenGL pending operations, if required
   ChangeStatsMode(CStatForm::STI_SWAPBUFFERS);
   extern INDEX ogl_iFinish;  ogl_iFinish = Clamp( ogl_iFinish, 0L, 3L);
-  extern INDEX d3d_iFinish;  d3d_iFinish = Clamp( d3d_iFinish, 0L, 3L);
-  if( (ogl_iFinish==1 && _pGfx->gl_eCurrentAPI==GAT_OGL) 
-#ifdef SE1_D3D
-   || (d3d_iFinish==1 && _pGfx->gl_eCurrentAPI==GAT_D3D)
-#endif // SE1_D3D
+  if( (ogl_iFinish==1 && _pGfx->gl_eCurrentAPI==GAT_OGL)
    ) 
    gfxFinish();
 
@@ -723,7 +721,7 @@ void CRenderer::Render(void)
   if( !re_bRenderingShadows && re_iIndex==0) {
     // OpenGL allows us to check z-buffer from previous frame - cool deal!
     // Direct3D is, of course, totally different story. :(
-    if( _pGfx->gl_eCurrentAPI==GAT_OGL || d3d_bAlternateDepthReads) {
+    if( _pGfx->gl_eCurrentAPI==GAT_OGL) {
       ChangeStatsMode(CStatForm::STI_FLARESRENDERING);
       extern void CheckDelayedDepthPoints( const CDrawPort *pdp, INDEX iMirrorLevel=0);
       CheckDelayedDepthPoints(re_pdpDrawPort);
@@ -885,15 +883,6 @@ void CRenderer::Render(void)
   StopHaze();
   // reset vertex arrays if this is the last renderer  
   if( re_iIndex==0) _avtxScene.PopAll();
-
-  // for D3D (or mirror) we have to check depth points now, because we need back (not depth!) buffer for it,
-  // and D3D can't guarantee that it won't be discarded upon swapbuffers (especially if multisampling is on!) :(
-#ifdef SE1_D3D
-  if( !re_bRenderingShadows && ((_pGfx->gl_eCurrentAPI==GAT_D3D && !d3d_bAlternateDepthReads) || re_iIndex>0)) {
-    extern void CheckDelayedDepthPoints( const CDrawPort *pdp, INDEX iMirrorLevel=0);
-    CheckDelayedDepthPoints( re_pdpDrawPort, re_iIndex);
-  }
-#endif // SE1_D3D
   
   // end select-on-render functionality
   extern void EndSelectOnRender(void);

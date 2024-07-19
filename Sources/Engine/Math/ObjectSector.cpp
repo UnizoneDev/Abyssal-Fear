@@ -253,6 +253,7 @@ CObjectSector::CObjectSector(void) :
   osc_ulFlags[0] = 0;
   osc_ulFlags[1] = 0;
   osc_ulFlags[2] = 0;
+  osc_ulFlags[3] = 0;
 }
 /*
  * Destructor.
@@ -1759,6 +1760,7 @@ CObjectSector &CObjectSector::operator=(CObjectSector &oscOriginal)
   osc_ulFlags[0]  = oscOriginal.osc_ulFlags[0];
   osc_ulFlags[1]  = oscOriginal.osc_ulFlags[1];
   osc_ulFlags[2]  = oscOriginal.osc_ulFlags[2];
+  osc_ulFlags[3]  = oscOriginal.osc_ulFlags[3];
   osc_strName     = oscOriginal.osc_strName;
 
   // create indices in original sector

@@ -199,11 +199,21 @@ void SendToTarget(CEntity *penSendEvent, EventEType eetEventType, CEntity *penCa
           ELock eLock;
           eLock.penCaused = penCaused;
           penSendEvent->SendEvent(eLock);
-        } break;
+      } break;
       case EET_UNLOCK: {
           EUnlock eUnlock;
           eUnlock.penCaused = penCaused;
           penSendEvent->SendEvent(eUnlock);
+      } break;
+      case EET_OPEN: {
+          EOpen eOpen;
+          eOpen.penCaused = penCaused;
+          penSendEvent->SendEvent(eOpen);
+      } break;
+      case EET_CLOSE: {
+          EClose eClose;
+          eClose.penCaused = penCaused;
+          penSendEvent->SendEvent(eClose);
       } break;
     }
   }
@@ -269,6 +279,12 @@ void SendInRange(CEntity *penSource, EventEType eetEventType, const FLOATaabbox3
     case EET_UNLOCK:
       penSource->SendEventInRange(EUnlock(), boxRange);
       break;
+    case EET_OPEN:
+      penSource->SendEventInRange(EOpen(), boxRange);
+      break;
+    case EET_CLOSE:
+      penSource->SendEventInRange(EClose(), boxRange);
+      break;
   }
 };
 
@@ -315,6 +331,7 @@ EffectParticlesType GetParticleEffectTypeForSurface(INDEX iSurfaceType)
       {eptType=EPT_BULLET_SNOW; break;}
     case SURFACE_METAL:
     case SURFACE_METAL_NOIMPACT:
+    case SURFACE_ELECTRIC_METAL:
       {eptType = EPT_BULLET_METAL; break; }
     case SURFACE_CARPET:
     case SURFACE_CARPET_NOIMPACT:
@@ -335,6 +352,7 @@ EffectParticlesType GetParticleEffectTypeForSurface(INDEX iSurfaceType)
     case SURFACE_ACID: {eptType = EPT_BULLET_ACID; break; }
     case SURFACE_GRATE:
     case SURFACE_GRATE_NOIMPACT:
+    case SURFACE_ELECTRIC_GRATE:
     {eptType = EPT_BULLET_GRATE; break; }
     case SURFACE_MUD:
     case SURFACE_MUD_NOIMPACT:
@@ -389,6 +407,7 @@ BulletHitType GetBulletHitTypeForSurface(INDEX iSurfaceType)
       {bhtType=BHT_BRUSH_SNOW; break;}
     case SURFACE_METAL:
     case SURFACE_METAL_NOIMPACT:
+    case SURFACE_ELECTRIC_METAL:
     {bhtType = BHT_BRUSH_METAL; break; }
     case SURFACE_CARPET: 
     case SURFACE_CARPET_NOIMPACT:
@@ -409,6 +428,7 @@ BulletHitType GetBulletHitTypeForSurface(INDEX iSurfaceType)
     case SURFACE_ACID: {bhtType = BHT_BRUSH_ACID; break; }
     case SURFACE_GRATE:
     case SURFACE_GRATE_NOIMPACT:
+    case SURFACE_ELECTRIC_GRATE:
     {bhtType = BHT_BRUSH_GRATE; break; }
     case SURFACE_MUD:
     case SURFACE_MUD_NOIMPACT:
@@ -733,7 +753,7 @@ CLensFlareType _lftOrange;
 CLensFlareType _lftBlue;
 CLensFlareType _lftWhite;
 CLensFlareType _lftRed;
-CLensFlareType _lftYellow;						  
+CLensFlareType _lftYellow;
 static BOOL _bLensFlaresLoaded = FALSE;
 
 #define FLARE_CREATE(type,noof,tex,pos,rot,i,j,flags,amp,des,falloff)\
@@ -770,11 +790,11 @@ void InitLensFlares(void) {
   }
 
   // Orange Flare 1
-  FLARE_CREATE(_lftOrange, 1, "Orange01\\OrangeFlare01.tex", 0.0f, 180.0f, 1/5.0f, 1/5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
+  FLARE_CREATE(_lftOrange, 1, "Orange01\\OrangeFlare01.tex", 0.0f, 180.0f, 1/5.0f, 1/5.0f, OLF_FADESIZE, 7.0f, 0.25f, 5.0f);
   FLARE_GLARE(_lftOrange, 20.0f, 0.3f, 0.8f, 1.0f);
 
   // Blue Flare 1
-  FLARE_CREATE(_lftBlue, 1, "Blue01\\BlueFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
+  FLARE_CREATE(_lftBlue, 1, "Blue01\\BlueFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.25f, 5.0f);
   FLARE_GLARE(_lftBlue, 20.0f, 0.3f, 0.8f, 1.0f);
 
   // White Flare 1
@@ -782,12 +802,13 @@ void InitLensFlares(void) {
   FLARE_GLARE(_lftWhite, 20.0f, 0.3f, 0.8f, 1.0f);
 
   // Red Flare 1
-  FLARE_CREATE(_lftRed, 1, "Red01\\RedFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.5f, 5.0f);
+  FLARE_CREATE(_lftRed, 1, "Red01\\RedFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.25f, 5.0f);
   FLARE_GLARE(_lftRed, 20.0f, 0.3f, 0.8f, 1.0f);
 
-// Yellow Flare 1
+  // Yellow Flare 1
   FLARE_CREATE(_lftYellow, 1, "Yellow01\\YellowFlare01.tex", 0.0f, 180.0f, 1 / 5.0f, 1 / 5.0f, OLF_FADESIZE, 7.0f, 0.25f, 5.0f);
   FLARE_GLARE(_lftYellow, 20.0f, 0.3f, 0.8f, 1.0f);
+
   _bLensFlaresLoaded = TRUE;
 };
 
@@ -797,7 +818,7 @@ void CloseLensFlares(void) {
   _lftBlue.lft_aolfFlares.Clear();
   _lftWhite.lft_aolfFlares.Clear();
   _lftRed.lft_aolfFlares.Clear();
-  _lftYellow.lft_aolfFlares.Clear();							
+  _lftYellow.lft_aolfFlares.Clear();
   _bLensFlaresLoaded = FALSE;
 };
 
@@ -1112,18 +1133,20 @@ FLOAT _fEntitySize;
 FLOAT _fConeSize;
 FLOAT _fSpeedUp;
 COLOR _colDebris;
+COLOR _colStain;
 
 // debris spawning
 void Debris_Begin(
   EntityInfoBodyType Eeibt, 
   enum DebrisParticlesType dptParticles,
   enum BasicEffectType  betStain,
-  FLOAT fEntitySize,                  // entity size in meters
+  FLOAT fEntitySize,                    // entity size in meters
   const FLOAT3D &vSpeed,
-  const FLOAT3D &vSpawnerSpeed,       // how fast was the entity moving
-  const FLOAT fConeSize,              // size multiplier for debris cone
-  const FLOAT fSpeedUp,               // size multiplier for debris catapulting up (0-no multiply)
-  const COLOR colDebris /*=C_WHITE*/  // multiply color
+  const FLOAT3D &vSpawnerSpeed,         // how fast was the entity moving
+  const FLOAT fConeSize,                // size multiplier for debris cone
+  const FLOAT fSpeedUp,                 // size multiplier for debris catapulting up (0-no multiply)
+  const COLOR colDebris,  /*=C_WHITE*/  // multiply color
+  const COLOR colStain
 )
 {
   _Eeibt          = Eeibt       ;
@@ -1135,6 +1158,7 @@ void Debris_Begin(
   _fConeSize      = fConeSize   ;
   _fSpeedUp       = fSpeedUp    ;
   _colDebris      = colDebris   ;
+  _colStain       = colStain    ;
 }
 
 CEntityPointer Debris_Spawn(
@@ -1175,6 +1199,7 @@ CEntityPointer Debris_Spawn(
   eSpawn.ptdBump = penComponents->GetTextureDataForComponent(idBumpTextureComponent);
   eSpawn.iModelAnim = iModelAnim;
   eSpawn.colDebris = _colDebris;
+  eSpawn.colStain = _colStain;
   eSpawn.vStretch = FLOAT3D(1,1,1);
   if (fSize==0) {
     eSpawn.fSize = 1.0f;
@@ -1244,6 +1269,7 @@ CEntityPointer Debris_Spawn_Independent(
   eSpawn.ptdBump = penComponents->GetTextureDataForComponent(idBumpTextureComponent);
   eSpawn.iModelAnim = iModelAnim;
   eSpawn.colDebris = _colDebris;
+  eSpawn.colStain = _colStain;
   eSpawn.fSize = fSize;
   eSpawn.vStretch = FLOAT3D(1,1,1);
   
@@ -1321,9 +1347,7 @@ CEntityPointer Debris_Spawn_Template(
 
 CEntityPointer Debris_Spawn_SKA(
     CEntity* penSpawner,
-    CEntity* penComponents,
     SLONG idSkaModelComponent,
-    INDEX iModelAnim,
     FLOAT fSize,
     const FLOAT3D& vPosRatio)
 {
@@ -1341,15 +1365,16 @@ CEntityPointer Debris_Spawn_SKA(
         CPlacement3D(vPos, ANGLE3D(0, 0, 0)), CTFILENAME("Classes\\DebrisSka.ecl"));
     // prepare parameters
     ESpawnDebrisSka eSpawn;
+    eSpawn.penSpawner = penSpawner;
+    eSpawn.iSkaModelComponentID = idSkaModelComponent;
     eSpawn.bImmaterialASAP = FALSE;
     eSpawn.bCustomShading = FALSE;
     eSpawn.Eeibt = _Eeibt;
     eSpawn.dptParticles = _dptParticles;
     eSpawn.betStain = _betStain;
-    eSpawn.pmiSkaModelComponent = penComponents->GetModelInstanceForComponent(idSkaModelComponent);
-    eSpawn.iSkaModelAnim = iModelAnim;
 
     eSpawn.colDebris = _colDebris;
+    eSpawn.colStain = _colStain;
     eSpawn.vStretch = FLOAT3D(1, 1, 1);
     if (fSize == 0) {
         eSpawn.fSize = 1.0f;
@@ -1388,6 +1413,7 @@ CEntityPointer Debris_Spawn_SKA(
 
     return penDebris;
 }
+
 // info structure
 static EntityInfo eiFlesh = {EIBT_FLESH};
 static EntityInfo eiWater = {EIBT_WATER};
@@ -1445,7 +1471,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_AXE:    return 0.0f;
     case DMT_STING:  return 0.0f;
     case DMT_PUNCH:  return 0.0f;
-	case DMT_SHARPSTRONG:  return 0.0f;								   
+    case DMT_SHARPSTRONG:  return 0.0f;
     }
     return 1.0f;
   case EIBT_ROCK :
@@ -1458,7 +1484,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_AXE:    return 0.0f;
     case DMT_STING:  return 0.0f;
     case DMT_PUNCH:  return 0.0f;
-	case DMT_SHARPSTRONG:  return 0.0f;								   
+    case DMT_SHARPSTRONG:  return 0.0f;
     }
     return 1.0f;
   case EIBT_ICE :
@@ -1471,7 +1497,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_AXE:    return 1.0f;
     case DMT_STING:  return 0.5f;
     case DMT_PUNCH:  return 0.75f;
-	case DMT_SHARPSTRONG:  return 1.0f;								   
+    case DMT_SHARPSTRONG:  return 1.0f;
     }
     return 1.0f;
   case EIBT_FIRE :
@@ -1483,7 +1509,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_AXE:    return 0.5f;
     case DMT_STING:  return 0.5f;
     case DMT_PUNCH:  return 0.5f;
-	case DMT_SHARPSTRONG:  return 0.5f;								   
+    case DMT_SHARPSTRONG:  return 0.5f;
     }
     return 1.0f;
   case EIBT_AIR  :
@@ -1507,7 +1533,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_CLOSERANGE:  return 0.0f;
     case DMT_BURNING:   return 0.0f;
     case DMT_FREEZING:  return 0.0f;
-	case DMT_SHARP:  return 0.5f;
+    case DMT_SHARP:  return 0.5f;
     case DMT_BLUNT:  return 0.25f;
     case DMT_AXE:    return 0.5f;
     case DMT_CHAINSAW: return 0.5f;
@@ -1520,7 +1546,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_CLOSERANGE:return 0.5f;
     case DMT_BURNING:   return 0.5f;
     case DMT_FREEZING:  return 0.5f;
-	case DMT_SHARP:  return 0.5f;
+    case DMT_SHARP:  return 0.5f;
     case DMT_BLUNT:  return 0.5f;
     case DMT_AXE:    return 0.5f;
     case DMT_PUNCH:  return 0.5f;
@@ -1533,7 +1559,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
     case DMT_SHARP:  return 1.5f;
     case DMT_BLUNT:  return 1.5f;
     case DMT_AXE:    return 1.5f;
-	case DMT_PUNCH:  return 1.5f;
+    case DMT_PUNCH:  return 1.5f;
     case DMT_SHARPSTRONG:  return 1.5f;
     }
     return 1.0f;
@@ -1551,7 +1577,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
       case DMT_AXE:    return 0.0f;
       case DMT_CHAINSAW: return 0.0f;
       case DMT_PUNCH:  return 0.0f;
-	  case DMT_SHARPSTRONG:  return 0.0f;								 
+      case DMT_SHARPSTRONG:  return 0.0f;
       }
       return 1.0f;
   case EIBT_SMOKE:
@@ -1566,7 +1592,7 @@ FLOAT DamageStrength(EntityInfoBodyType eibtBody, enum DamageType dtDamage)
       case DMT_AXE:    return 0.0f;
       case DMT_CHAINSAW: return 0.0f;
       case DMT_PUNCH:  return 0.0f;
-	  case DMT_SHARPSTRONG:  return 0.0f;							 
+      case DMT_SHARPSTRONG:  return 0.0f;
       }
       return 1.0f;
   default:
@@ -1598,7 +1624,7 @@ void PrintCenterMessage(CEntity *penThis, CEntity *penCaused,
 void SpawnRangeSound( CEntity *penPlayer, CEntity *penPos, enum SoundType st, FLOAT fRange)
 {
   // if not really player
-  if (!IsDerivedFromClass(penPlayer, "Player")) {
+  if (!IsDerivedFromClass(penPlayer, &CPlayer_DLLClass)) {
     // do nothing
     return;
   }
@@ -1612,7 +1638,7 @@ void SpawnRangeSound( CEntity *penPlayer, CEntity *penPos, enum SoundType st, FL
 // get some player for trigger source if any is existing
 CEntity *FixupCausedToPlayer(CEntity *penThis, CEntity *penCaused, BOOL bWarning/*=TRUE*/)
 {
-  if (penCaused!=NULL && IsOfClass(penCaused, "Player")) {
+  if (penCaused!=NULL && IsOfClass(penCaused, &CPlayer_DLLClass)) {
     return penCaused;
   }
 
@@ -1693,7 +1719,7 @@ FLOAT GetGameDamageMultiplier(void)
 // get entity's serious damage multiplier
 FLOAT GetSeriousDamageMultiplier( CEntity *pen)
 {
-  if( !IsOfClass(pen,"Player")) return 1.0f;
+  if( !IsOfClass(pen, &CPlayer_DLLClass)) return 1.0f;
   return 1.0f;
 }
 
@@ -1707,4 +1733,29 @@ class CWorldSettingsController *GetWSC(CEntity *pen)
     pwsc = (CWorldSettingsController *) &*penBcgViewer->m_penWorldSettingsController;
   }
   return pwsc;
+}
+
+
+// [Uni] bone functions
+BOOL RotateBone(INDEX idBone, ANGLE3D aBoneAngle)
+{
+    RenBone* rbBone = RM_FindRenBone(idBone);
+    if (rbBone != NULL) {
+        FLOATquat3D fQuat;
+        fQuat.FromEuler(aBoneAngle);
+        rbBone->rb_arRot.ar_qRot = fQuat * rbBone->rb_arRot.ar_qRot;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
+BOOL OffsetBone(INDEX idBone, FLOAT3D vBonePosition)
+{
+    RenBone* rbBone = RM_FindRenBone(idBone);
+    if (rbBone != NULL) {
+        rbBone->rb_apPos.ap_vPos += vBonePosition;
+        return TRUE;
+    }
+    return FALSE;
 }

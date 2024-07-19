@@ -227,6 +227,7 @@ void CRenderer::AddSkaModelEntity(CEntity *penModel)
   dm.dm_fDistance  = fDistance;
   dm.dm_fMipFactor = fMipFactor;
 
+  // get model's spatial classification radius
   FLOAT fR = penModel->en_fSpatialClassificationRadius;
   ASSERT(fR>0.0f);
 

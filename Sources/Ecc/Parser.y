@@ -593,6 +593,11 @@ empty_property_declaration_list
 
 property_declaration
   : property_id property_type property_identifier property_wed_name_opt property_default_opt property_flags_opt {
+	int iPropertyID = atoi(_strCurrentPropertyID);
+    if(iPropertyID == 255) {
+      yyerror((SType("Property ID may conflict with 'm_penPrediction', property: ")+$3).strString);
+    }
+
     fprintf(_fTables, " CEntityProperty(%s, %s, (0x%08x<<8)+%s, offsetof(%s, %s), %s, %s, %s, %s),\n",
       _strCurrentPropertyPropertyType,
       _strCurrentPropertyEnumType,

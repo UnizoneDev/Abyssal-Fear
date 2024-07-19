@@ -1466,6 +1466,12 @@ static BOOL SubstExt_internal(CTFileName &fnmFullFileName)
   } else if (fnmFullFileName.FileExt()==".ogg") {
     fnmFullFileName = fnmFullFileName.NoExt()+".mp3";
     return TRUE;
+  } else if (fnmFullFileName.FileExt() == ".smc") {
+    fnmFullFileName = fnmFullFileName.NoExt() + ".bmc";
+    return TRUE;
+  } else if (fnmFullFileName.FileExt() == ".bmc") {
+    fnmFullFileName = fnmFullFileName.NoExt() + ".smc";
+    return TRUE;
   } else {
     return TRUE;
   }

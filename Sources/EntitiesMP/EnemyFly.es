@@ -112,7 +112,7 @@ functions:
         * fHeight;
   }
 
-  // flying enemies never use pathfinding
+  // flying enemies only use pathfinding when not in the sky
   void StartPathFinding(void)
   {
     if (m_bInAir) {

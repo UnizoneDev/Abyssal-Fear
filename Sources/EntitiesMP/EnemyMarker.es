@@ -49,6 +49,8 @@ properties:
  25 enum SquadCommandType m_sctCommand  "Command Type" = SCT_TAKECOVER,
  26 CEntityPointer m_penReachTarget "Reach target",                   // reach target
  27 enum EventEType m_eetReachType  "Reach event type" = EET_TRIGGER, // death event type
+ 40 enum BoolEType m_betFlee "Flee" = BET_IGNORE,
+ 41 enum BoolEType m_betClimb "Climb" = BET_IGNORE,
 
  18 BOOL m_bStartTactics          "Start Tactics" = FALSE, 
 

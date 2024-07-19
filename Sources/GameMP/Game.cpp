@@ -2746,6 +2746,7 @@ void CGame::GameMainLoop(void)
 
 static CTextureObject _toPointer;
 static CTextureObject _toBackdrop;
+static CTextureObject _toBackdropOverlay;
 
 static PIXaabbox2D _boxScreen_SE;
 static PIX _pixSizeI_SE;
@@ -2770,10 +2771,12 @@ void CGame::LCDInit(void)
   try {
     _toPointer.SetData_t(CTFILENAME("TexturesMP\\General\\Pointer.tex"));
     _toBackdrop.SetData_t(CTFILENAME("TexturesMP\\General\\MenuBack.tex"));
+    _toBackdropOverlay.SetData_t(CTFILENAME("TexturesMP\\General\\MenuOverlay.tex"));
     _soMenuMusic.Set3DParameters(100.0f, 50.0f, 1.0f, 1.0f);
     // force constant textures
     ((CTextureData*)_toPointer  .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toBackdrop .GetData())->Force(TEX_CONSTANT);
+    ((CTextureData*)_toBackdropOverlay.GetData())->Force(TEX_CONSTANT);
 
   } catch (char *strError) {
     FatalError("%s\n", strError);
@@ -2849,6 +2852,7 @@ void CGame::LCDScreenBoxOpenRight(COLOR col)
 void CGame::LCDRenderClouds1(void)
 {
   _pdp_SE->PutTexture(&_toBackdrop, _boxScreen_SE, C_WHITE|255);
+  _pdp_SE->PutTexture(&_toBackdropOverlay, _boxScreen_SE, C_BLUE|64);
 
   if (!_bPopup) {
   }

@@ -104,6 +104,42 @@ functions:
     }
   };
 
+  void CompareIntegers(CEntity *penCaused, INDEX iValue)
+  {
+    BOOL bResultCheck;
+
+    switch(m_vcotType)
+    {
+      case VCOT_SAME:
+      bResultCheck = (iValue == m_iCheckValue);
+      break;
+
+      case VCOT_DIFFERENT:
+      bResultCheck = (iValue != m_iCheckValue);
+      break;
+
+      case VCOT_LARGER:
+      bResultCheck = (iValue > m_iCheckValue);
+      break;
+
+      case VCOT_SMALLER:
+      bResultCheck = (iValue < m_iCheckValue);
+      break;
+
+      case VCOT_LARGERSAME:
+      bResultCheck = (iValue >= m_iCheckValue);
+      break;
+
+      case VCOT_SMALLERSAME:
+      bResultCheck = (iValue <= m_iCheckValue);
+      break;
+    }
+
+    if (bResultCheck) {
+      SendToTarget(m_penTarget, m_eetEvent, m_penCaused);
+    }
+  };
+
   // Handle the main work.
   void DoComparison(CEntity *penCaused)
   {

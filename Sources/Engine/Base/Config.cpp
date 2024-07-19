@@ -33,6 +33,10 @@ void LoadConfigFile(const CTFileName &fnmFileName, CConfigPairs &aConfig)
         FLOAT fValue;
         char strValue[256];
         BOOL bValue;
+        FLOAT3D vValue;
+        DOUBLE3D vdValue;
+        INDEX64 i64Value;
+        DOUBLE dValue;
 
         INDEX iLine = 0;
 
@@ -71,6 +75,22 @@ void LoadConfigFile(const CTFileName &fnmFileName, CConfigPairs &aConfig)
                 pair.key = strProp; // Set key name
                 pair.val.SetIndex(iValue); // Set number value
 
+              // Try to read the line with a number value as "strProp=vValue"
+            }
+            else if (strLine.ScanF("%256[^=]=%g, %g, %g", strProp, &vValue(1), &vValue(2), &vValue(3)) == 2) {
+                // After reading a number value
+                ConfigPair& pair = aConfig.Push();
+                pair.key = strProp; // Set key name
+                pair.val.SetVector(FLOAT3D(vValue(1), vValue(2), vValue(3))); // Set number values
+
+              // Try to read the line with a number value as "strProp=vdValue"
+            }
+            else if (strLine.ScanF("%256[^=]=%g, %g, %g", strProp, &vdValue(1), &vdValue(2), &vdValue(3)) == 2) {
+                // After reading a number value
+                ConfigPair& pair = aConfig.Push();
+                pair.key = strProp; // Set key name
+                pair.val.SetVectorDouble(DOUBLE3D(vdValue(1), vdValue(2), vdValue(3))); // Set number values
+
               // Try to read the line with a number value as "strProp=bValue"
             }
             else if (strLine.ScanF("%256[^=]=%d", strProp, &bValue) == 2) {
@@ -78,6 +98,22 @@ void LoadConfigFile(const CTFileName &fnmFileName, CConfigPairs &aConfig)
                 ConfigPair& pair = aConfig.Push();
                 pair.key = strProp; // Set key name
                 pair.val.SetBool(bValue); // Set bool value
+
+              // Try to read the line with a number value as "strProp=dValue"
+            }
+            else if (strLine.ScanF("%256[^=]=%g", strProp, &dValue) == 2) {
+                // After reading a number value
+                ConfigPair& pair = aConfig.Push();
+                pair.key = strProp; // Set key name
+                pair.val.SetNumberDouble(dValue); // Set number value
+
+              // Try to read the line with a number value as "strProp=i64Value"
+            }
+            else if (strLine.ScanF("%256[^=]=%d", strProp, &i64Value) == 2) {
+                // After reading a number value
+                ConfigPair& pair = aConfig.Push();
+                pair.key = strProp; // Set key name
+                pair.val.SetIndex64(i64Value); // Set number value
 
               // Invalid line
             }

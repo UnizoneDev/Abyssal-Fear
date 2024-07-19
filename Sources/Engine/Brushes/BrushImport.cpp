@@ -106,6 +106,7 @@ void CBrushSector::FromObjectSector_t(CObjectSector &osc) // throw char *
   bsc_ulFlags    = osc.osc_ulFlags[0] & ~(BSCF_SELECTED|BSCF_SELECTEDFORCSG);
   bsc_ulFlags2   = osc.osc_ulFlags[1];
   bsc_ulVisFlags = osc.osc_ulFlags[2];
+  bsc_ulFlags3   = osc.osc_ulFlags[3];
   bsc_strName    = osc.osc_strName;
 
   // lock the object elements

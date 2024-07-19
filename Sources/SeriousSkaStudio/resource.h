@@ -1,20 +1,5 @@
-/* Copyright (c) 2002-2012 Croteam Ltd. 
-This program is free software; you can redistribute it and/or modify
-it under the terms of version 2 of the GNU General Public License as published by
-the Free Software Foundation
-
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
-
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by SeriousSkaStudio.rc
 //
 #define IDC_TB_COLHEIGHT                2
@@ -39,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define IDD_ALL_FRAMES_BBOX             149
 #define IDR_POPUP_MENU                  151
 #define IDD_BONE                        152
+#define IDD_FRAMEEVENT                  153
 #define IDC_TREE1                       1000
 #define IDC_SELECTEDMI                  1003
 #define IDC_CB_PARENTBONE               1004
@@ -120,6 +106,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define IDC_BT_CALC_ALLFRAMES_BBOX      1083
 #define IDC_LB_BONENAME_LABEL           1084
 #define IDC_LB_HPB                      1086
+#define IDC_TB_FEVNAME                  1087
+#define IDC_TB_FEVFRAME                 1088
+#define IDC_TB_FEVEVENT                 1089
+#define IDC_LB_FRAMENAME_LABEL          1090
+#define IDC_LB_EVENT_FRAME              1091
+#define IDC_LB_EVENT_TYPE               1092
 #define ID_TEXTURE_OPEN                 32771
 #define ID_RESET_VIEW                   32772
 #define ID_IMPORT_ASCIIFILE             32774
@@ -187,6 +179,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define ID_RECREATE_TEXTURE             32850
 #define ID_BROWSE_TEXTURE               32851
 #define ID_MI_STRETCH                   32853
+#define ID_TAKE_SCREENSHOT              32854
+#define ID_ADD_FRAMEEVENT               32855
 #define ID_STATUS_BAR_TEXT              61216
 #define ID_VIEW_DLG_PREFS               61217
 
@@ -195,9 +189,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_3D_CONTROLS                     1
-#define _APS_NEXT_RESOURCE_VALUE        153
-#define _APS_NEXT_COMMAND_VALUE         32854
-#define _APS_NEXT_CONTROL_VALUE         1087
+#define _APS_NEXT_RESOURCE_VALUE        154
+#define _APS_NEXT_COMMAND_VALUE         32856
+#define _APS_NEXT_CONTROL_VALUE         1093
 #define _APS_NEXT_SYMED_VALUE           104
 #endif
 #endif

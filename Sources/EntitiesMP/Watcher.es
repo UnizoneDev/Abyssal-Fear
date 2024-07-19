@@ -18,6 +18,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "StdH.h"
 
 #include "EntitiesMP/EnemyBase.h"
+#include "EntitiesMP/ExplosiveBarrel.h"
+#include "EntitiesMP/UZModelHolder.h"
+#include "EntitiesMP/UZSkaModelHolder.h"
 %}
 
 // input parameter for watcher
@@ -218,6 +221,150 @@ functions:
     return penClosestPlayer;
   }
 
+  // find closest CExplosiveBarrel
+  CEntity *FindClosestBarrel(void)
+  {
+    CEntity *penClosestPlayer = NULL;
+    FLOAT fClosestPlayer = UpperLimit(0.0f);
+    {FOREACHINDYNAMICCONTAINER(GetWorld()->wo_cenEntities, CEntity, iten)
+      {
+        CEntity *pen = iten;
+
+        // Skip invalid entities.
+        if (pen == NULL) {
+          continue;
+        }
+
+        // Skip non barrels.
+        if (!IsOfClass(pen, "ExplosiveBarrel")) {
+          continue;
+        }
+
+        // Skip dead barrels.
+        if (!(pen->GetFlags()&ENF_ALIVE)) {
+          continue;
+        }
+
+        // Cast to CExplosiveBarrel.
+        CExplosiveBarrel &enEB = (CExplosiveBarrel&)*pen;
+
+        // Skip safe barrels.
+        if (enEB.m_ebType != EBT_EXPLOSIVE) {
+          continue;
+        }
+
+        // Calculate distance between onwer and entity.
+        FLOAT fDistance = (pen->GetPlacement().pl_PositionVector-m_penOwner->GetPlacement().pl_PositionVector).Length();
+
+        // If satisfies the distance.
+        if (fDistance < fClosestPlayer) {
+          if (GetOwner()->SeeEntity(pen, Cos(GetOwner()->m_fViewAngle/2.0f)) || GetOwner()->m_fSenseRange > fDistance) {
+            fClosestPlayer = fDistance;
+            //if (m_fClosestPlayer>fDistance) { m_fClosestPlayer = fDistance; }
+            penClosestPlayer = pen;
+          }
+        }
+    }}
+    if (fClosestPlayer < m_fClosestPlayer) { m_fClosestPlayer = fClosestPlayer; }
+    return penClosestPlayer;
+  }
+
+  // find closest Unizone Model Holder
+  CEntity *FindClosestUZModelHolder(void)
+  {
+    CEntity *penClosestPlayer = NULL;
+    FLOAT fClosestPlayer = UpperLimit(0.0f);
+    {FOREACHINDYNAMICCONTAINER(GetWorld()->wo_cenEntities, CEntity, iten)
+      {
+        CEntity *pen = iten;
+
+        // Skip invalid entities.
+        if (pen == NULL) {
+          continue;
+        }
+
+        // Skip non objects.
+        if (!IsOfClass(pen, "UZModelHolder")) {
+          continue;
+        }
+
+        // Skip dead objects.
+        if (!(pen->GetFlags()&ENF_ALIVE)) {
+          continue;
+        }
+
+        // Cast to CUZModelHolder.
+        CUZModelHolder &enUZMH2 = (CUZModelHolder&)*pen;
+
+        // Skip safe objects.
+        if (enUZMH2.m_bDestroyable == FALSE) {
+          continue;
+        }
+
+        // Calculate distance between onwer and entity.
+        FLOAT fDistance = (pen->GetPlacement().pl_PositionVector-m_penOwner->GetPlacement().pl_PositionVector).Length();
+
+        // If satisfies the distance.
+        if (fDistance < fClosestPlayer) {
+          if (GetOwner()->SeeEntity(pen, Cos(GetOwner()->m_fViewAngle/2.0f)) || GetOwner()->m_fSenseRange > fDistance) {
+            fClosestPlayer = fDistance;
+            //if (m_fClosestPlayer>fDistance) { m_fClosestPlayer = fDistance; }
+            penClosestPlayer = pen;
+          }
+        }
+    }}
+    if (fClosestPlayer < m_fClosestPlayer) { m_fClosestPlayer = fClosestPlayer; }
+    return penClosestPlayer;
+  }
+
+  // find closest Unizone SKA Model Holder
+  CEntity *FindClosestUZSkaModelHolder(void)
+  {
+    CEntity *penClosestPlayer = NULL;
+    FLOAT fClosestPlayer = UpperLimit(0.0f);
+    {FOREACHINDYNAMICCONTAINER(GetWorld()->wo_cenEntities, CEntity, iten)
+      {
+        CEntity *pen = iten;
+
+        // Skip invalid entities.
+        if (pen == NULL) {
+          continue;
+        }
+
+        // Skip non objects.
+        if (!IsOfClass(pen, "UZSkaModelHolder")) {
+          continue;
+        }
+
+        // Skip dead objects.
+        if (!(pen->GetFlags()&ENF_ALIVE)) {
+          continue;
+        }
+
+        // Cast to CUZSkaModelHolder.
+        CUZSkaModelHolder &enUZMH3 = (CUZSkaModelHolder&)*pen;
+
+        // Skip safe objects.
+        if (enUZMH3.m_bDestroyable == FALSE) {
+          continue;
+        }
+
+        // Calculate distance between onwer and entity.
+        FLOAT fDistance = (pen->GetPlacement().pl_PositionVector-m_penOwner->GetPlacement().pl_PositionVector).Length();
+
+        // If satisfies the distance.
+        if (fDistance < fClosestPlayer) {
+          if (GetOwner()->SeeEntity(pen, Cos(GetOwner()->m_fViewAngle/2.0f)) || GetOwner()->m_fSenseRange > fDistance) {
+            fClosestPlayer = fDistance;
+            //if (m_fClosestPlayer>fDistance) { m_fClosestPlayer = fDistance; }
+            penClosestPlayer = pen;
+          }
+        }
+    }}
+    if (fClosestPlayer < m_fClosestPlayer) { m_fClosestPlayer = fClosestPlayer; }
+    return penClosestPlayer;
+  }
+
   // notify owner that a player has been seen
   void SendWatchEvent(CEntity *penPlayer)
   {
@@ -298,11 +445,20 @@ functions:
     CEntity *penClosest = FindClosestPlayer();
     CEntity *penClosestEB = FindClosestEnemy();
     CEntity *penClosestWF = FindClosestFood();
+    CEntity *penClosestBarrel = FindClosestBarrel();
+    CEntity *penClosestUZMH2 = FindClosestUZModelHolder();
+    CEntity *penClosestUZMH3 = FindClosestUZSkaModelHolder();
 
     if (penClosestEB != NULL) {
       penClosest = penClosestEB;
     } else if (penClosestWF != NULL && IsDerivedFromClass(GetOwner(), "Enemy Wildlife")) {
       penClosest = penClosestWF;
+    } else if (penClosestBarrel != NULL && GetOwner()->m_bAttackObject == TRUE) {
+      penClosest = penClosestBarrel;
+    } else if (penClosestUZMH2 != NULL && GetOwner()->m_bAttackObject == TRUE) {
+      penClosest = penClosestUZMH2;
+    } else if (penClosestUZMH3 != NULL && GetOwner()->m_bAttackObject == TRUE) {
+      penClosest = penClosestUZMH3;
     }
 
     FLOAT fSeeDistance  = GetOwner()->m_fIgnoreRange;
@@ -671,6 +827,210 @@ functions:
     }}
 
     return penCurrentTarget;
+  }
+
+  // this is called directly from enemybase to check if another barrel has come too close
+  CEntity *CheckCloserBarrel(CEntity *penCurrentTarget, FLOAT fRange)
+  {
+    // if the owner is blind or writhing
+    if( GetOwner()->m_bBlind || GetOwner()->m_bWrithe) {
+      // don't even bother checking
+      return NULL;
+    }
+
+    CEntity *penClosestPlayer = NULL;
+    FLOAT fClosestPlayer = 
+      (penCurrentTarget->GetPlacement().pl_PositionVector-m_penOwner->GetPlacement().pl_PositionVector).Length();
+    fClosestPlayer = Min(fClosestPlayer, fRange);  // this is maximum considered range
+
+    
+
+    // for all other enemies
+    {FOREACHINDYNAMICCONTAINER(GetWorld()->wo_cenEntities, CEntity, iten)
+      {
+        CEntity *pen = iten;
+
+        // Skip invalid entities.
+        if (pen == NULL) {
+          continue;
+        }
+
+        // Skip non barrels.
+        if (!IsOfClass(pen, "ExplosiveBarrel")) {
+          continue;
+        }
+
+        // Skip dead barrels.
+        if (!(pen->GetFlags()&ENF_ALIVE)) {
+          continue;
+        }
+
+        // Cast to CEnemyBase.
+        CExplosiveBarrel &enBarrel = (CExplosiveBarrel&)*pen;
+
+        // Skip safe barrels.
+        if(enBarrel.m_ebType != EBT_EXPLOSIVE)
+        {
+          continue;
+        }
+
+        if(pen==NULL || pen==penCurrentTarget)
+        {
+          continue;
+        }
+
+        if((pen->GetFlags()&ENF_ALIVE) && !(pen->GetFlags()&ENF_INVISIBLE))
+        {
+          // calculate distance to player
+          FLOAT fDistance = 
+            (pen->GetPlacement().pl_PositionVector-m_penOwner->GetPlacement().pl_PositionVector).Length();
+          // if closer than current and you can see him
+          if (fDistance<fClosestPlayer && 
+              GetOwner()->SeeEntity(pen, Cos(GetOwner()->m_fViewAngle/2.0f))) {
+            // update
+            fClosestPlayer = fDistance;
+            penClosestPlayer = pen;
+          }
+        }
+    }}
+
+    return penClosestPlayer;
+  }
+
+  // this is called directly from enemybase to check if another breakable object has come too close
+  CEntity *CheckCloserUZModelHolder(CEntity *penCurrentTarget, FLOAT fRange)
+  {
+    // if the owner is blind or writhing
+    if( GetOwner()->m_bBlind || GetOwner()->m_bWrithe) {
+      // don't even bother checking
+      return NULL;
+    }
+
+    CEntity *penClosestPlayer = NULL;
+    FLOAT fClosestPlayer = 
+      (penCurrentTarget->GetPlacement().pl_PositionVector-m_penOwner->GetPlacement().pl_PositionVector).Length();
+    fClosestPlayer = Min(fClosestPlayer, fRange);  // this is maximum considered range
+
+    
+
+    // for all other enemies
+    {FOREACHINDYNAMICCONTAINER(GetWorld()->wo_cenEntities, CEntity, iten)
+      {
+        CEntity *pen = iten;
+
+        // Skip invalid entities.
+        if (pen == NULL) {
+          continue;
+        }
+
+        // Skip non objects.
+        if (!IsOfClass(pen, "UZModelHolder")) {
+          continue;
+        }
+
+        // Skip dead objects.
+        if (!(pen->GetFlags()&ENF_ALIVE)) {
+          continue;
+        }
+
+        // Cast to CUZModelHolder.
+        CUZModelHolder &enUZMH2 = (CUZModelHolder&)*pen;
+
+        // Skip safe objects.
+        if(enUZMH2.m_bDestroyable == FALSE)
+        {
+          continue;
+        }
+
+        if(pen==NULL || pen==penCurrentTarget)
+        {
+          continue;
+        }
+
+        if((pen->GetFlags()&ENF_ALIVE) && !(pen->GetFlags()&ENF_INVISIBLE))
+        {
+          // calculate distance to player
+          FLOAT fDistance = 
+            (pen->GetPlacement().pl_PositionVector-m_penOwner->GetPlacement().pl_PositionVector).Length();
+          // if closer than current and you can see him
+          if (fDistance<fClosestPlayer && 
+              GetOwner()->SeeEntity(pen, Cos(GetOwner()->m_fViewAngle/2.0f))) {
+            // update
+            fClosestPlayer = fDistance;
+            penClosestPlayer = pen;
+          }
+        }
+    }}
+
+    return penClosestPlayer;
+  }
+
+  // this is called directly from enemybase to check if another breakable object has come too close
+  CEntity *CheckCloserUZSkaModelHolder(CEntity *penCurrentTarget, FLOAT fRange)
+  {
+    // if the owner is blind or writhing
+    if( GetOwner()->m_bBlind || GetOwner()->m_bWrithe) {
+      // don't even bother checking
+      return NULL;
+    }
+
+    CEntity *penClosestPlayer = NULL;
+    FLOAT fClosestPlayer = 
+      (penCurrentTarget->GetPlacement().pl_PositionVector-m_penOwner->GetPlacement().pl_PositionVector).Length();
+    fClosestPlayer = Min(fClosestPlayer, fRange);  // this is maximum considered range
+
+    
+
+    // for all other enemies
+    {FOREACHINDYNAMICCONTAINER(GetWorld()->wo_cenEntities, CEntity, iten)
+      {
+        CEntity *pen = iten;
+
+        // Skip invalid entities.
+        if (pen == NULL) {
+          continue;
+        }
+
+        // Skip non objects.
+        if (!IsOfClass(pen, "UZSkaModelHolder")) {
+          continue;
+        }
+
+        // Skip dead objects.
+        if (!(pen->GetFlags()&ENF_ALIVE)) {
+          continue;
+        }
+
+        // Cast to CUZSkaModelHolder.
+        CUZSkaModelHolder &enUZMH3 = (CUZSkaModelHolder&)*pen;
+
+        // Skip safe objects.
+        if(enUZMH3.m_bDestroyable == FALSE)
+        {
+          continue;
+        }
+
+        if(pen==NULL || pen==penCurrentTarget)
+        {
+          continue;
+        }
+
+        if((pen->GetFlags()&ENF_ALIVE) && !(pen->GetFlags()&ENF_INVISIBLE))
+        {
+          // calculate distance to player
+          FLOAT fDistance = 
+            (pen->GetPlacement().pl_PositionVector-m_penOwner->GetPlacement().pl_PositionVector).Length();
+          // if closer than current and you can see him
+          if (fDistance<fClosestPlayer && 
+              GetOwner()->SeeEntity(pen, Cos(GetOwner()->m_fViewAngle/2.0f))) {
+            // update
+            fClosestPlayer = fDistance;
+            penClosestPlayer = pen;
+          }
+        }
+    }}
+
+    return penClosestPlayer;
   }
 
 

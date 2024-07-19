@@ -59,6 +59,7 @@ void syyerror(char *str)
 %token k_ALLFRAMESBBOX
 %token k_ANIMSPEED
 %token k_COLOR
+%token k_FRAMEEVENT
 
 %start parent_model
 
@@ -105,6 +106,7 @@ component
 | colision_header
 | all_frames_bbox_opt
 | mdl_color_opt
+| frameevent_header
 ;
 
 mdl_color_opt
@@ -300,6 +302,30 @@ texture
 {
   // add texture to current model instance
   _yy_mi->AddTexture_t((CTString)$3,$1,NULL);
+}
+;
+
+frameevent_header
+: k_FRAMEEVENT '{' frameevent_opt '}'
+{
+
+}
+;
+frameevent_opt
+:/*null*/
+| frameevent_array
+;
+
+frameevent_array
+: frameevent
+| frameevent_array frameevent
+;
+
+frameevent
+: c_string '{' int_const ',' int_const ';' '}'
+{
+  // add new frame event to current model instance
+  _yy_mi->AddFrameEvent($1,$3,$5);
 }
 ;
 float_const

@@ -40,6 +40,7 @@ properties:
   1 enum ArmorItemType m_EaitType     "Type" 'Y' = ARIT_VEST,    // armor type
   2 BOOL m_bOverTopArmor  = FALSE,   // can be received over top armor
   3 INDEX m_iSoundComponent = 0,
+  4 FLOAT m_fCustomValue "Value Override" = 0.0f,                  // editable value
 
 components:
   0 class   CLASS_BASE        "Classes\\Item.ecl",
@@ -88,6 +89,9 @@ functions:
       case ARIT_VEST:
         ForceCollisionBoxIndexChange(ITEMHOLDER_COLLISION_BOX_MEDIUM);
         m_fValue = 100.0f;
+        if(m_fCustomValue > 0) {
+          m_fValue = m_fCustomValue;
+        }
         m_bOverTopArmor = FALSE;
         m_fRespawnTime = (m_fCustomRespawnTime>0) ? m_fCustomRespawnTime : 60.0f; 
         m_strDescription.PrintF("Vest - H:%g  T:%g", m_fValue, m_fRespawnTime);

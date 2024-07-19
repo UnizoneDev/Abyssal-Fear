@@ -44,6 +44,7 @@ properties:
   3 enum BoolEType m_betJump       "Jump"  'J' = BET_IGNORE,
   4 enum BoolEType m_betHideBehindCover "Hide Behind Cover" = BET_IGNORE,
   5 enum BoolEType m_betCrouch     "Crouch" = BET_IGNORE,
+  6 enum BoolEType m_betClimb      "Climb" = BET_IGNORE,
 
   100 CEntityPointer m_penTarget0  "Target 0" 'T' COLOR(C_dBLUE|0xFF),
   101 CEntityPointer m_penTarget1  "Target 1"     COLOR(C_dBLUE|0xFF),

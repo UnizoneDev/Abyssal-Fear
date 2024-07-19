@@ -11,6 +11,9 @@
 // Names of collision boxes
 #define FIRE1_COLLISION_BOX_PART_NAME 0
 
+// Names of hit boxes
+#define FIRE1_HIT_BOX_PART_NAME 0
+
 // Attaching position names
 
 // Sound names

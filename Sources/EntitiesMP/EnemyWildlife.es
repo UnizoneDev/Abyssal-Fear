@@ -143,8 +143,12 @@ virtual void DrinkingSound(void) {};
       return TRUE;
     }
 
-    if (IsOfClass(penNewTarget, "Wildlife Food")  && !CheckIfFull())
+    if (IsOfClass(penNewTarget, "Wildlife Food"))
     {
+      if(CheckIfFull()) {
+        return FALSE;
+      }
+
       m_bWantsFood = TRUE;
       return TRUE;
     }
@@ -187,6 +191,8 @@ procedures:
         m_iFullFromHunger++;
       }
     }
+
+    return EReturn();
   }
 
   FindFood(EVoid)
@@ -228,12 +234,8 @@ procedures:
       on (EReconsiderBehavior) : {
         // if we have an enemy
         if (m_penEnemy != NULL) {
-          if(m_bWantsFood) {
-            call FindFood();
-          } else {
-            // attack it
-            call CEnemyBase::AttackEnemy();
-          }
+          // attack it
+          call CEnemyBase::AttackEnemy();
         // if we have a marker to walk to
         } else if (m_penMarker != NULL) {
           // go to the marker
@@ -325,8 +327,8 @@ procedures:
       // if you hear something
       on (ESound eSound) :
       {
-        // if deaf then ignore the sound
-        if (m_bDeaf) {
+        // if deaf or writhing then ignore the sound
+        if (m_bDeaf || m_bWrithe) {
           resume;
         }
 
@@ -341,8 +343,8 @@ procedures:
       // if you smell something
       on (ESmell eSmell) :
       {
-        // if deaf then ignore the sound
-        if (m_bAnosmic) {
+        // if anosmic or writhing then ignore the smell
+        if (m_bAnosmic || m_bWrithe) {
           resume;
         }
 

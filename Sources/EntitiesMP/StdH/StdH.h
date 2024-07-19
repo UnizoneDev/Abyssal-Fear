@@ -32,3 +32,4 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "..\Common\Particles.h"
 #include "..\Common\EmanatingParticles.h"
 #include "..\Common\GameInterface.h"
+#include "..\Common\TextureConfig.h"

@@ -90,6 +90,8 @@ functions:
     PrecacheTexture(TEXTURE_SHELLS);
     PrecacheModel(MODEL_MEDIUM_BULLETS);
     PrecacheTexture(TEXTURE_MEDIUM_BULLETS);
+    PrecacheModel(MODEL_STRONG_BULLETS);
+    PrecacheTexture(TEXTURE_STRONG_BULLETS);
     PrecacheTexture(TEX_REFL_BWRIPLES01);
     PrecacheTexture(TEX_REFL_BWRIPLES02);
     PrecacheTexture(TEX_REFL_LIGHTMETAL01);
@@ -231,7 +233,7 @@ procedures:
   Main() {
     Initialize();     // initialize base class
     StartModelAnim(ITEMHOLDER_ANIM_DEFAULT_ANIMATION, AOF_LOOPING|AOF_NORESTART);
-    ForceCollisionBoxIndexChange(ITEMHOLDER_COLLISION_BOX_MEDIUM);
+    ForceCollisionBoxIndexChange(ITEMHOLDER_COLLISION_BOX_SMALL);
     SetProperties();  // set properties
 
     jump CItem::ItemLoop();

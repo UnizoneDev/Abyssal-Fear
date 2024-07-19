@@ -21,17 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Graphics/GfxProfile.h>
 #include <Engine/Base/Statistics_internal.h>
 
-//#include <d3dx8math.h>
-//#pragma comment(lib, "d3dx8.lib")
-
-
-//#include <d3dx8tex.h>
-//#pragma comment(lib, "d3dx8.lib")
-//extern "C" HRESULT WINAPI D3DXGetErrorStringA( HRESULT hr, LPSTR pBuffer, UINT BufferLen);
-//char acErrorString[256];
-//D3DXGetErrorString( hr, acErrorString, 255);
-//ASSERTALWAYS( acErrorString);
-
 extern INDEX gap_bOptimizeStateChanges;
 extern INDEX gap_iOptimizeClipping;
 extern INDEX gap_iDithering;
@@ -60,7 +49,7 @@ extern GfxFace  GFX_eCullFace  = GFX_NONE;
 extern BOOL       GFX_abTexture[GFX_MAXTEXUNITS] = { FALSE, FALSE, FALSE, FALSE };
 extern INDEX GFX_iTexModulation[GFX_MAXTEXUNITS] = { 0, 0, 0, 0 };
 
-// last ortho/frustum values (frustum has negative sign, because of orgho-frustum switching!)
+// last ortho/frustum values (frustum has negative sign, because of ortho-frustum switching!)
 extern FLOAT GFX_fLastL = 0;
 extern FLOAT GFX_fLastR = 0;
 extern FLOAT GFX_fLastT = 0;
@@ -71,17 +60,10 @@ extern FLOAT GFX_fLastF = 0;
 // number of vertices currently in buffer
 extern INDEX GFX_ctVertices = 0;
 
-// for D3D: mark need for clipping (when wants to be disable but cannot be because of user clip plane)
-static BOOL _bWantsClipping = TRUE;
 // current color mask (for Get... function)
 static ULONG _ulCurrentColorMask = (CT_RMASK|CT_GMASK|CT_BMASK|CT_AMASK);
 // locking state for OGL
 static BOOL _bCVAReallyLocked = FALSE;
-
-// clip plane and last view matrix for D3D
-extern FLOAT D3D_afClipPlane[4]    = {0,0,0,0};
-extern FLOAT D3D_afViewMatrix[16]  = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0};
-static FLOAT _afActiveClipPlane[4] = {0,0,0,0};
 
 // Truform/N-Patches
 extern INDEX truform_iLevel  = -1;
@@ -109,6 +91,7 @@ extern void (*gfxDisableClipping)(void) = NULL;
 extern void (*gfxDisableClipPlane)(void) = NULL;
 extern void (*gfxBlendFunc)( GfxBlend eSrc, GfxBlend eDst) = NULL;
 extern void (*gfxDepthFunc)( GfxComp eFunc) = NULL;
+extern void (*gfxShadeFunc)(GfxShadingMode eFunc) = NULL;
 extern void (*gfxDepthRange)( FLOAT fMin, FLOAT fMax) = NULL;
 extern void (*gfxCullFace)(  GfxFace eFace) = NULL;
 extern void (*gfxFrontFace)( GfxFace eFace) = NULL;
@@ -136,7 +119,7 @@ extern void (*gfxEnableTruform)( void) = NULL;
 extern void (*gfxDisableTruform)(void) = NULL;
 extern void (*gfxSetColorMask)( ULONG ulColorMask) = NULL; 
 
-// HARDWARE SHADERS
+// [Uni] HARDWARE SHADERS
 
 extern void (*gfxEnableVertexShaders)(void) = NULL;
 extern void (*gfxEnableFragmentShaders)(void) = NULL;
@@ -150,7 +133,9 @@ extern void (*gfxDeleteShaderProgram)(ULONG ulHandle, ULONG ulShader) = NULL;
 
 extern void (*gfxSetShaderProgramIndex)(const char* strUniform, ULONG ulHandle, INDEX iVariable) = NULL;
 extern void (*gfxSetShaderProgramFloat)(const char* strUniform, ULONG ulHandle, FLOAT fVariable) = NULL;
-
+extern void (*gfxSetShaderProgramVector2)(const char* strUniform, ULONG ulHandle, FLOAT fVarX, FLOAT fVarY) = NULL;
+extern void (*gfxSetShaderProgramVector3)(const char* strUniform, ULONG ulHandle, FLOAT fVarX, FLOAT fVarY, FLOAT fVarZ) = NULL;
+extern void (*gfxSetShaderProgramVector4)(const char* strUniform, ULONG ulHandle, FLOAT fVarX, FLOAT fVarY, FLOAT fVarZ, FLOAT fVarW) = NULL;
 
 
 // dummy function (one size fits all:)
@@ -206,6 +191,21 @@ static void none_shader_program_float(const char* strUniform, ULONG ulProgram, F
     ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
 }
 
+static void none_shader_program_vector2(const char* strUniform, ULONG ulProgram, FLOAT fVarX, FLOAT fVarY)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
+}
+
+static void none_shader_program_vector3(const char* strUniform, ULONG ulProgram, FLOAT fVarX, FLOAT fVarY, FLOAT fVarZ)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
+}
+
+static void none_shader_program_vector4(const char* strUniform, ULONG ulProgram, FLOAT fVarX, FLOAT fVarY, FLOAT fVarZ, FLOAT fVarW)
+{
+    ASSERT(_pGfx->gl_eCurrentAPI == GAT_NONE);
+}
+
 
 // error checkers (this is for debug version only)
 
@@ -218,22 +218,8 @@ extern void OGL_CheckError(void)
 #endif
 }
 
-#ifdef SE1_D3D
-extern void D3D_CheckError(HRESULT hr)
-{
-#ifndef NDEBUG
-  const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
-  if( eAPI==GAT_D3D) ASSERT( hr==D3D_OK);
-  else ASSERT( eAPI==GAT_NONE);
-#endif
-}
-#endif // SE1_D3D
-
 
 // TEXTURE MANAGEMENT
-#ifdef SE1_D3D
-static LPDIRECT3DTEXTURE8 *_ppd3dCurrentTexture;
-#endif // SE1_D3D
 
 extern INDEX GetTexturePixRatio_OGL( GLuint uiBindNo);
 extern INDEX GetFormatPixRatio_OGL( GLenum eFormat);
@@ -241,25 +227,13 @@ extern void  MimicTexParams_OGL( CTexParams &tpLocal);
 extern void  UploadTexture_OGL( ULONG *pulTexture, PIX pixSizeU, PIX pixSizeV,
                                 GLenum eInternalFormat, BOOL bUseSubImage);
 
-#ifdef SE1_D3D
-extern INDEX GetTexturePixRatio_D3D( LPDIRECT3DTEXTURE8 pd3dTexture);
-extern INDEX GetFormatPixRatio_D3D( D3DFORMAT d3dFormat);
-extern void  MimicTexParams_D3D( CTexParams &tpLocal);
-extern void  UploadTexture_D3D( LPDIRECT3DTEXTURE8 *ppd3dTexture, ULONG *pulTexture,
-                                PIX pixSizeU, PIX pixSizeV, D3DFORMAT eInternalFormat, BOOL bDiscard);
-#endif // SE1_D3D
-
 // update texture LOD bias
 extern FLOAT _fCurrentLODBias = 0;  // LOD bias adjuster
 extern void UpdateLODBias( const FLOAT fLODBias)
 { 
   // check API
   const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
-#ifdef SE1_D3D
-  ASSERT( eAPI==GAT_OGL || eAPI==GAT_D3D || eAPI==GAT_NONE);
-#else // SE1_D3D
   ASSERT( eAPI==GAT_OGL || eAPI==GAT_NONE);
-#endif // SE1_D3D
   // only if supported and needed
   if( _fCurrentLODBias==fLODBias && _pGfx->gl_fMaxTextureLODBias==0) return;
   _fCurrentLODBias = fLODBias;
@@ -284,17 +258,6 @@ extern void UpdateLODBias( const FLOAT fLODBias)
       OGL_CHECKERROR;
     }
   }
-  // Direct3D
-#ifdef SE1_D3D
-  else if( eAPI==GAT_D3D)
-  { // just set it
-    HRESULT hr;
-    for( INDEX iUnit=0; iUnit<_pGfx->gl_ctTextureUnits; iUnit++) { // loop thru tex units
-      hr = _pGfx->gl_pd3dDevice->SetTextureStageState( iUnit, D3DTSS_MIPMAPLODBIAS, *((DWORD*)&fLODBias));
-      D3D_CHECKERROR(hr);
-    }
-  }
-#endif // SE1_D3D
   _sfStats.StopTimer(CStatForm::STI_GFXAPI);
 }
 
@@ -324,32 +287,6 @@ extern void gfxSetTextureFiltering( INDEX &iFilterType, INDEX &iAnisotropyDegree
   _tpGlobal[0].tp_iAnisotropy = iAnisotropyDegree;
 
   // for OpenGL, that's about it
-#ifdef SE1_D3D
-  if( _pGfx->gl_eCurrentAPI!=GAT_D3D) return;
-
-  _sfStats.StartTimer(CStatForm::STI_GFXAPI);
-
-  // for D3D, it's a stage state (not texture state), so change it!
-  HRESULT hr;
- _D3DTEXTUREFILTERTYPE eMagFilter, eMinFilter, eMipFilter;
-  const LPDIRECT3DDEVICE8 pd3dDev = _pGfx->gl_pd3dDevice; 
-  extern void UnpackFilter_D3D( INDEX iFilter, _D3DTEXTUREFILTERTYPE &eMagFilter,
-                               _D3DTEXTUREFILTERTYPE &eMinFilter, _D3DTEXTUREFILTERTYPE &eMipFilter);
-  UnpackFilter_D3D( iFilterType, eMagFilter, eMinFilter, eMipFilter);
-  if( iAnisotropyDegree>1) { // adjust filter for anisotropy
-    eMagFilter = D3DTEXF_ANISOTROPIC;
-    eMinFilter = D3DTEXF_ANISOTROPIC;
-  }
-  // set filtering and anisotropy degree
-  for( INDEX iUnit=0; iUnit<_pGfx->gl_ctTextureUnits; iUnit++) { // must loop thru all usable texture units
-    hr = pd3dDev->SetTextureStageState( iUnit, D3DTSS_MAXANISOTROPY, iAnisotropyDegree);  D3D_CHECKERROR(hr);
-    hr = pd3dDev->SetTextureStageState( iUnit, D3DTSS_MAGFILTER, eMagFilter);  D3D_CHECKERROR(hr);
-    hr = pd3dDev->SetTextureStageState( iUnit, D3DTSS_MINFILTER, eMinFilter);  D3D_CHECKERROR(hr);
-    hr = pd3dDev->SetTextureStageState( iUnit, D3DTSS_MIPFILTER, eMipFilter);  D3D_CHECKERROR(hr);
-  }
-  // done
-  _sfStats.StopTimer(CStatForm::STI_GFXAPI);
-#endif // SE1_D3D
 }
 
 
@@ -371,11 +308,7 @@ extern void gfxSetTextureUnit( INDEX iUnit)
 {
   // check API
   const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
-#ifdef SE1_D3D
-  ASSERT( eAPI==GAT_OGL || eAPI==GAT_D3D || eAPI==GAT_NONE);
-#else // SE1_D3D
   ASSERT( eAPI==GAT_OGL || eAPI==GAT_NONE);
-#endif // SE1_D3D
   ASSERT( iUnit>=0 && iUnit<4); // supports 4 layers (for now)
 
   // check consistency
@@ -418,11 +351,7 @@ extern void gfxSetTexture( ULONG &ulTexObject, CTexParams &tpLocal)
 
   // determine API and enable texturing
   const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
-#ifdef SE1_D3D
-  ASSERT(eAPI == GAT_OGL || eAPI == GAT_D3D || eAPI == GAT_NONE);
-#else // SE1_D3D
   ASSERT(eAPI == GAT_OGL || eAPI == GAT_NONE);
-#endif // SE1_D3D
   gfxEnableTexture();
 
   _sfStats.StartTimer(CStatForm::STI_BINDTEXTURE);
@@ -433,15 +362,7 @@ extern void gfxSetTexture( ULONG &ulTexObject, CTexParams &tpLocal)
   if( eAPI==GAT_OGL) { // OpenGL
     pglBindTexture( GL_TEXTURE_2D, ulTexObject);
     MimicTexParams_OGL(tpLocal);
-  } 
-#ifdef SE1_D3D
-  else if( eAPI==GAT_D3D) { // Direct3D
-    _ppd3dCurrentTexture = (LPDIRECT3DTEXTURE8*)&ulTexObject;
-    HRESULT hr = _pGfx->gl_pd3dDevice->SetTexture( GFX_iActiveTexUnit, *_ppd3dCurrentTexture);
-    D3D_CHECKERROR(hr);
-    MimicTexParams_D3D(tpLocal);
   }
-#endif // SE1_D3D
   // done
   _pfGfxProfile.StopTimer(CGfxProfile::PTI_SETCURRENTTEXTURE);
   _sfStats.StopTimer(CStatForm::STI_BINDTEXTURE);
@@ -455,28 +376,13 @@ extern void gfxUploadTexture( ULONG *pulTexture, PIX pixWidth, PIX pixHeight, UL
 {
   // determine API
   const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
-#ifdef SE1_D3D
-  ASSERT(eAPI == GAT_OGL || eAPI == GAT_D3D || eAPI == GAT_NONE);
-#else // SE1_D3D
   ASSERT(eAPI == GAT_OGL || eAPI == GAT_NONE);
-#endif // SE1_D3D
 
   _sfStats.StartTimer(CStatForm::STI_GFXAPI);
 
   if( eAPI==GAT_OGL) { // OpenGL
     UploadTexture_OGL( pulTexture, pixWidth, pixHeight, (GLenum)ulFormat, bNoDiscard);
   }
-#ifdef SE1_D3D
-  else if( eAPI==GAT_D3D) { // Direct3D
-    const LPDIRECT3DTEXTURE8 _pd3dLastTexture = *_ppd3dCurrentTexture;
-    UploadTexture_D3D( _ppd3dCurrentTexture, pulTexture, pixWidth, pixHeight, (D3DFORMAT)ulFormat, !bNoDiscard);
-    // in case that texture has been changed, must re-set it as current
-    if( _pd3dLastTexture != *_ppd3dCurrentTexture) {
-      HRESULT hr = _pGfx->gl_pd3dDevice->SetTexture( GFX_iActiveTexUnit, *_ppd3dCurrentTexture);
-      D3D_CHECKERROR(hr);
-    }
-  } 
-#endif // SE1_D3D
   _sfStats.StopTimer(CStatForm::STI_GFXAPI);
 }
 
@@ -491,11 +397,7 @@ extern SLONG gfxGetTextureSize( ULONG ulTexObject, BOOL bHasMipmaps/*=TRUE*/)
 
   // determine API
   const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
-#ifdef SE1_D3D
-  ASSERT(eAPI == GAT_OGL || eAPI == GAT_D3D || eAPI == GAT_NONE);
-#else // SE1_D3D
   ASSERT(eAPI == GAT_OGL || eAPI == GAT_NONE);
-#endif // SE1_D3D
   SLONG slMipSize;
 
   _sfStats.StartTimer(CStatForm::STI_GFXAPI);
@@ -524,17 +426,6 @@ extern SLONG gfxGetTextureSize( ULONG ulTexObject, BOOL bHasMipmaps/*=TRUE*/)
       slMipSize = pixWidth*pixHeight * gfxGetTexturePixRatio(ulTexObject);
     }
   }
-  // Direct3D
-#ifdef SE1_D3D
-  else if( eAPI==GAT_D3D)
-  {
-    // we can determine exact size from texture surface (i.e. mipmap)
-    D3DSURFACE_DESC d3dSurfDesc;
-    HRESULT hr = ((LPDIRECT3DTEXTURE8)ulTexObject)->GetLevelDesc( 0, &d3dSurfDesc);
-    D3D_CHECKERROR(hr);
-    slMipSize = d3dSurfDesc.Size;
-  }
-#endif // SE1_D3D
 
   // eventually count in all the mipmaps (takes extra 33% of texture size)
   extern INDEX gap_bAllowSingleMipmap;
@@ -551,17 +442,10 @@ extern INDEX gfxGetTexturePixRatio( ULONG ulTextureObject)
 {
   // determine API
   const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
-#ifdef SE1_D3D
-  ASSERT(eAPI == GAT_OGL || eAPI == GAT_D3D || eAPI == GAT_NONE);
-#else // SE1_D3D
   ASSERT(eAPI == GAT_OGL || eAPI == GAT_NONE);
-#endif // SE1_D3D
   if( eAPI==GAT_OGL) {
     return GetTexturePixRatio_OGL( (GLuint)ulTextureObject);
-  } 
-#ifdef SE1_D3D
-  else if( eAPI==GAT_D3D) return GetTexturePixRatio_D3D( (LPDIRECT3DTEXTURE8)ulTextureObject);
-#endif // SE1_D3D
+  }
   else return 0;
 }
 
@@ -571,17 +455,10 @@ extern INDEX gfxGetFormatPixRatio( ULONG ulTextureFormat)
 {
   // determine API
   const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
-#ifdef SE1_D3D
-  ASSERT(eAPI == GAT_OGL || eAPI == GAT_D3D || eAPI == GAT_NONE);
-#else // SE1_D3D
   ASSERT(eAPI == GAT_OGL || eAPI == GAT_NONE);
-#endif // SE1_D3D
   if( eAPI==GAT_OGL) {
     return GetFormatPixRatio_OGL( (GLenum)ulTextureFormat);
-  } 
-#ifdef SE1_D3D
-  else if( eAPI==GAT_D3D) return GetFormatPixRatio_D3D( (D3DFORMAT)ulTextureFormat);
-#endif // SE1_D3D
+  }
   else return 0;
 }
 
@@ -618,10 +495,6 @@ extern void gfxSetPattern( ULONG ulPattern)
 
 
 // VERTEX ARRAYS
-
-
-// for D3D - (type 0=vtx, 1=nor, 2=col, 3=tex)
-extern void SetVertexArray_D3D( INDEX iType, ULONG *pulVtx);
 
 
 extern void gfxUnlockArrays(void)
@@ -720,11 +593,7 @@ extern void gfxSetTruform( INDEX iLevel, BOOL bLinearNormals)
 
   // determine API
   const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
-#ifdef SE1_D3D
-  ASSERT(eAPI == GAT_OGL || eAPI == GAT_D3D || eAPI == GAT_NONE);
-#else // SE1_D3D
   ASSERT(eAPI == GAT_OGL || eAPI == GAT_NONE);
-#endif // SE1_D3D
 
   _sfStats.StartTimer(CStatForm::STI_GFXAPI);
 
@@ -735,14 +604,6 @@ extern void gfxSetTruform( INDEX iLevel, BOOL bLinearNormals)
     pglPNTrianglesiATI( GL_PN_TRIANGLES_NORMAL_MODE_ATI, eTriMode);
     OGL_CHECKERROR;
   }
-  // if disabled, Direct3D will set tessellation level at "enable" call
-#ifdef SE1_D3D
-  else if( eAPI==GAT_D3D && GFX_bTruform) { 
-    FLOAT fSegments = iLevel+1;
-    HRESULT hr = _pGfx->gl_pd3dDevice->SetRenderState( D3DRS_PATCHSEGMENTS, *((DWORD*)&fSegments));
-    D3D_CHECKERROR(hr);
-  }
-#endif // SE1_D3D
 
   // keep current truform params
   truform_iLevel  = iLevel;
@@ -762,7 +623,6 @@ extern ULONG gfxGetColorMask(void)
 
 
 #include "GFX_wrapper_OpenGL.cpp"
-#include "GFX_wrapper_Direct3D.cpp"
 
 
 
@@ -786,6 +646,7 @@ static void none_SetColorArray( GFXColor *pcol) { NOTHING; };
 static void none_DrawElements( INDEX ctElem, INDEX *pidx) { NOTHING; };
 static void none_SetConstantColor( COLOR col) { NOTHING; };
 static void none_SetColorMask( ULONG ulColorMask) { NOTHING; };
+static void none_ShadeFunc(GfxShadingMode eFunc) { NOTHING; };
 
 
 
@@ -854,59 +715,12 @@ extern void GFX_SetFunctionPointers( INDEX iAPI)
 
     gfxSetShaderProgramIndex  = &ogl_SetShaderProgramIndex;
     gfxSetShaderProgramFloat  = &ogl_SetShaderProgramFloat;
+    gfxSetShaderProgramVector2 = &ogl_SetShaderProgramVector2;
+    gfxSetShaderProgramVector3 = &ogl_SetShaderProgramVector3;
+    gfxSetShaderProgramVector4 = &ogl_SetShaderProgramVector4;
+
+    gfxShadeFunc = &ogl_ShadeFunc;
   }
-  // Direct3D?
-#ifdef SE1_D3D
-  else if( iAPI==(INDEX)GAT_D3D)
-  {
-    gfxEnableDepthWrite     = &d3d_EnableDepthWrite;
-    gfxEnableDepthBias      = &d3d_EnableDepthBias;
-    gfxEnableDepthTest      = &d3d_EnableDepthTest;
-    gfxEnableAlphaTest      = &d3d_EnableAlphaTest;
-    gfxEnableBlend          = &d3d_EnableBlend;
-    gfxEnableDither         = &d3d_EnableDither;
-    gfxEnableTexture        = &d3d_EnableTexture;
-    gfxEnableClipping       = &d3d_EnableClipping;
-    gfxEnableClipPlane      = &d3d_EnableClipPlane;
-    gfxEnableTruform        = &d3d_EnableTruform;
-    gfxDisableDepthWrite    = &d3d_DisableDepthWrite;
-    gfxDisableDepthBias     = &d3d_DisableDepthBias;
-    gfxDisableDepthTest     = &d3d_DisableDepthTest;
-    gfxDisableAlphaTest     = &d3d_DisableAlphaTest;
-    gfxDisableBlend         = &d3d_DisableBlend;
-    gfxDisableDither        = &d3d_DisableDither;
-    gfxDisableTexture       = &d3d_DisableTexture;
-    gfxDisableClipping      = &d3d_DisableClipping;
-    gfxDisableClipPlane     = &d3d_DisableClipPlane;
-    gfxDisableTruform       = &d3d_DisableTruform;
-    gfxBlendFunc            = &d3d_BlendFunc;
-    gfxDepthFunc            = &d3d_DepthFunc;
-    gfxDepthRange           = &d3d_DepthRange;
-    gfxCullFace             = &d3d_CullFace;
-    gfxFrontFace            = &d3d_FrontFace;            
-    gfxClipPlane            = &d3d_ClipPlane;
-    gfxSetOrtho             = &d3d_SetOrtho;
-    gfxSetFrustum           = &d3d_SetFrustum;
-    gfxSetTextureMatrix     = &d3d_SetTextureMatrix;       
-    gfxSetViewMatrix        = &d3d_SetViewMatrix;
-    gfxPolygonMode          = &d3d_PolygonMode;
-    gfxSetTextureWrapping   = &d3d_SetTextureWrapping;
-    gfxSetTextureModulation = &d3d_SetTextureModulation;
-    gfxGenerateTexture      = &d3d_GenerateTexture;
-    gfxDeleteTexture        = &d3d_DeleteTexture;   
-    gfxSetVertexArray       = &d3d_SetVertexArray;  
-    gfxSetNormalArray       = &d3d_SetNormalArray;  
-    gfxSetTexCoordArray     = &d3d_SetTexCoordArray;
-    gfxSetColorArray        = &d3d_SetColorArray;   
-    gfxDrawElements         = &d3d_DrawElements;    
-    gfxSetConstantColor     = &d3d_SetConstantColor;
-    gfxEnableColorArray     = &d3d_EnableColorArray;
-    gfxDisableColorArray    = &d3d_DisableColorArray;
-    gfxFinish               = &d3d_Finish;
-    gfxLockArrays           = &d3d_LockArrays;
-    gfxSetColorMask         = &d3d_SetColorMask;
-  }
-#endif // SE1_D3D
   // NONE!
   else
   {
@@ -969,5 +783,10 @@ extern void GFX_SetFunctionPointers( INDEX iAPI)
 
     gfxSetShaderProgramIndex  = &none_shader_program_index;
     gfxSetShaderProgramFloat  = &none_shader_program_float;
+    gfxSetShaderProgramVector2 = &none_shader_program_vector2;
+    gfxSetShaderProgramVector3 = &none_shader_program_vector3;
+    gfxSetShaderProgramVector4 = &none_shader_program_vector4;
+
+    gfxShadeFunc = &none_ShadeFunc;
   }
 }

@@ -16,7 +16,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 1042
 %{
 #include "StdH.h"
-#include "Models/NPCs/Mihulai/Mihulai.h"
 %}
 
 uses "EntitiesMP/EnemyBase";
@@ -24,6 +23,8 @@ uses "EntitiesMP/EnemyBase";
 enum MihulaiType {
   0 MHC_NORMAL1   "Normal 1",    // standard variant 1
   1 MHC_NORMAL2   "Normal 2",    // standard variant 2
+  2 MHC_BABY1     "Baby 1",      // young variant 1
+  3 MHC_BABY2     "Baby 2",      // young variant 2
 };
 
 %{
@@ -35,6 +36,7 @@ enum MihulaiType {
   static INDEX idMihulaiAnim_Jump    = -1;
   static INDEX idMihulaiAnim_Melee   = -1;
   static INDEX idMihulaiAnim_Death   = -1;
+  static INDEX idMihulaiAnim_Leap    = -1;
   static INDEX idMihulaiBox_Stand    = -1;
   static INDEX idMihulaiBox_Death    = -1;
 
@@ -54,6 +56,7 @@ thumbnail "Thumbnails\\Mihulai.tbn";
 properties:
   1 BOOL m_bFistHit = FALSE,
   2 enum MihulaiType m_mhChar "Character" 'C' = MHC_NORMAL1,      // character
+  3 INDEX m_iLeapThreshold = 0,
   
 components:
   1 class   CLASS_BASE				"Classes\\EnemyBase.ecl",
@@ -74,6 +77,7 @@ functions:
   idMihulaiAnim_Jump        = ska_GetIDFromStringTable("JUMP");
   idMihulaiAnim_Melee       = ska_GetIDFromStringTable("MELEE");
   idMihulaiAnim_Death       = ska_GetIDFromStringTable("DEATH");
+  idMihulaiAnim_Leap        = ska_GetIDFromStringTable("LEAP");
 
   // Get mihulai collision box IDs
   idMihulaiBox_Stand       = ska_GetIDFromStringTable("Stand");
@@ -136,7 +140,7 @@ functions:
   INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     INDEX iAnim;
     iAnim = idMihulaiAnim_Wound;
-    GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
+    StartSkaModelAnim(iAnim,AN_CLEAR,1,0);
     return iAnim;
   };
 
@@ -144,7 +148,7 @@ functions:
   INDEX AnimForDeath(void) {
     INDEX iAnim;
     iAnim = idMihulaiAnim_Death;
-    GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
+    StartSkaModelAnim(iAnim,AN_CLEAR,1,0);
     return iAnim;
   };
 
@@ -164,15 +168,15 @@ functions:
 
   // virtual anim functions
   void StandingAnim(void) {
-    GetModelInstance()->AddAnimation(idMihulaiAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idMihulaiAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void WalkingAnim(void) {
-    GetModelInstance()->AddAnimation(idMihulaiAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idMihulaiAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void RunningAnim(void) {
-    GetModelInstance()->AddAnimation(idMihulaiAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idMihulaiAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void RotatingAnim(void) {
@@ -180,7 +184,7 @@ functions:
   };
 
   void JumpingAnim(void) {
-    GetModelInstance()->AddAnimation(idMihulaiAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idMihulaiAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   // --------------------------------------------------------------------------------------
@@ -205,9 +209,11 @@ functions:
 
   // melee attack enemy
   Hit(EVoid) : CEnemyBase::Hit {
+    m_iLeapThreshold--;
     if (CalcDist(m_penEnemy) < 2.75f) {
       jump SlashEnemySingle();
-    } else if (CalcDist(m_penEnemy) < 12.0f) {
+    } else if (CalcDist(m_penEnemy) < 12.0f && m_iLeapThreshold <= 0) {
+      m_iLeapThreshold = 4;
       jump JumpOnEnemy();
     }
     return EReturn();
@@ -215,7 +221,7 @@ functions:
 
   // jump on enemy
   JumpOnEnemy(EVoid) {
-    GetModelInstance()->AddAnimation(idMihulaiAnim_Jump,AN_CLEAR,1,0);
+    StartSkaModelAnim(idMihulaiAnim_Leap,AN_CLEAR,1,0);
 
     // jump
     FLOAT3D vDir = (m_penEnemy->GetPlacement().pl_PositionVector -
@@ -228,8 +234,12 @@ functions:
 
     // animation - IGNORE DAMAGE WOUND -
     SpawnReminder(this, 0.5f, 0);
-    m_iChargeHitAnimation = idMihulaiAnim_Jump;
-    m_fChargeHitDamage = 9.0f;
+    m_iChargeHitAnimation = idMihulaiAnim_Leap;
+    if(m_mhChar == MHC_BABY1 || m_mhChar == MHC_BABY2) {
+      m_fChargeHitDamage = 4.0f;
+    } else {
+      m_fChargeHitDamage = 9.0f;
+    }
     m_fChargeHitAngle = 0.0f;
     m_fChargeHitSpeed = 15.0f;
     autocall ChargeHitEnemy() EReturn;
@@ -239,20 +249,28 @@ functions:
 
   SlashEnemySingle(EVoid) {
     // close attack
-    GetModelInstance()->AddAnimation(idMihulaiAnim_Melee,AN_CLEAR,1,0);
+    StartSkaModelAnim(idMihulaiAnim_Melee,AN_CLEAR,1,0);
 
     m_bFistHit = FALSE;
     autowait(0.35f);
-    if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+    if (CalcDist(m_penEnemy) < 2.75f) {
       m_bFistHit = TRUE;
     }
     
     if (m_bFistHit) {
-      if (CalcDist(m_penEnemy) < m_fCloseDistance) {
+      if (CalcDist(m_penEnemy) < 2.75f) {
         PlaySound(m_soSound, SOUND_HIT, SOF_3D);
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 4.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+
+        FLOAT3D vPosition = m_penEnemy->GetPlacement().pl_PositionVector;
+        vPosition + FLOAT3D(0.0f, 0.25f, 0.0f);
+
+        if(m_mhChar == MHC_BABY1 || m_mhChar == MHC_BABY2) {
+          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 2.0f, vPosition, vDirection, DBPT_GENERIC);
+        } else {
+          InflictDirectDamage(m_penEnemy, this, DMT_CLOSERANGE, 4.0f, vPosition, vDirection, DBPT_GENERIC);
+        }
       }
     } else {
       PlaySound(m_soSound, SOUND_SWING, SOF_3D);
@@ -294,7 +312,7 @@ functions:
           FLOAT3D vSpeed;
           GetHeadingDirection(m_fChargeHitAngle, vSpeed);
           // damage entity in that direction
-          InflictDirectDamage(etouch.penOther, this, DMT_CLOSERANGE, m_fChargeHitDamage, FLOAT3D(0, 0, 0), vSpeed, DBPT_GENERIC);
+          InflictDirectDamage(etouch.penOther, this, DMT_CLOSERANGE, m_fChargeHitDamage, FLOAT3D(0, 0.25f, 0), vSpeed, DBPT_GENERIC);
           // push it away
           vSpeed = vSpeed * m_fChargeHitSpeed;
           KickEntity(etouch.penOther, vSpeed);
@@ -338,32 +356,70 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_WILDLIFE;
-    SetHealth(100.0f);
-    m_fMaxHealth = 100.0f;
-    m_fDamageWounded = 40.0f;
-    m_iScore = 2500;
+    switch(m_mhChar) {
+        case MHC_NORMAL1:
+        case MHC_NORMAL2:
+        {
+          SetHealth(80.0f);
+          m_fMaxHealth = 80.0f;
+          m_fDamageWounded = 20.0f;
+          m_iScore = 2500;
+        }
+        break;
+
+        case MHC_BABY1:
+        case MHC_BABY2:
+        {
+          SetHealth(10.0f);
+          m_fMaxHealth = 10.0f;
+          m_fDamageWounded = 4.0f;
+          m_iScore = 750;
+        }
+        break;
+    }
     en_tmMaxHoldBreath = 30.0f;
     en_fDensity = 500.0f;
     m_fBlowUpSize = 2.0f;
 
     // set your appearance and texture
     
-        
-        
-        if(m_mhChar == MHC_NORMAL1) {
-          SetSkaModel(MODEL_MIHULAI);
-        } else {
-          SetSkaModel(MODEL_MIHULAIRED);
+        switch(m_mhChar) {
+          case MHC_NORMAL1:
+          {
+            SetSkaModel(MODEL_MIHULAI);
+            GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+            ModelChangeNotify();
+          }
+          break;
+          case MHC_NORMAL2:
+          {
+            SetSkaModel(MODEL_MIHULAIRED);
+            GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
+            ModelChangeNotify();
+          }
+          break;
+          case MHC_BABY1:
+          {
+            SetSkaModel(MODEL_MIHULAI);
+            GetModelInstance()->StretchModel(FLOAT3D(0.725f, 0.725f, 0.725f));
+            ModelChangeNotify();
+          }
+          break;
+          case MHC_BABY2:
+          {
+            SetSkaModel(MODEL_MIHULAIRED);
+            GetModelInstance()->StretchModel(FLOAT3D(0.725f, 0.725f, 0.725f));
+            ModelChangeNotify();
+          }
+          break;
         }
-        GetModelInstance()->StretchModel(FLOAT3D(1.25f, 1.25f, 1.25f));
-        ModelChangeNotify();
 
         m_fWalkSpeed = FRnd() + 3.5f;
         m_aWalkRotateSpeed = AngleDeg(FRnd()*25.0f + 600.0f);
         m_fAttackRunSpeed = FRnd() + 7.5f;
-        m_aAttackRotateSpeed = AngleDeg(FRnd()*75 + 500.0f);
+        m_aAttackRotateSpeed = AngleDeg(FRnd()*75 + 550.0f);
         m_fCloseRunSpeed = FRnd() + 7.5f;
-        m_aCloseRotateSpeed = AngleDeg(FRnd()*75 + 500.0f);
+        m_aCloseRotateSpeed = AngleDeg(FRnd()*75 + 550.0f);
         
         // setup attack distances
         m_fAttackDistance = 100.0f;

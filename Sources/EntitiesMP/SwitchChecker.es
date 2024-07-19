@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %{
 #include "StdH.h"
 #include "EntitiesMP/Switch.h"
+#include "EntitiesMP/SkaSwitch.h"
 %}
 
 
@@ -72,13 +73,24 @@ MainChecks() {
       continue;
     }
 
-    CSwitch *psw = (CSwitch *)&*pen;
-    SwitchPosition &swpPos = (&m_swpPosition1)[i];
+    if(IsOfClass(pen, "Switch")) {
+      CSwitch *psw = (CSwitch *)&*pen;
+      SwitchPosition &swpPos = (&m_swpPosition1)[i];
 
-    // At least one of the valid switches isn't in the correct position
-    if (psw->m_swpPosition != swpPos) {
-      bTrigger = FALSE;
-      break;
+      // At least one of the valid switches isn't in the correct position
+      if (psw->m_swpPosition != swpPos) {
+        bTrigger = FALSE;
+        break;
+      }
+    } else if(IsOfClass(pen, "Switch")) {
+      CSkaSwitch *psw = (CSkaSwitch *)&*pen;
+      SwitchPosition &swpPos = (&m_swpPosition1)[i];
+
+      // At least one of the valid switches isn't in the correct position
+      if (psw->m_swpPosition != swpPos) {
+        bTrigger = FALSE;
+        break;
+      }
     }
   }
 

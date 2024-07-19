@@ -369,18 +369,33 @@ procedures:
     Stuff();
 
     // if needed wait some time before event is send
-    if (m_fWaitTime > 0.0f) {
-      wait (m_fWaitTime) {
+    if (m_fWaitTime > 0.0f)
+    {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }
         otherwise(): { resume; }
       }
     }
+
     SendToTarget(m_penTarget1, m_eetEvent1, m_penCaused);
 
-    if (m_fWaitTime > 0.0f) {
-      wait (m_fWaitTime) {
+    if (m_fWaitTime > 0.0f)
+    {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }
@@ -389,8 +404,15 @@ procedures:
     }
     SendToTarget(m_penTarget2, m_eetEvent2, m_penCaused);
 
-    if (m_fWaitTime > 0.0f) {
-      wait (m_fWaitTime) {
+    if (m_fWaitTime > 0.0f)
+    {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }
@@ -399,8 +421,15 @@ procedures:
     }
     SendToTarget(m_penTarget3, m_eetEvent3, m_penCaused);
 
-    if (m_fWaitTime > 0.0f) {
-      wait (m_fWaitTime) {
+    if (m_fWaitTime > 0.0f)
+    {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }
@@ -409,8 +438,15 @@ procedures:
     }
     SendToTarget(m_penTarget4, m_eetEvent4, m_penCaused);
 
-    if (m_fWaitTime > 0.0f) {
-      wait (m_fWaitTime) {
+    if (m_fWaitTime > 0.0f)
+    {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }
@@ -419,8 +455,15 @@ procedures:
     }
     SendToTarget(m_penTarget5, m_eetEvent5, m_penCaused);
 
-    if (m_fWaitTime > 0.0f) {
-      wait (m_fWaitTime) {
+    if (m_fWaitTime > 0.0f)
+    {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }
@@ -429,8 +472,15 @@ procedures:
     }
     SendToTarget(m_penTarget6, m_eetEvent6, m_penCaused);
 
-    if (m_fWaitTime > 0.0f) {
-      wait (m_fWaitTime) {
+    if (m_fWaitTime > 0.0f)
+    {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }
@@ -439,8 +489,15 @@ procedures:
     }
     SendToTarget(m_penTarget7, m_eetEvent7, m_penCaused);
 
-    if (m_fWaitTime > 0.0f) {
-      wait (m_fWaitTime) {
+    if (m_fWaitTime > 0.0f)
+    {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }
@@ -449,8 +506,15 @@ procedures:
     }
     SendToTarget(m_penTarget8, m_eetEvent8, m_penCaused);
 
-    if (m_fWaitTime > 0.0f) {
-      wait (m_fWaitTime) {
+    if (m_fWaitTime > 0.0f)
+    {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }
@@ -459,8 +523,15 @@ procedures:
     }
     SendToTarget(m_penTarget9, m_eetEvent9, m_penCaused);
 
-    if (m_fWaitTime > 0.0f) {
-      wait (m_fWaitTime) {
+    if (m_fWaitTime > 0.0f)
+    {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }
@@ -611,8 +682,15 @@ procedures:
 
   Random()
   {
-    if (m_fWaitTime > 0.0f) {
-      wait (m_fWaitTime) {
+    if (m_fWaitTime > 0.0f)
+    {
+      m_fWaitInternal = m_fWaitTime;
+      if(m_fRandomWaitTime > 0.0f)
+      {
+        m_fWaitInternal = m_fWaitTime+FRnd()*m_fRandomWaitTime;
+      }
+
+      wait (m_fWaitInternal) {
         on (EBegin) : { resume; }
         on (ETimer) : { stop; }
         on (EDeactivate) : { pass; }

@@ -61,6 +61,8 @@ extern CTString astrCrosshair[] = {
   "Textures\\Interface\\Crosshairs\\Crosshair2.tex",
   "Textures\\Interface\\Crosshairs\\Crosshair3.tex",
   "Textures\\Interface\\Crosshairs\\Crosshair4.tex",
+  "Textures\\Interface\\Crosshairs\\Crosshair5.tex",
+  "Textures\\Interface\\Crosshairs\\Crosshair6.tex",
 };
 
 extern CTString *astrMaxPlayersRadioTexts = NULL;
@@ -121,6 +123,7 @@ extern CTString astrSoundAPIRadioTexts[] = {
   RADIOTRANS("WaveOut"),
   RADIOTRANS("DirectSound"),
   RADIOTRANS("EAX"),
+  RADIOTRANS("OpenAL"),
 };
 
 ULONG GetSpawnFlagsForGameType(INDEX iGameType)
@@ -215,9 +218,6 @@ INDEX APIToSwitch(enum GfxAPIType gat)
 {
   switch (gat) {
   case GAT_OGL: return 0;
-#ifdef SE1_D3D
-  case GAT_D3D: return 1;
-#endif // SE1_D3D
   default: ASSERT(FALSE); return 0;
   }
 }
@@ -226,9 +226,6 @@ enum GfxAPIType SwitchToAPI(INDEX i)
 {
   switch (i) {
   case 0: return GAT_OGL;
-#ifdef SE1_D3D
-  case 1: return GAT_D3D;
-#endif // SE1_D3D
   default: ASSERT(FALSE); return GAT_OGL;
   }
 }

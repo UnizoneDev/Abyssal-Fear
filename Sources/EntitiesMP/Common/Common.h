@@ -59,6 +59,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define SURFACE_GLITCH_NOIMPACT 53
 #define SURFACE_CEMENT 54
 #define SURFACE_CEMENT_NOIMPACT 55
+#define SURFACE_ELECTRIC_METAL 56
+#define SURFACE_ELECTRIC_GRATE 57
 
 // Max ammo
 #define MAX_BULLETS INDEX(100)
@@ -83,7 +85,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define AMMO_STRONG_PISTOL_BULLETS 3
 
 #define BLOOD_SPILL_RED RGBAToColor(250,20,20,255)
-#define BLOOD_SPILL_GREEN RGBAToColor(0,250,0,255)
+#define BLOOD_SPILL_GREEN RGBAToColor(96,250,32,255)
 #define BLOOD_SPILL_ORANGE RGBAToColor(250,127,30,255)
 #define BLOOD_SPILL_BLACK RGBAToColor(0,0,0,255)
 #define BLOOD_SPILL_YELLOW RGBAToColor(250,250,40,255)
@@ -93,7 +95,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define ENEMY_STEP_VAL INDEX(-123) // Reminder value for calling enemy step function
 #define ENEMY_PATROL_VAL INDEX(0)
 #define ENEMY_JUMPANIM_VAL INDEX(1)
-#define MIHULAI_RUNAWAY_VAL INDEX(2)									
+#define MIHULAI_RUNAWAY_VAL INDEX(2)
 
 // Ammo mana Value
 #define AV_BULLETS        INDEX(10)
@@ -225,12 +227,13 @@ DECL_DLL void RemoveAttachmentFromModel(CModelObject &mo, INDEX iAttachment);
 DECL_DLL void KickEntity(CEntity *penTarget, FLOAT3D vSpeed);
 
 
+
 // lens flare variables
 extern CLensFlareType _lftOrange;
 extern CLensFlareType _lftBlue;
 extern CLensFlareType _lftWhite;
 extern CLensFlareType _lftRed;
-extern CLensFlareType _lftYellow;								 
+extern CLensFlareType _lftYellow;
 // init lens flare effects
 void InitLensFlares(void);
 // close lens flares effects
@@ -248,12 +251,13 @@ DECL_DLL void Debris_Begin(
   EntityInfoBodyType Eeibt, 
   enum DebrisParticlesType dptParticles,
   enum BasicEffectType  betStain,
-  FLOAT fEntitySize,             // entity size in meters
+  FLOAT fEntitySize,               // entity size in meters
   const FLOAT3D &vSpeed,
-  const FLOAT3D &vSpawnerSpeed,  // how fast was the entity moving
-  const FLOAT fConeSize,         // size multiplier for debris cone
-  const FLOAT fSpeedUp,          // size multiplier for debris catapulting up (0-no multiply)
-  const COLOR colDebris=C_WHITE  // multiply color
+  const FLOAT3D &vSpawnerSpeed,    // how fast was the entity moving
+  const FLOAT fConeSize,           // size multiplier for debris cone
+  const FLOAT fSpeedUp,            // size multiplier for debris catapulting up (0-no multiply)
+  const COLOR colDebris= C_WHITE,  // multiply color
+  const COLOR colStain = C_WHITE   // stain multiply color
 );
 DECL_DLL CEntityPointer Debris_Spawn(
   CEntity *penSpawner,
@@ -296,9 +300,7 @@ DECL_DLL CEntityPointer Debris_Spawn_Template(
   COLOR colBurning);
 DECL_DLL CEntityPointer Debris_Spawn_SKA(
     CEntity* penSpawner,
-    CEntity* penComponents,
     SLONG idSkaModelComponent,
-    INDEX iModelAnim,
     FLOAT fSize,                // size relative to entity size (or 0 for absolute stretch of 1)
     const FLOAT3D& vPosRatio);
 
@@ -357,3 +359,8 @@ void SpawnHitTypeEffect(CEntity *pen, enum BulletHitType bhtType, BOOL bSound, F
   FLOAT3D vIncommingBulletDir, FLOAT3D vDistance);
 
 #define FRndIn(a, b) (a + FRnd()*(b - a))
+
+
+// [Uni] bone functions
+BOOL RotateBone(INDEX idBone, ANGLE3D aBoneAngle);
+BOOL OffsetBone(INDEX idBone, FLOAT3D vBonePosition);

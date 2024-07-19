@@ -290,7 +290,7 @@ public:
   INDEX osc_Index;                                    // index for easier conversions
   COLOR osc_colColor;                                 // color of this sector
   COLOR osc_colAmbient;                               // ambient lightning of this sector
-  ULONG osc_ulFlags[3];                               // flags (not used in CTMath)
+  ULONG osc_ulFlags[4];                               // flags (not used in CTMath)
 
   CTString osc_strName;     // name of the sector
 

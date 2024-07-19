@@ -57,6 +57,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/OverlayHolder.h"
 #include "EntitiesMP/ControllableTurret.h"
 #include "EntitiesMP/UZModelHolder.h"
+#include "EntitiesMP/ExplosiveBarrel.h"
+#include "EntitiesMP/ControllableSwitch.h"
+#include "EntitiesMP/UZSkaModelHolder.h"
+#include "EntitiesMP/SkaSwitch.h"
 
 extern void JumpFromBouncer(CEntity *penToBounce, CEntity *penBouncer);
 // from game
@@ -256,6 +260,7 @@ static void KillAllEnemies(CEntity *penKiller)
 #define PLF_LEVELSTARTED          (1UL<<9)   // marks that level start time was recorded
 #define PLF_ISZOOMING             (1UL<<10)  // marks that player is zoomed in with the sniper
 #define PLF_RESPAWNINPLACE        (1UL<<11)  // don't move to marker when respawning (for current death only)
+#define PLF_ISONLADDER            (1UL<<12)  // if on a ladder
 
 // defines representing flags used to fill player buttoned actions
 #define PLACT_FIRE                (1L<<0)
@@ -267,14 +272,11 @@ static void KillAllEnemies(CEntity *penKiller)
 #define PLACT_3RD_PERSON_VIEW     (1L<<6)
 #define PLACT_CENTER_VIEW         (1L<<7)
 #define PLACT_USE_HELD            (1L<<8)
-#define PLACT_SNIPER_ZOOMIN       (1L<<9)
-#define PLACT_SNIPER_ZOOMOUT      (1L<<10)
-#define PLACT_SNIPER_USE          (1L<<11)
-#define PLACT_PAINKILLERS_USE     (1L<<12)
-#define PLACT_ALTFIRE             (1L<<13)
-#define PLACT_HOLSTER             (1L<<14)
-#define PLACT_DROP_WEAPON         (1L<<15)
-#define PLACT_SELECT_WEAPON_SHIFT (16)
+#define PLACT_PAINKILLERS_USE     (1L<<9)
+#define PLACT_ALTFIRE             (1L<<10)
+#define PLACT_HOLSTER             (1L<<11)
+#define PLACT_DROP_WEAPON         (1L<<12)
+#define PLACT_SELECT_WEAPON_SHIFT (13)
 #define PLACT_SELECT_WEAPON_MASK  (0x1FL<<PLACT_SELECT_WEAPON_SHIFT)
                                      
 #define MAX_WEAPONS 30
@@ -328,8 +330,6 @@ struct PlayerControls {
   BOOL bUse;
   BOOL b3rdPersonView;
 
-  BOOL bSniperZoomIn;
-  BOOL bSniperZoomOut;
   BOOL bUsePainkillers;
 };
 
@@ -549,12 +549,10 @@ DECL_DLL void ctl_ComposeActionPacket(const CPlayerCharacter &pc, CPlayerAction 
   if(pctlCurrent.bFire)       paAction.pa_ulButtons |= PLACT_FIRE;
   if(pctlCurrent.bAltFire)    paAction.pa_ulButtons |= PLACT_ALTFIRE;
   if(pctlCurrent.bReload)     paAction.pa_ulButtons |= PLACT_RELOAD;
-  if(pctlCurrent.bUse)        paAction.pa_ulButtons |= PLACT_USE|PLACT_USE_HELD|PLACT_SNIPER_USE;
+  if(pctlCurrent.bUse)        paAction.pa_ulButtons |= PLACT_USE|PLACT_USE_HELD;
   if(pctlCurrent.b3rdPersonView) paAction.pa_ulButtons |= PLACT_3RD_PERSON_VIEW;
   if(pctlCurrent.bCenterView)    paAction.pa_ulButtons |= PLACT_CENTER_VIEW;
   // is 'use' being held?
-  if(pctlCurrent.bSniperZoomIn)   paAction.pa_ulButtons |= PLACT_SNIPER_ZOOMIN;
-  if(pctlCurrent.bSniperZoomOut)  paAction.pa_ulButtons |= PLACT_SNIPER_ZOOMOUT;
   if(pctlCurrent.bUsePainkillers) paAction.pa_ulButtons |= PLACT_PAINKILLERS_USE;
   if(pctlCurrent.bHolster)        paAction.pa_ulButtons |= PLACT_HOLSTER;
   if(pctlCurrent.bDropWeapon)     paAction.pa_ulButtons |= PLACT_DROP_WEAPON;
@@ -573,27 +571,17 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_WATER_LEAVE        );
   pdec->PrecacheSound(SOUND_WALK_L             );
   pdec->PrecacheSound(SOUND_WALK_R             );
-  pdec->PrecacheSound(SOUND_WALK_SAND_L        );
-  pdec->PrecacheSound(SOUND_WALK_SAND_R        );
   pdec->PrecacheSound(SOUND_SWIM_L             );
   pdec->PrecacheSound(SOUND_SWIM_R             );
   pdec->PrecacheSound(SOUND_DIVE_L             );
   pdec->PrecacheSound(SOUND_DIVE_R             );
   pdec->PrecacheSound(SOUND_JUMP               );
   pdec->PrecacheSound(SOUND_LAND               );
-  pdec->PrecacheSound(SOUND_LAND_SAND          );
-  pdec->PrecacheSound(SOUND_LAND_GRASS         );
-  pdec->PrecacheSound(SOUND_LAND_SNOW          );
-  pdec->PrecacheSound(SOUND_LAND_CARPET        );
   pdec->PrecacheSound(SOUND_LAND_GLASS         );
-  pdec->PrecacheSound(SOUND_LAND_DIRT          );
   pdec->PrecacheSound(SOUND_LAND_CHAINLINK     );
-  pdec->PrecacheSound(SOUND_LAND_GRATE         );
-  pdec->PrecacheSound(SOUND_LAND_MUD           );
   pdec->PrecacheSound(SOUND_LAND_VENT          );
   pdec->PrecacheSound(SOUND_LAND_COMPUTER      );
   pdec->PrecacheSound(SOUND_LAND_FUSEBOX       );
-  pdec->PrecacheSound(SOUND_LAND_GRAVEL        );
   pdec->PrecacheSound(SOUND_LAND_GLITCH        );
   pdec->PrecacheSound(SOUND_WATERAMBIENT       );
   pdec->PrecacheSound(SOUND_WATERBUBBLES       );
@@ -601,36 +589,23 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_WATERWALK_R        );
   pdec->PrecacheSound(SOUND_INFO               );
   pdec->PrecacheSound(SOUND_SECRET             );
-  pdec->PrecacheSound(SOUND_WALK_GRASS_L       );
-  pdec->PrecacheSound(SOUND_WALK_GRASS_R       );
-  pdec->PrecacheSound(SOUND_WALK_SNOW_L        );
-  pdec->PrecacheSound(SOUND_WALK_SNOW_R        );
-  pdec->PrecacheSound(SOUND_WALK_CARPET_L      );
-  pdec->PrecacheSound(SOUND_WALK_CARPET_R      );
   pdec->PrecacheSound(SOUND_WALK_GLASS_L       );
   pdec->PrecacheSound(SOUND_WALK_GLASS_R       );
-  pdec->PrecacheSound(SOUND_WALK_DIRT_L        );
-  pdec->PrecacheSound(SOUND_WALK_DIRT_R        );
   pdec->PrecacheSound(SOUND_WALK_CHAINLINK_L   );
   pdec->PrecacheSound(SOUND_WALK_CHAINLINK_R   );
-  pdec->PrecacheSound(SOUND_WALK_GRATE_L       );
-  pdec->PrecacheSound(SOUND_WALK_GRATE_R       );
-  pdec->PrecacheSound(SOUND_WALK_MUD_L         );
-  pdec->PrecacheSound(SOUND_WALK_MUD_R         );
   pdec->PrecacheSound(SOUND_WALK_VENT_L        );
   pdec->PrecacheSound(SOUND_WALK_VENT_R        );
   pdec->PrecacheSound(SOUND_WALK_COMPUTER_L    );
   pdec->PrecacheSound(SOUND_WALK_COMPUTER_R    );
   pdec->PrecacheSound(SOUND_WALK_FUSEBOX_L     );
   pdec->PrecacheSound(SOUND_WALK_FUSEBOX_R     );
-  pdec->PrecacheSound(SOUND_WALK_GRAVEL_L      );
-  pdec->PrecacheSound(SOUND_WALK_GRAVEL_R      );
   pdec->PrecacheSound(SOUND_WALK_GLITCH_L      );
   pdec->PrecacheSound(SOUND_WALK_GLITCH_R      );
 //pdec->PrecacheSound(SOUND_HIGHSCORE          );
   pdec->PrecacheSound(SOUND_SILENCE            );
   pdec->PrecacheSound(SOUND_BLOWUP             );
   pdec->PrecacheSound(SOUND_EFFECT_STING       );
+  pdec->PrecacheSound(SOUND_EFFECT_ACID        );
   pdec->PrecacheSound(SOUND_PAINKILLERS        );
   
 
@@ -706,6 +681,12 @@ void CPlayer_Precache(void)
   pdec->PrecacheSound(SOUND_SNOW_STEP4     );
   pdec->PrecacheSound(SOUND_SNOW_LAND      );
 
+  pdec->PrecacheSound(SOUND_METALGRATE_STEP1        );
+  pdec->PrecacheSound(SOUND_METALGRATE_STEP2        );
+  pdec->PrecacheSound(SOUND_METALGRATE_STEP3        );
+  pdec->PrecacheSound(SOUND_METALGRATE_STEP4        );
+  pdec->PrecacheSound(SOUND_METALGRATE_LAND         );
+
   pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_TELEPORT);
 
   pdec->PrecacheModel(MODEL_FLESH);
@@ -760,8 +741,6 @@ void CPlayer_OnInitClass(void)
   _pShell->DeclareSymbol("persistent user FLOAT ctl_fButtonRotationSpeedB;", &ctl_fButtonRotationSpeedB);
   _pShell->DeclareSymbol("persistent user FLOAT ctl_fAxisStrafingModifier;", &ctl_fAxisStrafingModifier);
   //new
-  _pShell->DeclareSymbol("user INDEX ctl_bSniperZoomIn;",         &pctlCurrent.bSniperZoomIn);
-  _pShell->DeclareSymbol("user INDEX ctl_bSniperZoomOut;",        &pctlCurrent.bSniperZoomOut);
   _pShell->DeclareSymbol("user INDEX ctl_bUsePainkillers;",       &pctlCurrent.bUsePainkillers);
 
   _pShell->DeclareSymbol("user FLOAT plr_fSwimSoundDelay;", &plr_fSwimSoundDelay);
@@ -1111,7 +1090,6 @@ properties:
  76 CSoundObject m_soMessage,  // message sounds
  77 CSoundObject m_soHighScore, // high score sound
  78 CSoundObject m_soSpeech,    // for quotes
- 79 CSoundObject m_soSniperZoom, // for sniper zoom sound
 
  81 INDEX m_iMana    = 0,        // current score worth for killed player
  94 FLOAT m_fManaFraction = 0.0f,// fractional part of mana, for slow increase with time
@@ -1194,6 +1172,9 @@ properties:
  209 CSoundObject m_soEffect,               // local ambient that occurs due to special damage types
  210 BOOL m_bIsOnTurret = FALSE,            // if true, then the player can only aim
  211 CEntityPointer m_penTurret,            // player weapons
+ 214 BOOL m_bIsOnController = FALSE,        // if true, then the player can only use the controller
+ 215 CEntityPointer m_penController,        // player weapons
+ 216 FLOAT m_tmAcidTime = 0.0f,             // when was last acid spray
 
 {
   ShellLaunchData ShellLaunchData_array;  // array of data describing flying empty shells
@@ -1248,59 +1229,59 @@ components:
  63 sound SOUND_LAND            "Sounds\\Player\\Land.wav",
  70 sound SOUND_WATERWALK_L     "Sounds\\Player\\WalkWaterL.wav",
  71 sound SOUND_WATERWALK_R     "Sounds\\Player\\WalkWaterR.wav",
- 75 sound SOUND_WALK_SAND_L     "Sounds\\Player\\WalkSandL.wav",
- 76 sound SOUND_WALK_SAND_R     "Sounds\\Player\\WalkSandR.wav",
+//75 sound SOUND_WALK_SAND_L     "Sounds\\Player\\WalkSandL.wav",
+//76 sound SOUND_WALK_SAND_R     "Sounds\\Player\\WalkSandR.wav",
 //178 sound SOUND_HIGHSCORE       "Sounds\\Player\\HighScore.wav",
- 86 sound SOUND_WALK_GRASS_L    "Sounds\\Player\\WalkGrassL.wav",
- 87 sound SOUND_WALK_GRASS_R    "Sounds\\Player\\WalkGrassR.wav",
+//86 sound SOUND_WALK_GRASS_L    "Sounds\\Player\\WalkGrassL.wav",
+//87 sound SOUND_WALK_GRASS_R    "Sounds\\Player\\WalkGrassR.wav",
 //88 sound SOUND_WALK_WOOD_L     "Sounds\\Player\\WalkWoodL.wav",
 //89 sound SOUND_WALK_WOOD_R     "Sounds\\Player\\WalkWoodR.wav",
- 90 sound SOUND_WALK_SNOW_L     "Sounds\\Player\\WalkSnowL.wav",
- 91 sound SOUND_WALK_SNOW_R     "Sounds\\Player\\WalkSnowR.wav",
+//90 sound SOUND_WALK_SNOW_L     "Sounds\\Player\\WalkSnowL.wav",
+//91 sound SOUND_WALK_SNOW_R     "Sounds\\Player\\WalkSnowR.wav",
 //92 sound SOUND_WALK_METAL_L    "Sounds\\Player\\WalkMetalL.wav",
 //93 sound SOUND_WALK_METAL_R    "Sounds\\Player\\WalkMetalR.wav",
- 94 sound SOUND_WALK_CARPET_L   "Sounds\\Player\\WalkCarpetL.wav",
- 95 sound SOUND_WALK_CARPET_R   "Sounds\\Player\\WalkCarpetR.wav",
+//94 sound SOUND_WALK_CARPET_L   "Sounds\\Player\\WalkCarpetL.wav",
+//95 sound SOUND_WALK_CARPET_R   "Sounds\\Player\\WalkCarpetR.wav",
  96 sound SOUND_WALK_GLASS_L    "Sounds\\Player\\WalkGlassL.wav",
  97 sound SOUND_WALK_GLASS_R    "Sounds\\Player\\WalkGlassR.wav",
- 98 sound SOUND_WALK_DIRT_L     "Sounds\\Player\\WalkDirtL.wav",
- 99 sound SOUND_WALK_DIRT_R     "Sounds\\Player\\WalkDirtR.wav",
+//98 sound SOUND_WALK_DIRT_L     "Sounds\\Player\\WalkDirtL.wav",
+//99 sound SOUND_WALK_DIRT_R     "Sounds\\Player\\WalkDirtR.wav",
 //100 sound SOUND_WALK_TILE_L     "Sounds\\Player\\WalkTileL.wav",
 //101 sound SOUND_WALK_TILE_R     "Sounds\\Player\\WalkTileR.wav",
 102 sound SOUND_WALK_CHAINLINK_L "Sounds\\Player\\WalkChainlinkL.wav",
 103 sound SOUND_WALK_CHAINLINK_R "Sounds\\Player\\WalkChainlinkR.wav",
-115 sound SOUND_WALK_GRATE_L    "Sounds\\Player\\WalkGrateL.wav",
-116 sound SOUND_WALK_GRATE_R    "Sounds\\Player\\WalkGrateR.wav",
-118 sound SOUND_WALK_MUD_L      "Sounds\\Player\\WalkMudL.wav",
-119 sound SOUND_WALK_MUD_R      "Sounds\\Player\\WalkMudR.wav",
+//115 sound SOUND_WALK_GRATE_L    "Sounds\\Player\\WalkGrateL.wav",
+//116 sound SOUND_WALK_GRATE_R    "Sounds\\Player\\WalkGrateR.wav",
+//118 sound SOUND_WALK_MUD_L      "Sounds\\Player\\WalkMudL.wav",
+//119 sound SOUND_WALK_MUD_R      "Sounds\\Player\\WalkMudR.wav",
 123 sound SOUND_WALK_VENT_L     "Sounds\\Player\\WalkVentL.wav",
 124 sound SOUND_WALK_VENT_R     "Sounds\\Player\\WalkVentR.wav",
 125 sound SOUND_WALK_COMPUTER_L "Sounds\\Player\\WalkComputerL.wav",
 126 sound SOUND_WALK_COMPUTER_R "Sounds\\Player\\WalkComputerR.wav",
 127 sound SOUND_WALK_FUSEBOX_L  "Sounds\\Player\\WalkFuseboxL.wav",
 128 sound SOUND_WALK_FUSEBOX_R  "Sounds\\Player\\WalkFuseboxR.wav",
-130 sound SOUND_WALK_GRAVEL_L   "Sounds\\Player\\WalkGravelL.wav",
-131 sound SOUND_WALK_GRAVEL_R   "Sounds\\Player\\WalkGravelR.wav",
+//130 sound SOUND_WALK_GRAVEL_L   "Sounds\\Player\\WalkGravelL.wav",
+//131 sound SOUND_WALK_GRAVEL_R   "Sounds\\Player\\WalkGravelR.wav",
 132 sound SOUND_WALK_GLITCH_L   "Sounds\\Player\\WalkGlitchL.wav",
 133 sound SOUND_WALK_GLITCH_R   "Sounds\\Player\\WalkGlitchR.wav",
-104 sound SOUND_LAND_SAND       "Sounds\\Player\\LandSand.wav",
-105 sound SOUND_LAND_GRASS      "Sounds\\Player\\LandGrass.wav",
+//104 sound SOUND_LAND_SAND       "Sounds\\Player\\LandSand.wav",
+//105 sound SOUND_LAND_GRASS      "Sounds\\Player\\LandGrass.wav",
 //106 sound SOUND_LAND_WOOD       "Sounds\\Player\\LandWood.wav",
-107 sound SOUND_LAND_SNOW       "Sounds\\Player\\LandSnow.wav",
+//107 sound SOUND_LAND_SNOW       "Sounds\\Player\\LandSnow.wav",
 //108 sound SOUND_LAND_METAL      "Sounds\\Player\\LandMetal.wav",
-109 sound SOUND_LAND_CARPET     "Sounds\\Player\\LandCarpet.wav",
+//109 sound SOUND_LAND_CARPET     "Sounds\\Player\\LandCarpet.wav",
 110 sound SOUND_LAND_GLASS      "Sounds\\Player\\LandGlass.wav",
-111 sound SOUND_LAND_DIRT       "Sounds\\Player\\LandDirt.wav",
+//111 sound SOUND_LAND_DIRT       "Sounds\\Player\\LandDirt.wav",
 //112 sound SOUND_LAND_TILE       "Sounds\\Player\\LandTile.wav",
 113 sound SOUND_LAND_CHAINLINK  "Sounds\\Player\\LandChainlink.wav",
-117 sound SOUND_LAND_GRATE      "Sounds\\Player\\LandGrate.wav",
-120 sound SOUND_LAND_MUD        "Sounds\\Player\\LandMud.wav",
+//117 sound SOUND_LAND_GRATE      "Sounds\\Player\\LandGrate.wav",
+//120 sound SOUND_LAND_MUD        "Sounds\\Player\\LandMud.wav",
 121 sound SOUND_LAND_VENT       "Sounds\\Player\\LandVent.wav",
 122 sound SOUND_LAND_COMPUTER   "Sounds\\Player\\LandComputer.wav",
 129 sound SOUND_LAND_FUSEBOX    "Sounds\\Player\\LandFusebox.wav",
-134 sound SOUND_LAND_GRAVEL     "Sounds\\Player\\LandGravel.wav",
+//134 sound SOUND_LAND_GRAVEL     "Sounds\\Player\\LandGravel.wav",
 135 sound SOUND_LAND_GLITCH     "Sounds\\Player\\LandGlitch.wav",
-114 sound SOUND_BLOWUP          "Sounds\\Player\\BlowUp.wav",
+114 sound SOUND_BLOWUP          "Sounds\\GoreBlood\\GoreBlowUp.wav",
 290 sound SOUND_PAINKILLERS     "Sounds\\Player\\UsePainkillers.wav",
 
 // gender-independent sounds
@@ -1310,6 +1291,7 @@ components:
 219 sound SOUND_WATERBUBBLES    "Sounds\\Player\\Bubbles.wav",
 221 sound SOUND_SECRET          "Sounds\\Player\\Secret.wav",
 222 sound SOUND_EFFECT_STING    "Sounds\\Player\\EffectAbominationSting.wav",
+223 sound SOUND_EFFECT_ACID     "Sounds\\Player\\EffectAcidBurn.wav",
 
 // ************** FLESH PARTS **************
 230 model   MODEL_FLESH          "Models\\Effects\\Debris\\FleshDebris.mdl",
@@ -1389,6 +1371,12 @@ components:
 298 sound SOUND_SNOW_STEP3      "Sounds\\Materials\\Snow\\StepSnow3.wav",
 299 sound SOUND_SNOW_STEP4      "Sounds\\Materials\\Snow\\StepSnow4.wav",
 300 sound SOUND_SNOW_LAND       "Sounds\\Materials\\Snow\\LandSnow.wav",
+
+301 sound SOUND_METALGRATE_STEP1      "Sounds\\Materials\\MetalGrate\\StepMetalGrate1.wav",
+302 sound SOUND_METALGRATE_STEP2      "Sounds\\Materials\\MetalGrate\\StepMetalGrate2.wav",
+303 sound SOUND_METALGRATE_STEP3      "Sounds\\Materials\\MetalGrate\\StepMetalGrate3.wav",
+304 sound SOUND_METALGRATE_STEP4      "Sounds\\Materials\\MetalGrate\\StepMetalGrate4.wav",
+305 sound SOUND_METALGRATE_LAND       "Sounds\\Materials\\MetalGrate\\LandMetalGrate.wav",
 
 
 functions:
@@ -2812,6 +2800,18 @@ functions:
       }
     }
 
+    // if damaged by acid
+    FLOAT tmSinceAcidSpray = _pTimer->CurrentTick() - m_tmAcidTime;
+    if(tmSinceAcidSpray < 0.0f) {
+      // slowly decrease health with time
+      FLOAT fHealth = GetHealth();
+      FLOAT fTopHealth = TopHealth();
+      if (fHealth<fTopHealth) {
+        SetHealth(ClampUp(fHealth-_pTimer->TickQuantum, fTopHealth));  // one unit per second
+      }
+      //CPrintF("Acid Time: %g\n", tmSinceAcidSpray);
+    }
+
     // update ray hit for weapon target
     GetPlayerWeapons()->UpdateTargetingInfo();
 
@@ -3182,9 +3182,17 @@ functions:
 
     if(dmtType == DMT_STING) {
       m_bIsStung = TRUE;
-      PlaySound( m_soEffect, SOUND_EFFECT_STING, SOF_3D|SOF_VOLUMETRIC|SOF_LOCAL);
-      m_soEffect.Set3DParameters( 25.0f, 5.0f, 2.0f, 1.0f);
+      if(!m_soEffect.IsPlaying()) {
+        PlaySound( m_soEffect, SOUND_EFFECT_STING, SOF_3D|SOF_VOLUMETRIC|SOF_LOCAL);
+      }
       m_tmStungTime = _pTimer->CurrentTick() + 5.0f;
+    }
+
+    if(dmtType == DMT_ACID) {
+      if(!m_soEffect.IsPlaying()) {
+        PlaySound( m_soEffect, SOUND_EFFECT_ACID, SOF_3D|SOF_VOLUMETRIC|SOF_LOCAL);
+      }
+      m_tmAcidTime = _pTimer->CurrentTick() + 4.0f;
     }
 
     FLOAT fSubHealth, fSubArmor;
@@ -3327,14 +3335,11 @@ functions:
     FLOAT3D vBodySpeed = en_vCurrentTranslationAbsolute-en_vGravityDir*(en_vGravityDir%en_vCurrentTranslationAbsolute);
     const FLOAT fBlowUpSize = 2.0f;
 
-    // readout blood type
-    const INDEX iBloodType = GetSP()->sp_iBlood;
     // determine debris texture (color)
-    ULONG ulFleshTexture = TEXTURE_FLESH_GREEN;
+    ULONG ulFleshTexture = TEXTURE_FLESH_RED;
     ULONG ulFleshModel   = MODEL_FLESH;
-    if( iBloodType==2) { ulFleshTexture = TEXTURE_FLESH_RED; }
     // spawn debris
-    Debris_Begin( EIBT_FLESH, DPT_BLOODTRAIL, BET_BLOODSTAIN, fBlowUpSize, vNormalizedDamage, vBodySpeed, 1.0f, 0.0f);
+    Debris_Begin( EIBT_FLESH, DPT_BLOODTRAIL, BET_BLOODSTAIN, fBlowUpSize, vNormalizedDamage, vBodySpeed, 1.0f, 0.0f, RGBAToColor(250,20,20,255));
     for( INDEX iDebris=0; iDebris<4; iDebris++) {
       Debris_Spawn( this, this, ulFleshModel, ulFleshTexture, 0, 0, 0, IRnd()%4, 0.5f,
                     FLOAT3D(FRnd()*0.6f+0.2f, FRnd()*0.6f+0.2f, FRnd()*0.6f+0.2f));
@@ -3580,7 +3585,29 @@ functions:
         }
       }
 
-      if (IsOfClass(pen, "UZModelHolder")) {
+      // if controllable switch and near enough
+      if (IsOfClass( pen, "ControllableSwitch")) {
+        CControllableSwitch &enControllableSwitch = (CControllableSwitch&)*pen;
+        // if controllable switch is useable
+        if (penWeapons->m_fRayHitDistance < enControllableSwitch.GetDistance() && enControllableSwitch.m_bUseable) {
+          // send it a trigger event
+          SendToTarget(pen, EET_TRIGGER, this);
+          bSomethingToUse = TRUE;
+        }
+      }
+
+      // if SKA switch and near enough
+      if (IsOfClass( pen, "SkaSwitch")) {
+        CSkaSwitch &enSkaSwitch = (CSkaSwitch&)*pen;
+        // if switch is useable
+        if (penWeapons->m_fRayHitDistance < enSkaSwitch.GetDistance() && enSkaSwitch.m_bUseable) {
+          // send it a trigger event
+          SendToTarget(pen, EET_TRIGGER, this);
+          bSomethingToUse = TRUE;
+        }
+      }
+
+      if (IsDerivedFromClass(pen, "Item")) {
       
       }
     }
@@ -3856,6 +3883,50 @@ functions:
         paAction.pa_aRotation(2) += Clamp( -en_plViewpoint.pl_OrientationAngle(2)/_pTimer->TickQuantum, -900.0f, +900.0f);
       }
 
+    } else if(m_bIsOnController) {
+      // ignore keyboard/mouse/joystick commands
+      paAction.pa_vTranslation  = FLOAT3D(0,0,0);
+
+      ((CPlayerWeapons&)*m_penWeapons).SendEvent(EReleaseWeapon());
+
+      BOOL bForward = _pShell->GetINDEX("ctl_bMoveForward");
+      BOOL bBackward = _pShell->GetINDEX("ctl_bMoveBackward");
+      BOOL bLeft = _pShell->GetINDEX("ctl_bMoveLeft");
+      BOOL bRight = _pShell->GetINDEX("ctl_bMoveRight");
+
+      // if use is pressed
+      if (ulNewButtons&(PLACT_USE)) {
+        // stop being on controller
+        m_bIsOnController = FALSE;
+      }
+
+      if(bForward) {
+        ((CControllableSwitch&)*m_penController).SendEvent(EControlUp());
+      }
+
+      if(bBackward) {
+        ((CControllableSwitch&)*m_penController).SendEvent(EControlDown());
+      }
+
+      if(bLeft) {
+        ((CControllableSwitch&)*m_penController).SendEvent(EControlLeft());
+      }
+
+      if(bRight) {
+        ((CControllableSwitch&)*m_penController).SendEvent(EControlRight());
+      }
+
+      // if 3rd person view is pressed
+      if (ulNewButtons&PLACT_3RD_PERSON_VIEW) {
+        ChangePlayerView();
+      }
+
+      // apply center view
+      if( ulButtonsNow&PLACT_CENTER_VIEW) {
+        // center view with speed of 45 degrees per 1/20 seconds
+        paAction.pa_aRotation(2) += Clamp( -en_plViewpoint.pl_OrientationAngle(2)/_pTimer->TickQuantum, -900.0f, +900.0f);
+      }
+
     } else {
       ButtonsActions(paAction);
     }
@@ -3927,38 +3998,6 @@ functions:
       }
     } else {
       paAction.pa_vTranslation = m_vAutoSpeed;
-    }
-
-    CPlayerActionMarker *ppam = GetActionMarker();
-    ASSERT( ppam != NULL);
-    if( ppam->m_paaAction == PAA_LOGO_FIRE_MINIGUN || ppam->m_paaAction == PAA_LOGO_FIRE_INTROSE)
-    {
-      if( m_tmMinigunAutoFireStart != -1)
-      {
-        FLOAT tmDelta = _pTimer->CurrentTick()-m_tmMinigunAutoFireStart;
-        FLOAT aDH=0.0f;
-        FLOAT aDP=0.0f;
-        if( tmDelta>=0.0f && tmDelta<=0.75f)
-        {
-          aDH = 0.0f;
-        }
-        else if( tmDelta>=0.75f)
-        {
-          FLOAT fDT = tmDelta-0.75f;
-          aDH = 1.0f*cos(fDT+PI/2.0f);
-          aDP = 0.5f*cos(fDT);
-        }
-        if(ppam->m_paaAction == PAA_LOGO_FIRE_INTROSE)
-        {
-          FLOAT fRatio=CalculateRatio(tmDelta,0.25,5,0.1f,0.1f);
-          aDP=2.0f*sin(tmDelta*200.0f)*fRatio;
-          if(tmDelta>2.5f)
-          {
-            aDP+=(tmDelta-2.5f)*4.0f;
-          }
-        }
-        paAction.pa_aRotation = ANGLE3D(aDH/_pTimer->TickQuantum, aDP/_pTimer->TickQuantum,0);
-      }
     }
 
     // do the actions
@@ -4180,12 +4219,13 @@ functions:
              iSoundLand = SOUND_SNOW_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
-             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT)) {
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_METAL)) {
              iSoundLand = SOUND_METAL_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET_NOIMPACT)) {
-             iSoundLand = SOUND_LAND_CARPET;
+             iSoundLand = SOUND_CONCRETE_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLASS ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLASS_NOIMPACT)) {
@@ -4204,8 +4244,9 @@ functions:
              iSoundLand = SOUND_LAND_CHAINLINK;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE ||
-             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE_NOIMPACT) ) {
-             iSoundLand = SOUND_LAND_GRATE;
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE_NOIMPACT ||
+             en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_GRATE) ) {
+             iSoundLand = SOUND_METALGRATE_LAND;
           } else if (en_pbpoStandOn!=NULL && 
             (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
              en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
@@ -4337,9 +4378,15 @@ functions:
 
       // check for ladders
       if(GetPhysicsFlags() & EPF_ONLADDER) {
-        
+        m_ulFlags |= PLF_ISONLADDER;
       } else {
-        
+        m_ulFlags &= ~PLF_ISONLADDER;
+      }
+
+      if(m_ulFlags&PLF_ISONLADDER) {
+        SetPhysicsFlags(GetPhysicsFlags() & ~(EPF_TRANSLATEDBYGRAVITY|EPF_ORIENTEDBYGRAVITY));
+      } else {
+        SetPhysicsFlags(GetPhysicsFlags() | (EPF_TRANSLATEDBYGRAVITY|EPF_ORIENTEDBYGRAVITY));
       }
 
       // set translation
@@ -4437,7 +4484,8 @@ functions:
         iSoundWalkR2 = SOUND_SNOW_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
-         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT) ) {
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_METAL) ) {
         iSoundWalkL  = SOUND_METAL_STEP1;
         iSoundWalkL2 = SOUND_METAL_STEP2;
         iSoundWalkR  = SOUND_METAL_STEP3;
@@ -4445,8 +4493,10 @@ functions:
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET_NOIMPACT) ) {
-        iSoundWalkL = SOUND_WALK_CARPET_L;
-        iSoundWalkR = SOUND_WALK_CARPET_R;
+        iSoundWalkL  = SOUND_CONCRETE_STEP1;
+        iSoundWalkL2 = SOUND_CONCRETE_STEP2;
+        iSoundWalkR  = SOUND_CONCRETE_STEP3;
+        iSoundWalkR2 = SOUND_CONCRETE_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLASS ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GLASS_NOIMPACT) ) {
@@ -4473,9 +4523,12 @@ functions:
         iSoundWalkR = SOUND_WALK_CHAINLINK_R;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE ||
-         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE_NOIMPACT) ) {
-        iSoundWalkL = SOUND_WALK_GRATE_L;
-        iSoundWalkR = SOUND_WALK_GRATE_R;
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE_NOIMPACT ||
+         en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_GRATE) ) {
+        iSoundWalkL  = SOUND_METALGRATE_STEP1;
+        iSoundWalkL2 = SOUND_METALGRATE_STEP2;
+        iSoundWalkR  = SOUND_METALGRATE_STEP3;
+        iSoundWalkR2 = SOUND_METALGRATE_STEP4;
       } else if (en_pbpoStandOn!=NULL && 
         (en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
          en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT) ) {
@@ -4540,6 +4593,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_METAL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
@@ -4548,6 +4604,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_GRATE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
@@ -4576,6 +4635,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_METAL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
@@ -4584,6 +4646,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_GRATE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
@@ -4618,6 +4683,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_METAL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
@@ -4626,6 +4694,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_GRATE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
@@ -4654,6 +4725,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRASS_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_METAL_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_METAL ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_CARPET_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_WOOD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_SNOW ||
@@ -4662,6 +4736,9 @@ functions:
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_DIRT_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_TILE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRATE_NOIMPACT ||
+               en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_ELECTRIC_GRATE ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_MUD_NOIMPACT ||
                en_pbpoStandOn->bpo_bppProperties.bpp_ubSurfaceType==SURFACE_GRAVEL ||
@@ -4840,8 +4917,12 @@ functions:
       ((CPlayerWeapons&)*m_penWeapons).SendEvent(EAltReleaseWeapon());
     }
     // if reload is pressed
-    if (ulReleasedButtons&PLACT_RELOAD) {
+    if (ulNewButtons&PLACT_RELOAD) {
       ((CPlayerWeapons&)*m_penWeapons).SendEvent(EReloadWeapon());
+    }
+    // if reload is released
+    if (ulReleasedButtons&PLACT_RELOAD) {
+      ((CPlayerWeapons&)*m_penWeapons).SendEvent(EReloadReleaseWeapon());
     }
     // if holster is pressed
     if (ulNewButtons&PLACT_HOLSTER) {
@@ -5112,7 +5193,7 @@ functions:
     // render weapon models if needed
     // do not render weapon if sniping
     BOOL bRenderModels = _pShell->GetINDEX("gfx_bRenderModels");
-    if( (hud_bShowWeapon && bRenderModels) && !m_bIsOnTurret) {
+    if( (hud_bShowWeapon && bRenderModels) && !m_bIsOnTurret && !m_bIsOnController) {
       // render weapons only if view is from player eyes
       ((CPlayerWeapons&)*m_penWeapons).RenderWeaponModel(prProjection, pdp, 
        vViewerLightDirection, colViewerLight, colViewerAmbient, bRenderWeapon, iEye);
@@ -5152,13 +5233,20 @@ functions:
     ULONG ulA = pen->m_fDamageAmmount*5.0f;
 
     // if less than few seconds elapsed since last damage
-    FLOAT tmSinceWounding = _pTimer->CurrentTick() - pen->m_tmWoundedTime;
-    FLOAT tmSinceStinging = _pTimer->CurrentTick() - pen->m_tmStungTime;
+    FLOAT tmSinceWounding  = _pTimer->CurrentTick() - pen->m_tmWoundedTime;
+    FLOAT tmSinceStinging  = _pTimer->CurrentTick() - pen->m_tmStungTime;
+    FLOAT tmSinceAcidSpray = _pTimer->CurrentTick() - pen->m_tmAcidTime;
 
     // if player got stung by an abomination
     if(tmSinceStinging < 0.0f) {
       ulR=64, ulG=0, ulB=0; // dark red for stinging
       ulA *= 112 - tmSinceStinging / 2.0f;
+    }
+
+    // if player got damaged by acid
+    if(tmSinceAcidSpray < 0.0f) {
+      ulR=64, ulG=160, ulB=32; // dark green for acid
+      ulA *= 64 - tmSinceAcidSpray / 2.0f;
     }
 
     if( tmSinceWounding < 4.0f) {
@@ -5168,7 +5256,12 @@ functions:
 
     if(tmSinceStinging < 5.0f) {
       // decrease sting screen tint ammount
-      if( tmSinceStinging<0.001f) { ulA = (ulA+64)/2; }
+      if( tmSinceStinging<0.001f) { ulA = (ulA+128)/1.5f; }
+    }
+
+    if(tmSinceAcidSpray < 4.0f) {
+      // decrease acid screen tint ammount
+      if( tmSinceAcidSpray<0.001f) { ulA = (ulA+96)/2; }
     }
 
     // add rest of blend ammount
@@ -5307,10 +5400,11 @@ functions:
     m_fDamageAmmount = 0.0f;
     m_tmWoundedTime  = 0.0f;
     m_tmStungTime       = 0.0f,
+    m_tmAcidTime        = 0.0f,
     m_bIsStung          = FALSE,
     m_bIsBlocking       = FALSE,
     m_bIsOnTurret       = FALSE,
-    m_ulKeys = 0;
+    m_bIsOnController   = FALSE,
 
     // initialize animator
     ((CPlayerAnimator&)*m_penAnimator).Initialize();
@@ -5535,6 +5629,11 @@ functions:
         if( fHealth < fTopHealth) {
           SetHealth(ClampUp(fHealth+fTopHealth/2.0f, fTopHealth));
         }
+      }
+
+      // set keys
+      if(CpmStart.m_iTakeKeys != 0) {
+        m_ulKeys &= ~CpmStart.m_iTakeKeys;
       }
 
       // set weapons
@@ -6089,6 +6188,7 @@ procedures:
     ((CPlayerWeapons&)*m_penWeapons).SendEvent(EReleaseWeapon());
     ((CControllableTurret&)*m_penTurret).SendEvent(EReleaseTurret());
     m_bIsOnTurret = FALSE;
+    m_bIsOnController = FALSE;
 
     // mark player as dead
     SetFlags(GetFlags()&~ENF_ALIVE);
@@ -6400,139 +6500,6 @@ procedures:
     return EReturn();
   }
 
-  AutoAppear(EVoid)
-  {
-    // hide the model
-    SwitchToEditorModel();
-
-    // put it at marker
-    Teleport(GetActionMarker()->GetPlacement());
-    // make it rotate in spawnpose
-    SetPhysicsFlags(GetPhysicsFlags() & ~(EPF_TRANSLATEDBYGRAVITY|EPF_ORIENTEDBYGRAVITY));
-    m_ulFlags|=PLF_AUTOMOVEMENTS;
-    SetDesiredRotation(ANGLE3D(60,0,0));
-    StartModelAnim(PLAYER_ANIM_SPAWNPOSE, AOF_LOOPING);
-    CModelObject &moBody = GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject;
-    moBody.PlayAnim(BODY_ANIM_SPAWNPOSE, AOF_LOOPING);
-
-    // start stardust appearing
-    m_tmSpiritStart = _pTimer->CurrentTick();
-    // wait till it appears
-    autowait(5);
-
-    // start model appearing
-    SwitchToModel();
-    m_tmFadeStart = _pTimer->CurrentTick();
-    // wait till it appears
-    autowait(5);
-    // fixate full opacity
-    COLOR colAlpha = GetModelObject()->mo_colBlendColor;
-    GetModelObject()->mo_colBlendColor = colAlpha|0xFF;
-
-    // put it to normal state
-    SetPhysicsFlags(GetPhysicsFlags() | EPF_TRANSLATEDBYGRAVITY|EPF_ORIENTEDBYGRAVITY);
-    SetDesiredRotation(ANGLE3D(0,0,0));
-    m_ulFlags&=~PLF_AUTOMOVEMENTS;
-
-    // play animation to fall down
-    StartModelAnim(PLAYER_ANIM_SPAWN_FALLDOWN, 0);
-    CModelObject &moBody = GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject;
-    moBody.PlayAnim(BODY_ANIM_SPAWN_FALLDOWN, 0);
-
-    autowait(GetModelObject()->GetCurrentAnimLength());
-
-    // play animation to get up
-    StartModelAnim(PLAYER_ANIM_SPAWN_GETUP, AOF_SMOOTHCHANGE);
-    CModelObject &moBody = GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject;
-    moBody.PlayAnim(BODY_ANIM_SPAWN_GETUP, AOF_SMOOTHCHANGE);
-
-    autowait(GetModelObject()->GetCurrentAnimLength());
-
-    // return to auto-action loop
-    return EReturn();
-  }
-
-  TravellingInBeam()
-  {
-    // put it at marker
-    Teleport(GetActionMarker()->GetPlacement());
-    // make it rotate in spawnpose
-    SetPhysicsFlags(GetPhysicsFlags() & ~(EPF_TRANSLATEDBYGRAVITY|EPF_ORIENTEDBYGRAVITY));
-    m_ulFlags|=PLF_AUTOMOVEMENTS;
-    SetDesiredRotation(ANGLE3D(60,0,0));
-    SetDesiredTranslation(ANGLE3D(0,20.0f,0));
-    StartModelAnim(PLAYER_ANIM_SPAWNPOSE, AOF_LOOPING);
-    CModelObject &moBody = GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject;
-    moBody.PlayAnim(BODY_ANIM_SPAWNPOSE, AOF_LOOPING);
-    // wait till it appears
-    autowait(8.0f);
-    // switch to model
-    SwitchToEditorModel();
-    // return to auto-action loop
-    return EReturn();
-  }
-  
-  LogoFireMinigun(EVoid) 
-  {
-    // put it at marker
-    CPlacement3D pl = GetActionMarker()->GetPlacement();
-    pl.pl_PositionVector += FLOAT3D(0, 0.01f, 0)*GetActionMarker()->en_mRotation;
-    Teleport(pl);
-    en_plViewpoint.pl_OrientationAngle(1) = 20.0f;
-    en_plLastViewpoint.pl_OrientationAngle = en_plViewpoint.pl_OrientationAngle;
-
-    // stand in pose
-    StartModelAnim(PLAYER_ANIM_INTRO, AOF_LOOPING);
-    // remember time for rotating view start
-    m_tmMinigunAutoFireStart = _pTimer->CurrentTick();
-    // wait some time for fade in and to look from left to right with out firing
-    //autowait(0.75f);
-    ((CPlayerWeapons&)*m_penWeapons).SendEvent(EFireWeapon());
-    autowait(2.5f);
-    ((CPlayerWeapons&)*m_penWeapons).SendEvent(EReleaseWeapon());
-
-    // stop minigun shaking
-    CModelObject &moBody = GetModelObject()->GetAttachmentModel(PLAYER_ATTACHMENT_TORSO)->amo_moModelObject;
-    moBody.PlayAnim(BODY_ANIM_MINIGUN_STAND, 0);
-
-    autowait(0.5f);
-
-    // ---------- Apply shake
-    CWorldSettingsController *pwsc = NULL;
-    // obtain bcg viewer
-    CBackgroundViewer *penBcgViewer = (CBackgroundViewer *) GetWorld()->GetBackgroundViewer();
-    if( penBcgViewer != NULL)
-    {
-      pwsc = (CWorldSettingsController *) &*penBcgViewer->m_penWorldSettingsController;
-      pwsc->m_tmShakeStarted = _pTimer->CurrentTick();
-      pwsc->m_vShakePos = GetPlacement().pl_PositionVector;
-      pwsc->m_fShakeFalloff = 250.0f;
-      pwsc->m_fShakeFade = 3.0f;
-
-      pwsc->m_fShakeIntensityZ = 0.1f*2.0f;
-      pwsc->m_tmShakeFrequencyZ = 5.0f;
-      pwsc->m_fShakeIntensityY = 0.0f;
-      pwsc->m_fShakeIntensityB = 0.0f;
-
-      pwsc->m_bShakeFadeIn = FALSE;
-
-      /*
-      pwsc->m_fShakeIntensityY = 0.1f*2.0f;
-      pwsc->m_tmShakeFrequencyY = 5.0f;
-      pwsc->m_fShakeIntensityB = 2.5f*1.5f;
-      pwsc->m_tmShakeFrequencyB = 7.2f;
-      */
-    }
-
-    // stop rotating body
-    m_tmMinigunAutoFireStart = -1;
-    autowait(5.0f);
-    IFeel_StopEffect(NULL);
-    autowait(5.0f);
-
-    return EReturn();
-  }
-
   AutoStoreWeapon(EVoid) 
   {
     // store current weapon slowly
@@ -6594,20 +6561,6 @@ procedures:
         autowait(GetActionMarker()->m_tmWait);
 
       // if should teleport here
-      } else if (GetActionMarker()->m_paaAction==PAA_APPEARING) {
-        autocall AutoAppear() EReturn;
-      } else if (GetActionMarker()->m_paaAction==PAA_TRAVELING_IN_BEAM) {
-        autocall TravellingInBeam() EReturn;
-      } else if (GetActionMarker()->m_paaAction==PAA_INTROSE_SELECT_WEAPON) {
-        // order playerweapons to select weapon
-        ESelectWeapon eSelect;
-        eSelect.iWeapon = 1;
-        ((CPlayerWeapons&)*m_penWeapons).SendEvent(eSelect);
-      } else if (GetActionMarker()->m_paaAction==PAA_LOGO_FIRE_INTROSE) {
-        autocall LogoFireMinigun() EReturn;
-      } else if (GetActionMarker()->m_paaAction==PAA_LOGO_FIRE_MINIGUN) {
-        autocall LogoFireMinigun() EReturn;
-      // if should appear here
       } else if (GetActionMarker()->m_paaAction==PAA_TELEPORT) {
         autocall AutoTeleport() EReturn;
 
@@ -6806,7 +6759,7 @@ procedures:
     m_soFootJump.Set3DParameters(20.0f, 2.0f, 1.0f, 1.0f);
     m_soBody.Set3DParameters(25.0f, 5.0f, 1.0f, 1.0f);
     m_soMessage.Set3DParameters(25.0f, 5.0f, 1.0f, 1.0f);
-    m_soSniperZoom.Set3DParameters(25.0f, 5.0f, 1.0f, 1.0f);
+    m_soEffect.Set3DParameters( 25.0f, 5.0f, 2.0f, 1.0f);
       
     // setup light source
     SetupLightSource();
@@ -6948,6 +6901,36 @@ procedures:
           if(penPushable->m_bPushable) {
             penPushable->GiveImpulseTranslationAbsolute(FLOAT3D(vPush(1), 0.0f, vPush(3)));
           }
+        }
+
+        if(IsOfClass(eTouch.penOther, "UZSkaModelHolder")) {
+          FLOAT3D vPush = eTouch.penOther->GetPlacement().pl_PositionVector - GetPlacement().pl_PositionVector;
+          CUZSkaModelHolder *penPushable = (CUZSkaModelHolder*)&*eTouch.penOther;
+          switch(penPushable->m_pmwType)
+          {
+            case PMWT_SMALL: vPush *= 2.0f; break;
+            case PMWT_MEDIUM: vPush *= 1.65f; break;
+            case PMWT_BIG: vPush *= 1.35f; break;
+            case PMWT_HUGE: vPush *= 1.1f; break;
+            default: break;
+          }
+          if(penPushable->m_bPushable) {
+            penPushable->GiveImpulseTranslationAbsolute(FLOAT3D(vPush(1), 0.0f, vPush(3)));
+          }
+        }
+
+        if(IsOfClass(eTouch.penOther, "ExplosiveBarrel")) {
+          FLOAT3D vPush = eTouch.penOther->GetPlacement().pl_PositionVector - GetPlacement().pl_PositionVector;
+          CExplosiveBarrel *penPushable = (CExplosiveBarrel*)&*eTouch.penOther;
+          switch(penPushable->m_pmwType)
+          {
+            case PMWT_SMALL: vPush *= 2.0f; break;
+            case PMWT_MEDIUM: vPush *= 1.65f; break;
+            case PMWT_BIG: vPush *= 1.35f; break;
+            case PMWT_HUGE: vPush *= 1.1f; break;
+            default: break;
+          }
+          penPushable->GiveImpulseTranslationAbsolute(FLOAT3D(vPush(1), 0.0f, vPush(3)));
         }
 
         resume;

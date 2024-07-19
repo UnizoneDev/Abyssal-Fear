@@ -27,9 +27,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 extern INDEX gap_iOptimizeDepthReads;
-#ifdef SE1_D3D
-extern COLOR UnpackColor_D3D( UBYTE *pd3dColor, D3DFORMAT d3dFormat, SLONG &slColorSize);
-#endif // SE1_D3D
 
 static INDEX _iCheckIteration = 0;
 static CTimerValue _tvLast[8];  // 8 is max mirror recursion
@@ -45,21 +42,14 @@ struct DepthInfo {
   INDEX di_iMirrorLevel;      // level of mirror recursion in which flare is
   BOOL  di_bVisible;          // whether the point was visible
 };
-CStaticStackArray<DepthInfo> _adiDelayed;  // active delayed points
-// don't ask, these are  for D3D
-CStaticStackArray<CTVERTEX> _avtxDelayed;  
-CStaticStackArray<COLOR>    _acolDelayed;  
+CStaticStackArray<DepthInfo> _adiDelayed;  // active delayed points 
 
 // read depth buffer and update visibility flag of depth points
 static void UpdateDepthPointsVisibility( const CDrawPort *pdp, const INDEX iMirrorLevel,
                                          DepthInfo *pdi, const INDEX ctCount)
 {
   const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
-#ifdef SE1_D3D
-  ASSERT(eAPI == GAT_OGL || eAPI == GAT_D3D || eAPI == GAT_NONE);
-#else // SE1_D3D
   ASSERT(eAPI == GAT_OGL || eAPI == GAT_NONE);
-#endif // SE1_D3D
   ASSERT( pdp!=NULL && ctCount>0);
   const CRaster *pra = pdp->dp_Raster;
 
@@ -83,116 +73,6 @@ static void UpdateDepthPointsVisibility( const CDrawPort *pdp, const INDEX iMirr
     _sfStats.StopTimer(CStatForm::STI_GFXAPI);
     return;
   }
-
-  // Direct3D
-#ifdef SE1_D3D
-  if( eAPI==GAT_D3D)
-  {
-    _sfStats.StartTimer(CStatForm::STI_GFXAPI);
-    // ok, this will get really complicated ...
-    // We'll have to do it thru back buffer because darn DX8 won't let us have values from z-buffer;
-    // Anyway, we'll lock backbuffer, read color from the lens location and try to write little triangle there
-    // with slightly modified color. Then we'll readout that color and see if triangle passes z-test. Voila! :)
-    // P.S. To avoid lock-modify-lock, we need to batch all the locks in one. Uhhhh ... :(
-    COLOR col;
-    INDEX idi;
-    SLONG slColSize;
-    HRESULT hr;
-    D3DLOCKED_RECT rectLocked;
-    D3DSURFACE_DESC surfDesc;
-    LPDIRECT3DSURFACE8 pBackBuffer;
-    // fetch back buffer (different for full screen and windowed mode)
-    const BOOL bFullScreen = _pGfx->gl_ulFlags & GLF_FULLSCREEN;
-    if( bFullScreen) {
-      hr = _pGfx->gl_pd3dDevice->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer);
-    } else {
-      hr = pra->ra_pvpViewPort->vp_pSwapChain->GetBackBuffer( 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer);
-    }
-    // what, cannot get a back buffer?
-    if( hr!=D3D_OK) { 
-      // to hell with it all
-      _sfStats.StopTimer(CStatForm::STI_GFXAPI);
-      return;
-    }
-    // keep format of back-buffer
-    pBackBuffer->GetDesc(&surfDesc);
-    const D3DFORMAT d3dfBack = surfDesc.Format;
-    
-    // prepare array that'll back-buffer colors from depth point locations
-    _acolDelayed.Push(ctCount);
-    // store all colors
-    for( idi=0; idi<ctCount; idi++) {
-      DepthInfo &di = pdi[idi];
-      // skip if not in required mirror level or was already checked in this iteration
-      if( iMirrorLevel!=di.di_iMirrorLevel || _iCheckIteration!=di.di_iSwapLastRequest) continue;
-      // fetch pixel
-      _acolDelayed[idi] = 0;
-      const RECT rectToLock = { di.di_pixI, di.di_pixJ, di.di_pixI+1, di.di_pixJ+1 };
-      hr = pBackBuffer->LockRect( &rectLocked, &rectToLock, D3DLOCK_READONLY);
-      if( hr!=D3D_OK) continue; // skip if lock didn't make it
-      // read, convert and store original color
-      _acolDelayed[idi] = UnpackColor_D3D( (UBYTE*)rectLocked.pBits, d3dfBack, slColSize) | CT_OPAQUE;
-      pBackBuffer->UnlockRect();
-    }
-
-    // prepare to draw little triangles there with slightly adjusted colors
-    _sfStats.StopTimer(CStatForm::STI_GFXAPI);
-    gfxEnableDepthTest();
-    gfxDisableDepthWrite();
-    gfxDisableBlend();
-    gfxDisableAlphaTest();
-    gfxDisableTexture();
-    _sfStats.StartTimer(CStatForm::STI_GFXAPI);
-    // prepare array and shader
-    _avtxDelayed.Push(ctCount*3);
-    d3dSetVertexShader(D3DFVF_CTVERTEX);
-
-    // draw one trianle around each depth point
-    INDEX ctVertex = 0;
-    for( idi=0; idi<ctCount; idi++) {
-      DepthInfo &di = pdi[idi];
-      col = _acolDelayed[idi];
-      // skip if not in required mirror level or was already checked in this iteration, or wasn't fetched at all
-      if( iMirrorLevel!=di.di_iMirrorLevel || _iCheckIteration!=di.di_iSwapLastRequest || col==0) continue;
-      const ULONG d3dCol = rgba2argb(col^0x20103000);
-      const PIX pixI = di.di_pixI - pdp->dp_MinI; // convert raster loc to drawport loc
-      const PIX pixJ = di.di_pixJ - pdp->dp_MinJ;
-      // batch it and advance to next triangle
-      CTVERTEX &vtx0 = _avtxDelayed[ctVertex++];
-      CTVERTEX &vtx1 = _avtxDelayed[ctVertex++];
-      CTVERTEX &vtx2 = _avtxDelayed[ctVertex++];
-      vtx0.fX=pixI;   vtx0.fY=pixJ-2; vtx0.fZ=di.di_fOoK; vtx0.ulColor=d3dCol; vtx0.fU=vtx0.fV=0;
-      vtx1.fX=pixI-2; vtx1.fY=pixJ+2; vtx1.fZ=di.di_fOoK; vtx1.ulColor=d3dCol; vtx1.fU=vtx0.fV=0;
-      vtx2.fX=pixI+2; vtx2.fY=pixJ;   vtx2.fZ=di.di_fOoK; vtx2.ulColor=d3dCol; vtx2.fU=vtx0.fV=0;
-    }
-    // draw a bunch
-    hr = _pGfx->gl_pd3dDevice->DrawPrimitiveUP( D3DPT_TRIANGLELIST, ctVertex/3, &_avtxDelayed[0], sizeof(CTVERTEX));
-    D3D_CHECKERROR(hr);
-
-    // readout colors again and compare to old ones
-    for( idi=0; idi<ctCount; idi++) {
-      DepthInfo &di = pdi[idi];
-      col = _acolDelayed[idi];
-      // skip if not in required mirror level or was already checked in this iteration, or wasn't fetched at all
-      if( iMirrorLevel!=di.di_iMirrorLevel || _iCheckIteration!=di.di_iSwapLastRequest || col==0) continue;
-      // fetch pixel
-      const RECT rectToLock = { di.di_pixI, di.di_pixJ, di.di_pixI+1, di.di_pixJ+1 };
-      hr = pBackBuffer->LockRect( &rectLocked, &rectToLock, D3DLOCK_READONLY);
-      if( hr!=D3D_OK) continue; // skip if lock didn't make it
-      // read new color
-      const COLOR colNew = UnpackColor_D3D( (UBYTE*)rectLocked.pBits, d3dfBack, slColSize) | CT_OPAQUE;
-      pBackBuffer->UnlockRect();
-      // if we managed to write adjusted color, point is visible!
-      di.di_bVisible = (col!=colNew);
-    }
-    // phew, done! :)
-    D3DRELEASE( pBackBuffer, TRUE);
-    _acolDelayed.PopAll();
-    _avtxDelayed.PopAll();
-    _sfStats.StopTimer(CStatForm::STI_GFXAPI);
-    return;
-  }
-#endif // SE1_D3D
 }
 
 

@@ -501,6 +501,11 @@ typedef CSelection<CBrushPolygon, BPOF_SELECTEDFORCSG> CBrushPolygonSelectionFor
 #define BSCTF_PRELOADEDBSP       (1L<<0)   // bsp is loaded, no need to calculate it
 #define BSCTF_PRELOADEDLINKS     (1L<<1)   // portallinks are loaded, no need to calculate them
 
+// [Uni] new sector flags
+#define BSC3F_NOSOUND (1L<<0)  // disable hearing in this sector
+#define BSC3F_NOSMELL (1L<<1)  // disable smelling in this sector
+#define BSC3F_NOSIGHT (1L<<2)  // disable seeing in this sector
+
 // a sector in brush
 class ENGINE_API CBrushSector {
 public:
@@ -536,6 +541,7 @@ public:
   ULONG bsc_ulFlags2;                                 // second set of flags
   ULONG bsc_ulTempFlags;                              // flags that are not saved
   ULONG bsc_ulVisFlags;                               // special visibility flags
+  ULONG bsc_ulFlags3;                                 // [Uni] third set of flags
   FLOATaabbox3D bsc_boxBoundingBox;                   // bounding box in absolute space
   FLOATaabbox3D bsc_boxRelative;                      // bounding box in relative space
   CListNode bsc_lnInActiveSectors; // node in sectors active in some operation (e.g. rendering)

@@ -37,6 +37,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "Models/Weapons/MetalPipe/PipeWeapon.h"
 #include "Models/Weapons/StrongPistol/StrongPistolItem.h"
 #include "Models/Weapons/StrongPistol/StrongPistolViewmodel.h"
+#include "Models/Weapons/WoodenPlank/PlankWeapon.h"
+#include "Models/Weapons/WoodenPlank/PlankViewmodel.h"
 
 // Mission Pack player body instead of the old one
 #include "Models/Player/Uni/Body.h"
@@ -49,9 +51,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/MessageHolder.h"
 #include "EntitiesMP/EnemyBase.h"
 #include "EntitiesMP/ControllableTurret.h"
+#include "EntitiesMP/ControllableSwitch.h"
+#include "EntitiesMP/SkaSwitch.h"
+#include "EntitiesMP/Twitcher.h"
 extern INDEX hud_bShowWeapon;
 
-extern const INDEX aiWeaponsRemap[9] = { 0,  1,  2,  3,  7,  4,  8,  5,  6 };
+extern const INDEX aiWeaponsRemap[10] = { 0,  1,  2,  3,  9,  7,  4,  8,  5,  6 };
 
 %}
 
@@ -64,6 +69,8 @@ uses "EntitiesMP/WeaponItem";
 uses "EntitiesMP/AmmoItem";
 uses "EntitiesMP/ModelHolder2";
 uses "EntitiesMP/ModelHolder3";
+uses "EntitiesMP/UZModelHolder";
+uses "EntitiesMP/UZSkaModelHolder";
 
 
 // input parameter for weapons
@@ -91,6 +98,8 @@ event EAltReleaseWeapon {};
 
 // reload weapon
 event EReloadWeapon {};
+// reloadrelease weapon
+event EReloadReleaseWeapon {};
 // holster weapon
 event EHolsterWeapon {};
 // drop weapon
@@ -109,7 +118,8 @@ enum WeaponType {
   6 WEAPON_SMG                "",
   7 WEAPON_PIPE               "",
   8 WEAPON_STRONGPISTOL       "",
-  9 WEAPON_LAST               "",
+  9 WEAPON_PLANK              "",
+ 10 WEAPON_LAST               "",
 }; // see 'WEAPONS_ALLAVAILABLEMASK' -> (11111111 == 0x3FFFFF)
 
 %{
@@ -189,6 +199,8 @@ CTFileName fn1 = CTFILENAME("Textures\\Interface\\Crosshairs\\Crosshair1.tex");
 CTFileName fn2 = CTFILENAME("Textures\\Interface\\Crosshairs\\Crosshair2.tex");
 CTFileName fn3 = CTFILENAME("Textures\\Interface\\Crosshairs\\Crosshair3.tex");
 CTFileName fn4 = CTFILENAME("Textures\\Interface\\Crosshairs\\Crosshair4.tex");
+CTFileName fn5 = CTFILENAME("Textures\\Interface\\Crosshairs\\Crosshair5.tex");
+CTFileName fn6 = CTFILENAME("Textures\\Interface\\Crosshairs\\Crosshair6.tex");
 
 void CPlayerWeapons_Precache(ULONG ulAvailable)
 {
@@ -218,8 +230,12 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
     pdec->PrecacheModel(MODEL_KNIFEITEM             );
     pdec->PrecacheTexture(TEXTURE_KNIFEITEM         );
     pdec->PrecacheSound(SOUND_KNIFE_SWING           );
-    pdec->PrecacheSound(SOUND_KNIFE_SLASH           );
-    pdec->PrecacheSound(SOUND_KNIFE_HIT             );
+    pdec->PrecacheSound(SOUND_KNIFE_CLANK           );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT1            );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT2            );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT3            );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT4            );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT5            );
   }
 
   if ( ulAvailable&(1<<(WEAPON_PISTOL-1)) ) {
@@ -228,12 +244,12 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
     pdec->PrecacheTexture(TEXTURE_PISTOLITEM       );
     pdec->PrecacheSound(SOUND_PISTOL_FIRE          );
     pdec->PrecacheSound(SOUND_PISTOL_RELOAD        );
-    pdec->PrecacheSound(SOUND_PIPE_HIT1          );
-    pdec->PrecacheSound(SOUND_PIPE_HIT2          );
-    pdec->PrecacheSound(SOUND_PIPE_HIT3          );
-    pdec->PrecacheSound(SOUND_PIPE_HIT4          );
-    pdec->PrecacheSound(SOUND_KNIFE_SWING        );
-    pdec->PrecacheSound(SOUND_PIPE_BANG          );
+    pdec->PrecacheSound(SOUND_PIPE_HIT1            );
+    pdec->PrecacheSound(SOUND_PIPE_HIT2            );
+    pdec->PrecacheSound(SOUND_PIPE_HIT3            );
+    pdec->PrecacheSound(SOUND_PIPE_HIT4            );
+    pdec->PrecacheSound(SOUND_KNIFE_SWING          );
+    pdec->PrecacheSound(SOUND_PIPE_BANG            );
   }
 
   // precache other weapons if available
@@ -242,8 +258,12 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
     pdec->PrecacheModel(MODEL_AXEITEM             );
     pdec->PrecacheTexture(TEXTURE_AXEITEM         );
     pdec->PrecacheSound(SOUND_KNIFE_SWING         );
-    pdec->PrecacheSound(SOUND_KNIFE_SLASH         );
-    pdec->PrecacheSound(SOUND_KNIFE_HIT           );
+    pdec->PrecacheSound(SOUND_KNIFE_CLANK         );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT1          );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT2          );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT3          );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT4          );
+    pdec->PrecacheSound(SOUND_KNIFE_HIT5          );
   }
 
   if ( ulAvailable&(1<<(WEAPON_SHOTGUN-1)) ) {
@@ -251,6 +271,7 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
     pdec->PrecacheModel(MODEL_SHOTGUNITEM           );
     pdec->PrecacheTexture(TEXTURE_SHOTGUNITEM       );
     pdec->PrecacheSound(SOUND_SHOTGUN_FIRE          );
+    pdec->PrecacheSound(SOUND_SHOTGUN_PUMP          );
     pdec->PrecacheSound(SOUND_SHOTGUN_RELOAD        );
   }
 
@@ -280,12 +301,24 @@ void CPlayerWeapons_Precache(ULONG ulAvailable)
     pdec->PrecacheTexture(TEXTURE_STRONGPISTOLITEM );
     pdec->PrecacheSound(SOUND_STRONGPISTOL_FIRE    );
     pdec->PrecacheSound(SOUND_PISTOL_RELOAD        );
+    pdec->PrecacheSound(SOUND_PIPE_HIT1            );
+    pdec->PrecacheSound(SOUND_PIPE_HIT2            );
+    pdec->PrecacheSound(SOUND_PIPE_HIT3            );
+    pdec->PrecacheSound(SOUND_PIPE_HIT4            );
+    pdec->PrecacheSound(SOUND_KNIFE_SWING          );
+    pdec->PrecacheSound(SOUND_PIPE_BANG            );
+  }
+
+  if ( ulAvailable&(1<<(WEAPON_PLANK-1)) ) {
+    pdec->PrecacheModel(MODEL_PLANK              );
+    pdec->PrecacheModel(MODEL_PLANKITEM          );
+    pdec->PrecacheTexture(TEXTURE_PLANKITEM      );
     pdec->PrecacheSound(SOUND_PIPE_HIT1          );
     pdec->PrecacheSound(SOUND_PIPE_HIT2          );
     pdec->PrecacheSound(SOUND_PIPE_HIT3          );
     pdec->PrecacheSound(SOUND_PIPE_HIT4          );
     pdec->PrecacheSound(SOUND_KNIFE_SWING        );
-    pdec->PrecacheSound(SOUND_PIPE_BANG          );
+    pdec->PrecacheSound(SOUND_PLANK_BANG         );
   }
 
   // precache animator too
@@ -414,22 +447,23 @@ components:
   1 class   CLASS_PROJECTILE        "Classes\\Projectile.ecl",
   2 class   CLASS_BULLET            "Classes\\Bullet.ecl",
   3 class   CLASS_WEAPONEFFECT      "Classes\\PlayerWeaponsEffects.ecl",
-  4 class   CLASS_PIPEBOMB          "Classes\\Pipebomb.ecl",
-  5 class   CLASS_GHOSTBUSTERRAY    "Classes\\GhostBusterRay.ecl",
-  6 class   CLASS_CANNONBALL        "Classes\\CannonBall.ecl",
-  7 class   CLASS_WEAPONITEM        "Classes\\WeaponItem.ecl",
-  8 class   CLASS_BASIC_EFFECT      "Classes\\BasicEffect.ecl",
+  4 class   CLASS_WEAPONITEM        "Classes\\WeaponItem.ecl",
+  5 class   CLASS_BASIC_EFFECT      "Classes\\BasicEffect.ecl",
 
 // ************** HAND **************
  10 texture TEXTURE_HAND                "Models\\Weapons\\Arm.tex",
 
 // ************** KNIFE **************
  20 model   MODEL_KNIFEITEM             "Models\\Weapons\\Knife\\KnifeWeapon.mdl",
- 21 texture TEXTURE_KNIFEITEM           "Models\\Weapons\\Knife\\KnifeWeaponNew.tex",
+ 21 texture TEXTURE_KNIFEITEM           "Models\\Weapons\\Knife\\KnifeItem.tex",
  22 model   MODEL_KNIFE                 "Models\\Weapons\\Knife\\KnifeViewmodel.mdl",
  23 sound   SOUND_KNIFE_SWING           "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
- 24 sound   SOUND_KNIFE_SLASH           "Models\\Weapons\\Knife\\Sounds\\Slash.wav",
- 25 sound   SOUND_KNIFE_HIT             "Models\\Weapons\\Knife\\Sounds\\Hit.wav",
+ 24 sound   SOUND_KNIFE_CLANK           "Models\\Weapons\\Knife\\Sounds\\Hit.wav",
+ 25 sound   SOUND_KNIFE_HIT1            "Sounds\\Weapons\\MetalBladeSlice1.wav",
+ 26 sound   SOUND_KNIFE_HIT2            "Sounds\\Weapons\\MetalBladeSlice2.wav",
+ 27 sound   SOUND_KNIFE_HIT3            "Sounds\\Weapons\\MetalBladeSlice3.wav",
+ 28 sound   SOUND_KNIFE_HIT4            "Sounds\\Weapons\\MetalBladeSlice4.wav",
+ 29 sound   SOUND_KNIFE_HIT5            "Sounds\\Weapons\\MetalBladeSlice5.wav",
  
 // ************** PISTOL **************
  30 model   MODEL_PISTOL                "Models\\Weapons\\Pistol\\PistolViewmodel.mdl",
@@ -448,8 +482,9 @@ components:
  50 model   MODEL_SHOTGUN                "Models\\Weapons\\Shotgun\\ShotgunViewmodel.mdl",
  51 model   MODEL_SHOTGUNITEM            "Models\\Weapons\\Shotgun\\ShotgunItem.mdl",
  52 texture TEXTURE_SHOTGUNITEM          "Models\\Weapons\\Shotgun\\Shotgun.tex",
- 53 sound   SOUND_SHOTGUN_FIRE           "Models\\NPCs\\Gunman\\Sounds\\ShotgunAttack.wav",
+ 53 sound   SOUND_SHOTGUN_FIRE           "Models\\NPCs\\Gunman\\Sounds\\ShotgunAttackNoPump.wav",
  54 sound   SOUND_SHOTGUN_RELOAD         "Models\\NPCs\\Gunman\\Sounds\\ShotgunReload.wav",
+ 55 sound   SOUND_SHOTGUN_PUMP           "Models\\NPCs\\Gunman\\Sounds\\ShotgunPumpNew.wav",
 
 // ************** SMG **************
  60 model   MODEL_SMG                "Models\\Weapons\\SMG\\SMGViewmodel.mdl",
@@ -473,6 +508,12 @@ components:
  81 model   MODEL_STRONGPISTOLITEM            "Models\\Weapons\\StrongPistol\\StrongPistolItem.mdl",
  82 texture TEXTURE_STRONGPISTOLITEM          "Models\\Weapons\\StrongPistol\\StrongPistol.tex",
  83 sound   SOUND_STRONGPISTOL_FIRE           "Models\\NPCs\\Gunman\\Sounds\\StrongPistolAttack.wav",
+
+// ************** WOODEN PLANK **************
+ 84 model   MODEL_PLANKITEM            "Models\\Weapons\\WoodenPlank\\PlankWeapon.mdl",
+ 85 texture TEXTURE_PLANKITEM          "Models\\Weapons\\WoodenPlank\\WoodenPlank.tex",
+ 86 model   MODEL_PLANK                "Models\\Weapons\\WoodenPlank\\PlankViewmodel.mdl",
+ 87 sound   SOUND_PLANK_BANG           "Sounds\\Weapons\\WoodenPlankBang.wav",
 
 // ************** REFLECTIONS **************
 200 texture TEX_REFL_BWRIPLES01         "Models\\ReflectionTextures\\BWRiples01.tex",
@@ -533,6 +574,11 @@ functions:
   BOOL HoldingAltFire(void)
   {
     return m_bAltFireWeapon && !m_bChangeWeapon;
+  }
+
+  BOOL HoldingReload(void)
+  {
+    return m_bReloadWeapon && !m_bChangeWeapon;
   }
 
 
@@ -624,10 +670,15 @@ functions:
     CPlayerAnimator &plan = (CPlayerAnimator&)*((CPlayer&)*m_penPlayer).m_penAnimator;
     FLOAT fXOffset = Lerp(plan.m_fMoveLastBanking, plan.m_fMoveBanking, _pTimer->GetLerpFactor()) * -0.02f;
     FLOAT fYOffset = Lerp(plan.m_fWeaponYLastOffset, plan.m_fWeaponYOffset, _pTimer->GetLerpFactor()) * 0.15f;
-    fYOffset += (fXOffset * fXOffset) * 30.0f;
+
+    if(GetPlayer()->en_vCurrentTranslationAbsolute.Length() > 5.0f) {
+      fYOffset += (fXOffset * fXOffset) * 30.0f;
+    } else {
+      fYOffset += (fXOffset * fXOffset) * 20.0f;
+    }
+
     plPos(1) += fXOffset;
     plPos(2) += fYOffset;
-    
   };
 
   // check target for time prediction updating
@@ -791,6 +842,34 @@ functions:
             else { m_strLastTarget = TRANS("Use"); }
             m_tmLastTarget = tmNow+0.5f;
           }
+        }
+        // if controllable switch and near enough
+        if( IsOfClass( pen, "ControllableSwitch")) {
+          CControllableSwitch &enControllableSwitch = (CControllableSwitch&)*pen;
+
+          // if switch is useable
+          if ((m_fRayHitDistance < enControllableSwitch.GetDistance()) && enControllableSwitch.m_bUseable) {
+            // show switch message
+            if( enControllableSwitch.m_strMessage!="") { m_strLastTarget = enControllableSwitch.m_strMessage; }
+            else { m_strLastTarget = TRANS("Use"); }
+            m_tmLastTarget = tmNow+0.5f;
+          }
+        }
+        // if SKA switch and near enough
+        if( IsOfClass( pen, "SkaSwitch")) {
+          CSkaSwitch &enSkaSwitch = (CSkaSwitch&)*pen;
+
+          // if ska switch is useable
+          if ((m_fRayHitDistance < enSkaSwitch.GetDistance()) && enSkaSwitch.m_bUseable) {
+            // show switch message
+            if( enSkaSwitch.m_strMessage!="") { m_strLastTarget = enSkaSwitch.m_strMessage; }
+            else { m_strLastTarget = TRANS("Use"); }
+            m_tmLastTarget = tmNow+0.5f;
+          }
+        }
+        // if item and near enough
+        if( IsDerivedFromClass( pen, "Item")) {
+          
         }
       }
     }
@@ -1103,6 +1182,13 @@ functions:
         AddAttachmentToModel(this, mo, STRONGPISTOLITEM_ATTACHMENT_FLARE_MUZZLE, MODEL_FLARE01, TEXTURE_FLARE01, 0, 0, 0);
         m_moWeapon.PlayAnim(STRONGPISTOLVIEWMODEL_ANIM_IDLE, 0);
         break; }
+      // plank
+      case WEAPON_PLANK: {
+        SetComponents(this, m_moWeapon, MODEL_PLANK, TEXTURE_HAND, 0, 0, 0);
+        AddAttachmentToModel(this, m_moWeapon, PLANKVIEWMODEL_ATTACHMENT_WOODENPLANK, MODEL_PLANKITEM, 
+                             TEXTURE_PLANKITEM, 0, 0, 0);
+        m_moWeapon.PlayAnim(PLANKVIEWMODEL_ANIM_IDLE, 0);
+        break; }
     }
   };
 
@@ -1229,7 +1315,7 @@ functions:
    */
 
   // cut in front of you with knife
-  BOOL CutWithKnife(FLOAT fX, FLOAT fY, FLOAT fRange, FLOAT fWide, FLOAT fThickness, FLOAT fDamage, enum DamageType dmtType) 
+  BOOL CutWithKnife(FLOAT fX, FLOAT fY, FLOAT fRange, FLOAT fWide, FLOAT fThickness, FLOAT fDamage, enum DamageType dmtType, enum DamageBodyPartType dbptBodyPart) 
   {
     // knife start position
     CPlacement3D plKnife;
@@ -1296,6 +1382,37 @@ functions:
               m_bMeleeHitModel = TRUE;
               bRender=FALSE;
             }
+            else if( IsOfClass(crRay.cr_penHit, "UZSkaModelHolder"))
+            {
+              m_bMeleeHitModel = TRUE;
+              bRender = TRUE;
+              CUZSkaModelHolder *puzmh=(CUZSkaModelHolder*)crRay.cr_penHit;
+              switch(puzmh->m_pmmType)
+              {
+                case PMMT_WOOD:
+                case PMMT_WOODGLASS:
+                  sptType = SPT_WOOD;
+                  break;
+                case PMMT_FLESH:
+                  sptType = SPT_BLOOD;
+                  break;
+                case PMMT_LEAVES:
+                  sptType = SPT_WOOD;
+                  break;
+                case PMMT_CONCRETE:
+                case PMMT_STONE:
+                  sptType = SPT_STONES;
+                  break;
+                case PMMT_METAL:
+                  sptType = SPT_METAL;
+                  break;
+                case PMMT_GLASS:
+                  sptType = SPT_GLASS;
+                  break;
+                default: break;
+              }
+              colParticles=puzmh->m_colBurning;
+            }
             else if( IsDerivedFromClass(crRay.cr_penHit, "Enemy Base"))
             {
               CEnemyBase &eb = (CEnemyBase&)*crRay.cr_penHit;
@@ -1314,6 +1431,26 @@ functions:
                 }
               } else {
                 m_bMeleeHitEnemy = TRUE;
+              }
+
+              if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("Head")) {
+                dbptBodyPart = DBPT_HEAD;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("Neck")) {
+                dbptBodyPart = DBPT_NECK;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("Pelvis")) {
+                dbptBodyPart = DBPT_GROIN;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("LowerTorso")) {
+                dbptBodyPart = DBPT_GUT;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("L_Hand")) {
+                dbptBodyPart = DBPT_LEFTHAND;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("R_Hand")) {
+                dbptBodyPart = DBPT_RIGHTHAND;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("L_Foot")) {
+                dbptBodyPart = DBPT_LEFTFOOT;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("R_Foot")) {
+                dbptBodyPart = DBPT_RIGHTFOOT;
+              } else {
+                dbptBodyPart = DBPT_GENERIC;
               }
             }
             else if( IsOfClass(crRay.cr_penHit, "Player"))
@@ -1334,6 +1471,26 @@ functions:
                 }
               } else {
                 m_bMeleeHitEnemy = TRUE;
+              }
+
+              if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("Head")) {
+                dbptBodyPart = DBPT_HEAD;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("Neck")) {
+                dbptBodyPart = DBPT_NECK;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("Pelvis")) {
+                dbptBodyPart = DBPT_GROIN;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("LowerTorso")) {
+                dbptBodyPart = DBPT_GUT;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("L_Hand")) {
+                dbptBodyPart = DBPT_LEFTHAND;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("R_Hand")) {
+                dbptBodyPart = DBPT_RIGHTHAND;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("L_Foot")) {
+                dbptBodyPart = DBPT_LEFTFOOT;
+              } else if(crRay.cr_iBoneHit == ska_GetIDFromStringTable("R_Foot")) {
+                dbptBodyPart = DBPT_RIGHTFOOT;
+              } else {
+                dbptBodyPart = DBPT_GENERIC;
               }
             }
             FLOATaabbox3D boxCutted=FLOATaabbox3D(FLOAT3D(0,0,0),FLOAT3D(1,1,1));
@@ -1363,6 +1520,37 @@ functions:
               }
               CModelHolder2 *pmh2=(CModelHolder2*)crRay.cr_penHit;
               colParticles=pmh2->m_colBurning;
+            }
+            else if( IsOfClass(crRay.cr_penHit, "UZModelHolder"))
+            {
+              m_bMeleeHitModel = TRUE;
+              bRender = TRUE;
+              CUZModelHolder *puzmh=(CUZModelHolder*)crRay.cr_penHit;
+              switch(puzmh->m_pmmType)
+              {
+                case PMMT_WOOD:
+                case PMMT_WOODGLASS:
+                  sptType = SPT_WOOD;
+                  break;
+                case PMMT_FLESH:
+                  sptType = SPT_BLOOD;
+                  break;
+                case PMMT_LEAVES:
+                  sptType = SPT_WOOD;
+                  break;
+                case PMMT_CONCRETE:
+                case PMMT_STONE:
+                  sptType = SPT_STONES;
+                  break;
+                case PMMT_METAL:
+                  sptType = SPT_METAL;
+                  break;
+                case PMMT_GLASS:
+                  sptType = SPT_GLASS;
+                  break;
+                default: break;
+              }
+              colParticles=puzmh->m_colBurning;
             }
             else if( IsDerivedFromClass(crRay.cr_penHit, "Enemy Base"))
             {
@@ -1419,19 +1607,40 @@ functions:
     }
     // if any model hit
     if (penClosest!=NULL) {
-      // in deathmatches check for backstab
-      if (!(GetSP()->sp_bCooperative) && IsOfClass(penClosest, "Player")) {
+      // when the knife is selected check for backstab
+      if (m_iCurrentWeapon == WEAPON_KNIFE && (IsOfClass(penClosest, "Player")
+                                            || IsOfClass(penClosest, "Twitcher")
+                                            || IsOfClass(penClosest, "Stalker")
+                                            || IsOfClass(penClosest, "Shambler"))) {
         FLOAT3D vToTarget = penClosest->GetPlacement().pl_PositionVector - m_penPlayer->GetPlacement().pl_PositionVector;
         FLOAT3D vTargetHeading = FLOAT3D(0.0, 0.0, -1.0f)*penClosest->GetRotationMatrix();
         vToTarget.Normalize(); vTargetHeading.Normalize();
         if (vToTarget%vTargetHeading>0.64279) //CosFast(50.0f)
         {
-          PrintCenterMessage(this, m_penPlayer, TRANS("Backstab!"), 4.0f, MSS_NONE, FNT_NORMAL, 0.5f, 0.85f, POS_CENTER);
-          fDamage *= 4.0f;
+          if(IsOfClass(penClosest, "Twitcher")) {
+            CTwitcher *penTwitcher = (CTwitcher *)penClosest;
+            if(penTwitcher->m_twChar == TWC_DISEASED || penTwitcher->m_twChar == TWC_DISEASEDBLOODY
+            || penTwitcher->m_twChar == TWC_DISEASEDFORSAKEN || penTwitcher->m_twChar == TWC_DISEASEDFORSAKEN2
+            || penTwitcher->m_twChar == TWC_DISEASEDFORSAKEN3 || penTwitcher->m_twChar == TWC_DISEASEDFORSAKEN4
+            || penTwitcher->m_twChar == TWC_DISEASEDFORSAKEN5 || penTwitcher->m_twChar == TWC_BALDWHITE
+            || penTwitcher->m_twChar == TWC_BALDBLACK || penTwitcher->m_twChar == TWC_FEMALEWHITE
+            || penTwitcher->m_twChar == TWC_FEMALEBLONDE || penTwitcher->m_twChar == TWC_MALEWHITE
+            || penTwitcher->m_twChar == TWC_MALEBLACK || penTwitcher->m_twChar == TWC_MALE2WHITE
+            || penTwitcher->m_twChar == TWC_MALE2BLACK || penTwitcher->m_twChar == TWC_FEMALE2WHITE
+            || penTwitcher->m_twChar == TWC_MALE3WHITE || penTwitcher->m_twChar == TWC_MALE3BLACK
+            || penTwitcher->m_twChar == TWC_FEMALEPALE || penTwitcher->m_twChar == TWC_FEMALE2PALE
+            || penTwitcher->m_twChar == TWC_STRONGPALE || penTwitcher->m_twChar == TWC_STRONGCORPSE
+            || penTwitcher->m_twChar == TWC_STRONGBLOODY) {
+              fDamage *= 4.0f;
+            }
+          } else {
+            fDamage *= 4.0f;
+          }
         }
       }
+
       const FLOAT fDamageMul = GetSeriousDamageMultiplier(m_penPlayer);
-      InflictDirectDamage(penClosest, m_penPlayer, dmtType, fDamage*fDamageMul, vHit, vDir, DBPT_GENERIC);
+      InflictDirectDamage(penClosest, m_penPlayer, dmtType, fDamage*fDamageMul, vHit, vDir, dbptBodyPart);
       return TRUE;
     }
     return FALSE;
@@ -1591,6 +1800,7 @@ functions:
       case WEAPON_SMG:             return m_iMediumBullets;
       case WEAPON_PIPE:            return 0;
       case WEAPON_STRONGPISTOL:    return m_iStrongBullets;
+      case WEAPON_PLANK:           return 0;
     }
     return 0;
   };
@@ -1606,6 +1816,7 @@ functions:
       case WEAPON_SMG:             return m_iSMGBullets;
       case WEAPON_PIPE:            return 0;
       case WEAPON_STRONGPISTOL:    return m_iStrongPistolBullets;
+      case WEAPON_PLANK:           return 0;
     }
     return 0;
   };
@@ -1622,6 +1833,7 @@ functions:
       case WEAPON_SMG:             return m_iMaxMediumBullets;
       case WEAPON_PIPE:            return 0;
       case WEAPON_STRONGPISTOL:    return m_iMaxStrongBullets;
+      case WEAPON_PLANK:           return 0;
     }
     return 0;
   };
@@ -1637,6 +1849,7 @@ functions:
       case WEAPON_SMG:             return m_iMaxSMGBullets;
       case WEAPON_PIPE:            return 0;
       case WEAPON_STRONGPISTOL:    return m_iMaxStrongPistolBullets;
+      case WEAPON_PLANK:           return 0;
     }
     return 0;
   };
@@ -1653,7 +1866,7 @@ functions:
     // all weapons
     m_iAvailableWeapons = WEAPONS_ALLAVAILABLEMASK;
     // m_iAvailableWeapons &= ~WEAPONS_DISABLEDMASK;
-    m_ulMeleeWeapons = (1 << WEAPON_KNIFE|WEAPON_AXE|WEAPON_PIPE);
+    m_ulMeleeWeapons = (1 << WEAPON_KNIFE|WEAPON_AXE|WEAPON_PIPE|WEAPON_PLANK);
     m_ulSmallGuns = (1 << WEAPON_PISTOL|WEAPON_STRONGPISTOL);
     m_ulBigGuns = (1 << WEAPON_SHOTGUN|WEAPON_SMG);
     // ammo for all weapons
@@ -1705,6 +1918,7 @@ functions:
       case WEAPON_KNIFE:
       case WEAPON_AXE:
       case WEAPON_PIPE:
+      case WEAPON_PLANK:
         break;
       case WEAPON_PISTOL:
         iAmmoPicked = Max(10.0f, m_iMaxBullets*fMaxAmmoRatio);
@@ -1770,6 +1984,7 @@ functions:
       case WEAPON_SMG: wit = WIT_SMG; break;
       case WEAPON_PIPE: wit = WIT_PIPE; break;
       case WEAPON_STRONGPISTOL: wit = WIT_STRONGPISTOL; break;
+      case WEAPON_PLANK: wit = WIT_PLANK; break;
     }
 
     switch(wit) {
@@ -1782,6 +1997,7 @@ functions:
       case WIT_SMG: m_ulBigGuns &= ~(1 << WEAPON_SMG); break;
       case WIT_PIPE: m_ulMeleeWeapons &= ~(1 << WEAPON_PIPE); break;
       case WIT_STRONGPISTOL: m_ulSmallGuns &= ~(1 << WEAPON_STRONGPISTOL); break;
+      case WIT_PLANK: m_ulMeleeWeapons &= ~(1 << WEAPON_PLANK); break;
     }
 
 
@@ -1809,6 +2025,7 @@ functions:
       case WIT_SMG: Ewi.iWeapon = WEAPON_SMG; break;
       case WIT_PIPE: Ewi.iWeapon = WEAPON_PIPE; break;
       case WIT_STRONGPISTOL: Ewi.iWeapon = WEAPON_STRONGPISTOL; break;
+      case WIT_PLANK: Ewi.iWeapon = WEAPON_PLANK; break;
       default:
         ASSERTALWAYS("Unknown weapon type");
     }
@@ -1828,6 +2045,7 @@ functions:
       case WIT_SMG: m_ulBigGuns |= (1 << WEAPON_SMG); break;
       case WIT_PIPE: m_ulMeleeWeapons |= (1 << WEAPON_PIPE); break;
       case WIT_STRONGPISTOL: m_ulSmallGuns |= (1 << WEAPON_STRONGPISTOL); break;
+      case WIT_PLANK: m_ulMeleeWeapons |= (1 << WEAPON_PLANK); break;
     }
 
     ULONG ulOldWeapons = m_iAvailableWeapons;
@@ -1865,6 +2083,10 @@ functions:
       case WIT_STRONGPISTOL:            
         ((CPlayer&)*m_penPlayer).ItemPicked(TRANS("High-Caliber Pistol"), 0);
         fnmMsg = CTFILENAME("Data\\Messages\\Weapons\\StrongPistol.txt"); 
+        break;
+      case WIT_PLANK:
+        ((CPlayer&)*m_penPlayer).ItemPicked(TRANS("Wooden Plank"), 0);
+        fnmMsg = CTFILENAME("Data\\Messages\\Weapons\\Plank.txt");
         break;
       default:
         ASSERTALWAYS("Unknown weapon type");
@@ -1976,7 +2198,7 @@ functions:
   INDEX GetSelectedWeapon(WeaponType EwtSelectedWeapon) {
     switch(EwtSelectedWeapon) {
       case WEAPON_HOLSTERED: return 0;
-      case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PIPE: return 1;
+      case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PIPE: case WEAPON_PLANK: return 1;
       case WEAPON_PISTOL: case WEAPON_STRONGPISTOL: return 2;
       case WEAPON_SHOTGUN: case WEAPON_SMG: return 3;
     }
@@ -1988,12 +2210,13 @@ functions:
     switch (EwtWeapon) {
       case WEAPON_HOLSTERED: return WEAPON_HOLSTERED;
       case WEAPON_KNIFE: return WEAPON_AXE;
-      case WEAPON_AXE: return WEAPON_PIPE;
+      case WEAPON_AXE: return WEAPON_PLANK;
       case WEAPON_PISTOL: return WEAPON_STRONGPISTOL;
       case WEAPON_SHOTGUN: return WEAPON_SMG;
       case WEAPON_SMG: return WEAPON_SHOTGUN;
       case WEAPON_PIPE: return WEAPON_KNIFE;
       case WEAPON_STRONGPISTOL: return WEAPON_PISTOL;
+      case WEAPON_PLANK: return WEAPON_PIPE;
     }
     return WEAPON_NONE;
   };
@@ -2024,7 +2247,8 @@ functions:
   {
     switch (m_iCurrentWeapon) {
       case WEAPON_NONE: 
-      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_SHOTGUN: case WEAPON_SMG: case WEAPON_PIPE: case WEAPON_STRONGPISTOL:
+      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PISTOL: case WEAPON_SHOTGUN: case WEAPON_SMG: case WEAPON_PIPE: case WEAPON_STRONGPISTOL: case WEAPON_PLANK:
+        WeaponSelectOk(WEAPON_PLANK)||
         WeaponSelectOk(WEAPON_STRONGPISTOL)||
         WeaponSelectOk(WEAPON_PIPE)||
         WeaponSelectOk(WEAPON_SMG)||
@@ -2043,7 +2267,7 @@ functions:
   // does weapon have ammo
   BOOL HasAmmo(WeaponType EwtWeapon) {
     switch (EwtWeapon) {
-      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PIPE: return TRUE;
+      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PIPE: case WEAPON_PLANK: return TRUE;
       case WEAPON_PISTOL: return (m_iBullets>0);
       case WEAPON_SHOTGUN: return (m_iShells>0);
       case WEAPON_SMG: return (m_iMediumBullets>0);
@@ -2055,7 +2279,7 @@ functions:
   // does weapon have inserted ammo
   BOOL HasInsertedAmmo(WeaponType EwtWeapon) {
     switch (EwtWeapon) {
-      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PIPE: return TRUE;
+      case WEAPON_HOLSTERED: case WEAPON_KNIFE: case WEAPON_AXE: case WEAPON_PIPE: case WEAPON_PLANK: return TRUE;
       case WEAPON_PISTOL: return (m_iPistolBullets>0);
       case WEAPON_SHOTGUN: return (m_iShotgunShells>0);
       case WEAPON_SMG: return (m_iSMGBullets>0);
@@ -2091,6 +2315,9 @@ functions:
         break;
       case WEAPON_STRONGPISTOL:
         m_moWeapon.PlayAnim(STRONGPISTOLVIEWMODEL_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART|AOF_SMOOTHCHANGE);
+        break;
+      case WEAPON_PLANK:
+        m_moWeapon.PlayAnim(PLANKVIEWMODEL_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART|AOF_SMOOTHCHANGE);
         break;
       default:
         ASSERTALWAYS("Unknown weapon.");
@@ -2150,6 +2377,13 @@ functions:
     return m_moWeapon.GetAnimLength(iAnim);
   };
 
+  FLOAT PlankBoring(void) {
+    // play boring anim
+    INDEX iAnim = PLANKVIEWMODEL_ANIM_IDLE;
+    m_moWeapon.PlayAnim(iAnim, AOF_SMOOTHCHANGE);
+    return m_moWeapon.GetAnimLength(iAnim);
+  };
+
   // find the weapon position in the remap array
   WeaponType FindRemapedPos(WeaponType wt)
   {
@@ -2171,7 +2405,9 @@ functions:
     } else if (wt==WEAPON_AXE) {
       return WEAPON_KNIFE;
     } else if (wt==WEAPON_PIPE) {
-      return WEAPON_KNIFE;
+      return WEAPON_PLANK;
+    } else if (wt==WEAPON_PLANK) {
+      return WEAPON_PIPE;
     } else if (wt==WEAPON_STRONGPISTOL) {
       return WEAPON_PISTOL;
     } else if (wt==WEAPON_SMG) {
@@ -2189,6 +2425,8 @@ functions:
       return WEAPON_KNIFE;
     } else if (wt==WEAPON_PIPE) {
       return WEAPON_KNIFE;
+    } else if (wt==WEAPON_PLANK) {
+      return WEAPON_PIPE;
     } else if (wt==WEAPON_PISTOL) {
       return WEAPON_STRONGPISTOL;
     } else if (wt==WEAPON_SHOTGUN) {
@@ -2211,7 +2449,7 @@ functions:
       if (wti<WEAPON_NONE + 1) {
         wti = WEAPON_STRONGPISTOL;
       }
-      if (wti>8) {
+      if (wti>9) {
         wti = WEAPON_HOLSTERED;
       }
       if (wti==wtOrg) {
@@ -2336,6 +2574,9 @@ procedures:
       case WEAPON_STRONGPISTOL:
         m_iAnim = STRONGPISTOLVIEWMODEL_ANIM_LOWER;
         break;
+      case WEAPON_PLANK:
+        m_iAnim = PLANKVIEWMODEL_ANIM_LOWER;
+        break;
       default: ASSERTALWAYS("Unknown weapon.");
     }
     // start animator
@@ -2381,6 +2622,9 @@ procedures:
       case WEAPON_STRONGPISTOL:
         m_iAnim = STRONGPISTOLVIEWMODEL_ANIM_RAISE;
         break;
+      case WEAPON_PLANK:
+        m_iAnim = PLANKVIEWMODEL_ANIM_RAISE;
+        break;
       case WEAPON_NONE:
         break;
       default: ASSERTALWAYS("Unknown weapon.");
@@ -2404,8 +2648,6 @@ procedures:
    */
   Fire()
   {
-    CPlayer &pl = (CPlayer&)*m_penPlayer;
-    PlaySound(pl.m_soWeapon0, SOUND_SILENCE, SOF_3D|SOF_VOLUMETRIC);      // stop possible sounds
     // force ending of weapon change
     m_tmWeaponChangeRequired = 0;
 
@@ -2432,6 +2674,7 @@ procedures:
             case WEAPON_SMG: call FireSMG(); break;
             case WEAPON_PIPE:  call SwingPipe(); break;
             case WEAPON_STRONGPISTOL: call FireStrongPistol(); break;
+            case WEAPON_PLANK: call SwingPlank(); break;
             default: ASSERTALWAYS("Unknown weapon.");
           }
           resume;
@@ -2450,8 +2693,6 @@ procedures:
    */
   AltFire()
   {
-    CPlayer &pl = (CPlayer&)*m_penPlayer;
-    PlaySound(pl.m_soWeapon0, SOUND_SILENCE, SOF_3D|SOF_VOLUMETRIC);      // stop possible sounds
     // force ending of weapon change
     m_tmWeaponChangeRequired = 0;
 
@@ -2478,6 +2719,7 @@ procedures:
             case WEAPON_SMG:     call AltSMG(); break;
             case WEAPON_PIPE:    call AltPipe(); break;
             case WEAPON_STRONGPISTOL:  call AltStrongPistol(); break;
+            case WEAPON_PLANK:   call AltPlank(); break;
             default: ASSERTALWAYS("Unknown weapon.");
           }
           resume;
@@ -2581,25 +2823,40 @@ procedures:
     m_bMeleeHitBrush = FALSE;
     autowait(0.15f);
 
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP)) {
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP, DBPT_GENERIC)) {
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
+        switch(IRnd()%5)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          case 4: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT5, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("Knife unknown hit sound");
+        }
       } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
+        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_CLANK, SOF_3D|SOF_VOLUMETRIC);
       }
-
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 16.0f : 8.0f), DMT_SHARP, DBPT_GENERIC);
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
+        switch(IRnd()%5)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          case 4: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT5, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("Knife unknown hit sound");
+        }
       } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
+        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_CLANK, SOF_3D|SOF_VOLUMETRIC);
       }
       autowait(m_fAnimWaitTime/2);
     }
@@ -2629,24 +2886,40 @@ procedures:
     m_bMeleeHitBrush = FALSE;
     autowait(0.15f);
 
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP)) {
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP, DBPT_GENERIC)) {
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
+        switch(IRnd()%5)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          case 4: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT5, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("Knife unknown hit sound");
+        }
       } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
+        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_CLANK, SOF_3D|SOF_VOLUMETRIC);
       }
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_SHARP, DBPT_GENERIC);
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
+        switch(IRnd()%5)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          case 4: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT5, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("Knife unknown hit sound");
+        }
       } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
+        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_CLANK, SOF_3D|SOF_VOLUMETRIC);
       }
       autowait(m_fAnimWaitTime/2);
     }
@@ -2683,24 +2956,40 @@ procedures:
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.2f);
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 50.0f : 30.0f), DMT_AXE)) {
+    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 50.0f : 30.0f), DMT_AXE, DBPT_GENERIC)) {
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
+        switch(IRnd()%5)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          case 4: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT5, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("Knife unknown hit sound");
+        }
       } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
+        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_CLANK, SOF_3D|SOF_VOLUMETRIC);
       }
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 50.0f : 30.0f), DMT_AXE);
+      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 50.0f : 30.0f), DMT_AXE, DBPT_GENERIC);
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_SLASH, SOF_3D|SOF_VOLUMETRIC);
+        switch(IRnd()%5)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          case 4: PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT5, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("Knife unknown hit sound");
+        }
       } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
-        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_HIT, SOF_3D|SOF_VOLUMETRIC);
+        PlaySound(pl.m_soWeapon1, SOUND_KNIFE_CLANK, SOF_3D|SOF_VOLUMETRIC);
       }
       autowait(m_fAnimWaitTime/2);
     }
@@ -2719,15 +3008,7 @@ procedures:
   
   // ***************** FIRE PISTOL *****************
   FirePistol() {
-    if (m_iPistolBullets <= 0 && m_iBullets <= 0)
-    {
-      // sound
-      CPlayer &pl = (CPlayer&)*m_penPlayer;
-      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
-      autowait(0.35f);
-      return EEnd();
-    }
-    else if (m_iPistolBullets <= 0)
+    if ((m_iPistolBullets <= 0 && m_iBullets <= 0) || m_iPistolBullets <= 0)
     {
       // sound
       CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2820,7 +3101,7 @@ procedures:
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.25f);
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_BLUNT)) {
+    if (CutWithKnife(0, 0, 2.5f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_BLUNT, DBPT_GENERIC)) {
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
@@ -2838,7 +3119,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_BLUNT);
+      CutWithKnife(0, 0, 2.5f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 20.0f : 10.0f), DMT_BLUNT, DBPT_GENERIC);
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
@@ -2864,15 +3145,7 @@ procedures:
 
   // ***************** FIRE SHOTGUN *****************
   FireShotgun() {
-    if (m_iShotgunShells <= 0 && m_iShells <= 0)
-    {
-      // sound
-      CPlayer &pl = (CPlayer&)*m_penPlayer;
-      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
-      autowait(0.35f);
-      return EEnd();
-    }
-    else if (m_iShotgunShells <= 0)
+    if ((m_iShotgunShells <= 0 && m_iShells <= 0) || m_iShotgunShells <= 0)
     {
       // sound
       CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -2908,7 +3181,11 @@ procedures:
     CModelObject *pmo1 = &(m_moWeapon.GetAttachmentModel(SHOTGUNVIEWMODEL_ATTACHMENT_SHOTGUN)->amo_moModelObject);
     pmo1->PlayAnim(SHOTGUNITEM_ANIM_PUMP, AOF_NORESTART);
 
-    autowait(m_moWeapon.GetAnimLength(iAnim)+0.075f);
+    autowait(m_moWeapon.GetAnimLength(SHOTGUNVIEWMODEL_ANIM_FIRE)/2.0f+0.075f);
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    PlaySound(pl.m_soWeapon1, SOUND_SHOTGUN_PUMP, SOF_3D|SOF_VOLUMETRIC);
+    autowait(m_moWeapon.GetAnimLength(SHOTGUNVIEWMODEL_ANIM_FIRE)/2.0f+0.075f);
+
     m_moWeapon.PlayAnim(SHOTGUNVIEWMODEL_ANIM_IDLE, AOF_LOOPING|AOF_NORESTART);
     CModelObject *pmo1 = &(m_moWeapon.GetAttachmentModel(SHOTGUNVIEWMODEL_ATTACHMENT_SHOTGUN)->amo_moModelObject);
     pmo1->PlayAnim(SHOTGUNITEM_ANIM_DEFAULT, AOF_NORESTART);
@@ -2917,9 +3194,63 @@ procedures:
     return EEnd();
   };
 
-  // ***************** SHOTGUN ALTFIRE DUMMY *****************
+  // ***************** SHOTGUN BASH *****************
   AltShotgun() {
-    autowait(0.25);
+    // animator swing
+    GetAnimator()->FireAnimation(BODY_ANIM_KNIFE_ATTACK, 0);
+    // sound
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    
+    m_iAnim = SHOTGUNVIEWMODEL_ANIM_MELEE; m_fAnimWaitTime = 0.375f;
+    PlaySound(pl.m_soWeapon2, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
+      if(_pNetwork->IsPlayerLocal(m_penPlayer))
+        {IFeel_PlayEffect("Knife_back");}
+    m_moWeapon.PlayAnim(m_iAnim, 0);
+    m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitBlockingEnemy = FALSE;
+    m_bMeleeHitBlockingEnemyFlesh = FALSE;
+    m_bMeleeHitModel = FALSE;
+    m_bMeleeHitBrush = FALSE;
+    autowait(0.35f);
+    if (CutWithKnife(0, 0, 2.5f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 40.0f : 20.0f), DMT_BLUNT, DBPT_GENERIC)) {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon3, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime);
+    } else if (TRUE) {
+      autowait(m_fAnimWaitTime/2);
+      CutWithKnife(0, 0, 2.5f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_BLUNT, DBPT_GENERIC);
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon3, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime/2);
+    }
+
+    if (m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime>=_pTimer->TickQuantum) {
+      autowait(m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime);
+    }
     return EEnd();
   };
 
@@ -2971,15 +3302,7 @@ procedures:
   // ***************** FIRE SMG *****************
 
   FireSMG() {
-    if (m_iSMGBullets <= 0 && m_iMediumBullets <= 0)
-    {
-      // sound
-      CPlayer &pl = (CPlayer&)*m_penPlayer;
-      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
-      autowait(0.35f);
-      return EEnd();
-    }
-    else if (m_iSMGBullets <= 0)
+    if ((m_iSMGBullets <= 0 && m_iMediumBullets <= 0) || m_iSMGBullets <= 0)
     {
       // sound
       CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -3065,7 +3388,14 @@ procedures:
     // sound
     CPlayer &pl = (CPlayer&)*m_penPlayer;
     
-    m_iAnim = METALPIPEVIEWMODEL_ANIM_ATTACK; m_fAnimWaitTime = 0.35f;
+    switch(IRnd()%2)
+    {
+      case 0: m_iAnim = METALPIPEVIEWMODEL_ANIM_ATTACK; break;
+      case 1: m_iAnim = METALPIPEVIEWMODEL_ANIM_ATTACK2; break;
+      default: ASSERTALWAYS("Metal Pipe unknown attack animation");
+    }
+
+    m_fAnimWaitTime = 0.35f;
     PlaySound(pl.m_soWeapon0, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
       if(_pNetwork->IsPlayerLocal(m_penPlayer))
         {IFeel_PlayEffect("Knife_back");}
@@ -3075,8 +3405,8 @@ procedures:
     m_bMeleeHitBlockingEnemyFlesh = FALSE;
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
-    autowait(0.25f);
-    if (CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT)) {
+    autowait(0.275f);
+    if (CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT, DBPT_GENERIC)) {
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
@@ -3094,7 +3424,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT);
+      CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 25.0f : 15.0f), DMT_BLUNT, DBPT_GENERIC);
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
@@ -3146,17 +3476,71 @@ procedures:
     return EEnd();
   };
 
+  // ***************** PIPE HEAVY ATTACK *****************
+  PipeHeavyAttack() {
+    // animator swing
+    GetAnimator()->FireAnimation(BODY_ANIM_KNIFE_ATTACK, 0);
+    // sound
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    
+    m_iAnim = METALPIPEVIEWMODEL_ANIM_ATTACKHEAVY;
+
+    m_fAnimWaitTime = 0.375f;
+    PlaySound(pl.m_soWeapon0, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
+      if(_pNetwork->IsPlayerLocal(m_penPlayer))
+        {IFeel_PlayEffect("Knife_back");}
+    m_moWeapon.PlayAnim(m_iAnim, 0);
+    m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitBlockingEnemy = FALSE;
+    m_bMeleeHitBlockingEnemyFlesh = FALSE;
+    m_bMeleeHitModel = FALSE;
+    m_bMeleeHitBrush = FALSE;
+    autowait(0.385f);
+    if (CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 45.0f : 25.0f), DMT_BLUNT, DBPT_GENERIC)) {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon1, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime);
+    } else if (TRUE) {
+      autowait(m_fAnimWaitTime/2);
+      CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 45.0f : 25.0f), DMT_BLUNT, DBPT_GENERIC);
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon1, SOUND_PIPE_BANG, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime/2);
+    }
+
+    if (m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime>=_pTimer->TickQuantum) {
+      autowait(m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime);
+    }
+    return EEnd();
+  };
+
   // ***************** FIRE STRONG PISTOL *****************
   FireStrongPistol() {
-    if (m_iStrongPistolBullets <= 0 && m_iStrongBullets <= 0)
-    {
-      // sound
-      CPlayer &pl = (CPlayer&)*m_penPlayer;
-      PlaySound(pl.m_soWeapon2, SOUND_DRYFIRE, SOF_3D|SOF_VOLUMETRIC);
-      autowait(0.35f);
-      return EEnd();
-    }
-    else if (m_iStrongPistolBullets <= 0)
+    if ((m_iStrongPistolBullets <= 0 && m_iStrongBullets <= 0) || m_iStrongPistolBullets <= 0)
     {
       // sound
       CPlayer &pl = (CPlayer&)*m_penPlayer;
@@ -3174,7 +3558,7 @@ procedures:
 
     if(_pNetwork->IsPlayerLocal(m_penPlayer)) {IFeel_PlayEffect("StrongPistol_fire");}
     DoRecoil();
-    SpawnRangeSound(40.0f);
+    SpawnRangeSound(60.0f);
     DecAmmo(m_iStrongPistolBullets, 1);
     SetFlare(0, FLARE_ADD);
     PlayLightAnim(LIGHT_ANIM_COLT_SHOTGUN, 0);
@@ -3249,7 +3633,7 @@ procedures:
     m_bMeleeHitModel = FALSE;
     m_bMeleeHitBrush = FALSE;
     autowait(0.25f);
-    if (CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_BLUNT)) {
+    if (CutWithKnife(0, 0, 2.5f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_BLUNT, DBPT_GENERIC)) {
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
@@ -3267,7 +3651,7 @@ procedures:
       autowait(m_fAnimWaitTime);
     } else if (TRUE) {
       autowait(m_fAnimWaitTime/2);
-      CutWithKnife(0, 0, 3.0f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_BLUNT);
+      CutWithKnife(0, 0, 2.5f, 2.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 30.0f : 15.0f), DMT_BLUNT, DBPT_GENERIC);
       if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
         CPlayer &pl = (CPlayer&)*m_penPlayer;
         switch(IRnd()%4)
@@ -3291,8 +3675,126 @@ procedures:
     return EEnd();
   };
 
+  // ***************** SWING PLANK *****************
+  SwingPlank() {
+    // animator swing
+    GetAnimator()->FireAnimation(BODY_ANIM_KNIFE_ATTACK, 0);
+    // sound
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    
+    switch(IRnd()%3)
+    {
+      case 0: m_iAnim = PLANKVIEWMODEL_ANIM_ATTACK; break;
+      case 1: m_iAnim = PLANKVIEWMODEL_ANIM_ATTACK2; break;
+      case 2: m_iAnim = PLANKVIEWMODEL_ANIM_ATTACK3; break;
+      default: ASSERTALWAYS("Wooden Plank unknown attack animation");
+    }
+
+    m_fAnimWaitTime = 0.175f;
+    PlaySound(pl.m_soWeapon0, SOUND_KNIFE_SWING, SOF_3D|SOF_VOLUMETRIC);
+      if(_pNetwork->IsPlayerLocal(m_penPlayer))
+        {IFeel_PlayEffect("Knife_back");}
+    m_moWeapon.PlayAnim(m_iAnim, 0);
+    m_bMeleeHitEnemy = FALSE;
+    m_bMeleeHitBlockingEnemy = FALSE;
+    m_bMeleeHitBlockingEnemyFlesh = FALSE;
+    m_bMeleeHitModel = FALSE;
+    m_bMeleeHitBrush = FALSE;
+    autowait(0.225f);
+    if (CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 15.0f : 10.0f), DMT_BLUNT, DBPT_GENERIC)) {
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon1, SOUND_PLANK_BANG, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime);
+    } else if (TRUE) {
+      autowait(m_fAnimWaitTime/2);
+      CutWithKnife(0, 0, 3.0f, 3.0f, 0.5f, ((GetSP()->sp_bCooperative) ? 15.0f : 10.0f), DMT_BLUNT, DBPT_GENERIC);
+      if (m_bMeleeHitEnemy || m_bMeleeHitBlockingEnemyFlesh) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT1, SOF_3D|SOF_VOLUMETRIC); break;
+          case 1: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT2, SOF_3D|SOF_VOLUMETRIC); break;
+          case 2: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT3, SOF_3D|SOF_VOLUMETRIC); break;
+          case 3: PlaySound(pl.m_soWeapon1, SOUND_PIPE_HIT4, SOF_3D|SOF_VOLUMETRIC); break;
+          default: ASSERTALWAYS("MetalPipe unknown hit sound");
+        }
+      } else if (m_bMeleeHitModel || m_bMeleeHitBrush || m_bMeleeHitBlockingEnemy) {
+        CPlayer &pl = (CPlayer&)*m_penPlayer;
+        PlaySound(pl.m_soWeapon1, SOUND_PLANK_BANG, SOF_3D|SOF_VOLUMETRIC);
+      }
+      autowait(m_fAnimWaitTime/2);
+    }
+
+    if (m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime>=_pTimer->TickQuantum) {
+      autowait(m_moWeapon.GetAnimLength(m_iAnim)-m_fAnimWaitTime);
+    }
+    return EEnd();
+  };
+
+  // ***************** PLANK ALTFIRE BLOCK *****************
+  AltPlank() {
+    m_moWeapon.PlayAnim(PLANKVIEWMODEL_ANIM_BLOCKRAISE, 0);
+    autowait(m_moWeapon.GetAnimLength(PLANKVIEWMODEL_ANIM_BLOCKRAISE));
+    
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    pl.m_bIsBlocking = TRUE;
+
+    m_moWeapon.PlayAnim(PLANKVIEWMODEL_ANIM_BLOCKIDLE, AOF_LOOPING|AOF_NORESTART);
+
+    while(m_bAltFireWeapon)
+    {
+      CPlayer &pl = (CPlayer&)*m_penPlayer;
+      pl.m_bIsBlocking = TRUE;
+      autowait(m_fAnimWaitTime/2);
+    }
+
+    m_moWeapon.PlayAnim(PLANKVIEWMODEL_ANIM_BLOCKLOWER, 0);
+    autowait(m_moWeapon.GetAnimLength(PLANKVIEWMODEL_ANIM_BLOCKLOWER));
+
+    CPlayer &pl = (CPlayer&)*m_penPlayer;
+    pl.m_bIsBlocking = FALSE;
+
+    m_moWeapon.PlayAnim(PLANKVIEWMODEL_ANIM_IDLE, 0);
+
+    return EEnd();
+  };
+
   Reload() {
-    m_bReloadWeapon = FALSE;
+    // setup 3D sound parameters
+    Setup3DSoundParameters();
+
+    if(m_iCurrentWeapon == WEAPON_PIPE) {
+      m_bReloadWeapon = TRUE;
+    } else {
+      m_bReloadWeapon = FALSE;
+    }
+
+    while (HoldingReload() && m_iCurrentWeapon == WEAPON_PIPE) {
+      // boring animation
+      ((CPlayerAnimator&)*((CPlayer&)*m_penPlayer).m_penAnimator).m_fLastActionTime = _pTimer->CurrentTick();
+      wait() {
+        on (EBegin) : {
+          call PipeHeavyAttack();
+          resume;
+        }
+        on (EEnd) : {
+          stop;
+        }
+      }
+      jump Idle();
+    }
 
     // reload
     if (m_iCurrentWeapon == WEAPON_PISTOL) {
@@ -3303,7 +3805,7 @@ procedures:
       autocall ReloadSMG() EEnd;
     } else if (m_iCurrentWeapon == WEAPON_STRONGPISTOL) {
       autocall ReloadStrongPistol() EEnd;
-    } 
+    }
 
     jump Idle();
   };
@@ -3323,6 +3825,7 @@ procedures:
       case WEAPON_SMG: fWait = SMGBoring(); break;
       case WEAPON_PIPE: fWait = PipeBoring(); break;
       case WEAPON_STRONGPISTOL: fWait = StrongPistolBoring(); break;
+      case WEAPON_PLANK: fWait = PlankBoring(); break;
       default: ASSERTALWAYS("Unknown weapon.");
     }
     if (fWait > 0.0f) { autowait(fWait); }
@@ -3355,6 +3858,11 @@ procedures:
         // altfire pressed start altfiring
         if (m_bAltFireWeapon) {
           jump AltFire();
+        }
+
+        // reload pressed start reloading
+        if (m_bReloadWeapon) {
+          jump Reload();
         }
 
         // holster pressed start holstering
@@ -3485,8 +3993,13 @@ procedures:
         resume;
       }
       on (EReloadWeapon) : {
-        // reload wepon
+        // reload weapon
         m_bReloadWeapon = TRUE;
+        resume;
+      }
+      on (EReloadReleaseWeapon) : {
+        // reload weapon release
+        m_bReloadWeapon = FALSE;
         resume;
       }
       on (EHolsterWeapon) : {

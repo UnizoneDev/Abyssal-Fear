@@ -61,6 +61,8 @@ enum BrushDebrisType {
  22 BDT_WOOD8        "Rough Brown Wood",
  23 BDT_FLESH1       "Red Flesh",
  24 BDT_FLESH2       "Green Flesh",
+ 25 BDT_RUSTEDMETAL1 "Brown Rusted Metal",
+ 26 BDT_RUSTEDMETAL2 "Green Rusted Metal",
 };
 
 enum BrushMaterialType {
@@ -126,8 +128,8 @@ properties:
 
  // rotation
  18 FLOAT m_tmBankingRotation "Banking rotation speed" = 0.0f, // set if only banking rotation
- 102 FLOAT m_tmHeadingRotation "Heading rotation speed" = 0.0f, // set if only heading rotation
- 103 FLOAT m_tmPitchRotation "Pitch rotation speed" = 0.0f, // set if only pitch rotation
+ 104 FLOAT m_tmHeadingRotation "Heading rotation speed" = 0.0f, // set if only heading rotation
+ 105 FLOAT m_tmPitchRotation "Pitch rotation speed" = 0.0f, // set if only pitch rotation
 
  // class properties
  20 BOOL m_bMoving = FALSE,           // the brush is moving
@@ -197,6 +199,9 @@ properties:
  101 BOOL m_bBlowupByAnything "Blowup by anything" = FALSE,
  102 enum BrushMaterialType m_bmtBrushMaterialType "Brush material type" = BMT_GENERIC,
  103 CTFileName m_fnmConfig "Brush Config" = CTString(""),
+ 106 enum MovingBrushStateType m_mbstStateType = MBST_NONE,
+ 107 BOOL m_bPushablesOnly "Pushables Only" = FALSE,
+ 108 BOOL m_bEnemiesOnly "Enemies Only" = FALSE,
 
 
 components:
@@ -238,8 +243,10 @@ components:
  37 texture   TEXTURE_METAL4     "Models\\Effects\\Debris\\MetalDebris4.tex",
  41 texture   TEXTURE_METAL5     "Models\\Effects\\Debris\\MetalDebris5.tex",
 
+ 53 texture   TEXTURE_RUSTEDMETAL1     "Models\\Effects\\Debris\\RustedMetalDebris.tex",
+ 54 texture   TEXTURE_RUSTEDMETAL2     "Models\\Effects\\Debris\\RustedMetalDebris2.tex",
+
  50 class     CLASS_DEBRIS       "Classes\\Debris.ecl",
-  4 class     CLASS_BASIC_EFFECT "Classes\\BasicEffect.ecl",
 
 
 functions:
@@ -258,6 +265,8 @@ functions:
        else if (strProp == "bMoveOnTouch")      { m_bMoveOnTouch = bValue; }
        else if (strProp == "bVeryBigBrush")     { m_bVeryBigBrush = bValue; }
        else if (strProp == "bDynamicShadows")   { m_bDynamicShadows = bValue; }
+       else if (strProp == "bPushablesOnly")    { m_bPushablesOnly = bValue; }
+       else if (strProp == "bEnemiesOnly")      { m_bEnemiesOnly = bValue; }
   };
 
   // Set string properties
@@ -320,11 +329,6 @@ functions:
  
  void Precache(void)
   {
-    PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODSPILL);
-    PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODSTAIN);
-    PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODSTAINGROW);
-    PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODEXPLODE);
-
     PrecacheClass(CLASS_DEBRIS);
     PrecacheModel(MODEL_STONE);
     PrecacheModel(MODEL_WOOD);
@@ -361,6 +365,9 @@ functions:
 
     PrecacheTexture(TEXTURE_FLESH_RED);
     PrecacheTexture(TEXTURE_FLESH_GREEN);
+
+    PrecacheTexture(TEXTURE_RUSTEDMETAL1);
+    PrecacheTexture(TEXTURE_RUSTEDMETAL2);
   }
   /* Get force in given point. */
   void GetForce(INDEX iForce, const FLOAT3D &vPoint, 
@@ -430,7 +437,7 @@ functions:
       case BMT_GLASS:
       {
         if(dmtType == DMT_BLUNT || dmtType == DMT_PUNCH || dmtType == DMT_BULLET || dmtType == DMT_PELLET ||
-           dmtType == DMT_RIFLE)
+           dmtType == DMT_RIFLE || dmtType == DMT_EXPLOSION)
         {
           fDamageAmmount *= 2.0f;
         }
@@ -795,6 +802,8 @@ functions:
         m_tmPitchRotation *= -1;
       }
     }
+    
+    m_mbstStateType = mbm.m_mbstStateType;
 
     return TRUE;
   };
@@ -812,6 +821,14 @@ functions:
     }
 
     if (m_bPlayersOnly && !IsDerivedFromClass(pen, "Player")) {
+      return FALSE;
+    }
+
+    if (m_bPushablesOnly && (!IsDerivedFromClass(pen, "UZModelHolder") || !IsDerivedFromClass(pen, "UZSkaModelHolder"))) {
+      return FALSE;
+    }
+
+    if (m_bEnemiesOnly && !IsDerivedFromClass(pen, "Enemy Base")) {
       return FALSE;
     }
 
@@ -913,7 +930,7 @@ functions:
       CSoundHolder &sh = (CSoundHolder&)*m_penSoundBreak;
       CRandomSoundHolder &rsh = (CRandomSoundHolder&)*m_penSoundBreak;
       if(IsOfClass(m_penSoundBreak, "RandomSoundHolder")) {
-        m_soDamage.Set3DParameters(FLOAT(rsh.m_rFallOffRange), FLOAT(rsh.m_rHotSpotRange), rsh.m_fVolume, rsh.m_fPitch);
+        m_soBreak.Set3DParameters(FLOAT(rsh.m_rFallOffRange), FLOAT(rsh.m_rHotSpotRange), rsh.m_fVolume, rsh.m_fPitch);
         switch(rsh.m_iRandomCheck) {
           default:
             {
@@ -1033,7 +1050,7 @@ functions:
     // add some more
     slUsedMemory += m_strName.Length();
     slUsedMemory += m_strDescription.Length();
-    slUsedMemory += 3* sizeof(CSoundObject); // 3 of them
+    slUsedMemory += 5* sizeof(CSoundObject); // 5 of them
     return slUsedMemory;
   }
 
@@ -1406,6 +1423,20 @@ procedures:
         }
         resume;
       }
+      on (EOpen) : {
+        // if not already moving and have target and is closed
+        if(!m_bMoving && m_bValidMarker && m_mbstStateType == MBST_CLOSE) {
+          call MoveBrush();
+        }
+        resume;
+      }
+      on (EClose) : {
+        // if not already moving and have target and is open
+        if(!m_bMoving && m_bValidMarker && m_mbstStateType == MBST_OPEN) {
+          call MoveBrush();
+        }
+        resume;
+      }
       on (EActivate) : {
         if (!m_bRotating) {
           MaybeActivateRotation();
@@ -1528,6 +1559,14 @@ procedures:
 
             case BDT_FLESH2:
                 DebrisInitialize(EIBT_FLESH, MODEL_FLESH, TEXTURE_FLESH_GREEN, fEntitySize, box);
+            break;
+
+            case BDT_RUSTEDMETAL1:
+                DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_RUSTEDMETAL1, fEntitySize, box);
+            break;
+
+            case BDT_RUSTEDMETAL2:
+                DebrisInitialize(EIBT_METAL, MODEL_METAL, TEXTURE_RUSTEDMETAL2, fEntitySize, box);
             break;
           }
         }

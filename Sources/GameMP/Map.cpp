@@ -134,7 +134,7 @@ void RenderMap(CDrawPort* pdp, CProgressHookInfo* pphi)
     {
         ReleaseMapData();
         return;
-    }								   
+    }
 
     PIX pixdpw = pdp->GetWidth();
     PIX pixdph = pdp->GetHeight();
@@ -158,15 +158,15 @@ void RenderMap(CDrawPort* pdp, CProgressHookInfo* pphi)
     PIX pixSY = Max(PIX((pixdph - imgh * fStretch) / 2), PIX(0));
 
     PIX pixC1S = pixSX;                       // column 1 start pixel
-    PIX pixR1S = pixSY;                       // raw 1 start pixel							 
-		 
+    PIX pixR1S = pixSY;                       // raw 1 start pixel
+
     PIX pixX = 0 * fStretch + pixC1S;
     PIX pixY = 0 * fStretch + pixR1S;
     CTextureObject* pto = &toLoadingScreen;
     PIX pixImgW = ((CTextureData*)pto->GetData())->GetPixWidth() * fStretch;
     PIX pixImgH = ((CTextureData*)pto->GetData())->GetPixHeight() * fStretch;
     pdp->PutTexture(pto, PIXaabbox2D(PIX2D(pixX, pixY), PIX2D(pixX + pixImgW, pixY + pixImgH)), C_WHITE | 255);
-		 
+
     if (pphi != NULL)
     {
         // set font

@@ -18,7 +18,7 @@ Class6=CAboutDlg
 Class7=CSeriousSkaStudioDoc
 Class8=CSeriousSkaStudioView
 
-ResourceCount=17
+ResourceCount=18
 Resource1=IDD_ALL_FRAMES_BBOX
 Resource2=IDD_COLISION
 Resource3=IDD_LOD
@@ -47,6 +47,7 @@ Resource15=IDD_SHADER
 Resource16=IDR_MAINFRAME
 Class19=CCheckBox
 Resource17=IDD_BONE
+Resource18=IDD_FRAMEEVENT
 
 [CLS:CChildFrame]
 Type=0
@@ -114,7 +115,7 @@ HeaderFile=SeriousSkaStudioView.h
 ImplementationFile=SeriousSkaStudioView.cpp
 Filter=C
 VirtualFilter=VWC
-LastObject=ID_BROWSE_TEXTURE
+LastObject=ID_ADD_FRAMEEVENT
 
 [DLG:IDD_ABOUTBOX]
 Type=1
@@ -192,7 +193,8 @@ Command10=ID_VIEW_ERRORLIST
 Command11=ID_VIEW_STATUS_BAR
 Command12=ID_HELP_FINDER
 Command13=ID_APP_ABOUT
-CommandCount=13
+Command14=ID_TAKE_SCREENSHOT
+CommandCount=14
 
 [MNU:IDR_SERIOUTYPE]
 Type=1
@@ -217,7 +219,8 @@ Command17=ID_WINDOW_TILE_HORZ
 Command18=ID_WINDOW_ARRANGE
 Command19=ID_HELP_FINDER
 Command20=ID_APP_ABOUT
-CommandCount=20
+Command21=ID_TAKE_SCREENSHOT
+CommandCount=21
 
 [ACL:IDR_MAINFRAME]
 Type=1
@@ -518,7 +521,8 @@ Command43=ID_DELETESELECTED
 Command44=ID_ANIMATION_PLAY
 Command45=ID_DELETESELECTED
 Command46=ID_DELETESELECTED
-CommandCount=46
+Command47=ID_ADD_FRAMEEVENT
+CommandCount=47
 
 [DLG:IDD_BONE]
 Type=1
@@ -544,3 +548,13 @@ Filter=W
 LastObject=CCheckBox
 VirtualFilter=BWC
 
+[DLG:IDD_FRAMEEVENT]
+Type=1
+Class=?
+ControlCount=6
+Control1=IDC_LB_EVENTNAME_LABEL,static,1342312962
+Control2=IDC_LB_EVENT_FRAME,static,1342312962
+Control3=IDC_LB_EVENT_TYPE,static,1342312962
+Control4=IDC_TB_FEVNAME,edit,1350631552
+Control5=IDC_TB_FEVFRAME,edit,1350631552
+Control6=IDC_TB_FEVEVENT,edit,1350631552

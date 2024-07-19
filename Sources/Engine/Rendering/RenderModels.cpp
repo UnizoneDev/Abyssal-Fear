@@ -391,13 +391,13 @@ void CRenderer::RenderOneModel( CEntity &en, CModelObject &moModel, const CPlace
   // if should render shadow for this model
   if( bRenderModelShadow && !(en.en_ulFlags&ENF_CLUSTERSHADOWS) && moModel.HasShadow(rm.rm_iMipLevel)) {
     // if only simple shadow
-    if( mdl_iShadowQuality==1) {
+    if( mdl_iShadowQuality==1 && !(en.en_ulFlags&ENF_POLYGONALSHADOWS)) {
       // render simple shadow
       fTotalShadowIntensity = 0.1f + fTotalShadowIntensity*0.9f;
       moModel.AddSimpleShadow( rm, fTotalShadowIntensity, plFloorPlane);
     }
     // if only one shadow
-    else if( mdl_iShadowQuality==2) {
+    else if( mdl_iShadowQuality==2 || en.en_ulFlags&ENF_POLYGONALSHADOWS) {
       // render one shadow of model from shading light direction
       const FLOAT fHotSpot = 1E10f;
       const FLOAT fFallOff = 1E11f;
@@ -496,6 +496,9 @@ void CRenderer::RenderOneSkaModel( CEntity &en, const CPlacement3D &plModel,
     bRenderModelShadow = FALSE;
   }
 
+  // TEMP: disable Truform usage on weapon models
+  if (IsOfClass(&en, "Player Weapons")) ulRenFlags |= RMF_WEAPON;
+
   RM_SetObjectPlacement(en.GetLerpedPlacement());
   RM_SetLightColor(colAmbient,colLight);
   RM_SetLightDirection(vTotalLightDirection);
@@ -507,23 +510,19 @@ void CRenderer::RenderOneSkaModel( CEntity &en, const CPlacement3D &plModel,
   // if should render shadow for this model
   if( bRenderModelShadow && !(en.en_ulFlags&ENF_CLUSTERSHADOWS) && en.GetModelInstance()->HasShadow(1/*rm.rm_iMipLevel*/)) {
     // if only simple shadow
-    if( mdl_iShadowQuality==1) {
+    if( mdl_iShadowQuality==1 && !(en.en_ulFlags & ENF_POLYGONALSHADOWS)) {
       // render simple shadow
       fTotalShadowIntensity = 0.1f + fTotalShadowIntensity*0.9f;
         en.GetModelInstance()->AddSimpleShadow(fTotalShadowIntensity, plFloorPlane);
     }
     // if only one shadow
-    else if( mdl_iShadowQuality==2) {
-      /*
+    else if( mdl_iShadowQuality==2 || en.en_ulFlags & ENF_POLYGONALSHADOWS) {
       // render one shadow of model from shading light direction
       const FLOAT fHotSpot = 1E10f;
       const FLOAT fFallOff = 1E11f;
       CPlacement3D plLight;
       plLight.pl_PositionVector = plModel.pl_PositionVector - vTotalLightDirection*1000.0f;
-      // moModel.RenderShadow( rm, plLight, fFallOff, fHotSpot, fTotalShadowIntensity, plFloorPlane);
-      */
-      fTotalShadowIntensity = 0.1f + fTotalShadowIntensity*0.9f;
-      en.GetModelInstance()->AddSimpleShadow(fTotalShadowIntensity, plFloorPlane);
+      en.GetModelInstance()->RenderShadow(plLight, fFallOff, fHotSpot, fTotalShadowIntensity, plFloorPlane);
     }
     // if full shadows
     else if( mdl_iShadowQuality==3) {

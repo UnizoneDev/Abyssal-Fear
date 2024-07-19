@@ -21,5 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 void DoSpecularLayer(INDEX iSpecularTexture, INDEX iSpecularColor);
 void DoReflectionLayer(INDEX iReflectionTexture, INDEX iReflectionColor, BOOL bFullBright);
+void DoBumpLayer(INDEX iBumpTexture, INDEX iBumpColor);
+void DoNormalLayer(INDEX iNormalTexture, INDEX iNormalColor);
 
 #endif  /* include-once check. */

@@ -57,7 +57,8 @@ BOOL CDisplayMode::IsWideScreen(void)
   // only these three supported as widescreen
   return (dm_pixSizeI == 856 && dm_pixSizeJ == 480) ||
 	     (dm_pixSizeI == 1280 && dm_pixSizeJ == 720) ||
-	     (dm_pixSizeI == 1920 && dm_pixSizeJ == 1080);
+	     (dm_pixSizeI == 1920 && dm_pixSizeJ == 1080) ||
+	     (dm_pixSizeI == 2560 && dm_pixSizeJ == 1440);
 }
 // check if mode is fullscreen
 BOOL CDisplayMode::IsFullScreen(void)

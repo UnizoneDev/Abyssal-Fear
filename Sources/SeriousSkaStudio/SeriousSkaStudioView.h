@@ -161,6 +161,8 @@ private:
 	afx_msg void OnReloadTexture();
 	afx_msg void OnRecreateTexture();
 	afx_msg void OnBrowseTexture();
+	afx_msg void OnTakeScreenShot();
+	afx_msg void OnAddFrameEvent();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

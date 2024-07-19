@@ -176,14 +176,14 @@ functions:
 
   // virtual sound functions
   void IdleSound(void) {
-    PlaySound(m_soSound, SOUND_IDLE, SOF_3D);
+    PlaySound(m_soVoice, SOUND_IDLE, SOF_3D);
   };
 
   void SightSound(void) {
     switch(IRnd()%2)
     {
-        case 0: PlaySound(m_soSound, SOUND_SIGHT1, SOF_3D); break;
-        case 1: PlaySound(m_soSound, SOUND_SIGHT2, SOF_3D); break;
+        case 0: PlaySound(m_soVoice, SOUND_SIGHT1, SOF_3D); break;
+        case 1: PlaySound(m_soVoice, SOUND_SIGHT2, SOF_3D); break;
         default: ASSERTALWAYS("RedDeath unknown sight sound");
     }
   };
@@ -191,15 +191,15 @@ functions:
   void WoundSound(void) {
     switch(IRnd()%3)
     {
-        case 0: PlaySound(m_soSound, SOUND_WOUND1, SOF_3D); break;
-        case 1: PlaySound(m_soSound, SOUND_WOUND2, SOF_3D); break;
-        case 2: PlaySound(m_soSound, SOUND_WOUND3, SOF_3D); break;
+        case 0: PlaySound(m_soVoice, SOUND_WOUND1, SOF_3D); break;
+        case 1: PlaySound(m_soVoice, SOUND_WOUND2, SOF_3D); break;
+        case 2: PlaySound(m_soVoice, SOUND_WOUND3, SOF_3D); break;
         default: ASSERTALWAYS("RedDeath unknown wound sound");
     }
   };
 
   void DeathSound(void) {
-    PlaySound(m_soSound, SOUND_DEATH, SOF_3D);
+    PlaySound(m_soVoice, SOUND_DEATH, SOF_3D);
   };
 
 

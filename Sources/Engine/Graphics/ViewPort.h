@@ -20,9 +20,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #endif
 
 #include <Engine/Graphics/Raster.h>
-#ifdef SE1_D3D
-#include <d3d8.h>
-#endif // SE1_D3D
 
 /*
  *  ViewPort
@@ -46,10 +43,6 @@ public:
   HWND vp_hWnd;                 // canvas (child) window
   HWND vp_hWndParent;           // window of the viewport
   CRaster vp_Raster;            // the used Raster
-#ifdef SE1_D3D
-	LPDIRECT3DSWAPCHAIN8 vp_pSwapChain;  // swap chain for D3D
-	LPDIRECT3DSURFACE8   vp_pSurfDepth;  // z-buffer for D3D
-#endif // SE1_D3D
   INDEX vp_ctDisplayChanges;    // number of display driver
 
   // open/close canvas window

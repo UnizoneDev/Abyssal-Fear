@@ -19,7 +19,7 @@ static const INDEX ctTextures = 0;
 static const INDEX ctUvmaps   = 0;
 static const INDEX ctColors   = 1;
 static const INDEX ctFloats   = 0;
-static const INDEX ctFlags    = 2;
+static const INDEX ctFlags    = 3;
 
 SHADER_MAIN(Color)
 {
@@ -63,5 +63,6 @@ SHADER_DESC(Color,ShaderDesc &shDesc)
   shDesc.sd_astrColorNames[0] = "Surface color";
   shDesc.sd_astrFlagNames[0] = "Double sided";
   shDesc.sd_astrFlagNames[1] = "Full bright";
+  shDesc.sd_astrFlagNames[2] = "Flat shaded";
   shDesc.sd_strShaderInfo = "Color shader";
 }

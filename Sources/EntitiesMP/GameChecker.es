@@ -20,7 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 %}
 
 enum GameCheckerEventType {
-  0 GCET_CHEATDETECT         "Was Cheating Detected"
+  0 GCET_CHEATDETECT         "Detect Cheating"
 };
 
 class CGameChecker: CRationalEntity {
@@ -53,7 +53,7 @@ functions:
     BOOL cht_bInvisible = _pShell->GetINDEX("cht_bInvisible");
     FLOAT cht_fTranslationMultiplier = _pShell->GetFLOAT("cht_fTranslationMultiplier");
 
-    if(cht_bGhost == TRUE || cht_bFly == TRUE || cht_bGod == TRUE || cht_bInvisible == TRUE || cht_bBuddha == TRUE || cht_fTranslationMultiplier > 1.0f)
+    if(cht_bGhost == TRUE || cht_bFly == TRUE || cht_bGod == TRUE || cht_bInvisible == TRUE || cht_bBuddha == TRUE || cht_fTranslationMultiplier != 1.0f)
     {
       SendToTarget(m_penCheckTarget, m_eetCheckType, m_penCaused);
       return;

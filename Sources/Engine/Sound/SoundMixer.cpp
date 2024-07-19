@@ -37,6 +37,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 extern FLOAT snd_fMasterVolume;
 extern FLOAT snd_fSoundVolume;
 extern FLOAT snd_fMusicVolume;
+extern FLOAT snd_fVoiceVolume;
 extern INDEX snd_bMono;
 
 
@@ -71,6 +72,7 @@ void ResetMixer(const SLONG* pslBuffer, const SLONG slBufferSize)
     snd_fMasterVolume = Clamp(snd_fMasterVolume, 0.0f, 1.0f);
     snd_fSoundVolume  = Clamp(snd_fSoundVolume,  0.0f, 1.0f);
     snd_fMusicVolume  = Clamp(snd_fMusicVolume,  0.0f, 1.0f);
+	snd_fVoiceVolume  = Clamp(snd_fVoiceVolume,  0.0f, 1.0f);
 
     // cache local variables
     ASSERT(slBufferSize % 4 == 0);
@@ -415,6 +417,10 @@ void MixSound(CSoundObject* pso)
     if (pso->so_slFlags & SOF_MUSIC) {
         fNewLeftVolume *= snd_fMusicVolume;
         fNewRightVolume *= snd_fMusicVolume;
+    }
+	else if(pso->so_slFlags & SOF_VOICE) {
+        fNewLeftVolume *= snd_fVoiceVolume;
+        fNewRightVolume *= snd_fVoiceVolume;
     }
     else {
         fNewLeftVolume *= snd_fSoundVolume;

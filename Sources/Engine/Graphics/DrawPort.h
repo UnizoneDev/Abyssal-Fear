@@ -107,6 +107,10 @@ public:
   void PutTextCXY( const CTString &strText, PIX pixX0, PIX pixY0, const COLOR colBlend=0xFFFFFFFF) const;
   // writes text string on drawport (right-aligned)
   void PutTextR(   const CTString &strText, PIX pixX0, PIX pixY0, const COLOR colBlend=0xFFFFFFFF) const;
+  // writes text string on drawport (left-aligned arround X and Y)
+  void PutTextLXY(const CTString& strText, PIX pixX0, PIX pixY0, const COLOR colBlend = 0xFFFFFFFF) const;
+  // writes text string on drawport (right-aligned arround X and Y)
+  void PutTextRXY(const CTString& strText, PIX pixX0, PIX pixY0, const COLOR colBlend = 0xFFFFFFFF) const;
 
   // plain texture display
   void PutTexture( class CTextureObject *pTO, const PIXaabbox2D &boxScreen,

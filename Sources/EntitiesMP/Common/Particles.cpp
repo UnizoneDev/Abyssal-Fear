@@ -89,6 +89,7 @@ static CTextureObject _toPlayerParticles;
 static CTextureObject _toWaterfallFoam;
 static CTextureObject _toWaterfallFoam2;
 static CTextureObject _toMetalSprayTexture;
+static CTextureObject _toGlassSprayTexture;
 static CTextureObject _toBulletGrass;
 static CTextureObject _toBulletWood;
 static CTextureObject _toBulletSnow;
@@ -279,6 +280,7 @@ void InitParticles(void)
     _toPlayerParticles.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\PlayerParticles.tex"));
     _toWaterfallFoam.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\WaterfallFoam.tex"));
     _toMetalSprayTexture.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\MetalSpill.tex"));
+    _toGlassSprayTexture.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\Glass03.tex"));
     _toBulletGrass.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayGrass.tex"));
     _toBulletWood.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSprayWood.tex"));
     _toBulletSnow.SetData_t(CTFILENAME("Textures\\Effects\\Particles\\BulletSpraySnow.tex"));
@@ -427,6 +429,7 @@ void CloseParticles(void)
   _toWaterfallFoam.SetData(NULL);
   _toWaterfallFoam2.SetData(NULL);
   _toMetalSprayTexture.SetData(NULL);
+  _toGlassSprayTexture.SetData(NULL);
   _toBulletGrass.SetData(NULL);
   _toBulletWood.SetData(NULL);
   _toBulletSnow.SetData(NULL);
@@ -616,7 +619,7 @@ void Particles_ViewerLocal(CEntity *penView)
     
     // next environment particles holder
     eph = (CEnvironmentParticlesHolder *)&*eph->m_penNextHolder;
-    if (!(IsOfClass(eph, "EnvironmentParticlesHolder"))) break;
+    if (!(IsOfClass(eph, &CEnvironmentParticlesHolder_DLLClass))) break;
   }
 }
 
@@ -3839,7 +3842,7 @@ void Particles_BulletSpray(INDEX iRndBase, FLOAT3D vSource, FLOAT3D vGDir, enum 
 
     FLOAT3D vPos = vSource + (vDirection+vRandomAngle)*(fT*fSpeedRnd)+vGDir*(fT*fT*fGA);
 
-    if( (eptType == EPT_BULLET_WATER) && (vPos(2) < vSource(2)) )
+    if( (eptType == EPT_BULLET_WATER || eptType == EPT_BULLET_BLOOD || eptType == EPT_BULLET_ACID) && (vPos(2) < vSource(2)) )
     {
       continue;
     }
@@ -4215,10 +4218,6 @@ void Particles_Burning(CEntity *pen, FLOAT fPower, FLOAT fTimeRatio)
   FLOAT fSize=0.125f+ClampDn( FLOAT(pow(box.Size()(2),1.0f/4.0f)), 1.0f)*fPower/5.0f;
   fSize+=(1.0f+fSizeRatio)*(1.0f+fSizeRatio)*0.125f;
   INDEX iVtxSteep=(2+(2.0f-fSizeRatio-fDensityFactor)*6);
-  if( IsOfClass(pen, "Werebull"))
-  {
-    iVtxSteep=2;
-  }
   for( INDEX iVtx=0; iVtx<ctVtx; iVtx+=iVtxSteep)
   {
     FLOAT3D vPos = avVertices[iVtx];
@@ -4312,7 +4311,7 @@ void Particles_BrushBurning(CEntity *pen, FLOAT3D vPos[], INDEX ctCount, FLOAT3D
   
   FLOAT fFade = Clamp(fTimeRatio,0.0f, 1.0f);
   FLOAT3D vG=FLOAT3D(0,-1.0f,0);
-  if( IsDerivedFromClass(pen, "MovableEntity"))
+  if( IsDerivedFromClass(pen, &CMovableEntity_DLLClass))
   {
     vG=((CMovableEntity *)pen)->en_vGravityDir;
   }
@@ -4549,6 +4548,20 @@ void Particles_BloodSpray(enum SprayParticlesType sptType, FLOAT3D vSource, FLOA
       fDamagePower*=2.0f;
       break;
     }
+    case SPT_METAL:
+    {
+      Particle_PrepareTexture(&_toMetalSprayTexture, PBT_BLEND);
+      fDamagePower *= 2.0f;
+      fGA *= 2.0f;
+      break;
+    }
+    case SPT_GLASS:
+    {
+      Particle_PrepareTexture(&_toGlassSprayTexture, PBT_BLEND);
+      fDamagePower *= 4.0f;
+      fGA *= 3.0f;
+      break;
+    }
     case SPT_NONE:
     {
       return;
@@ -4618,12 +4631,16 @@ void Particles_BloodSpray(enum SprayParticlesType sptType, FLOAT3D vSource, FLOA
       UBYTE ubRndCol = UBYTE(128 + GetParticleStarPos(int(iSpray + tmStarted * 10) % CT_MAX_PARTICLES_TABLE, 0) * 64);
       if( iBloodType==2) col = RGBAToColor( ubRndCol, 0, 0, ubAlpha);
       if( iBloodType==1) col = RGBAToColor( 0, ubRndCol, 0, ubAlpha);
+      fSize /= 2.0f;
+      fRotation = fT * 200.0f;
       break;
     }
     case SPT_SLIME:
     {
       UBYTE ubRndCol = UBYTE(128 + GetParticleStarPos(int(iSpray + tmStarted * 10) % CT_MAX_PARTICLES_TABLE, 0) * 64);
-      col = RGBAToColor(0, ubRndCol, 0, ubAlpha);
+      col = RGBAToColor(96, ubRndCol, 32, ubAlpha);
+      fSize /= 2.0f;
+      fRotation = fT * 200.0f;
       break;
     }
     case SPT_GOO:
@@ -4733,6 +4750,20 @@ void Particles_BloodSpray(enum SprayParticlesType sptType, FLOAT3D vSource, FLOA
       col = C_WHITE|(ubAlpha>>1);
       break;
     }
+    case SPT_METAL:
+    {
+        UBYTE ubRndCol = UBYTE(128 + GetParticleStarPos(int(iSpray + tmStarted * 10) % CT_MAX_PARTICLES_TABLE, 0) * 64);
+        fSize *= 0.25f;
+        fRotation = fT * 200.0f;
+        break;
+    }
+    case SPT_GLASS:
+    {
+        UBYTE ubRndCol = UBYTE(128 + GetParticleStarPos(int(iSpray + tmStarted * 10) % CT_MAX_PARTICLES_TABLE, 0) * 64);
+        fSize *= 0.25f;
+        fRotation = fT * 300.0f;
+        break;
+    }
     }
     Particle_RenderSquare( vPos, 0.25f*fSize*fSizeModifier, fRotation, MulColors(col,colMultiply));
   }
@@ -4814,6 +4845,8 @@ void Particles_BloodDroplet(FLOAT3D vSource, FLOAT3D vGDir, FLOAT fGA,
         UBYTE ubRndCol = UBYTE(128 + GetParticleStarPos(int(iSpray + tmStarted * 10) % CT_MAX_PARTICLES_TABLE, 0) * 64);
         if (iBloodType == 2) col = RGBAToColor(ubRndCol, 0, 0, ubAlpha);
         if (iBloodType == 1) col = RGBAToColor(0, ubRndCol, 0, ubAlpha);
+        fSize /= 2.0f;
+        fRotation = fT * 200.0f;
 
         Particle_RenderSquare(vPos, 0.25f * fSize * fSizeModifier, fRotation, MulColors(col, colMultiply));
     }
@@ -5103,7 +5136,6 @@ void Particles_AfterBurner(CEntity *pen, FLOAT tmSpawn, FLOAT fStretch, INDEX iG
   // all done
   Particle_Flush();
 
-  if( IsOfClass(pen, "PyramidSpaceShip")) return;
   Particle_PrepareTexture(&_toAfterBurnerHead, PBT_ADDALPHA);
   Particle_SetTexturePart( 1024, 1024, 0, 0);
   FLOAT fColMul=1.0f;
@@ -6300,7 +6332,6 @@ void Particles_RunAfterBurner(CEntity *pen, FLOAT tmEnd, FLOAT fStretch, INDEX i
   // all done
   Particle_Flush();
 
-  if( IsOfClass(pen, "PyramidSpaceShip")) return;
   Particle_PrepareTexture(&_toAfterBurnerHead, PBT_ADDALPHA);
   Particle_SetTexturePart( 1024, 1024, 0, 0);
   

@@ -102,6 +102,7 @@ public:
 #define ENF_TEMPPREDICTOR     (1L<<20)  // predictor that was spawned during prediction (doesn't have a predictor)
 #define ENF_HIDDEN            (1L<<21)  // set if the entity is hidden (for editing)
 #define ENF_NOSHADINGINFO     (1L<<22)  // the entity doesn't need FindShadingInfo(), it will set its own shading
+#define ENF_POLYGONALSHADOWS  (1L<<23)  // [Uni] model that has polygonal shadows
 
 
 // selections of entities
@@ -145,7 +146,7 @@ public:
 #define EPF_ORIENTINGTOGRAVITY    (1UL<<14)// while beeing re-oriented by gravity
 #define EPF_FLOATING              (1UL<<15)// while bouyancy causes floating in fluid
 #define EPF_FORCEADDED            (1UL<<16)// set if force-added to movers
-#define EPF_ONLADDER              (1UL<<17)// set if entity is on a ladder
+#define EPF_ONLADDER              (1UL<<17)// [Uni] set if entity is on a ladder
 
 // what to do when colliding
 #define EPF_ONBLOCK_MASK            (7UL<<29)
@@ -173,10 +174,17 @@ public:
 #define ECF_IGNOREBRUSHES  (1UL<<30)
 #define ECF_IGNOREMODELS   (1UL<<31)
 
+// [Uni] put new rendering flags here
+/* Entity rendering flags. */
+#define ERF_DONTRENDERINMIRROR     (1UL<<0) // don't render the entity in mirrors
+#define ERF_ONLYRENDERINMIRROR     (1UL<<1) // only render the entity in mirrors
+#define ERF_FLATSHADE              (1UL<<2) // render the entity with flat shading
+// TODO: Add the other flags in
 public:
   enum RenderType en_RenderType;  // how is it rendered
   ULONG en_ulPhysicsFlags;        // ways of interacting with environment
   ULONG en_ulCollisionFlags;      // which entities to collide with
+  ULONG en_ulRenderingFlags;      // [Uni] special flags for specific rendering effects
 
   ULONG en_ulFlags;               // various flags
   ULONG en_ulSpawnFlags;          // in what game types is this entity active
@@ -325,8 +333,8 @@ public:
   CTextureData *GetTextureDataForComponent(SLONG slID);
   // Get data for a model component
   CModelData *GetModelDataForComponent(SLONG slID);
-  // Get data for a ska model component
-  CModelInstanceData *GetModelInstanceDataForComponent(SLONG slID);
+  // Get instance for a ska model component
+  CModelInstance *GetModelInstanceForComponent(SLONG slID);
 
   // model manipulation functions -- only for RT_MODEL/RT_EDITORMODEL
   /* Set the model data for model entity. */
@@ -342,6 +350,8 @@ public:
   const CTFileName &GetModel(void);
   /* Start new animation for model entity. */
   void StartModelAnim(INDEX iNewModelAnim, ULONG ulFlags);
+  /* [Uni] Start new animation for ska model entity. */
+  void StartSkaModelAnim(INDEX iNewModelAnim, ULONG ulFlags, FLOAT fStrength, INDEX iGroup, FLOAT fSpeedMul = 1);
 
   /* Play a given sound object. */
   void PlaySound(CSoundObject &so, SLONG idSoundComponent, SLONG slPlayType);
@@ -390,6 +400,8 @@ public:
   virtual void AdjustBones();
   // Callback function for aditional shader params adjustment
   virtual void AdjustShaderParams(INDEX iSurfaceID,CShader *pShader,ShaderParams &spParams);
+  // [Uni] Callback function for ska model frame events
+  virtual void AdjustFrameEvents(INDEX iEventID);
 
   // precache given component
   void PrecacheModel(SLONG slID);
@@ -496,6 +508,8 @@ public:
   inline ULONG GetPhysicsFlags(void) const { return en_ulPhysicsFlags; };
   void SetCollisionFlags(ULONG ulFlags);
   inline ULONG GetCollisionFlags(void) const { return en_ulCollisionFlags; };
+  void SetRenderingFlags(ULONG ulFlags);
+  inline ULONG GetRenderingFlags(void) const { return en_ulRenderingFlags; };
   inline BOOL IsPredictor(void) const { return en_ulFlags&ENF_PREDICTOR; };
   inline BOOL IsPredicted(void) const { return en_ulFlags&ENF_PREDICTED; };
   inline BOOL IsPredictable(void) const { return en_ulFlags&ENF_PREDICTABLE; };
@@ -875,6 +889,7 @@ public:
 
 ENGINE_API void EntityAdjustBonesCallback(void *pData);
 ENGINE_API void EntityAdjustShaderParamsCallback(void *pData,INDEX iSurfaceID,CShader *pShader,ShaderParams &spParams);
+ENGINE_API void EntityFrameEventCallback(void *pData, INDEX iEventID);
 
 extern "C" ENGINE_API class CDLLEntityClass CEntity_DLLClass;
 extern "C" ENGINE_API class CDLLEntityClass CLiveEntity_DLLClass;

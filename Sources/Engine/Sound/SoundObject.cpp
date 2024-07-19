@@ -50,6 +50,7 @@ extern BOOL _bPredictionActive;
 // console variables for volume
 extern FLOAT snd_fSoundVolume;
 extern FLOAT snd_fMusicVolume;
+extern FLOAT snd_fVoiceVolume;
 
 static CTString GetPred(CEntity*pen)
 {
@@ -288,6 +289,9 @@ void CSoundObject::Play_internal( CSoundData *pCsdLink, SLONG slFlags)
       if(so_slFlags&SOF_MUSIC) {
         so_fLastLeftVolume  *= snd_fMusicVolume;
         so_fLastRightVolume *= snd_fMusicVolume;
+	  } else if (so_slFlags & SOF_VOICE) {
+        so_fLastLeftVolume  *= snd_fVoiceVolume;
+        so_fLastRightVolume *= snd_fVoiceVolume;
       } else {
         so_fLastLeftVolume  *= snd_fSoundVolume;
         so_fLastRightVolume *= snd_fSoundVolume;
@@ -604,6 +608,9 @@ void CSoundObject::PrepareSound(void)
   if(so_slFlags&SOF_MUSIC) {
     so_fLastLeftVolume  *= snd_fMusicVolume;
     so_fLastRightVolume *= snd_fMusicVolume;
+  } else if (so_slFlags & SOF_VOICE) {
+    so_fLastLeftVolume  *= snd_fVoiceVolume;
+    so_fLastRightVolume *= snd_fVoiceVolume;
   } else {
     so_fLastLeftVolume  *= snd_fSoundVolume;
     so_fLastRightVolume *= snd_fSoundVolume;

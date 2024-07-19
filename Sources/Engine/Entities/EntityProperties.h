@@ -94,7 +94,7 @@ public:
     EPT_FLOATQUAT3D = 23,       // FLOATquat3D
     EPT_FLOATMATRIX3D = 24,     // FLOATmatrix3D
     EPT_FLAGS = 25,             // flags - ULONG bitfield with names for each field
-    EPT_MODELINSTANCE = 26,
+    EPT_MODELINSTANCE = 26,     // CModelInstance
     EPT_DOUBLE = 27,            // DOUBLE
     EPT_INDEX64 = 28,           // INDEX64
     EPT_DOUBLE3D = 29,          // DOUBLE3D
@@ -288,7 +288,11 @@ inline ENGINE_API void ClearToDefault(FLOAT3D &v) { v = FLOAT3D(0,1,0); };
 inline ENGINE_API void ClearToDefault(COLOR &c) { c = 0xFFFFFFFF; };
 inline ENGINE_API void ClearToDefault(CModelData *&pmd) { pmd = NULL; };
 inline ENGINE_API void ClearToDefault(CTextureData *&pmt) { pmt = NULL; };
-inline ENGINE_API void ClearToDefault(CModelInstanceData *&pmid) { pmid = NULL; };
+inline ENGINE_API void ClearToDefault(CModelInstance *&pmi) { pmi = NULL; };
+inline ENGINE_API void ClearToDefault(INDEX64 &i) { i = 0; };
+inline ENGINE_API void ClearToDefault(DOUBLE &d) { d = 0.0; };
+inline ENGINE_API void ClearToDefault(DOUBLE3D &vd) { vd = DOUBLE3D(0, 1, 0); };
+inline ENGINE_API void ClearToDefault(DOUBLEplane3D &pl) { pl = DOUBLEplane3D(DOUBLE3D(0, 1, 0), 0); };
 
 
 #endif  /* include-once check. */

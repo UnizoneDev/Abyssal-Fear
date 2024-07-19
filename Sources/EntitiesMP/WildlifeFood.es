@@ -80,7 +80,7 @@ procedures:
     InitAsModel();
     SetPhysicsFlags(EPF_MODEL_SLIDING);
     SetCollisionFlags(ECF_MODEL);
-    SetHealth(40.0f);
+    SetHealth(30.0f);
     switch(m_wfType)
     {
       case WFT_ORANGE:
@@ -88,10 +88,12 @@ procedures:
         SetModelMainTexture(TEXTURE_ORANGE);
         break;
       case WFT_MEAT:
+        SetHealth(40.0f);
         SetModel(MODEL_FLESH);
         SetModelMainTexture(TEXTURE_FLESH_RED);
         break;
       case WFT_GREENMEAT:
+        SetHealth(40.0f);
         SetModel(MODEL_FLESH);
         SetModelMainTexture(TEXTURE_FLESH_GREEN);
         break;

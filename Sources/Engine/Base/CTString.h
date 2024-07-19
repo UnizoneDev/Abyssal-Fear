@@ -76,6 +76,10 @@ public:
   ULONG GetHash(void) const;
   // retain only first line of the string
   void OnlyFirstLine(void);
+  // [Uni] Convert string to all uppercase
+  CTString ToUpper(void) const;
+  // [Uni] Convert string to all lowercase
+  CTString ToLower(void) const;
 
   /* Equality comparison. */
   BOOL operator==(const CTString &strOther) const;

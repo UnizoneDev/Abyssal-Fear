@@ -34,6 +34,7 @@ event ESpawnBlood {
   BOOL bGenerateStain,
   INDEX iAmount,
   BOOL bGenerateStreams,
+  COLOR colStainColor,             // color of stains
 };
 
 %{
@@ -44,8 +45,6 @@ event ESpawnBlood {
     pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODSTAINGROW);
     pdec->PrecacheClass(CLASS_BASIC_EFFECT, BET_BLOODEXPLODE);
   }
-
-  extern FLOAT sam_tmSprayFadeWait;
 %}
 
 class CBloodUni: CMovableModelEntity {
@@ -70,6 +69,7 @@ properties:
  14 BOOL m_bGenerateStreams = FALSE,
  15 FLOAT3D m_vLastStain  = FLOAT3D(0,0,0), // where last stain was left
  16 enum SprayParticlesType m_sptType = SPT_NONE,                    // type of particles
+ 17 COLOR m_colStainColor = COLOR(C_WHITE|CT_OPAQUE),
 
 
 components:
@@ -105,6 +105,8 @@ functions:
     case SPT_BEAST_PROJECTILE_SPRAY:
     case SPT_AIRSPOUTS:
     case SPT_GOO:
+    case SPT_METAL:
+    case SPT_GLASS:
     {
       Particles_BloodSpray(m_sptType, GetLerpedPlacement().pl_PositionVector, m_vGDir, m_fGA,
         m_boxSizedOwner, m_vDirection, m_tmStarted, m_fDamagePower, m_colBurnColor);
@@ -155,7 +157,7 @@ functions:
     }
   };
 
-  void LeaveStain( BOOL bGrow)
+  void LeaveStain( BOOL bGrow, COLOR colBloodColor)
   {
     ESpawnEffect ese;
     FLOAT3D vPoint;
@@ -172,7 +174,7 @@ functions:
         && (m_vLastStain-vPoint).Length()>1.0f ) {
         m_vLastStain = vPoint;
         FLOAT fStretch = box.Size().Length();
-        ese.colMuliplier = C_WHITE|CT_OPAQUE;
+        ese.colMuliplier = colBloodColor;
         // stain
         if (bGrow) {
           ese.betType    = BET_BLOODSTAINGROW;
@@ -220,6 +222,7 @@ procedures:
     m_bGenerateStain = eBlood.bGenerateStain;
     m_iAmount = eBlood.iAmount;
     m_bGenerateStreams = eBlood.bGenerateStreams;
+    m_colStainColor = eBlood.colStainColor;
 
     // if owner doesn't exist (could be destroyed in initialization)
     if( eBlood.penOwner==NULL || eBlood.penOwner->en_pmoModelObject == NULL)
@@ -247,14 +250,14 @@ procedures:
       m_fGA = 30.0f;
     }
 
-    FLOAT fWaitTime = sam_tmSprayFadeWait;
+    FLOAT fWaitTime = 2.0f + FRnd() * 0.25f;
 
     wait (fWaitTime) {
       on (EBegin) : { resume; }
       on (ETouch eTouch) : {
         if (eTouch.penOther->GetRenderType()==CEntity::RT_BRUSH) {
           if(m_bGenerateStain) {
-            LeaveStain(FALSE);
+            LeaveStain(FALSE, m_colStainColor);
           }
         }
         resume;

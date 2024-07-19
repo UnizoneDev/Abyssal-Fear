@@ -39,6 +39,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define GR_SHADERS        6
 #define GR_ALLFRAMES_BBOX 7
 #define GR_BONE           8
+#define GR_FRAMEEVENT     9
 
 class Control
 {
@@ -91,6 +92,7 @@ public:
   void AddSurfaces(CModelInstance &mi,MeshLOD &mlod,HTREEITEM hParent);
   void AddColisionBoxes(CModelInstance &mi,HTREEITEM hParent);
   void AddAllFramesBBox(CModelInstance &mi,HTREEITEM hParent);
+  void AddFrameEvents(CModelInstance& mi, HTREEITEM hParent);
   HTREEITEM AddAnimSet(CModelInstance &mi,HTREEITEM hParent);
   HTREEITEM AddModelInst(CModelInstance &mi, CModelInstance *pmiParent, HTREEITEM hParent);
   void ExpandAllModelInstances(HTREEITEM hItem);
@@ -132,6 +134,7 @@ public:
   CDlgClient m_dlgTexture;
   CDlgClient m_dlgListOpt;
   CDlgClient m_dlgShader;
+  CDlgClient m_dlgFrameEvent;
   CDialog    *pdlgCurrent;
 
   CTexView   m_tvTexView;
@@ -166,6 +169,10 @@ public:
   CTextBox m_tbAFBBPosX;
   CTextBox m_tbAFBBPosY;
   CTextBox m_tbAFBBPosZ;
+  // controls in frame event dialog
+  CTextBox m_tbFevName;
+  CTextBox m_tbFevFrame;
+  CTextBox m_tbFevEvent;
 
   // controls in lod dialog
   CTextBox m_tbDistance;

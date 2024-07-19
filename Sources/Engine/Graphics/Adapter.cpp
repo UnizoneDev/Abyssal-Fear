@@ -22,9 +22,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 extern BOOL _bDedicatedServer;
-#ifdef SE1_D3D
-extern const D3DDEVTYPE d3dDevType;
-#endif // SE1_D3D
 
 // list of all modes avaliable through CDS
 static CListHead _lhCDSModes;
@@ -66,8 +63,9 @@ static CResolution _areResolutions[] =
   {  856,  480 },
   {  1280, 720 },
   {  1920, 1080 },
+  {  2560, 1440 },
 };
-// THIS NUMBER MUST NOT BE OVER 25! (otherwise change it in adapter.h)
+// THIS NUMBER MUST NOT BE OVER 26! (otherwise change it in adapter.h)
 static const INDEX MAX_RESOLUTIONS = sizeof(_areResolutions)/sizeof(_areResolutions[0]);
 
 
@@ -148,80 +146,6 @@ void CGfxLibrary::InitAPIs(void)
     adm[2].dm_pixSizeI =  800;  adm[2].dm_pixSizeJ = 600;  adm[2].dm_ddDepth = DD_16BIT;
     adm[3].dm_pixSizeI = 1024;  adm[3].dm_pixSizeJ = 768;  adm[3].dm_ddDepth = DD_16BIT;
   }
-
-  // try to init Direct3D 8
-#ifdef SE1_D3D
-  BOOL bRes = InitDriver_D3D();
-  if( !bRes) return; // didn't made it?
-  
-  // determine DX8 adapters and display modes
-  const INDEX ctMaxAdapters = gl_pD3D->GetAdapterCount();
-  INDEX &ctAdapters = gl_gaAPI[GAT_D3D].ga_ctAdapters;
-  ctAdapters = 0;
-
-  for( INDEX iAdapter=0; iAdapter<ctMaxAdapters; iAdapter++)
-  {
-    pda = &gl_gaAPI[1].ga_adaAdapter[ctAdapters];
-    pda->da_ulFlags = NONE;
-    pda->da_ctDisplayModes = 0;
-    INDEX ctModes = gl_pD3D->GetAdapterModeCount(iAdapter);
-    INDEX iMode;
-    HRESULT hr;
-
-    // check whether 32-bits rendering modes are supported
-    hr = gl_pD3D->CheckDeviceType( iAdapter, d3dDevType, D3DFMT_A8R8G8B8, D3DFMT_A8R8G8B8, FALSE);
-    if( hr!=D3D_OK) {
-      hr = gl_pD3D->CheckDeviceType( iAdapter, d3dDevType, D3DFMT_X8R8G8B8, D3DFMT_X8R8G8B8, FALSE);
-      if( hr!=D3D_OK) pda->da_ulFlags |= DAF_16BITONLY;
-    }
-
-    // check whether windowed rendering modes are supported
-    D3DCAPS8 d3dCaps;
-    gl_pD3D->GetDeviceCaps( iAdapter, d3dDevType, &d3dCaps);
-    if( !(d3dCaps.Caps2 & D3DCAPS2_CANRENDERWINDOWED)) pda->da_ulFlags |= DAF_FULLSCREENONLY;
-
-    // enumerate modes thru resolution list
-    for( iResolution=0; iResolution<MAX_RESOLUTIONS; iResolution++)
-    {
-      CResolution &re = _areResolutions[iResolution];
-      for( iMode=0; iMode<ctModes; iMode++) {
-        // if resolution matches and display depth is 16 or 32 bit
-        D3DDISPLAYMODE d3dDisplayMode;
-        gl_pD3D->EnumAdapterModes( iAdapter, iMode, &d3dDisplayMode);
-        if( d3dDisplayMode.Width==re.re_pixSizeI && d3dDisplayMode.Height==re.re_pixSizeJ
-         && (d3dDisplayMode.Format==D3DFMT_A8R8G8B8 || d3dDisplayMode.Format==D3DFMT_X8R8G8B8
-         ||  d3dDisplayMode.Format==D3DFMT_A1R5G5B5 || d3dDisplayMode.Format==D3DFMT_X1R5G5B5 
-         ||  d3dDisplayMode.Format==D3DFMT_R5G6B5)) {
-          hr = gl_pD3D->CheckDeviceType( iAdapter, d3dDevType, d3dDisplayMode.Format, d3dDisplayMode.Format, FALSE);
-          if( hr!=D3D_OK) continue;
-
-          // make a new display mode
-          CDisplayMode &dm = pda->da_admDisplayModes[pda->da_ctDisplayModes];
-          dm.dm_pixSizeI = re.re_pixSizeI;
-          dm.dm_pixSizeJ = re.re_pixSizeJ;
-          dm.dm_ddDepth  = DD_DEFAULT;
-          pda->da_ctDisplayModes++;
-          break;
-        }
-      }
-    }
-
-    // get adapter identifier
-    ctAdapters++;
-    D3DADAPTER_IDENTIFIER8 d3dAdapterIdentifier;
-    gl_pD3D->GetAdapterIdentifier( iAdapter, D3DENUM_NO_WHQL_LEVEL, &d3dAdapterIdentifier);
-    pda->da_strVendor   = "MS DirectX 8";
-    pda->da_strRenderer = d3dAdapterIdentifier.Description;
-    pda->da_strVersion.PrintF("%d.%d.%d.%d", d3dAdapterIdentifier.DriverVersion.HighPart >>16,
-                                             d3dAdapterIdentifier.DriverVersion.HighPart & 0xFFFF,
-                                             d3dAdapterIdentifier.DriverVersion.LowPart >>16,    
-                                             d3dAdapterIdentifier.DriverVersion.LowPart & 0xFFFF);
-  }
-  // shutdown DX8 (we'll start it again if needed)
-  D3DRELEASE( gl_pD3D, TRUE);
-  if( gl_hiDriver!=NONE) FreeLibrary(gl_hiDriver);
-  gl_hiDriver = NONE;
-#endif // SE1_D3D
 }
 
 // get list of all modes avaliable through CDS -- do not modify/free the returned list

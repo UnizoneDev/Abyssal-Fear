@@ -244,8 +244,6 @@ extern INDEX inp_ctJoysticksAllowed;
 extern INDEX inp_bForceJoystickPolling;
 extern INDEX inp_bAutoDisableJoysticks;
 
-extern INDEX wed_bUseGenericTextureReplacement = FALSE;
-
 extern void RendererInfo(void);
 extern void ClearRenderer(void);
 
@@ -610,7 +608,7 @@ static void StockInfo(void)
   CPrintF("    Skeletons: %5d (%5.2f MB)\n", _pSkeletonStock->GetTotalCount(), fSkaBytes);
   CPrintF("     AnimSets: %5d (%5.2f MB)\n", _pAnimSetStock->GetTotalCount(),  fAstBytes);
   CPrintF("      Shaders: %5d (%5.2f MB)\n", _pShaderStock->GetTotalCount(),   fShaBytes);
-  CPrintF("      Ska Models: %5d (%5.2f MB)\n", _pModelInstanceStock->GetTotalCount(), fSmcBytes);
+  CPrintF("   Ska Models: %5d (%5.2f MB)\n", _pModelInstanceStock->GetTotalCount(), fSmcBytes);
   CPrintF("\n");
   CPrintF("CollisionGrid: %.2f MB\n", slCgrBytes*dToMB);
   CPrintF("--------------\n");
@@ -890,8 +888,6 @@ void CNetworkLibrary::Init(const CTString &strGameID)
   _pShell->DeclareSymbol("persistent user INDEX inp_ctJoysticksAllowed;",    &inp_ctJoysticksAllowed);
   _pShell->DeclareSymbol("persistent user INDEX inp_bForceJoystickPolling;", &inp_bForceJoystickPolling);
   _pShell->DeclareSymbol("persistent user INDEX inp_bAutoDisableJoysticks;", &inp_bAutoDisableJoysticks);
-
-  _pShell->DeclareSymbol("persistent user INDEX wed_bUseGenericTextureReplacement;", &wed_bUseGenericTextureReplacement);
 
   _pShell->DeclareSymbol("persistent user CTString ga_strServer;", &ga_strServer);
   _pShell->DeclareSymbol("persistent user CTString ga_strMSLegacy;", &ga_strMSLegacy);

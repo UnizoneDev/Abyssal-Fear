@@ -133,12 +133,6 @@ void shaRender(void)
 // Render aditional pass for fog and haze
 void shaDoFogPass(void)
 {
-  // if full bright 
-  if(shaGetFlags()&BASE_FULL_BRIGHT) {
-    // no fog pass 
-    return;
-  }
-
   ASSERT(_paFogUVMap==NULL);
   ASSERT(_paHazeUVMap==NULL);
 
@@ -836,6 +830,21 @@ void shaSetProgramIndex(const char* strUniform, INDEX iIndex)
 void shaSetProgramFloat(const char* strUniform, FLOAT fFloat)
 {
     gfxSetShaderProgramFloat(strUniform, _ulProgram, fFloat);
+}
+
+void shaSetProgramVector2(const char* strUniform, FLOAT fX, FLOAT fY)
+{
+    gfxSetShaderProgramVector2(strUniform, _ulProgram, fX, fY);
+}
+
+void shaSetProgramVector3(const char* strUniform, FLOAT fX, FLOAT fY, FLOAT fZ)
+{
+    gfxSetShaderProgramVector3(strUniform, _ulProgram, fX, fY, fZ);
+}
+
+void shaSetProgramVector4(const char* strUniform, FLOAT fX, FLOAT fY, FLOAT fZ, FLOAT fW)
+{
+    gfxSetShaderProgramVector4(strUniform, _ulProgram, fX, fY, fZ, fW);
 }
 
 

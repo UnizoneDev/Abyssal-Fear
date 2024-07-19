@@ -38,6 +38,7 @@ CMGButton::CMGButton(void)
 	mg_bMental = FALSE;
 	mg_bEditing = FALSE;
 	mg_bHighlighted = FALSE;
+	mg_bShake = FALSE;
 }
 
 

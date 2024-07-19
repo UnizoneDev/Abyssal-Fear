@@ -98,7 +98,7 @@ functions:
     PrecacheSound(SOUND_WOUND);
     PrecacheSound(SOUND_DEATH1);
     PrecacheSound(SOUND_DEATH2);
-    PrecacheClass(CLASS_PROJECTILE, PRT_MUTANT_SPIT);
+    PrecacheClass(CLASS_PROJECTILE, PRT_ABOMINATION_SPIT);
     PrecacheClass(CLASS_PROJECTILE, PRT_SHAMBLER_BLOOD_BUNDLE);
   };
 
@@ -247,7 +247,7 @@ functions:
     StartModelAnim(SHAMBLER1_ANIM_SPIT, 0);
 
     autowait(0.375f);
-    ShootProjectile(PRT_MUTANT_SPIT, FLOAT3D(0.0f, 1.75f, 0.0f), ANGLE3D(0, 0, 0));
+    ShootProjectile(PRT_ABOMINATION_SPIT, FLOAT3D(0.0f, 1.75f, 0.0f), ANGLE3D(0, 0, 0));
     PlaySound(m_soSound, SOUND_HIT, SOF_3D);
 
     autowait(0.5f + FRnd()/3);
@@ -357,7 +357,7 @@ functions:
         }
 
         // if the target is visible and can be set as new enemy
-        if (IsVisible(eSound.penTarget) && SetTargetSoft(eSound.penTarget)) {
+        if (SetTargetSoft(eSound.penTarget)) {
           // react to it
           jump WakeUp();
         }
@@ -409,6 +409,11 @@ functions:
         on (EReturn) : {
           stop;
         };
+        // if damaged
+        on(EDamage eDamage) : {
+          // wake up
+          jump CEnemyBase::Active();
+        }
         // if dead
         on(EDeath eDeath) : {
           // die
@@ -429,8 +434,8 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_LESSER;
-    SetHealth(150.0f);
-    m_fMaxHealth = 150.0f;
+    SetHealth(130.0f);
+    m_fMaxHealth = 130.0f;
     m_fDamageWounded = 60.0f;
     m_iScore = 2500;
     en_tmMaxHoldBreath = 30.0f;
@@ -462,7 +467,7 @@ functions:
         
         // setup attack distances
         m_fAttackDistance = 100.0f;
-        m_fCloseDistance = 3.0f;
+        m_fCloseDistance = 2.75f;
         m_fStopDistance = 1.5f;
         m_fAttackFireTime = 0.5f;
         m_fCloseFireTime = 1.0f;

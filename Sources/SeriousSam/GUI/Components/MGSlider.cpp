@@ -51,35 +51,36 @@ void CMGSlider::ApplyGivenPosition(INDEX iMin, INDEX iMax, INDEX iCur)
   ApplyCurrentPosition();
 }
 
-
 BOOL CMGSlider::OnKeyDown(int iVKey)
 {
-  // if scrolling left
-  if ((iVKey == VK_BACK || iVKey == VK_LEFT) && mg_iCurPos>mg_iMinPos) {
-    mg_iCurPos--;
-    ApplyCurrentPosition();
-    return TRUE;
-    // if scrolling right
-  } else if ((iVKey == VK_RETURN || iVKey == VK_RIGHT) && mg_iCurPos<mg_iMaxPos) {
-    mg_iCurPos++;
-    ApplyCurrentPosition();
-    return TRUE;
-    // if lmb pressed
-  } else if (iVKey == VK_LBUTTON) {
-    // get position of slider box on screen
-    PIXaabbox2D boxSlider = GetSliderBox();
-    // if mouse is within
-    if (boxSlider >= PIX2D(_pixCursorPosI, _pixCursorPosJ)) {
-      // set new position exactly where mouse pointer is
-      FLOAT fRatio = FLOAT(_pixCursorPosI - boxSlider.Min()(1)) / boxSlider.Size()(1);
-      fRatio = (fRatio - 0.01f) / (0.99f - 0.01f);
-      fRatio = Clamp(fRatio, 0.0f, 1.0f);
-      mg_iCurPos = fRatio*(mg_iMaxPos - mg_iMinPos) + mg_iMinPos;
-      ApplyCurrentPosition();
-      return TRUE;
+    // if scrolling left
+    if ((iVKey == VK_BACK || iVKey == VK_LEFT) && mg_iCurPos > mg_iMinPos) {
+        mg_iCurPos--;
+        ApplyCurrentPosition();
+        return TRUE;
+        // if scrolling right
     }
-  }
-  return CMenuGadget::OnKeyDown(iVKey);
+    else if ((iVKey == VK_RETURN || iVKey == VK_RIGHT) && mg_iCurPos < mg_iMaxPos) {
+        mg_iCurPos++;
+        ApplyCurrentPosition();
+        return TRUE;
+        // if lmb pressed
+    }
+    else if (iVKey == VK_LBUTTON) {
+        // get position of slider box on screen
+        PIXaabbox2D boxSlider = GetSliderBox();
+        // if mouse is within
+        if (boxSlider >= PIX2D(_pixCursorPosI, _pixCursorPosJ)) {
+            // set new position exactly where mouse pointer is
+            FLOAT fRatio = FLOAT(_pixCursorPosI - boxSlider.Min()(1)) / boxSlider.Size()(1);
+            fRatio = (fRatio - 0.01f) / (0.99f - 0.01f);
+            fRatio = Clamp(fRatio, 0.0f, 1.0f);
+            mg_iCurPos = fRatio * (mg_iMaxPos - mg_iMinPos) + mg_iMinPos;
+            ApplyCurrentPosition();
+            return TRUE;
+        }
+    }
+    return CMenuGadget::OnKeyDown(iVKey);
 }
 
 PIXaabbox2D CMGSlider::GetSliderBox(void)

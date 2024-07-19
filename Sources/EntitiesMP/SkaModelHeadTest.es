@@ -72,24 +72,6 @@ void CSkaModelHeadTest(void) {
   idCorpseBox_OnFront     = ska_GetIDFromStringTable("DefaultOnFront");
 };
 
-void BuildModelInstance() {
-  en_pmiModelInstance = CreateModelInstance("SkaModelHeadTest");
-  CModelInstance *pmi = GetModelInstance();
-  try {
-    // setup staring corpse
-    pmi->AddMesh_t((CTString)"Models\\NPCs\\Corpse\\SKACorpse1\\Corpse1.bm");
-    pmi->AddSkeleton_t((CTString)"Models\\NPCs\\Corpse\\SKACorpse1\\Corpse1.bs");
-    pmi->AddAnimSet_t((CTString)"Models\\NPCs\\Corpse\\SKACorpse1\\Corpse1.ba");
-    pmi->AddTexture_t((CTString)"Models\\NPCs\\Corpse\\Corpse1\\Corpse1.tex","Corpse1",NULL);
-    pmi->AddColisionBox("DefaultTPose",FLOAT3D(-0.5f,0.0f,-0.5f),FLOAT3D(0.5f,2.125f,0.5f));
-
-    // Set colision info
-    SetSkaColisionInfo();
-  } catch(char *strErr) {
-    FatalError(strErr);
-  }
-};
-
 CPlayer *AcquireViewTarget() {
     // find actual number of players
     INDEX ctMaxPlayers = GetMaxPlayers();
@@ -174,7 +156,7 @@ procedures:
     {
       case SKHAT_TPOSE:
       {
-       GetModelInstance()->AddAnimation(idCorpseAnim_TPose,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+       StartSkaModelAnim(idCorpseAnim_TPose,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idCorpseBox_TPose);
        ASSERT(iBoxIndex>=0);
        ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
@@ -184,7 +166,7 @@ procedures:
 
       case SKHAT_ONBACK:
       {
-       GetModelInstance()->AddAnimation(idCorpseAnim_OnBack,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+       StartSkaModelAnim(idCorpseAnim_OnBack,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idCorpseBox_OnBack);
        ASSERT(iBoxIndex>=0);
        ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
@@ -194,7 +176,7 @@ procedures:
 
       case SKHAT_ONFRONT:
       {
-       GetModelInstance()->AddAnimation(idCorpseAnim_OnFront,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+       StartSkaModelAnim(idCorpseAnim_OnFront,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idCorpseBox_OnFront);
        ASSERT(iBoxIndex>=0);
        ChangeCollisionBoxIndexWhenPossible(iBoxIndex);
@@ -204,7 +186,7 @@ procedures:
 
       case SKHAT_CRUCIFIED:
       {
-       GetModelInstance()->AddAnimation(idCorpseAnim_Crucified,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+       StartSkaModelAnim(idCorpseAnim_Crucified,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
        INDEX iBoxIndex = GetModelInstance()->GetColisionBoxIndex(idCorpseBox_TPose);
        ASSERT(iBoxIndex>=0);
        ChangeCollisionBoxIndexWhenPossible(iBoxIndex);

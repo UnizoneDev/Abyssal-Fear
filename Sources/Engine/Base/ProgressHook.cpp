@@ -69,6 +69,7 @@ void SetLoadingBackdrop(CTFileName fnmTexture)
 {
     ASSERT(fnmTexture != NULL);
     ptoLoadingBackdrop->SetData_t(fnmTexture);
+	((CTextureData*)ptoLoadingBackdrop->GetData())->Force(TEX_CONSTANT);
 }
 
 void ClearLoadingBackdrop(void)

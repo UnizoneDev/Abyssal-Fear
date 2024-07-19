@@ -99,6 +99,7 @@ static CTextureObject _toHealth;
 static CTextureObject _toOxygen;
 static CTextureObject _toFlame;
 static CTextureObject _toPoison;
+static CTextureObject _toAcid;
 static CTextureObject _toScore;
 static CTextureObject _toHiScore;
 static CTextureObject _toMessage;
@@ -126,6 +127,7 @@ static CTextureObject _toWShotgun;
 static CTextureObject _toWSMG;
 static CTextureObject _toWPipe;
 static CTextureObject _toWStrongPistol;
+static CTextureObject _toWPlank;
 
 // powerup textures (ORDER IS THE SAME AS IN PLAYER.ES!)
 #define MAX_POWERUPS 4
@@ -167,23 +169,23 @@ struct WeaponInfo {
   BOOL wi_bHasWeapon;
 };
 
-extern struct WeaponInfo _awiWeapons[9];
+extern struct WeaponInfo _awiWeapons[10];
 static struct AmmoInfo _aaiAmmo[4] = {
     { &_toABullets,       &_awiWeapons[4],  NULL,  0, 0, 0, -9, FALSE }, //  0
     { &_toAShells,        &_awiWeapons[5],  NULL,  0, 0, 0, -9, FALSE }, //  1
     { &_toAMediumBullets, &_awiWeapons[6],  NULL,  0, 0, 0, -9, FALSE }, //  2
-    { &_toAStrongBullets, &_awiWeapons[8],  NULL,  0, 0, 0, -9, FALSE }, //  0
+    { &_toAStrongBullets, &_awiWeapons[8],  NULL,  0, 0, 0, -9, FALSE }, //  3
 };
 static struct AmmoInfo _aaiInsertedAmmo[4] = {
     { &_toAInsertedBullets,       &_awiWeapons[4],  NULL,  0, 0, 0, -9, FALSE }, //  0
     { &_toAInsertedShells,        &_awiWeapons[5],  NULL,  0, 0, 0, -9, FALSE }, //  1
     { &_toAInsertedSMGBullets,    &_awiWeapons[6],  NULL,  0, 0, 0, -9, FALSE }, //  2
-    { &_toAInsertedStrongBullets, &_awiWeapons[8],  NULL,  0, 0, 0, -9, FALSE }, //  2
+    { &_toAInsertedStrongBullets, &_awiWeapons[8],  NULL,  0, 0, 0, -9, FALSE }, //  3
 };
 static const INDEX aiAmmoRemap[4] = { 0,  1,  2,  3 };
 static const INDEX aiInsertedAmmoRemap[4] = { 0,  1,  2,  3 };
 
-struct WeaponInfo _awiWeapons[9] = {
+struct WeaponInfo _awiWeapons[10] = {
   { WEAPON_NONE,            NULL,                 NULL,         NULL,         FALSE },   //  0
   { WEAPON_HOLSTERED,       &_toWHolstered,       NULL,         NULL,         FALSE },   //  1
   { WEAPON_KNIFE,           &_toWKnife,           NULL,         NULL,         FALSE },   //  2
@@ -193,6 +195,7 @@ struct WeaponInfo _awiWeapons[9] = {
   { WEAPON_SMG,             &_toWSMG,             &_aaiAmmo[2], &_aaiInsertedAmmo[2], FALSE },   //  6
   { WEAPON_PIPE,            &_toWPipe,            NULL,         NULL,         FALSE },   //  7
   { WEAPON_STRONGPISTOL,    &_toWStrongPistol,    &_aaiAmmo[3], &_aaiInsertedAmmo[3], FALSE },   //  8
+  { WEAPON_PLANK,           &_toWPlank,           NULL,         NULL,         FALSE },   //  7
 };
 
 
@@ -664,7 +667,7 @@ extern void DrawHUD( const CPlayer *penPlayerCurrent, CDrawPort *pdpCurrent, BOO
   _pDP        = pdpCurrent;
   _pixDPWidth   = _pDP->GetWidth();
   _pixDPHeight  = _pDP->GetHeight();
-  _fResolutionScaling = (FLOAT)_pixDPWidth /640.0f;
+  _fResolutionScaling = (FLOAT)_pixDPHeight /480.0f;
 
   // Calculate wide adjustment dynamically (to replace static CDrawPort::dp_fWideAdjustment)
   _fWideAdjustment = ((FLOAT)_pixDPHeight / (FLOAT)_pixDPWidth) * (4.0f / 3.0f);
@@ -931,6 +934,44 @@ extern void DrawHUD( const CPlayer *penPlayerCurrent, CDrawPort *pdpCurrent, BOO
     bOxygenOnScreen = TRUE;
   }
 
+  // draw damage info if needed
+  BOOL bFireOnScreen = FALSE;
+  BOOL bPoisonOnScreen = FALSE;
+  BOOL bAcidOnScreen = FALSE;
+  fValue = _penPlayer->m_tmWoundedTime - (_pTimer->CurrentTick() - _penPlayer->m_tmLastDamage);
+  if (_penPlayer->IsConnected() && (_penPlayer->GetFlags() & ENF_ALIVE) && fValue > -6.0f) {
+      if (_penPlayer->m_dmtLastDamageType == DMT_BURNING) {
+        // prepare and draw fire damage info
+        fRow = pixBottomBound - fOneUnit - fNextUnit;
+        fCol = 320.0f;
+        fNormValue = fValue / 5.0f;
+        fNormValue = ClampDn(fNormValue, 0.0f);
+        HUD_DrawIcon(fCol, fRow, _toFlame, C_WHITE /*_colHUD*/, fNormValue, TRUE);
+        bFireOnScreen = TRUE;
+      } else if (_penPlayer->m_dmtLastDamageType == DMT_STING) {
+        // prepare and draw sting damage info
+        fRow = pixBottomBound - fOneUnit - fNextUnit;
+        fCol = 320.0f;
+        fNormValue = fValue / 5.0f;
+        fNormValue = ClampDn(fNormValue, 0.0f);
+        HUD_DrawIcon(fCol, fRow, _toPoison, C_WHITE /*_colHUD*/, fNormValue, TRUE);
+        bPoisonOnScreen = TRUE;
+      }
+      else if (_penPlayer->m_dmtLastDamageType == DMT_ACID) {
+        // prepare and draw sting damage info
+        fRow = pixBottomBound - fOneUnit - fNextUnit;
+        fCol = 320.0f;
+        fNormValue = fValue / 5.0f;
+        fNormValue = ClampDn(fNormValue, 0.0f);
+        HUD_DrawIcon(fCol, fRow, _toAcid, C_WHITE /*_colHUD*/, fNormValue, TRUE);
+        bAcidOnScreen = TRUE;
+      }
+  } else {
+    bFireOnScreen = FALSE;
+    bPoisonOnScreen = FALSE;
+    bAcidOnScreen = FALSE;
+  }
+
   // draw boss energy if needed
   if( _penPlayer->m_penMainMusicHolder!=NULL) {
     CMusicHolder &mh = (CMusicHolder&)*_penPlayer->m_penMainMusicHolder;
@@ -957,7 +998,7 @@ extern void DrawHUD( const CPlayer *penPlayerCurrent, CDrawPort *pdpCurrent, BOO
       fRow = pixTopBound + fOneUnit + fNextUnit;
       fCol = 184.0f;
       fAdv = fAdvUnit+ fOneUnit*16/2 -fHalfUnit;
-      if( bOxygenOnScreen) fRow += fNextUnit;
+      if( bOxygenOnScreen || bFireOnScreen || bPoisonOnScreen || bAcidOnScreen) fRow += fNextUnit;
       HUD_DrawBar(    fCol+fAdv, fRow, fOneUnit*16*0.995, fOneUnit*0.9375, BO_LEFT, NONE, fNormValue);
       HUD_DrawIcon(   fCol,      fRow, _toHealth, C_WHITE /*_colHUD*/, fNormValue, FALSE);
     }
@@ -1172,6 +1213,7 @@ extern void InitHUD(void)
     _toOxygen.SetData_t(  CTFILENAME("Textures\\Interface\\OxygenIcon.tex"));
     _toFlame.SetData_t(   CTFILENAME("Textures\\Interface\\FlameIcon.tex"));
     _toPoison.SetData_t(  CTFILENAME("Textures\\Interface\\PoisonIcon.tex"));
+    _toAcid.SetData_t(    CTFILENAME("Textures\\Interface\\AcidIcon.tex"));
     _toFrags.SetData_t(   CTFILENAME("TexturesMP\\Interface\\IBead.tex"));
     _toDeaths.SetData_t(  CTFILENAME("Textures\\Interface\\DeathIcon.tex"));
     _toScore.SetData_t(   CTFILENAME("TexturesMP\\Interface\\IScore.tex"));
@@ -1199,6 +1241,7 @@ extern void InitHUD(void)
     _toWPipe.SetData_t(            CTFILENAME("Textures\\Interface\\WPipe.tex"));
     _toWStrongPistol.SetData_t(    CTFILENAME("Textures\\Interface\\WStrongPistol.tex"));
     _toIPainkillers.SetData_t(     CTFILENAME("Textures\\Interface\\IPainkillers.tex"));
+    _toWPlank.SetData_t(           CTFILENAME("Textures\\Interface\\WPlank.tex"));
 
     // initialize tile texture
     _toTile.SetData_t( CTFILENAME("Textures\\Interface\\Tile.tex"));
@@ -1209,6 +1252,7 @@ extern void InitHUD(void)
     ((CTextureData*)_toOxygen .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toFlame  .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toPoison .GetData())->Force(TEX_CONSTANT);
+    ((CTextureData*)_toAcid   .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toFrags  .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toDeaths .GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toScore  .GetData())->Force(TEX_CONSTANT);
@@ -1233,6 +1277,7 @@ extern void InitHUD(void)
     ((CTextureData*)_toWSMG.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toWPipe.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toWStrongPistol.GetData())->Force(TEX_CONSTANT);
+    ((CTextureData*)_toWPlank.GetData())->Force(TEX_CONSTANT);
     
     ((CTextureData*)_toIPainkillers.GetData())->Force(TEX_CONSTANT);
     ((CTextureData*)_toTile      .GetData())->Force(TEX_CONSTANT);

@@ -36,6 +36,8 @@ public:
   INDEX mg_iCursorPos;
   INDEX mg_iIndex;
 
+  BOOL  mg_bShake;    // [Uni] for buttons that get excited
+
   void(*mg_pActivatedFunction)(void);
 
   CMGButton(void);

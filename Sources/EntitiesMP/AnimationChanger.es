@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 uses "EntitiesMP/ModelHolder2";
 uses "EntitiesMP/ModelHolder3";
 uses "EntitiesMP/UZModelHolder";
+uses "EntitiesMP/UZSkaModelHolder";
 uses "EntitiesMP/Light";
 
 // event sent to the entity that should change animation
@@ -144,8 +145,9 @@ procedures:
       !IsOfClass(m_penTarget, "ModelHolder2") &&
       !IsOfClass(m_penTarget, "ModelHolder3") &&
       !IsOfClass(m_penTarget, "UZModelHolder") &&
+      !IsOfClass(m_penTarget, "UZSkaModelHolder") &&
       !IsOfClass(m_penTarget, "Light")) {
-      WarningMessage("Target must be AnimationHub, ModelHolder2, ModelHolder3, UZModelHolder, or Light!");
+      WarningMessage("Target must be AnimationHub, ModelHolder2, ModelHolder3, UZModelHolder, UZSkaModelHolder, or Light!");
       m_penTarget=NULL;
     }
     if (m_penTarget==NULL) {

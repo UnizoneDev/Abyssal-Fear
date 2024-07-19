@@ -22,7 +22,7 @@ CDrawPort *_pDrawPort = NULL;
 CViewPort *_pViewPort = NULL;
 static INDEX gui_bEnableRequesterThumbnails=TRUE;
 
-UINT APIENTRY FileOpenRequesterHook( HWND hdlg, UINT uiMsg, WPARAM wParam,	LPARAM lParam)
+UINT_PTR APIENTRY FileOpenRequesterHook( HWND hdlg, UINT uiMsg, WPARAM wParam,	LPARAM lParam)
 {
   _pShell->DeclareSymbol("persistent user INDEX gui_bEnableRequesterThumbnails;", &gui_bEnableRequesterThumbnails);
   if( !gui_bEnableRequesterThumbnails)

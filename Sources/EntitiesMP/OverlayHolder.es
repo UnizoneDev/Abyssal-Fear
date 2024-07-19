@@ -47,7 +47,8 @@ properties:
   6 FLOAT m_fOverlayStretch "Overlay stretch" 'S' = 1.0f,
   7 COLOR m_colOverlay "Overlay color" 'C' = C_WHITE,
   8 enum OverlayImageType m_oiType "Overlay type" 'O' = OIT_STATIC,
-  9 FLOAT m_fShakeAmount "Shake amount" = 1.0f,
+  9 FLOAT m_fXShakeAmount "X Shake intensity" = 1.0f,
+ 10 FLOAT m_fYShakeAmount "Y Shake intensity" = 1.0f,
 
 components:
   1 model   MODEL_MARKER     "Models\\Editor\\MessageHolder.mdl",
@@ -136,7 +137,18 @@ functions:
     PIXaabbox2D boxScr=PIXaabbox2D(
       PIX2D(fXCenter-picW/2, fYCenter-picH/2),
       PIX2D(fXCenter+picW/2, fYCenter+picH/2) );
-    pdpCurr->PutTexture(&_toOverlayTexture, boxScr, m_colOverlay);
+
+    if(m_oiType == OIT_SHAKE) {
+      FLOAT fXShake = fXCenter + FRnd()*m_fXShakeAmount;
+      FLOAT fYShake = fYCenter + FRnd()*m_fYShakeAmount;
+      PIXaabbox2D boxScrShake=PIXaabbox2D(
+        PIX2D(fXShake-picW/2, fYShake-picH/2),
+        PIX2D(fXShake+picW/2, fYShake+picH/2) );
+
+      pdpCurr->PutTexture(&_toOverlayTexture, boxScrShake, m_colOverlay);
+    } else {
+      pdpCurr->PutTexture(&_toOverlayTexture, boxScr, m_colOverlay);
+    }
 
     pdpCurr->Unlock();
     pdp->Lock();

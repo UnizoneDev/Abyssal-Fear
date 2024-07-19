@@ -20,6 +20,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 uses "EntitiesMP/EnemyBase";
 uses "EntitiesMP/EnemyMarker";
+uses "EntitiesMP/ExplosiveBarrel";
+uses "EntitiesMP/UZModelHolder";
+uses "EntitiesMP/UZSkaModelHolder";
 
 enum EnemySoundType {
   0 EST_NONE         "None",
@@ -57,6 +60,13 @@ enum EnemyActionType {
   8 EAT_TOGGLEQUIET     "Toggle Quietness",
   9 EAT_TOGGLEPITCHECK  "Toggle Pit Checking",
  10 EAT_TOGGLESILENT    "Toggle Silence",
+ 11 EAT_DODGELEFT       "Dodge Left",
+ 12 EAT_DODGERIGHT      "Dodge Right",
+ 13 EAT_STRAFELEFT      "Strafe Left",
+ 14 EAT_STRAFERIGHT     "Strafe Right",
+ 15 EAT_BACKPEDAL       "Backpedal",
+ 16 EAT_SPECIAL1        "Special Action 1",
+ 17 EAT_SPECIAL2        "Special Action 2",
 };
 
 // event sent to the enemy/NPC that should do this
@@ -162,8 +172,9 @@ procedures:
 
     // check marker type
     if (m_penAttackTarget!=NULL && 
-      !IsDerivedFromClass(m_penAttackTarget, "Enemy Base")) {
-      WarningMessage("Attack target must be derived from EnemyBase!");
+      (!IsDerivedFromClass(m_penAttackTarget, "Enemy Base") && !IsOfClass(m_penAttackTarget, "ExplosiveBarrel")
+             && !IsOfClass(m_penAttackTarget, "UZModelHolder") && !IsOfClass(m_penAttackTarget, "UZSkaModelHolder"))) {
+      WarningMessage("Attack target must be derived from EnemyBase, ExplosiveBarrel, UZModelHolder, or UZSkaModelHolder!");
       m_penAttackTarget=NULL;
     }
 

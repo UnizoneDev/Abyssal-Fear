@@ -86,7 +86,7 @@ void CCastRay::Init(CEntity *penOrigin, const FLOAT3D &vOrigin, const FLOAT3D &v
   cr_fTestR = 0;
   cr_bHitBlockSightPortals = TRUE;
   cr_bHitBlockMeleePortals = TRUE;
-  cr_bHitBlockHitscanPortals = TRUE;							
+  cr_bHitBlockHitscanPortals = TRUE;
 
 	cr_bFindBone = TRUE;
 	cr_iBoneHit	 = -1;
@@ -539,7 +539,7 @@ void CCastRay::TestBrushSector(CBrushSector *pbscSector)
             continue;
           }
         }
-		// if polygon blocks hitscan attacks
+        // if polygon blocks hitscan attacks
         if (ulFlags2 & BPOF2_BLOCKHITSCAN)
         {
             if (!cr_bHitBlockHitscanPortals) {

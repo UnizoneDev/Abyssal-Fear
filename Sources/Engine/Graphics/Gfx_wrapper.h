@@ -71,6 +71,12 @@ enum GfxPolyMode
   GFX_POINT = 93,
 };
 
+enum GfxShadingMode
+{
+    GFX_FLAT = 101,
+    GFX_SMOOTH = 102,
+};
+
 
 // functions initialization for OGL, D3D or NONE (dummy)
 extern void GFX_SetFunctionPointers( INDEX iAPI);
@@ -106,6 +112,9 @@ extern void (*gfxDepthFunc)( GfxComp eFunc);
     
 // set depth buffer range
 extern void (*gfxDepthRange)( FLOAT fMin, FLOAT fMax);
+
+// [Uni] set shading mode
+extern void (*gfxShadeFunc)(GfxShadingMode eFunc);
 
 // color mask control (use CT_RMASK, CT_GMASK, CT_BMASK, CT_AMASK to enable specific channels)
 extern void (*gfxSetColorMask)( ULONG ulColorMask);
@@ -245,7 +254,7 @@ extern void (*gfxEnableColorArray)(void);
 extern void (*gfxDisableColorArray)(void);
 
 
-// HARDWARE SHADERS
+// [Uni] HARDWARE SHADERS
 
 extern void (*gfxEnableVertexShaders)(void);
 extern void (*gfxEnableFragmentShaders)(void);
@@ -258,6 +267,9 @@ extern ULONG (*gfxCreateFragmentProgram)(const char *strFragmentProgram, ULONG u
 extern void (*gfxDeleteShaderProgram)(ULONG ulHandle, ULONG ulShader);
 extern void (*gfxSetShaderProgramIndex)(const char *strUniform, ULONG ulHandle, INDEX iVariable);
 extern void (*gfxSetShaderProgramFloat)(const char *strUniform, ULONG ulHandle, FLOAT fVariable);
+extern void (*gfxSetShaderProgramVector2)(const char* strUniform, ULONG ulHandle, FLOAT fVarX, FLOAT fVarY);
+extern void (*gfxSetShaderProgramVector3)(const char* strUniform, ULONG ulHandle, FLOAT fVarX, FLOAT fVarY, FLOAT fVarZ);
+extern void (*gfxSetShaderProgramVector4)(const char* strUniform, ULONG ulHandle, FLOAT fVarX, FLOAT fVarY, FLOAT fVarZ, FLOAT fVarW);
 
 
 // MISC
@@ -290,12 +302,9 @@ extern void gfxFlushQuads(void);
 // check GFX errors only in debug builds
 #ifndef NDEBUG
   extern void OGL_CheckError(void);
-  extern void D3D_CheckError(HRESULT hr);
   #define OGL_CHECKERROR     OGL_CheckError();
-  #define D3D_CHECKERROR(hr) D3D_CheckError(hr);
 #else
   #define OGL_CHECKERROR     (void)(0);
-  #define D3D_CHECKERROR(hr) (void)(0);
 #endif
 
 
@@ -308,18 +317,3 @@ extern void gfxSetTruform( const INDEX iLevel, BOOL bLinearNormals);
 extern void (*gfxEnableTruform)( void);
 extern void (*gfxDisableTruform)(void);
 
-
-// set D3D vertex shader only if different than last time
-extern void d3dSetVertexShader(DWORD dwHandle);
-
-
-// macro for releasing D3D objects
-#define D3DRELEASE(object,check) \
-{ \
-  INDEX ref; \
-  do { \
-    ref = (object)->Release(); \
-    if(check) ASSERT(ref==0); \
-  } while(ref>0);  \
-  object = NONE; \
-}

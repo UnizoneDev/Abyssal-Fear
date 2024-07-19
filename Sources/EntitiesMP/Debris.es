@@ -50,6 +50,7 @@ event ESpawnDebris {
   FLOAT fDustStretch,           // if should spawn dust when it hits the ground and size
   FLOAT3D vStretch,             // stretch for spawned model template
   CEntityPointer penFallFXPapa, // parent of all spawned child effects
+  COLOR colStain,               // custom stain color
 };
 
 %{
@@ -79,6 +80,7 @@ properties:
   16 FLOAT m_fDustStretch = 0.0f,
   17 BOOL m_bTouchedGround=FALSE,
   18 CEntityPointer m_penFallFXPapa,
+  19 COLOR m_colStainColor = COLOR(C_WHITE|CT_OPAQUE),
 
 
 components:
@@ -161,7 +163,7 @@ functions:
           (vPoint-GetPlacement().pl_PositionVector).Length()<3.5f) {
         m_fLastStainHitPoint = vPoint;
         // stain
-        ese.colMuliplier = C_WHITE|CT_OPAQUE;
+        ese.colMuliplier = m_colStainColor;
         ese.betType = m_betStain;
         ese.vNormal = FLOAT3D(plPlaneNormal);
         GetNormalComponent( en_vCurrentTranslationAbsolute, plPlaneNormal, ese.vDirection);
@@ -247,6 +249,8 @@ procedures:
       en_fDensity = 500.0f;
     } else if (eSpawn.Eeibt==EIBT_WOOD) {
       en_fDensity = 500.0f;
+    } else if (eSpawn.Eeibt==EIBT_GLASS) {
+      en_fDensity = 500.0f;
     } else if (eSpawn.Eeibt==EIBT_FLESH) {
       en_fDensity = 5000.0f;
       en_fBounceDampNormal   = 0.25f;
@@ -263,6 +267,7 @@ procedures:
     }
     m_betStain = eSpawn.betStain;
     m_iBodyType = (INDEX)eSpawn.Eeibt;
+    m_colStainColor = eSpawn.colStain;
     GetModelObject()->SetData(eSpawn.pmd);
     GetModelObject()->mo_toTexture.SetData(eSpawn.ptd);
     GetModelObject()->mo_toReflection.SetData(eSpawn.ptdRefl);

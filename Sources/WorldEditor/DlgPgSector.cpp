@@ -57,6 +57,9 @@ CDlgPgSector::CDlgPgSector() : CPropertyPage(CDlgPgSector::IDD)
   m_ctrlVisibilityFlags.SetDialogPtr(this);
   m_ctrlClassificationFlags.SetEditableMask(0xFFFF0000);
   m_ctrlVisibilityFlags.SetEditableMask(0x0000FFFF);
+  m_bNoSound.SetDialogPtr(this);
+  m_bNoSmell.SetDialogPtr(this);
+  m_bNoSight.SetDialogPtr(this);
 }
 
 CDlgPgSector::~CDlgPgSector()
@@ -101,6 +104,9 @@ void CDlgPgSector::DoDataExchange(CDataExchange* pDX)
 
     if( bSelectionExists)
     {
+	  ULONG ulFlagsOn = MAX_ULONG;
+      ULONG ulFlagsOff = MAX_ULONG;
+	  
       BOOL bSameForceField = TRUE;
       BOOL bSameFog = TRUE;
       BOOL bSameHaze = TRUE;
@@ -115,6 +121,8 @@ void CDlgPgSector::DoDataExchange(CDataExchange* pDX)
       // for all sectors
       FOREACHINDYNAMICCONTAINER(pDoc->m_selSectorSelection, CBrushSector, itbsc)
       {
+		ulFlagsOn &= itbsc->bsc_ulFlags3;
+        ulFlagsOff &= ~itbsc->bsc_ulFlags3;
         if( iSector == 0)
         {
           iFirstForceField = itbsc->GetForceType();
@@ -170,6 +178,16 @@ void CDlgPgSector::DoDataExchange(CDataExchange* pDX)
         }
         iSector++;
       }
+	  // apply flags to controls
+      #define SET_SEC_STATE_TO_CTRL( ctrl, flag)\
+        if((ulFlagsOn & flag) && !(ulFlagsOff & flag)) ctrl.SetCheck( 1);\
+        else if(!(ulFlagsOn & flag) && (ulFlagsOff & flag)) ctrl.SetCheck( 0);\
+        else ctrl.SetCheck( 2);
+
+      SET_SEC_STATE_TO_CTRL(m_bNoSound, BSC3F_NOSOUND);
+      SET_SEC_STATE_TO_CTRL(m_bNoSmell, BSC3F_NOSMELL);
+      SET_SEC_STATE_TO_CTRL(m_bNoSight, BSC3F_NOSIGHT);
+
       if( bSameForceField) m_comboForceField.SetCurSel( iFirstForceField);
       if( bSameFog) m_comboFog.SetCurSel( iFirstFog);
       if( bSameHaze) m_comboHaze.SetCurSel( iFirstHaze);
@@ -311,6 +329,18 @@ void CDlgPgSector::DoDataExchange(CDataExchange* pDX)
         if( m_radioInclude==0) bsc.bsc_ulFlags2|=BSCF2_VISIBILITYINCLUDE;
         else                   bsc.bsc_ulFlags2&=~BSCF2_VISIBILITYINCLUDE;
       }
+
+      // set sectors's flags acording with given tri-state ctrl
+#define SEC_STATE_CTRL_TO_FLAGS( ctrl, flag)\
+  if( (ctrl.GetCheck() == 1) && !(itbsc->bsc_ulFlags3 & flag) ) {\
+    itbsc->bsc_ulFlags3 |= flag;\
+  } else if( (ctrl.GetCheck() == 0) && (itbsc->bsc_ulFlags3 & flag) ) {\
+    itbsc->bsc_ulFlags3 &= ~flag;\
+  }
+
+      SEC_STATE_CTRL_TO_FLAGS(m_bNoSight, BSC3F_NOSIGHT);
+      SEC_STATE_CTRL_TO_FLAGS(m_bNoSound, BSC3F_NOSOUND);
+      SEC_STATE_CTRL_TO_FLAGS(m_bNoSmell, BSC3F_NOSMELL);
     }
 
     COLOR colAmbient = m_SectorAmbientColor.GetColor();

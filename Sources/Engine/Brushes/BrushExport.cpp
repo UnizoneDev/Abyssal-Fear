@@ -78,6 +78,7 @@ void CBrushSector::ToObjectSector(CObjectSector &osc)
   osc.osc_ulFlags[0]    = bsc_ulFlags;
   osc.osc_ulFlags[1]    = bsc_ulFlags2;
   osc.osc_ulFlags[2]    = bsc_ulVisFlags;
+  osc.osc_ulFlags[3]    = bsc_ulFlags3;
   osc.osc_strName    = bsc_strName;
   // lock the object elements
   osc.LockAll();

@@ -136,6 +136,7 @@ void CModelTreeCtrl::OnRclick(NMHDR* pNMHDR, LRESULT* pResult)
         case NT_COLISIONBOX    : iMenuIndex = 5; break;
         case NT_ALLFRAMESBBOX  : iMenuIndex = 6; break;
         case NT_MESHSURFACE    : iMenuIndex =-1; break;
+        case NT_FRAMEEVENT     : iMenuIndex = 10; break;
       }
       if(iMenuIndex>=0) {
         Select(hClicked,TVGN_CARET);

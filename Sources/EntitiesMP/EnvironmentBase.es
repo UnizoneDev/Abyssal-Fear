@@ -359,7 +359,7 @@ functions:
     // setup player watcher
     CWatchPlayers &pw = (CWatchPlayers&)*m_penWatcher;
     pw.m_penOwner = this;
-    pw.m_fWaitTime = 2.0f;
+    pw.m_fWaitTime = fWaitTime;
     pw.m_fDistance = m_fDistance;
     pw.m_bRangeWatcher = FALSE;
     pw.m_eetEventClose = EET_ENVIRONMENTSTART;

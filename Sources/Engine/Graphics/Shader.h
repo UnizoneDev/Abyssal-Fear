@@ -28,6 +28,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // Shader flags
 #define BASE_DOUBLE_SIDED (1UL<<0) // Double sided
 #define BASE_FULL_BRIGHT  (1UL<<1) // Full bright
+#define BASE_FLAT_SHADING (1UL<<2) // [Uni] Flat shaded
 
 
 struct ShaderDesc
@@ -214,6 +215,7 @@ ENGINE_API void shaSetHazeColorArray(GFXColor *paHazeColors);
 
 // Is overbrightning enabled
 ENGINE_API BOOL shaOverBrightningEnabled(void);
+
 // [Uni] Set if shaders are used
 ENGINE_API BOOL shaUseHWShaders(void);
 ENGINE_API BOOL shaUseVertexShaders(void);
@@ -230,6 +232,9 @@ ENGINE_API ULONG shaGetProgram(void);
 ENGINE_API void shaSetProgram(ULONG ulProgram);
 ENGINE_API void shaSetProgramIndex(const char* strUniform, INDEX iIndex);
 ENGINE_API void shaSetProgramFloat(const char* strUniform, FLOAT fFloat);
+ENGINE_API void shaSetProgramVector2(const char* strUniform, FLOAT fX, FLOAT fY);
+ENGINE_API void shaSetProgramVector3(const char* strUniform, FLOAT fX, FLOAT fY, FLOAT fZ);
+ENGINE_API void shaSetProgramVector4(const char* strUniform, FLOAT fX, FLOAT fY, FLOAT fZ, FLOAT fW);
 
 #if (defined _MSC_VER)
  #define DECLSPEC_DLLEXPORT _declspec (dllexport)

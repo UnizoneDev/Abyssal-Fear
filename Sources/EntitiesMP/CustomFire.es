@@ -16,6 +16,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 1033
 %{
 #include "StdH.h"
+#include "Models/Effects/UniFire1/Fire1.h"
 %}
 
 uses "EntitiesMP/BasicEffects";
@@ -30,20 +31,25 @@ properties:
   2 CTString m_strDescription = "",
   3 CTFileName m_fnmFireTexture  "Fire Texture" 'T' = CTFILENAME("Models\\Effects\\Flames\\Fire1.tex"),
   4 FLOAT m_fStretch "Stretch" = 1.0f,
-  5 BOOL m_bActive "Active" = TRUE,
+  5 BOOL m_bActive "Active" 'A' = TRUE,
   6 FLOAT m_fHealth "Health" = 50.0f,
   7 BOOL m_bPlaySound "Play Sound" = TRUE,
   8 BOOL m_bGenerateSmoke "Generate Smoke" = TRUE,
   9 CSoundObject m_soSound,
- 10 FLOAT m_fWaitTime = 0.0f,       // wait time
- 11 FLOAT m_tmSpawn = 0.0f,  // when it was spawned
- 12 BOOL m_bCauseDamage "Cause Damage" = TRUE,
- 13 FLOAT m_fDamageAmount "Damage Amount" = 5.0f,
- 14 RANGE m_fDamageFalloff "Damage Falloff" = 8.0f,
- 15 RANGE m_fDamageHotSpot "Damage HotSpot" = 4.0f,
- 16 FLOAT m_fDamageWait "Damage Wait" = 0.25f,
- 17 FLOAT m_fSmokeStretch "Smoke Stretch" = 0.5f,
- 18 CTFileName m_fnmFireSound  "Fire Sound" 'S' = CTFILENAME("SoundsMP\\Fire\\Burning.wav"),
+ 10 BOOL m_bCauseDamage "Cause Damage" = TRUE,
+ 11 FLOAT m_fDamageAmount "Damage Amount" = 5.0f,
+ 12 RANGE m_fDamageFalloff "Damage Falloff" = 8.0f,
+ 13 RANGE m_fDamageHotSpot "Damage HotSpot" = 4.0f,
+ 14 FLOAT m_fDamageWait "Damage Wait" = 0.25f,
+ 15 FLOAT m_fSmokeStretch "Smoke Stretch" = 0.5f,
+ 16 CTFileName m_fnmFireSound  "Fire Sound" 'S' = CTFILENAME("Sounds\\Ambient\\Nature\\Fire1.wav"),
+ 17 RANGE m_rSoundFalloff "Sound Falloff" 'F' = 20.0f,
+ 18 RANGE m_rSoundHotSpot "Sound HotSpot" 'H' = 10.0f,
+ 19 FLOAT m_fSoundVolume "Sound Volume" 'V' = 1.0f,
+ 20 FLOAT m_fSoundPitch "Sound Pitch" 'P' = 1.0f,
+ 21 FLOAT m_fDamageHeight "Damage Height" = 0.5f,
+ 22 BOOL m_bAnimOnOff "Use On Off Anims" = FALSE,
+ 23 FLOAT m_fSmokeHeight "Smoke Height" = 0.25f,
 
   {
     CTextureObject m_toFire;
@@ -113,7 +119,10 @@ functions:
     ese.vStretch = FLOAT3D(m_fSmokeStretch, m_fSmokeStretch, m_fSmokeStretch);
     ese.colMuliplier = C_WHITE|CT_OPAQUE;
     ese.vDirection = FLOAT3D( 0, 0, 0);
-    SpawnEffect(GetPlacement(), ese);
+
+    CPlacement3D pl = GetPlacement(); 
+    pl.pl_PositionVector+FLOAT3D(0.0f, m_fSmokeHeight, 0.0f);
+    SpawnEffect(pl, ese);
   };
 
   // spawn effect
@@ -127,6 +136,8 @@ functions:
   void MirrorAndStretch(FLOAT fStretch, BOOL bMirrorX)
   {
     // stretch its ranges
+    m_rSoundFalloff*=fStretch;
+    m_rSoundHotSpot*=fStretch;
     m_fDamageFalloff*=fStretch;
     m_fDamageHotSpot*=fStretch;
   }
@@ -154,6 +165,13 @@ procedures:
     ASSERT(m_bActive);
     SwitchToModel();
 
+    if(m_bAnimOnOff) {
+      StartModelAnim(FIRE1_ANIM_FIREON, 0);
+      autowait(GetModelObject()->GetCurrentAnimLength());
+    }
+
+    StartModelAnim(FIRE1_ANIM_DEFAULT_ANIMATION, AOF_LOOPING|AOF_NORESTART);
+
     if(m_bPlaySound) {
       PlaySound(m_soSound, m_fnmFireSound, SOF_3D|SOF_LOOP);
     }
@@ -179,7 +197,7 @@ procedures:
 
         on (ETimer) : {
           if(m_bCauseDamage) {
-            InflictRangeDamage(this, DMT_BURNING, m_fDamageAmount, GetPlacement().pl_PositionVector+FLOAT3D(0.0f, 0.5f, 0.0f), m_fDamageHotSpot, m_fDamageFalloff, DBPT_GENERIC);
+            InflictRangeDamage(this, DMT_BURNING, m_fDamageAmount, GetPlacement().pl_PositionVector+FLOAT3D(0.0f, m_fDamageHeight, 0.0f), m_fDamageHotSpot, m_fDamageFalloff, DBPT_GENERIC);
           }
           stop;
         }
@@ -190,6 +208,13 @@ procedures:
   Inactive() {
     ASSERT(!m_bActive);
     SwitchToEditorModel();
+
+    if(m_bAnimOnOff) {
+      StartModelAnim(FIRE1_ANIM_FIREOFF, 0);
+      autowait(GetModelObject()->GetCurrentAnimLength());
+    }
+
+    StartModelAnim(FIRE1_ANIM_FIRENOTBURNING, AOF_LOOPING|AOF_NORESTART);
 
     while (TRUE) {
       // wait 
@@ -227,24 +252,35 @@ procedures:
       m_fDamageHotSpot = m_fDamageFalloff;
     }
 
+    // validate range
+    if (m_rSoundHotSpot<0.0f) { m_rSoundHotSpot = 0.0f; }
+    if (m_rSoundFalloff<m_rSoundHotSpot) { m_rSoundFalloff = m_rSoundHotSpot; }
+
+    // validate volume
+    if (m_fSoundVolume<FLOAT(SL_VOLUME_MIN)) { m_fSoundVolume = FLOAT(SL_VOLUME_MIN); }
+    if (m_fSoundVolume>FLOAT(SL_VOLUME_MAX)) { m_fSoundVolume = FLOAT(SL_VOLUME_MAX); }
+    // validate pitch
+    if (m_fSoundPitch < FLOAT(SL_PITCH_MIN)) { m_fSoundPitch = FLOAT(SL_PITCH_MIN); }
+    if (m_fSoundPitch > FLOAT(SL_PITCH_MAX)) { m_fSoundPitch = FLOAT(SL_PITCH_MAX); }
+
     // set appearance
     if (m_bActive) {
       InitAsModel();
       SetPhysicsFlags(EPF_MODEL_FIXED);
       SetCollisionFlags(ECF_FLAME);
     } else {
-      InitAsEditorModel();
+      if(m_bAnimOnOff) {
+        InitAsEditorModel();
+      }
       SetPhysicsFlags(EPF_MODEL_IMMATERIAL);
       SetCollisionFlags(ECF_IMMATERIAL);
     }
 
     SetFlags(GetFlags()|ENF_SEETHROUGH);
 
-    m_tmSpawn = _pTimer->CurrentTick();
-    m_fWaitTime = 0.25f;
-
     SetHealth(m_fHealth);
     SetModel(MODEL_FIRE);
+    StartModelAnim(FIRE1_ANIM_DEFAULT_ANIMATION, AOF_LOOPING|AOF_NORESTART);
 
     // setup texture
     SetFireTexture();
@@ -265,7 +301,7 @@ procedures:
     autowait(0.1f);
 
     // set sound default parameters
-    m_soSound.Set3DParameters(20.0f, 10.0f, 1.0f, 1.0f);
+    m_soSound.Set3DParameters(FLOAT(m_rSoundFalloff), FLOAT(m_rSoundHotSpot), m_fSoundVolume, m_fSoundPitch);
 
     // go into active or inactive state
     if (m_bActive) {

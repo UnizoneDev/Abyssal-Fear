@@ -51,7 +51,9 @@ properties:
 // 23 CTFileName m_fnSpecular   "Specular" =CTString(""),
 // 24 CTFileName m_fnBump       "Bump" =CTString(""),
   3 FLOAT m_fStretchAll       "StretchAll" 'S' = 1.0f,
-  4 ANGLE3D m_vStretchXYZ       "StretchXYZ" 'X' = FLOAT3D(1.0f, 1.0f, 1.0f),
+  4 FLOAT m_fStretchX       "Stretch X" 'X' = 1.0f,
+  5 FLOAT m_fStretchY       "Stretch Y" 'Y' = 1.0f,
+  6 FLOAT m_fStretchZ       "Stretch Z" 'Z' = 1.0f,
 //  4 FLOAT m_vStretchXYZ(1)         "StretchX"   'X' = 1.0f,
 //  5 FLOAT m_vStretchXYZ(2)         "StretchY"   'Y' = 1.0f,
 //  6 FLOAT m_vStretchXYZ(3)         "StretchZ"   'Z' = 1.0f,
@@ -89,7 +91,9 @@ properties:
 // 51 FLOAT m_fStretchRndY    "Stretch RND Y (%)"   =  0.2f, // random stretch height
 // 53 FLOAT m_fStretchRndZ    "Stretch RND Z (%)"   =  0.2f, // random stretch depth
    54 FLOAT m_fStretchRndAll  "Stretch RND All (%)" =  0.0f, // random stretch all
-   55 ANGLE3D m_fStretchRandom "Random StretchXYZ" = FLOAT3D(1.0f, 1.0f, 1.0f),
+   55 FLOAT m_fStretchRndX "Random Stretch X" = 0.2f,
+   56 FLOAT m_fStretchRndY "Random Stretch Y" = 0.2f,
+   57 FLOAT m_fStretchRndZ "Random Stretch Z" = 0.2f,
 
  // destruction values
 // 60 CEntityPointer m_penDestruction "Destruction" 'Q' COLOR(C_BLACK|0x20),    // model destruction entity
@@ -109,6 +113,7 @@ properties:
 // 91 FLOAT m_fChainSawCutDamage    "Chain saw cut dammage" 'C' = 300.0f,
 // 93 INDEX m_iFirstRandomAnimation "First random animation" 'R' = -1,
 100 FLOAT m_fMaxTessellationLevel "Max tessellation level" = 0.0f,
+101 BOOL m_bLoopAnimation     "Loop Animation" = FALSE,   // set if model animation is looped
 
 /*201 FLOAT m_tmFadeStart = -1.0f, // time when model starts fading
 202 FLOAT m_tmFadeEnd   = -1.0f, // time when model stops fading
@@ -432,11 +437,8 @@ functions:
         colLight   = m_colLight;
         colAmbient = m_colAmbient;
 
-        ANGLE3D aLight;
-        DirectionVectorToAngles(vLightDirection, aLight);
-
-        ANGLE3D aDelta = aLight - GetLerpedPlacement().pl_OrientationAngle;
-        AnglesToDirectionVector(aDelta, vLightDirection);
+        AnglesToDirectionVector(m_aShadingDirection, vLightDirection);
+        vLightDirection = -vLightDirection;
         break;
       }
     case SCST_CONSTANT_SHADING:
@@ -474,7 +476,7 @@ functions:
   {
     m_fStretchAll*=fStretch;
     if (bMirrorX) {
-      m_vStretchXYZ(1)=-m_vStretchXYZ(1);
+      m_fStretchRndX=-m_fStretchRndX;
     }
   }
 
@@ -482,35 +484,35 @@ functions:
 // Stretch model
   void StretchModel(void) {
     // stretch factors must not have extreme values
-    if (Abs(m_vStretchXYZ(1))  < 0.01f) { m_vStretchXYZ(1)   = 0.01f;  }
-    if (Abs(m_vStretchXYZ(2))  < 0.01f) { m_vStretchXYZ(2)   = 0.01f;  }
-    if (Abs(m_vStretchXYZ(3))  < 0.01f) { m_vStretchXYZ(3)   = 0.01f;  }
+    if (Abs(m_fStretchX)  < 0.01f) { m_fStretchX   = 0.01f;  }
+    if (Abs(m_fStretchY)  < 0.01f) { m_fStretchY   = 0.01f;  }
+    if (Abs(m_fStretchZ)  < 0.01f) { m_fStretchZ   = 0.01f;  }
     if (m_fStretchAll< 0.01f) { m_fStretchAll = 0.01f;  }
 
-    if (Abs(m_vStretchXYZ(1))  >1000.0f) { m_vStretchXYZ(1)   = 1000.0f*Sgn(m_vStretchXYZ(1)); }
-    if (Abs(m_vStretchXYZ(2))  >1000.0f) { m_vStretchXYZ(2)   = 1000.0f*Sgn(m_vStretchXYZ(2)); }
-    if (Abs(m_vStretchXYZ(3))  >1000.0f) { m_vStretchXYZ(3)   = 1000.0f*Sgn(m_vStretchXYZ(3)); }
+    if (Abs(m_fStretchX)  >1000.0f) { m_fStretchX   = 1000.0f*Sgn(m_fStretchX); }
+    if (Abs(m_fStretchY)  >1000.0f) { m_fStretchY   = 1000.0f*Sgn(m_fStretchY); }
+    if (Abs(m_fStretchZ)  >1000.0f) { m_fStretchZ   = 1000.0f*Sgn(m_fStretchZ); }
     if (m_fStretchAll>1000.0f) { m_fStretchAll = 1000.0f; }
 
     if (m_bRandomStretch) {
       m_bRandomStretch = FALSE;
       // stretch
-      m_vStretchXYZ    = FLOAT3D(Clamp(m_vStretchXYZ(1), 0.0f, 1.0f), 
-                                 Clamp(m_vStretchXYZ(2), 0.0f, 1.0f), 
-                                 Clamp(m_vStretchXYZ(2), 0.0f, 1.0f));
-      m_fStretchRndAll = Clamp( m_fStretchRndAll , 0.0f, 1.0f);
+      m_fStretchRndX    = Clamp(m_fStretchRndX, 0.0f, 1.0f);
+      m_fStretchRndY    = Clamp(m_fStretchRndY, 0.0f, 1.0f);
+      m_fStretchRndZ    = Clamp(m_fStretchRndZ, 0.0f, 1.0f);
+      m_fStretchRndAll  = Clamp(m_fStretchRndAll, 0.0f, 1.0f);
 
-      m_fStretchRandom(1) = (FRnd()*m_vStretchXYZ(1)*2 - m_vStretchXYZ(1)) + 1;
-      m_fStretchRandom(2) = (FRnd()*m_vStretchXYZ(2)*2 - m_vStretchXYZ(2)) + 1;
-      m_fStretchRandom(3) = (FRnd()*m_vStretchXYZ(3)*2 - m_vStretchXYZ(3)) + 1;
+      m_fStretchRndX = (FRnd()*m_fStretchX*2 - m_fStretchX) + 1;
+      m_fStretchRndY = (FRnd()*m_fStretchY*2 - m_fStretchY) + 1;
+      m_fStretchRndZ = (FRnd()*m_fStretchZ*2 - m_fStretchZ) + 1;
 
       FLOAT fRNDAll = (FRnd()*m_fStretchRndAll*2 - m_fStretchRndAll) + 1;
-      m_fStretchRandom(1) *= fRNDAll;
-      m_fStretchRandom(2) *= fRNDAll;
-      m_fStretchRandom(3) *= fRNDAll;
+      m_fStretchRndX *= fRNDAll;
+      m_fStretchRndY *= fRNDAll;
+      m_fStretchRndZ *= fRNDAll;
     }
 
-    GetModelInstance()->StretchModel( m_vStretchXYZ*m_fStretchAll );
+    GetModelInstance()->StretchModel( FLOAT3D(m_fStretchX, m_fStretchY, m_fStretchZ)*m_fStretchAll );
     ModelChangeNotify();
   };
 
@@ -707,6 +709,19 @@ procedures:
         /*if (m_penDestruction!=NULL) {
           SetHealth(GetDestruction()->m_fHealth);
         }*/
+        if (m_strModelAnimation != "") {
+          INDEX iAnim = ska_GetIDFromStringTable(m_strModelAnimation);
+          INDEX iDummy1, iDummy2;
+          if(GetModelInstance()->FindAnimationByID(iAnim, &iDummy1, &iDummy2)) {
+            ULONG ulFlags = 0;
+			if (m_bLoopAnimation) {
+			  ulFlags = AN_LOOPING;
+			}
+            StartSkaModelAnim(iAnim, ulFlags, 1, 1);
+          } else {
+            CPrintF("WARNING! Animation '%s' not found in SKA entity '%s'!\n", m_strModelAnimation, GetName());
+          }
+        }
         resume;
       }
       // activate/deactivate shows/hides model
@@ -770,7 +785,7 @@ procedures:
 			if (eChange.bModelLoop) {
 			  ulFlags = AN_LOOPING;
 			}
-            GetModelInstance()->AddAnimation(iAnim, ulFlags, 1, 1);
+            StartSkaModelAnim(iAnim, ulFlags, 1, 1);
           } else {
             CPrintF("WARNING! Animation '%s' not found in SKA entity '%s'!\n", m_strModelAnimation, GetName());
           }

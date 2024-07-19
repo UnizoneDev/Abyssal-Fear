@@ -180,6 +180,9 @@ typedef ULONG   COLOR;  // color is always in 32 bit true-color format
 // sound volume constants
 #define SL_VOLUME_MIN (0.0f)
 #define SL_VOLUME_MAX (4.0f)
+// [Uni] sound pitch constants
+#define SL_PITCH_MIN (0.01f)
+#define SL_PITCH_MAX (100.0f)
 
 inline DOUBLE FLOATtoDOUBLE(const FLOAT f) { return DOUBLE(f); }
 inline FLOAT DOUBLEtoFLOAT(const DOUBLE d) { return FLOAT(d);  }
@@ -393,6 +396,7 @@ typedef Matrix<FLOAT, 2, 2>     FLOATmatrix2D;
 typedef Matrix<FLOAT, 3, 3>     FLOATmatrix3D;
 typedef Matrix<DOUBLE, 3, 3>    DOUBLEmatrix3D;
 typedef FLOAT Matrix12[12];
+typedef FLOAT Matrix16[16];
 
 // quaternions
 typedef Quaternion<FLOAT>       FLOATquat3D;

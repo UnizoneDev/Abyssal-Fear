@@ -88,6 +88,8 @@ properties:
    31 ANIMATION m_iAmbientLightAnimation         "Ambient light animation" = 0,
    32 CAnimObject m_aoAmbientLightAnimation,
    33 CTFileName m_fnmConfig "Light Config" = CTString(""),
+   34 FLOAT m_fOuterCone                  "Outer Cone" = 0.75f,
+   35 FLOAT m_fInnerCone                  "Inner Cone" = 0.25f,
 {
   CLightSource m_lsLightSource;
   CBoolDefaultFalse m_bdfInitialized; // set if already initialized once
@@ -129,6 +131,8 @@ functions:
        else if (strProp == "rHotSpotRange") { m_rHotSpotRange = fValue; }
        else if (strProp == "fNearClip") { m_fNearClip = fValue; }
        else if (strProp == "fFarClip") { m_fFarClip = fValue; }
+       else if (strProp == "fOuterCone") { m_fOuterCone = fValue; }
+       else if (strProp == "fInnerCone") { m_fInnerCone = fValue; }
   };
 
   // Set index properties
@@ -313,6 +317,8 @@ functions:
     lsNew.ls_rFallOff = m_rFallOffRange;
     lsNew.ls_fNearClipDistance = m_fNearClip;
     lsNew.ls_fFarClipDistance  = m_fFarClip;
+    lsNew.ls_fInnerCone = m_fInnerCone;
+    lsNew.ls_fOuterCone = m_fOuterCone;
     // hot spot for strong lights is 90% of light range
     if( m_ltType == LT_STRONG_AMBIENT || m_ltType == LT_STRONG_POINT || m_ltType == LT_STRONG_SPOT) {
       lsNew.ls_rHotSpot = lsNew.ls_rFallOff*0.9f;
@@ -389,6 +395,19 @@ procedures:
     // hot spot must be less or equal falloff
     if (m_rHotSpotRange>m_rFallOffRange) {
       m_rHotSpotRange = m_rFallOffRange;
+    }
+
+    // outer and inner cones must be positive values
+    if (m_fOuterCone<0) {
+      m_fOuterCone = 0.0f;
+    }
+    if (m_fInnerCone<0) {
+      m_fInnerCone = 0.0f;
+    }
+
+    // inner cone must be less or equal to outer cone
+    if (m_fInnerCone>m_fOuterCone) {
+      m_fInnerCone = m_fOuterCone;
     }
 
     // near clip must not be too small relatively to falloff 
@@ -528,8 +547,13 @@ procedures:
       m_lsLightSource.SetLightSource(lsNew);
     }
 
-    m_strDescription.PrintF("%s:%g-%g", 
-      strType,  m_rHotSpotRange, m_rFallOffRange);
+    if(m_ltType == LT_SPOT || m_ltType == LT_STRONG_SPOT) {
+      m_strDescription.PrintF("%s:%g-%g", 
+        strType,  m_fInnerCone, m_fOuterCone);
+    } else {
+      m_strDescription.PrintF("%s:%g-%g", 
+        strType,  m_rHotSpotRange, m_rFallOffRange);
+    }
 
     // check for configuration file
     LoadLightConfig();

@@ -16,7 +16,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 1044
 %{
 #include "StdH.h"
-#include "Models/NPCs/GnawBeast/GnawBeast.h"
 %}
 
 uses "EntitiesMP/EnemyBase";
@@ -64,16 +63,19 @@ properties:
 components:
   1 class   CLASS_BASE				"Classes\\EnemyBase.ecl",
   2 skamodel MODEL_GNAWBEAST        "Models\\NPCs\\GnawBeastSKA\\GnawBeast.smc",
-  3 texture TEXTURE_GNAWBEAST		"Models\\NPCs\\GnawBeast\\GnawBeast.tex",
 
-  10 sound   SOUND_HIT              "Models\\NPCs\\Abomination\\Sounds\\Hit.wav",
-  11 sound   SOUND_SWING            "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
-  12 sound   SOUND_SIGHT1           "Models\\NPCs\\GnawBeast\\Sounds\\Sight1.wav",
-  13 sound   SOUND_SIGHT2           "Models\\NPCs\\GnawBeast\\Sounds\\Sight2.wav",
-  14 sound   SOUND_IDLE1            "Models\\NPCs\\GnawBeast\\Sounds\\Idle1.wav",
-  15 sound   SOUND_IDLE2            "Models\\NPCs\\GnawBeast\\Sounds\\Idle2.wav",
-  16 sound   SOUND_WOUND            "Models\\NPCs\\GnawBeast\\Sounds\\Wound.wav",
-  17 sound   SOUND_DEATH            "Models\\NPCs\\GnawBeast\\Sounds\\Death.wav",
+  10 sound   SOUND_SWING            "Models\\Weapons\\Knife\\Sounds\\Swing.wav",
+  11 sound   SOUND_SIGHT1           "Models\\NPCs\\GnawBeast\\Sounds\\Sight1.wav",
+  12 sound   SOUND_SIGHT2           "Models\\NPCs\\GnawBeast\\Sounds\\Sight2.wav",
+  13 sound   SOUND_IDLE1            "Models\\NPCs\\GnawBeast\\Sounds\\Idle1.wav",
+  14 sound   SOUND_IDLE2            "Models\\NPCs\\GnawBeast\\Sounds\\Idle2.wav",
+  15 sound   SOUND_WOUND            "Models\\NPCs\\GnawBeast\\Sounds\\Wound.wav",
+  16 sound   SOUND_DEATH            "Models\\NPCs\\GnawBeast\\Sounds\\Death.wav",
+
+  20 sound   SOUND_BASH1            "Sounds\\Weapons\\PunchBash1.wav",
+  21 sound   SOUND_BASH2            "Sounds\\Weapons\\PunchBash2.wav",
+  22 sound   SOUND_BASH3            "Sounds\\Weapons\\PunchBash3.wav",
+  23 sound   SOUND_BASH4            "Sounds\\Weapons\\PunchBash4.wav",
 
 functions:
 
@@ -121,7 +123,10 @@ functions:
 
   void Precache(void) {
     CEnemyBase::Precache();
-    PrecacheSound(SOUND_HIT);
+    PrecacheSound(SOUND_BASH1);
+    PrecacheSound(SOUND_BASH2);
+    PrecacheSound(SOUND_BASH3);
+    PrecacheSound(SOUND_BASH4);
     PrecacheSound(SOUND_SWING);
     PrecacheSound(SOUND_SIGHT1);
     PrecacheSound(SOUND_SIGHT2);
@@ -151,7 +156,7 @@ functions:
         m_fBlowUpAmount = 0;
       }
 
-      if(GetHealth()<=175.0f) {
+      if(GetHealth()<=150.0f) {
         m_bStartsOutSlow = FALSE;
         m_fWalkSpeed = FRnd() + 3.5f;
         m_aWalkRotateSpeed = AngleDeg(FRnd()*10.0f + 500.0f);
@@ -168,7 +173,7 @@ functions:
   INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) {
     INDEX iAnim;
     iAnim = idGnawBeastAnim_Wound;
-    GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
+    StartSkaModelAnim(iAnim,AN_CLEAR,1,0);
     return iAnim;
   };
 
@@ -185,7 +190,7 @@ functions:
           iAnim = idGnawBeastAnim_DeathBack;
         }
 
-    GetModelInstance()->AddAnimation(iAnim,AN_CLEAR,1,0);
+    StartSkaModelAnim(iAnim,AN_CLEAR,1,0);
     return iAnim;
   };
 
@@ -216,11 +221,11 @@ functions:
   
   // virtual anim functions
   void StandingAnim(void) {
-    GetModelInstance()->AddAnimation(idGnawBeastAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idGnawBeastAnim_Stand,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void WalkingAnim(void) {
-    GetModelInstance()->AddAnimation(idGnawBeastAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idGnawBeastAnim_Walk,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   void RunningAnim(void) {
@@ -230,13 +235,13 @@ functions:
         if(m_bRandomRunAnim) {
           switch(m_iRunAnim)
           {
-              case 0: GetModelInstance()->AddAnimation(idGnawBeastAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
-              case 1: GetModelInstance()->AddAnimation(idGnawBeastAnim_Run2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
-              case 2: GetModelInstance()->AddAnimation(idGnawBeastAnim_Run3,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
+              case 0: StartSkaModelAnim(idGnawBeastAnim_Run,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
+              case 1: StartSkaModelAnim(idGnawBeastAnim_Run2,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
+              case 2: StartSkaModelAnim(idGnawBeastAnim_Run3,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0); break;
               default: ASSERTALWAYS("GnawBeast unknown run animation");
           }
         } else {
-          GetModelInstance()->AddAnimation(idGnawBeastAnim_Run3,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+          StartSkaModelAnim(idGnawBeastAnim_Run3,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
         }
       }
   };
@@ -246,15 +251,15 @@ functions:
   };
 
   void JumpingAnim(void) {
-    GetModelInstance()->AddAnimation(idGnawBeastAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+    StartSkaModelAnim(idGnawBeastAnim_Jump,AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
   };
 
   // virtual sound functions
   void IdleSound(void) {
     switch(IRnd()%2)
     {
-        case 0: PlaySound(m_soSound, SOUND_IDLE1, SOF_3D); break;
-        case 1: PlaySound(m_soSound, SOUND_IDLE2, SOF_3D); break;
+        case 0: PlaySound(m_soVoice, SOUND_IDLE1, SOF_3D); break;
+        case 1: PlaySound(m_soVoice, SOUND_IDLE2, SOF_3D); break;
         default: ASSERTALWAYS("GnawBeast unknown idle sound");
     }
   };
@@ -262,18 +267,18 @@ functions:
   void SightSound(void) {
     switch(IRnd()%2)
     {
-        case 0: PlaySound(m_soSound, SOUND_SIGHT1, SOF_3D); break;
-        case 1: PlaySound(m_soSound, SOUND_SIGHT2, SOF_3D); break;
+        case 0: PlaySound(m_soVoice, SOUND_SIGHT1, SOF_3D); break;
+        case 1: PlaySound(m_soVoice, SOUND_SIGHT2, SOF_3D); break;
         default: ASSERTALWAYS("GnawBeast unknown sight sound");
     }
   };
 
   void WoundSound(void) {
-    PlaySound(m_soSound, SOUND_WOUND, SOF_3D);
+    PlaySound(m_soVoice, SOUND_WOUND, SOF_3D);
   };
 
   void DeathSound(void) {
-    PlaySound(m_soSound, SOUND_DEATH, SOF_3D);
+    PlaySound(m_soVoice, SOUND_DEATH, SOF_3D);
   };
 
   procedures:
@@ -288,10 +293,10 @@ functions:
     // close attack
     switch(IRnd()%4)
     {
-      case 0: GetModelInstance()->AddAnimation(idGnawBeastAnim_Melee1,AN_CLEAR,1,0); break;
-      case 1: GetModelInstance()->AddAnimation(idGnawBeastAnim_Melee2,AN_CLEAR,1,0); break;
-      case 2: GetModelInstance()->AddAnimation(idGnawBeastAnim_Melee3,AN_CLEAR,1,0); break;
-      case 3: GetModelInstance()->AddAnimation(idGnawBeastAnim_Melee4,AN_CLEAR,1,0); break;
+      case 0: StartSkaModelAnim(idGnawBeastAnim_Melee1,AN_CLEAR,1,0); break;
+      case 1: StartSkaModelAnim(idGnawBeastAnim_Melee2,AN_CLEAR,1,0); break;
+      case 2: StartSkaModelAnim(idGnawBeastAnim_Melee3,AN_CLEAR,1,0); break;
+      case 3: StartSkaModelAnim(idGnawBeastAnim_Melee4,AN_CLEAR,1,0); break;
       default: ASSERTALWAYS("Gnaw Beast unknown melee animation");
     }
     m_bFistHit = FALSE;
@@ -302,13 +307,20 @@ functions:
     
     if (m_bFistHit) {
       if (CalcDist(m_penEnemy) < m_fCloseDistance) {
-        PlaySound(m_soSound, SOUND_HIT, SOF_3D);
+        switch(IRnd()%4)
+        {
+          case 0: PlaySound(m_soSound, SOUND_BASH1, SOF_3D); break;
+          case 1: PlaySound(m_soSound, SOUND_BASH2, SOF_3D); break;
+          case 2: PlaySound(m_soSound, SOUND_BASH3, SOF_3D); break;
+          case 3: PlaySound(m_soSound, SOUND_BASH4, SOF_3D); break;
+          default: ASSERTALWAYS("Gnaw Beast unknown melee hit sound");
+        }
         FLOAT3D vDirection = m_penEnemy->GetPlacement().pl_PositionVector-GetPlacement().pl_PositionVector;
         vDirection.Normalize();
-        if(GetHealth()<=175.0f) {
-          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 15.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+        if(GetHealth()<=150.0f) {
+          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 14.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         } else {
-          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 10.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
+          InflictDirectDamage(m_penEnemy, this, DMT_PUNCH, 8.0f, m_penEnemy->GetPlacement().pl_PositionVector, vDirection, DBPT_GENERIC);
         }
       }
     } else {
@@ -340,9 +352,9 @@ functions:
     SetCollisionFlags(ECF_MODEL);
     SetFlags(GetFlags()|ENF_ALIVE);
     m_ftFactionType = FT_GREATER;
-    SetHealth(400.0f);
-    m_fMaxHealth = 400.0f;
-    m_fDamageWounded = 190.0f;
+    SetHealth(350.0f);
+    m_fMaxHealth = 350.0f;
+    m_fDamageWounded = 160.0f;
     m_iScore = 25000;
     en_tmMaxHoldBreath = 30.0f;
     en_fDensity = 2000.0f;

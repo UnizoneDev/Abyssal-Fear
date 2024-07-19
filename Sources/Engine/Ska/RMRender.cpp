@@ -703,6 +703,13 @@ void RM_AddSimpleShadow_View(CModelInstance &mi, const FLOAT fIntensity, const F
   // _pfModelProfile.StopTimer( CModelProfile::PTI_VIEW_RENDERSIMPLESHADOW);
 }
 
+// add complex model shadow
+void RM_RenderShadow_View(CModelInstance& mi, const CPlacement3D& plLight,
+    const FLOAT fFallOff, const FLOAT fHotSpot, const FLOAT fIntensity,
+    const FLOATplane3D& plShadowPlane)
+{
+    
+}
 // set callback function for bone adjustment
 void RM_SetBoneAdjustCallback(void (*pAdjustBones)(void *pData), void *pData)
 {
@@ -2262,6 +2269,8 @@ static void PrepareMeshForRendering(RenMesh &rmsh, INDEX iSkeletonlod)
       // if this is front face mesh remove rotation from transfrom matrix
       if(mlod.mlod_ulFlags & ML_FULL_FACE_FORWARD) {
         RemoveRotationFromMatrix(mStrTransform);
+	  } else if (mlod.mlod_ulFlags & ML_HALF_FACE_FORWARD) {
+        RemoveRotationFromMatrix(mStrTransform);
       }
 
       // for each vertex in this weight
@@ -2523,6 +2532,7 @@ void RM_RenderSKA(CModelInstance &mi)
   extern INDEX ska_bShowColision;
   extern INDEX ska_bShowSkeleton;
   extern INDEX ska_bShowBBox;			 
+  extern INDEX ska_bShowActiveBones;					
 
   // show skeleton
   if(ska_bShowSkeleton || RM_GetFlags() & RMF_SHOWSKELETON) {
@@ -2533,7 +2543,7 @@ void RM_RenderSKA(CModelInstance &mi)
     gfxEnableDepthTest();
   }
   #pragma message(">> Add ska_bShowActiveBones")
-  if(/*ska_bShowActiveBones || */ RM_GetFlags() & RMF_SHOWACTIVEBONES) {
+  if(ska_bShowActiveBones ||  RM_GetFlags() & RMF_SHOWACTIVEBONES) {
     gfxDisableTexture();
     gfxDisableDepthTest();
     // render only active bones

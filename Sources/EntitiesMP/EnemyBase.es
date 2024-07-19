@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "EntitiesMP/NavigationMarker.h"
 #include "EntitiesMP/TacticsHolder.h"
 #include "EntitiesMP/UZModelHolder.h"
+#include "EntitiesMP/UZSkaModelHolder.h"
 extern void JumpFromBouncer(CEntity *penToBounce, CEntity *penBouncer);
 extern INDEX ent_bReportBrokenChains;
 %}
@@ -41,6 +42,9 @@ uses "EntitiesMP/ScriptedSequencer";
 uses "EntitiesMP/InventoryItem";
 uses "EntitiesMP/HealthItem";
 uses "EntitiesMP/ArmorItem";
+
+uses "EntitiesMP/Player";
+uses "EntitiesMP/PlayerWeapons";
 
 event ERestartAttack {
 };
@@ -76,12 +80,27 @@ enum FactionType {
    6 FT_VICTIM "Victims",
    7 FT_SINNER "Sinners",
    8 FT_ALLY "Allies",
+   9 FT_SNATCHER "Snatchers",
+   10 FT_TWITCHER "Twitchers",
 };
 
 enum PitCheckType {
    0 PCT_NONE "None",
    1 PCT_JUMP "Jump Over Pits",
    2 PCT_STRAFE "Strafe From Pits",
+};
+
+enum AIBehaviorType {
+   0 AIBT_NORMAL  "Normal",     // standard enemy behaviors
+   1 AIBT_FEARFUL "Fearful",    // will run away from bigger weapons and stronger enemies
+   2 AIBT_BERSERK "Berserk",    // will attack bigger and tougher enemies without fleeing
+};
+
+enum InfightBehaviorType {
+   0 IBT_NONE     "No Infighting",          // standard enemy behaviors
+   1 IBT_STANDARD "Standard Infighting",    // will attack other factions, but not their own
+   2 IBT_HARDCORE "Hardcore Infighting",    // will attack all factions, but only different enemy types
+   3 IBT_EXTREME  "Extreme Infighting",     // will attack all factions, and even their own
 };
 
 %{
@@ -201,6 +220,13 @@ properties:
 149 FLOAT m_fMaxDamageAmmount  = 0.0f, // max ammount of damage received in in last few ticks
 150 FLOAT3D m_vLastStain  = FLOAT3D(0,0,0), // where last stain was left
 151 enum SprayParticlesType m_sptType = SPT_BLOOD, // type of particles
+152 CSoundObject m_soVoice,
+153 CSoundObject m_soFootL,
+154 CSoundObject m_soFootR,
+156 BOOL m_bUseFootstepSounds = FALSE,
+157 BOOL m_bMoveSoundLeft = TRUE,         // left or right walk channel is current
+158 FLOAT m_tmMoveSound = 0.0f,           // last time move sound was played
+159 CSoundObject m_soBody,
 
 160 CEntityPointer m_penTacticsHolder "Tactics Holder",
 161 BOOL  m_bTacticActive = FALSE,
@@ -230,9 +256,23 @@ properties:
 200 FLOAT m_fStrafeDir = 1.0f,
 201 FLOAT m_tmStrafeUpdate = -1.0f,
 
+// [Uni] Newer properties
+202 INDEX m_iRandomStrafeDir = 0,
+203 BOOL m_bAddToMovers "Add To Movers" = TRUE,
+204 FLOAT m_tmColorChange "Color Change Time" = 0.0f,
+205 BOOL m_bRestrained = FALSE,
+206 RANGE m_fDodgeRange "Dodge Range" = 0.0f,       // immediately dodges any ranged attack that hits this range
+207 BOOL m_bCheckSoundWithoutSight "Check Sounds Without Vision" = FALSE,
 220 enum FactionType m_ftFactionType = FT_NONE,
 221 CTFileName m_fnmConfig "Enemy Config" = CTString(""),
-222 BOOL m_bAllowInfighting "Allow Infighting" = FALSE,
+222 enum InfightBehaviorType m_ibtBehavior "Infighting Type" = IBT_NONE,
+223 BOOL m_bCanFlee  "Can Flee" = FALSE,
+224 enum AIBehaviorType m_aibtBehavior "Behavior Type" = AIBT_NORMAL,
+225 FLOAT m_tmFearfulFleeTime = 0.0f,
+226 BOOL m_bClimb = FALSE,
+227 BOOL m_bAttackObject = FALSE,
+228 FLOAT m_fSSDodgeTime "Sequencer Dodge Time" = 1.5f,
+229 FLOAT m_fSSStrafeTime "Sequencer Strafe Time" = 1.0f,
 
 // how fast can enemy jump
 230 FLOAT m_fJumpSpeed = 0.0f,
@@ -291,6 +331,7 @@ components:
 
  20 texture TEXTURE_FLESH_RED    "Models\\Effects\\Debris\\FleshDebrisRed.tex",
  21 texture TEXTURE_FLESH_GREEN  "Models\\Effects\\Debris\\FleshDebrisGreen.tex",
+ 22 sound SOUND_BLOWUP           "Sounds\\GoreBlood\\GoreBlowUp.wav",
 
 // ************** MACHINE PARTS **************
  31 model   MODEL_MACHINE        "Models\\Effects\\Debris\\MetalDebris.mdl",
@@ -350,15 +391,17 @@ functions:
 
   // Set boolean properties
   virtual void SetBoolProperty(const CTString &strProp, const BOOL bValue) {
-       if (strProp == "bCoward")             { m_bCoward = bValue; }
-       else if (strProp == "bNoSounds")      { m_bNoSounds = bValue; }
-       else if (strProp == "bNoIdleSound")   { m_bNoIdleSound = bValue; }
-       else if (strProp == "bBoss")          { m_bBoss = bValue; }
-       else if (strProp == "bCanJump")       { m_bCanJump = bValue; }
-       else if (strProp == "bCanCrouch")     { m_bCanCrouch = bValue; }
-       else if (strProp == "bCanClimb")      { m_bCanClimb = bValue; }
-       else if (strProp == "bCanTakeCover")  { m_bCanTakeCover = bValue; }
-       else if (strProp == "bTemplate")      { m_bTemplate = bValue; }
+       if (strProp == "bCoward")                { m_bCoward = bValue; }
+       else if (strProp == "bNoSounds")         { m_bNoSounds = bValue; }
+       else if (strProp == "bNoIdleSound")      { m_bNoIdleSound = bValue; }
+       else if (strProp == "bBoss")             { m_bBoss = bValue; }
+       else if (strProp == "bCanJump")          { m_bCanJump = bValue; }
+       else if (strProp == "bCanCrouch")        { m_bCanCrouch = bValue; }
+       else if (strProp == "bCanClimb")         { m_bCanClimb = bValue; }
+       else if (strProp == "bCanTakeCover")     { m_bCanTakeCover = bValue; }
+       else if (strProp == "bCanFlee")          { m_bCanFlee = bValue; }
+       else if (strProp == "bTemplate")         { m_bTemplate = bValue; }
+       else if (strProp == "bCheckSoundWithoutSight") { m_bCheckSoundWithoutSight = bValue; }
   };
 
   // Set string properties
@@ -381,11 +424,17 @@ functions:
        else if (strProp == "fCloseFireTime") { m_fCloseFireTime = fValue; }
        else if (strProp == "fStopDistance") { m_fStopDistance = fValue; }
        else if (strProp == "fIgnoreRange") { m_fIgnoreRange = fValue; }
+       else if (strProp == "fSSDodgeTime") { m_fSSDodgeTime = fValue; }
+       else if (strProp == "fSSStrafeTime") { m_fSSStrafeTime = fValue; }
+       else if (strProp == "fAttackRadius") { m_fAttackRadius = fValue; }
+       else if (strProp == "fDodgeRange") { m_fDodgeRange = fValue; }
+       else if (strProp == "fActivityRange") { m_fActivityRange = fValue; }
   };
 
   // Set index properties
   virtual void SetIndexProperty(const CTString &strProp, const INDEX iValue) {
        if (strProp == "fBodyParts") { m_fBodyParts = iValue; }
+       else if (strProp == "colColor") { m_colColor = iValue; }
   };
 
   void LoadEnemyConfig(void) {
@@ -560,7 +609,7 @@ functions:
   // --------------------------------------------------------------------------------------
   BOOL IsFactionValid()
   {
-    if(m_ftFactionType < FT_NONE && m_ftFactionType > FT_ALLY)
+    if(m_ftFactionType < FT_NONE && m_ftFactionType > FT_TWITCHER)
     {
       return FALSE;
     }
@@ -587,6 +636,7 @@ functions:
   {
     PrecacheModel(MODEL_FLESH);
     PrecacheModel(MODEL_MACHINE);
+    PrecacheSound(SOUND_BLOWUP);
     PrecacheTexture(TEXTURE_MACHINE);
     PrecacheTexture(TEXTURE_FLESH_RED);
     PrecacheTexture(TEXTURE_FLESH_GREEN);
@@ -600,6 +650,8 @@ functions:
     PrecacheClass(CLASS_WEAPON);
     PrecacheClass(CLASS_AMMO);
     PrecacheClass(CLASS_KEY);
+    PrecacheClass(CLASS_INVENTORY_ITEM);
+    PrecacheClass(CLASS_PUZZLE_ITEM);
   }
 
   // --------------------------------------------------------------------------------------
@@ -633,7 +685,8 @@ functions:
   // --------------------------------------------------------------------------------------
   BOOL IfTargetCrushed(CEntity *penOther, const FLOAT3D &vDirection)
   {
-    if ( IsOfClass(penOther, "ModelHolder2"))
+    if ( IsOfClass(penOther, "ModelHolder2") || IsOfClass(penOther, "ModelHolder3") ||
+         IsOfClass(penOther, "UZModelHolder") || IsOfClass(penOther, "UZSkaModelHolder"))
     {
       FLOAT fCrushHealth = GetCrushHealth();
       if ( fCrushHealth>((CRationalEntity &)*penOther).GetHealth())
@@ -643,6 +696,7 @@ functions:
         return TRUE;
       }
     }
+
     return FALSE;
   }
 
@@ -956,6 +1010,9 @@ functions:
   
   virtual void CalcKickDamageByDamageType(FLOAT& fKickDamage, enum DamageType dmtType)
   {
+    if(m_bRestrained) {
+      return;
+    }
     switch (dmtType) {
       // Strong kinetical damage types must have strong kick damage.
       case DMT_EXPLOSION:
@@ -976,7 +1033,14 @@ functions:
 
       case DMT_SHARPSTRONG:
       case DMT_PUNCH:
+      case DMT_STING:
         fKickDamage /= 5;
+        break;
+
+      case DMT_BULLET:
+      case DMT_PELLET:
+      case DMT_RIFLE:
+        fKickDamage /= 4;
         break;
 
       // Burning can't kick normally.
@@ -997,6 +1061,11 @@ functions:
     // if template
     if (m_bTemplate) {
       // do nothing
+      return;
+    }
+
+    // [Uni] if dormant
+    if (m_bDormant) {
       return;
     }
 
@@ -1120,15 +1189,19 @@ functions:
       fMassFactor /= 3;
     }
 
-    if (fOldLen != 0.0f) {
-      // cancel last push
-      GiveImpulseTranslationAbsolute( -vDamageOld/fOldRootLen*fMassFactor);
+    if(!m_bRestrained) {
+      if (fOldLen != 0.0f) {
+        // cancel last push
+        GiveImpulseTranslationAbsolute( -vDamageOld/fOldRootLen*fMassFactor);
+      }
     }
 
     //-en_vGravityDir*fPushStrength/10
 
     // push it back
-    GiveImpulseTranslationAbsolute( m_vDamage/fNewRootLen*fMassFactor);
+    if(!m_bRestrained) {
+      GiveImpulseTranslationAbsolute( m_vDamage/fNewRootLen*fMassFactor);
+    }
 
     /*if ((m_tmSpraySpawned<=_pTimer->CurrentTick()-_pTimer->TickQuantum || 
       m_fSprayDamage+fNewDamage>50.0f)
@@ -1204,6 +1277,15 @@ functions:
     }
 
     m_fSprayDamage += fNewDamage;
+
+    if(m_aibtBehavior == AIBT_NORMAL && IsDerivedFromClass(m_penEnemy, "Enemy Base"))
+    {
+      CEnemyBase &enEB = (CEnemyBase&)*m_penEnemy;
+      FLOAT fCurrentHealth = GetHealth();
+      if(this->GetFaction() == FT_LESSER && enEB.GetFaction() == FT_GREATER && GetHealth() <= fCurrentHealth / 2) {
+        m_bCoward = TRUE;
+      }
+    }
 
     CMovableModelEntity::ReceiveDamage(penInflictor, 
       dmtType, fNewDamage, vHitPoint, vDirection, dbptType);
@@ -1417,9 +1499,27 @@ functions:
 
     if (IsOfClass(penNewTarget, "Player"))
     {
+      CPlayer &enPL = (CPlayer&)*penNewTarget;
+      CPlayerWeapons *penWeapons = enPL.GetPlayerWeapons();
+
       if((this->GetFaction() == FT_ALLY) || (this->GetFaction() == FT_VICTIM))
       {
         return FALSE;
+      }
+
+      m_tmFearfulFleeTime = _pTimer->CurrentTick() + 5.0f;
+      FLOAT tmFleeDelta = _pTimer->CurrentTick() - m_tmFearfulFleeTime;
+
+      if(m_aibtBehavior == AIBT_FEARFUL && (penWeapons->m_iCurrentWeapon == WEAPON_SHOTGUN || penWeapons->m_iCurrentWeapon == WEAPON_SMG))
+      {
+        m_bCoward = TRUE;
+        return TRUE;
+      }
+      else if((m_aibtBehavior == AIBT_FEARFUL && (penWeapons->m_iCurrentWeapon != WEAPON_SHOTGUN || penWeapons->m_iCurrentWeapon != WEAPON_SMG))
+            || tmFleeDelta <= m_tmFearfulFleeTime)
+      {
+        m_bCoward = FALSE;
+        return TRUE;
       }
 
       return TRUE;
@@ -1439,29 +1539,90 @@ functions:
         return FALSE;
       }
 
+      // don't target the same class
+      if(IsOfSameClass(this, penNewTarget) && m_ibtBehavior != IBT_EXTREME)
+      {
+        return FALSE;
+      }
+
       // don't target your allies
-      if(enEB.GetFaction() == this->GetFaction() && !m_bAllowInfighting)
+      if(enEB.GetFaction() == this->GetFaction() && m_ibtBehavior == IBT_NONE)
       {
         return FALSE;
       }
 
       // make exceptions for targets
-      if((enEB.GetFaction() == FT_SHADOW) || (enEB.GetFaction() == FT_WILDLIFE))
+      if((enEB.GetFaction() == FT_SHADOW) || (enEB.GetFaction() == FT_WILDLIFE) || (enEB.GetFaction() == FT_SNATCHER))
       {
         return FALSE;
       }
 
-      if((this->GetFaction() == FT_WILDLIFE || this->GetFaction() == FT_SHADOW) && (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_GREATER))
+      // get scared of bigger baddies if fearful
+      if(m_aibtBehavior == AIBT_FEARFUL && (this->GetFaction() == FT_LESSER || this->GetFaction() == FT_TWITCHER) && (enEB.GetFaction() == FT_GREATER) && m_ibtBehavior != IBT_NONE)
+      {
+        m_bCoward = TRUE;
+        return TRUE;
+      }
+
+      // go berserk on bigger baddies
+      if(m_aibtBehavior == AIBT_BERSERK && (this->GetFaction() == FT_LESSER || this->GetFaction() == FT_TWITCHER) && (enEB.GetFaction() == FT_GREATER) && m_ibtBehavior != IBT_NONE)
+      {
+        if(m_bCoward)
+        {
+          m_bCoward = FALSE;
+        }
+        return TRUE;
+      }
+
+      if((this->GetFaction() == FT_WILDLIFE || this->GetFaction() == FT_SHADOW) &&
+         (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_GREATER || enEB.GetFaction() == FT_TWITCHER))
       {
         return FALSE;
       }
 
-      if((this->GetFaction() == FT_LESSER || this->GetFaction() == FT_GREATER) && (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_GREATER) && !m_bAllowInfighting)
+      if((this->GetFaction() == FT_LESSER || this->GetFaction() == FT_GREATER || this->GetFaction() == FT_TWITCHER) && 
+         (enEB.GetFaction() == FT_LESSER || enEB.GetFaction() == FT_GREATER || enEB.GetFaction() == FT_TWITCHER) && m_ibtBehavior == IBT_HARDCORE)
       {
         return FALSE;
       }
 
       return TRUE;
+    }
+
+    if (IsOfClass(penNewTarget, "ExplosiveBarrel") && m_bAttackObject)
+    {
+      CExplosiveBarrel &enBarrel = (CExplosiveBarrel&)*penNewTarget;
+
+      if(enBarrel.m_ebType == EBT_EXPLOSIVE)
+      {
+        return TRUE;
+      }
+
+      return FALSE;
+    }
+
+    if (IsOfClass(penNewTarget, "UZModelHolder") && m_bAttackObject)
+    {
+      CUZModelHolder &enUZMH2 = (CUZModelHolder&)*penNewTarget;
+
+      if(enUZMH2.m_bDestroyable == TRUE)
+      {
+        return TRUE;
+      }
+
+      return FALSE;
+    }
+
+    if (IsOfClass(penNewTarget, "UZSkaModelHolder") && m_bAttackObject)
+    {
+      CUZSkaModelHolder &enUZMH3 = (CUZSkaModelHolder&)*penNewTarget;
+
+      if(enUZMH3.m_bDestroyable == TRUE)
+      {
+        return TRUE;
+      }
+
+      return FALSE;
     }
 
     return FALSE;
@@ -1629,8 +1790,16 @@ functions:
   {
     FLOAT fSpeedMultiplier = 1.0F;
     
-    if (ulFlags&MF_MOVEY || m_bJump == TRUE) {
-      JumpingAnim();
+    if (ulFlags&MF_MOVEY) {
+      if(m_bJump == TRUE) {
+        JumpingAnim();
+      } else if (m_bClimb == TRUE) {
+        if(m_fMoveSpeed < 0.0f) {
+          ClimbingDownAnim();
+        } else {
+          ClimbingUpAnim();
+        }
+      }
     } else if (ulFlags&MF_MOVEX) {
       if (m_fStrafeDir == 1.0f) {
         StrafeLeftAnim();
@@ -1734,6 +1903,7 @@ functions:
   {
     m_ulMovementFlags = 0;
     m_bJump = FALSE;
+    m_bClimb = FALSE;
 
     // get delta to desired position
     FLOAT3D vDelta = m_vDesiredPosition - GetPlacement().pl_PositionVector;
@@ -1857,11 +2027,7 @@ functions:
               AnglesToDirectionVector(aMoveDir, vMoveDir);
             }
 
-            if(m_pctPitCheck == PCT_STRAFE) {
-              vTranslation = -vMoveDir * m_fMoveSpeed;
-            } else {
-              vTranslation = vMoveDir * m_fMoveSpeed;
-            }
+            vTranslation = vMoveDir * m_fMoveSpeed;
           }
         }
       }
@@ -1987,6 +2153,18 @@ functions:
         }
     }
 
+    if (m_bCanClimb == TRUE)
+    {
+        if (pnm->m_betClimb==BET_TRUE)
+        {
+            m_bClimb = TRUE;
+        }
+        else
+        {
+            m_bClimb = FALSE;
+        }
+    }
+
     // remember the marker and position
     m_vDesiredPosition = vPath,
     m_penPathMarker = penMarker;
@@ -2059,6 +2237,18 @@ functions:
         else
         {
             m_bCrouch = FALSE;
+        }
+    }
+
+    if (m_bCanClimb == TRUE)
+    {
+        if (pnm->m_betClimb==BET_TRUE)
+        {
+            m_bClimb = TRUE;
+        }
+        else
+        {
+            m_bClimb = FALSE;
         }
     }
 
@@ -2390,6 +2580,37 @@ functions:
     return FALSE;
   };
 
+  BOOL CanFireAtPlayer(FLOAT fOffsetHeight, BOOL bCheckForModels)
+  {
+    // get ray source and target
+    FLOAT3D vSource, vTarget;
+    GetPositionCastRay(this, m_penEnemy, vSource, vTarget);
+
+    // bullet start position
+    CPlacement3D plBullet;
+    plBullet.pl_OrientationAngle = ANGLE3D(0,0,0);
+    plBullet.pl_PositionVector = FLOAT3D(0, fOffsetHeight, 0);
+    
+    plBullet.RelativeToAbsolute(GetPlacement());
+    vSource = plBullet.pl_PositionVector;
+
+    // cast the ray
+    CCastRay crRay(this, vSource, vTarget);
+    if(bCheckForModels) {
+      crRay.cr_ttHitModels = CCastRay::TT_COLLISIONBOX;  // check for brushes and models
+    } else {
+      crRay.cr_ttHitModels = CCastRay::TT_NONE;          // check for brushes only
+    }
+    crRay.cr_bHitTranslucentPortals = FALSE;
+    crRay.cr_bHitBlockSightPortals = TRUE;
+    crRay.cr_bHitBlockMeleePortals = FALSE;
+    crRay.cr_bHitBlockHitscanPortals = FALSE;
+    en_pwoWorld->CastRay(crRay);
+
+    // if hit nothing (no brush) the entity can be seen
+    return (crRay.cr_penHit==NULL);     
+  }
+
   // --------------------------------------------------------------------------------------
   // Prepare propelled projectile.
   // --------------------------------------------------------------------------------------
@@ -2552,9 +2773,6 @@ functions:
   // --------------------------------------------------------------------------------------
   virtual BOOL ShouldBlowUp(void) 
   {
-    // exotech larva boss allways blows up
-    if (IsOfClass(this, "ExotechLarva")) { return TRUE; }
-    
     // blow up if
     return
       // allowed 
@@ -2594,27 +2812,42 @@ functions:
     // if allowed and fleshy
     if (bGibs && !m_bRobotBlowup)
     {
-      // readout blood type
-      const INDEX iBloodType = GetSP()->sp_iBlood;
+      PlaySound(m_soBody, SOUND_BLOWUP, SOF_3D);
       // determine debris texture (color)
       ULONG ulFleshTexture = TEXTURE_FLESH_GREEN;
       ULONG ulFleshModel   = MODEL_FLESH;
-      if ( iBloodType==2) { ulFleshTexture = TEXTURE_FLESH_RED; }
+      if (m_sptType != SPT_SLIME) { ulFleshTexture = TEXTURE_FLESH_RED; }
+
+      COLOR colGibStain = C_WHITE|CT_OPAQUE;
+      if(m_sptType == SPT_SLIME) {
+        colGibStain = RGBAToColor(96,250,32,255);
+      } else {
+        colGibStain = RGBAToColor(250,20,20,255);
+      }
+
       // spawn debris
-      Debris_Begin(EIBT_FLESH, DPT_BLOODTRAIL, BET_BLOODSTAIN, m_fBlowUpSize, vNormalizedDamage, vBodySpeed, 1.0f, 0.0f);
+      Debris_Begin(EIBT_FLESH, DPT_BLOODTRAIL, BET_BLOODSTAIN, m_fBlowUpSize, vNormalizedDamage, vBodySpeed, 1.0f, 0.0f, colGibStain);
       for( INDEX iDebris = 0; iDebris<m_fBodyParts; iDebris++) {
         Debris_Spawn( this, this, ulFleshModel, ulFleshTexture, 0, 0, 0, IRnd()%4, 0.5f,
                       FLOAT3D(FRnd()*0.6f+0.2f, FRnd()*0.6f+0.2f, FRnd()*0.6f+0.2f));
       }
       // leave a stain beneath
-      LeaveStain(FALSE);
+      if (m_sptType == SPT_SLIME) { LeaveStain(FALSE, RGBAToColor(96,250,32,255)); }
+      else { LeaveStain(FALSE, RGBAToColor(250,20,20,255)); }
     }
 
     // if allowed and robot/machine
     if ( bGibs && m_bRobotBlowup)
     {
+      COLOR colGibStain = C_WHITE|CT_OPAQUE;
+      if(m_sptType == SPT_SLIME) {
+        colGibStain = RGBAToColor(96,250,32,255);
+      } else {
+        colGibStain = RGBAToColor(250,20,20,255);
+      }
+
       // spawn debris
-      Debris_Begin(EIBT_ROBOT, DPR_SMOKETRAIL, BET_EXPLOSIONSTAIN, m_fBlowUpSize, vNormalizedDamage, vBodySpeed, 1.0f, 0.0f);
+      Debris_Begin(EIBT_ROBOT, DPR_SMOKETRAIL, BET_EXPLOSIONSTAIN, m_fBlowUpSize, vNormalizedDamage, vBodySpeed, 1.0f, 0.0f, colGibStain);
       for( INDEX iDebris = 0; iDebris<m_fBodyParts; iDebris++) {
         Debris_Spawn( this, this, MODEL_MACHINE, TEXTURE_MACHINE, 0, 0, 0, IRnd()%4, 0.2f,
                       FLOAT3D(FRnd()*0.6f+0.2f, FRnd()*0.6f+0.2f, FRnd()*0.6f+0.2f));
@@ -2644,7 +2877,7 @@ functions:
   // --------------------------------------------------------------------------------------
   // Leave stain effect.
   // --------------------------------------------------------------------------------------
-  virtual void LeaveStain( BOOL bGrow)
+  virtual void LeaveStain( BOOL bGrow, COLOR colBloodColor)
   {
     ESpawnEffect ese;
     FLOAT3D vPoint;
@@ -2661,7 +2894,7 @@ functions:
         && (m_vLastStain-vPoint).Length()>1.0f ) {
         m_vLastStain = vPoint;
         FLOAT fStretch = box.Size().Length();
-        ese.colMuliplier = C_WHITE|CT_OPAQUE;
+        ese.colMuliplier = colBloodColor;
         // stain
         if (bGrow) {
           ese.betType    = BET_BLOODSTAINGROW;
@@ -2792,6 +3025,7 @@ functions:
   virtual void CrouchToStandAnim(void) {};
   virtual void RotateLeftAnim(void) { RotatingAnim(); };
   virtual void RotateRightAnim(void) { RotatingAnim(); };
+  virtual void WritheAnim(void) {};
   virtual INDEX AnimForDamage(FLOAT fDamage, enum DamageBodyPartType dbptType) { return 0; };
   virtual void BlowUpNotify(void) {};
   virtual INDEX AnimForDeath(void) { return 0; };
@@ -2801,9 +3035,10 @@ functions:
   virtual void SightSound(void) {};
   virtual void WoundSound(void) {};
   virtual void DeathSound(void) {};
-  virtual void ActiveSound(void) {}; // Like IdleSound but for comments when hunting down a target
-  virtual void PainSound(void) {};   // Like WoundSound but for everytime an enemy gets hurt
-  virtual INDEX CustomSound(int iSound) { return iSound; }; // Custom Sound for changeable comments
+  virtual void ActiveSound(void) {}; // [Uni] Like IdleSound but for comments when hunting down a target
+  virtual void PainSound(void) {};   // [Uni] Like WoundSound but for everytime an enemy gets hurt
+  virtual INDEX CustomSound(int iSound) { return iSound; }; // [Uni] Custom Sound for changeable comments
+  virtual void TauntSound(void) {};  // [Uni] Used when enemy is dead or while we're in combat
   virtual FLOAT GetLockRotationSpeed(void) { return 2000.0f;};
 
 
@@ -2842,6 +3077,9 @@ functions:
       {
         ETouch eTouch = ((ETouch &) ee);
         if (IsOfClass(eTouch.penOther, "ModelHolder2") ||
+            IsOfClass(eTouch.penOther, "ModelHolder3") ||
+            IsOfClass(eTouch.penOther, "UZModelHolder") ||
+            IsOfClass(eTouch.penOther, "UZSkaModelHolder") ||
             IsOfClass(eTouch.penOther, "MovingBrush") ||
             IsOfClass(eTouch.penOther, "DestroyableArchitecture") )
         {
@@ -2947,7 +3185,7 @@ functions:
     // add some more
     slUsedMemory += m_strDescription.Length();
     slUsedMemory += m_strName.Length();
-    slUsedMemory += 1 * sizeof(CSoundObject);
+    slUsedMemory += 5 * sizeof(CSoundObject); // 5 of them
     return slUsedMemory;
   }
 
@@ -3061,7 +3299,7 @@ procedures:
     // repeat forever
     while(TRUE)
     {
-      if(!m_bNoIdleSound || !m_bNoSounds)
+      if(!m_bNoIdleSound && !m_bNoSounds)
       {
         // wait some time
         autowait(Lerp(5.0f, 20.0f, FRnd()));
@@ -3201,6 +3439,32 @@ procedures:
         }
       }
 
+      if(m_bCanFlee == TRUE)
+      {
+        // if enemy needs to flee
+        if(pem->m_betFlee==BET_TRUE)
+        {
+          m_bCoward = TRUE;
+        }
+        else
+        {
+          m_bCoward = FALSE;
+        }
+      }
+
+      if (m_bCanClimb == TRUE)
+      {
+        // if enemy needs to climb
+        if (pem->m_betClimb==BET_TRUE)
+        {
+            m_bClimb = TRUE;
+        }
+        else
+        {
+            m_bClimb = FALSE;
+        }
+      }
+
       // move to the new destination position
       autocall MoveToDestination() EReturn;
 
@@ -3212,7 +3476,7 @@ procedures:
       SetBoolFromBoolEType(m_bAnosmic,  pem->m_betAnosmic);
 
       // when reaching the marker
-      SendToTarget(pem->m_penReachTarget, pem->m_eetReachType, this); // Send an event to death target.
+      SendToTarget(pem->m_penReachTarget, pem->m_eetReachType, this); // Send an event to reach target.
 
       // if should start tactics
       if (pem->m_bStartTactics){
@@ -3264,6 +3528,12 @@ procedures:
 
       // take next marker in loop
       m_penMarker = ((CEnemyMarker&)*m_penMarker).m_penTarget;
+
+      if(m_penMarker == NULL) {
+        StopMoving();
+        StandingAnim();
+        return EReturn();
+      }
 
       CEnemyMarker *pem = (CEnemyMarker *)&*m_penMarker;
       if(pem->m_penRandomTarget1 != NULL) {
@@ -3364,8 +3634,6 @@ procedures:
         on (ETimer) : { stop; }
         // pass all damage events
         on (EDamage) : { pass; }
-        // pass space beam hit
-        on (EHitBySpaceShipBeam) : { pass;}
 
         // [Cecil] Pass enemy step function
         on (EReminder eStep) : {
@@ -3506,7 +3774,11 @@ procedures:
             
             // if you have new player visible closer than current and in threat distance
             CEntity *penNewEnemy = GetWatcher()->CheckCloserPlayer(m_penEnemy, GetThreatDistance());
+            CEntity *penNewEnemyFood = GetWatcher()->CheckCloserFood(m_penEnemy, GetThreatDistance());
             CEntity *penNewEnemyOther = GetWatcher()->CheckCloserEnemy(m_penEnemy, GetThreatDistance());
+            CEntity *penNewEnemyBarrel = GetWatcher()->CheckCloserBarrel(m_penEnemy, GetThreatDistance());
+            CEntity *penNewEnemyUZMH2 = GetWatcher()->CheckCloserUZModelHolder(m_penEnemy, GetThreatDistance());
+            CEntity *penNewEnemyUZMH3 = GetWatcher()->CheckCloserUZSkaModelHolder(m_penEnemy, GetThreatDistance());
             if (penNewEnemy != NULL) {
               // switch to that player
               if (SetTargetHardForce(penNewEnemy)) {
@@ -3519,6 +3791,34 @@ procedures:
               if (SetTargetHardForce(penNewEnemyOther)) {
                 // start new behavior
                 SendEvent(EReconsiderBehavior());  //------------------------------------------------------------------ HERE!! HERE IT IS AGAIN!! -------------------------------
+                stop;
+              }
+            } else if (penNewEnemyBarrel != NULL && m_bAttackObject) {
+              // switch to that barrel
+              if (SetTargetHardForce(penNewEnemyBarrel)) {
+                // start new behavior
+                SendEvent(EReconsiderBehavior());  //------------------------------------------------------------------ HERE!! HERE IT IS YET AGAIN!! -------------------------------
+                stop;
+              }
+            } else if (penNewEnemyUZMH2 != NULL && m_bAttackObject) {
+              // switch to that model
+              if (SetTargetHardForce(penNewEnemyUZMH2)) {
+                // start new behavior
+                SendEvent(EReconsiderBehavior());  //------------------------------------------------------------------ HERE!! HERE IT IS YET AGAIN!! -------------------------------
+                stop;
+              }
+            } else if (penNewEnemyUZMH3 != NULL && m_bAttackObject) {
+              // switch to that model
+              if (SetTargetHardForce(penNewEnemyUZMH3)) {
+                // start new behavior
+                SendEvent(EReconsiderBehavior());  //------------------------------------------------------------------ HERE!! HERE IT IS YET AGAIN!! -------------------------------
+                stop;
+              }
+            } else if (penNewEnemyFood != NULL) {
+              // switch to that food
+              if (SetTargetHardForce(penNewEnemyFood)) {
+                // start new behavior
+                SendEvent(EReconsiderBehavior());  //------------------------------------------------------------------ HERE!! HERE IT IS YET AGAIN!! -------------------------------
                 stop;
               }
             }
@@ -3592,6 +3892,19 @@ procedures:
           } else if (m_dtDestination==DT_PLAYERSPOTTED) {
             // use that as destination position
             m_vDesiredPosition = m_vPlayerSpotted;
+          }
+
+          m_tmFearfulFleeTime = _pTimer->CurrentTick() + 5.0f;
+          FLOAT tmFleeDelta = _pTimer->CurrentTick() - m_tmFearfulFleeTime;
+
+          if(IsOfClass(m_penEnemy, "Player")) {
+            CPlayer &enPL = (CPlayer&)*m_penEnemy;
+            CPlayerWeapons *penWeapons = enPL.GetPlayerWeapons();
+            if(m_aibtBehavior == AIBT_FEARFUL && (penWeapons->m_iCurrentWeapon == WEAPON_SHOTGUN || penWeapons->m_iCurrentWeapon == WEAPON_SMG)) {
+              m_bCoward = TRUE;
+            } else if(m_aibtBehavior == AIBT_FEARFUL && tmFleeDelta <= m_tmFearfulFleeTime) {
+              m_bCoward = FALSE;
+            }
           }
 
           // set speeds for movement towards desired position
@@ -3729,6 +4042,19 @@ procedures:
   // This is called to shoot at player when far away or otherwise unreachable.
   // --------------------------------------------------------------------------------------
   Fire(EVoid) 
+  { 
+    return EReturn(); 
+  }
+
+  // --------------------------------------------------------------------------------------
+  // These are called to perform special actions via the ScriptedSequencer entity.
+  // --------------------------------------------------------------------------------------
+  SpecialAction1(EVoid) 
+  { 
+    return EReturn(); 
+  }
+
+  SpecialAction2(EVoid) 
   { 
     return EReturn(); 
   }
@@ -3871,6 +4197,7 @@ procedures:
     }
     // stop rotating
     StopRotating();
+    StopMoving();
 
     // return to caller
     return EReturn();
@@ -3881,12 +4208,12 @@ procedures:
   // --------------------------------------------------------------------------------------
   StrafeLeftOrRightRandom(EVoid) 
   {
-    INDEX IRandomStrafe = IRnd()%2;
+    m_iRandomStrafeDir = IRnd()%2;
 
     // stop moving
     StopMoving();
     // play animation for locking
-    if(IRandomStrafe == 1) {
+    if(m_iRandomStrafeDir == 1) {
       StrafeRightAnim();
     } else {
       StrafeLeftAnim();
@@ -3903,8 +4230,7 @@ procedures:
           m_fMoveSpeed = GetProp(m_fWalkSpeed) * fSpeedMultiplier;
           m_aRotateSpeed = 0.0f;
 
-          INDEX IRandomStrafe = IRnd()%2;
-          if(IRandomStrafe == 1) {
+          if(m_iRandomStrafeDir == 1) {
             m_vDesiredPosition = FLOAT3D(-m_fMoveSpeed, 0.0f, 0.0f);
           } else {
             m_vDesiredPosition = FLOAT3D(+m_fMoveSpeed, 0.0f, 0.0f);
@@ -3918,6 +4244,7 @@ procedures:
     }
     // stop rotating
     StopRotating();
+    StopMoving();
 
     // return to caller
     return EReturn();
@@ -3952,6 +4279,7 @@ procedures:
     }
     // stop rotating
     StopRotating();
+    StopMoving();
 
     // return to caller
     return EReturn();
@@ -3986,6 +4314,7 @@ procedures:
     }
     // stop rotating
     StopRotating();
+    StopMoving();
 
     // return to caller
     return EReturn();
@@ -4014,7 +4343,7 @@ procedures:
           m_vDesiredPosition = FLOAT3D(-m_fMoveSpeed, 0.0f, 0.0f);
           // start moving
           SetDesiredTranslation(m_vDesiredPosition);
-          m_fMoveSpeed += 0.05f;
+          m_fMoveSpeed += 0.1f;
           if (m_fMoveSpeed<=0) {
             return EReturn();
           }
@@ -4024,6 +4353,7 @@ procedures:
     }
     // stop rotating
     StopRotating();
+    StopMoving();
 
     // return to caller
     return EReturn();
@@ -4052,7 +4382,7 @@ procedures:
           m_vDesiredPosition = FLOAT3D(+m_fMoveSpeed, 0.0f, 0.0f);
           // start moving
           SetDesiredTranslation(m_vDesiredPosition);
-          m_fMoveSpeed -= 0.05f;
+          m_fMoveSpeed -= 0.1f;
           if (m_fMoveSpeed<=0) {
             return EReturn();
           }
@@ -4062,6 +4392,7 @@ procedures:
     }
     // stop rotating
     StopRotating();
+    StopMoving();
 
     // return to caller
     return EReturn();
@@ -4204,17 +4535,28 @@ procedures:
   Death(EVoid) 
   {
     m_bWrithe = FALSE;
+    m_bAttackObject = FALSE;
     m_bIsBlocking = FALSE;
     m_bBlockFirearms = FALSE;
     StopMoving();     // stop moving
     if(!m_bNoSounds) {
       DeathSound();     // death sound
     }
-    LeaveStain(FALSE);
+
+    if (m_sptType == SPT_SLIME) { LeaveStain(FALSE, RGBAToColor(96,250,32,255)); }
+    else { LeaveStain(FALSE, RGBAToColor(250,20,20,255)); }
 
     // set physic flags
-    SetPhysicsFlags(EPF_MODEL_CORPSE);
-    SetCollisionFlags(ECF_CORPSE);
+    if(m_bRestrained) {
+      SetPhysicsFlags(EPF_MODEL_FIXED);
+    } else {
+      SetPhysicsFlags(EPF_MODEL_CORPSE);
+    }
+    if(m_bRestrained) {
+      SetCollisionFlags(ECF_CORPSE_SOLID);
+    } else {
+      SetCollisionFlags(ECF_CORPSE);
+    }
     SetFlags(GetFlags() | ENF_SEETHROUGH);
 
     // stop making fuss
@@ -4275,7 +4617,8 @@ procedures:
     autocall Death() EEnd;
 
     // start bloody stain growing out from beneath the corpse
-    LeaveStain(TRUE);
+    if (m_sptType == SPT_SLIME) { LeaveStain(TRUE, RGBAToColor(96,250,32,255)); }
+    else { LeaveStain(TRUE, RGBAToColor(250,20,20,255)); }
 
     // check if you have attached flame
     CEntityPointer penFlame = GetChildOfClass("Flame");
@@ -4398,7 +4741,9 @@ procedures:
 
         if(m_bUsePainSound)
         {
-          PainSound();
+          if(!m_bNoSounds) {
+            PainSound();
+          }
         }
 
         // if confused
@@ -4434,19 +4779,10 @@ procedures:
           resume;
         }
 
-        // get first mip of a brush to check for sounds in nearby sectors
-        /*
-        CBrushMip *pbm = this->en_pbrBrush->GetFirstMip();
-        if(pbm != NULL) {
-          // for each sector in the mip
-          {FOREACHINDYNAMICARRAY(pbm->bm_abscSectors, CBrushSector, itbscNearby) {
-            CBrushSector &bscNearby = *itbscNearby;
-          }}
-        }
-        */
-
         // if the target is visible and can be set as new enemy
-        if (IsVisible(eSound.penTarget) && SetTargetSoft(eSound.penTarget)) {
+        // [Uni] or if the enemy can hear without needing to see someone
+        if ((IsVisible(eSound.penTarget) && SetTargetSoft(eSound.penTarget)) ||
+            (m_bCheckSoundWithoutSight && SetTargetSoft(eSound.penTarget))) {
           // react to it
           call NewEnemySpotted();
         }
@@ -4524,14 +4860,14 @@ procedures:
               if(eChangeSequence.bLoopAnimation == TRUE) {
                 if(GetRenderType()==CEntity::RT_SKAMODEL) {
                   INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
-                  GetModelInstance()->AddAnimation(iSkaAnim, AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+                  StartSkaModelAnim(iSkaAnim, AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
                 } else {
                   StartModelAnim(iAnim, AOF_LOOPING|AOF_NORESTART);
                 }
               } else {
                 if(GetRenderType()==CEntity::RT_SKAMODEL) {
                   INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
-                  GetModelInstance()->AddAnimation(iSkaAnim, AN_CLEAR,1,0);
+                  StartSkaModelAnim(iSkaAnim, AN_CLEAR,1,0);
                 } else {
                   StartModelAnim(iAnim, 0);
                 }
@@ -4555,6 +4891,7 @@ procedures:
 
             case EAT_GOTOMARKER:
             m_penMarker = eChangeSequence.penEnemyMarker;
+            call MoveThroughMarkers();
             break;
 
             case EAT_PLAYSOUND:
@@ -4579,6 +4916,9 @@ procedures:
               break;
               case EST_PAIN:
               PainSound();
+              break;
+              case EST_TAUNT:
+              TauntSound();
               break;
 
               case EST_CUSTOM1:
@@ -4621,7 +4961,13 @@ procedures:
             case EAT_PERFORMATTACK:
             {
               m_penEnemy = eChangeSequence.penAttackTarget;
+
               if (m_penEnemy != NULL) {
+                if(IsOfClass(m_penEnemy, "ExplosiveBarrel") || IsOfClass(m_penEnemy, "UZModelHolder") || IsOfClass(m_penEnemy, "UZSkaModelHolder")) {
+                  m_bAttackObject = TRUE;
+                } else {
+                  m_bAttackObject = FALSE;
+                }
                 call AttackEnemy();
               }
             }
@@ -4656,7 +5002,6 @@ procedures:
               {
                 m_bJump = TRUE;
                 m_fJumpSpeed = m_fJumpHeight;
-                m_fJumpSpeed = 0;
                 m_bJump = FALSE;
               }
             }
@@ -4673,6 +5018,53 @@ procedures:
 
             case EAT_TOGGLESILENT:
             m_bNoSounds = !m_bNoSounds;
+            break;
+
+            case EAT_DODGELEFT:
+            {
+              m_fLockOnEnemyTime = m_fSSDodgeTime;
+              call DodgeLeft();
+            }
+            break;
+
+            case EAT_DODGERIGHT:
+            {
+              m_fLockOnEnemyTime = m_fSSDodgeTime;
+              call DodgeRight();
+            }
+            break;
+
+            case EAT_STRAFELEFT:
+            {
+              m_fLockOnEnemyTime = m_fSSStrafeTime;
+              call StrafeLeft();
+            }
+            break;
+
+            case EAT_STRAFERIGHT:
+            {
+              m_fLockOnEnemyTime = m_fSSStrafeTime;
+              call StrafeRight();
+            }
+            break;
+
+            case EAT_BACKPEDAL:
+            {
+              m_fLockOnEnemyTime = m_fSSStrafeTime;
+              call StepBackwards();
+            }
+            break;
+
+            case EAT_SPECIAL1:
+            {
+              call SpecialAction1();
+            }
+            break;
+
+            case EAT_SPECIAL2:
+            {
+              call SpecialAction2();
+            }
             break;
 
             default:
@@ -4772,14 +5164,14 @@ procedures:
               if(eChangeSequence.bLoopAnimation == TRUE) {
                 if(GetRenderType()==CEntity::RT_SKAMODEL) {
                   INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
-                  GetModelInstance()->AddAnimation(iSkaAnim, AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
+                  StartSkaModelAnim(iSkaAnim, AN_LOOPING|AN_NORESTART|AN_CLEAR,1,0);
                 } else {
                   StartModelAnim(iAnim, AOF_LOOPING|AOF_NORESTART);
                 }
               } else {
                 if(GetRenderType()==CEntity::RT_SKAMODEL) {
                   INDEX iSkaAnim = ska_GetIDFromStringTable(strAnim);
-                  GetModelInstance()->AddAnimation(iSkaAnim, AN_CLEAR,1,0);
+                  StartSkaModelAnim(iSkaAnim, AN_CLEAR,1,0);
                 } else {
                   StartModelAnim(iAnim, 0);
                 }
@@ -4803,6 +5195,7 @@ procedures:
 
             case EAT_GOTOMARKER:
             m_penMarker = eChangeSequence.penEnemyMarker;
+            call MoveThroughMarkers();
             break;
 
             case EAT_PLAYSOUND:
@@ -4827,6 +5220,9 @@ procedures:
               break;
               case EST_PAIN:
               PainSound();
+              break;
+              case EST_TAUNT:
+              TauntSound();
               break;
 
               case EST_CUSTOM1:
@@ -4869,7 +5265,13 @@ procedures:
             case EAT_PERFORMATTACK:
             {
               m_penEnemy = eChangeSequence.penAttackTarget;
+
               if (m_penEnemy != NULL) {
+                if(IsOfClass(m_penEnemy, "ExplosiveBarrel") || IsOfClass(m_penEnemy, "UZModelHolder") || IsOfClass(m_penEnemy, "UZSkaModelHolder")) {
+                  m_bAttackObject = TRUE;
+                } else {
+                  m_bAttackObject = FALSE;
+                }
                 call AttackEnemy();
               }
             }
@@ -4904,7 +5306,6 @@ procedures:
               {
                 m_bJump = TRUE;
                 m_fJumpSpeed = m_fJumpHeight;
-                m_fJumpSpeed = 0;
                 m_bJump = FALSE;
               }
             }
@@ -4921,6 +5322,53 @@ procedures:
 
             case EAT_TOGGLESILENT:
             m_bNoSounds = !m_bNoSounds;
+            break;
+
+            case EAT_DODGELEFT:
+            {
+              m_fLockOnEnemyTime = m_fSSDodgeTime;
+              call DodgeLeft();
+            }
+            break;
+
+            case EAT_DODGERIGHT:
+            {
+              m_fLockOnEnemyTime = m_fSSDodgeTime;
+              call DodgeRight();
+            }
+            break;
+            
+            case EAT_STRAFELEFT:
+            {
+              m_fLockOnEnemyTime = m_fSSStrafeTime;
+              call StrafeLeft();
+            }
+            break;
+
+            case EAT_STRAFERIGHT:
+            {
+              m_fLockOnEnemyTime = m_fSSStrafeTime;
+              call StrafeRight();
+            }
+            break;
+
+            case EAT_BACKPEDAL:
+            {
+              m_fLockOnEnemyTime = m_fSSStrafeTime;
+              call StepBackwards();
+            }
+            break;
+
+            case EAT_SPECIAL1:
+            {
+              call SpecialAction1();
+            }
+            break;
+
+            case EAT_SPECIAL2:
+            {
+              call SpecialAction2();
+            }
             break;
 
             default:
@@ -4954,7 +5402,7 @@ procedures:
     // setup some model parameters that are global for all enemies
     SizeModel();
     // check that max health is properly set
-    ASSERT(m_fMaxHealth==GetHealth() || IsOfClass(this, "Devil") || IsOfClass(this, "ExotechLarva") || IsOfClass(this, "AirElemental") || IsOfClass(this, "Summoner"));
+    ASSERT(m_fMaxHealth==GetHealth());
 
     // normalize parameters
     if (m_tmReflexMin<0) {
@@ -5007,6 +5455,10 @@ procedures:
 
     // set sound default parameters
     m_soSound.Set3DParameters(80.0f, 5.0f, 1.0f, 1.0f);
+    m_soVoice.Set3DParameters(80.0f, 5.0f, 1.0f, 1.0f);
+    m_soFootL.Set3DParameters(20.0f, 2.0f, 1.0f, 1.0f);
+    m_soFootR.Set3DParameters(20.0f, 2.0f, 1.0f, 1.0f);
+    m_soBody.Set3DParameters( 25.0f, 5.0f, 1.0f, 1.0f);
 
     // adjust falldown and step up values
     en_fStepUpHeight = m_fStepHeight+0.01f;
@@ -5025,6 +5477,9 @@ procedures:
     ASSERT(m_fIgnoreRange>m_fAttackDistance);
 
     SetPredictable(TRUE);
+    if(m_bAddToMovers) {
+      AddToMovers();
+    }
 
     autocall PreMainLoop() EReturn;
     
@@ -5106,6 +5561,22 @@ procedures:
           }
         }
 
+        if(IsOfClass(eTouch.penOther, "UZSkaModelHolder")) {
+          FLOAT3D vPush = eTouch.penOther->GetPlacement().pl_PositionVector - GetPlacement().pl_PositionVector;
+          CUZSkaModelHolder *penPushable = (CUZSkaModelHolder*)&*eTouch.penOther;
+          switch(penPushable->m_pmwType)
+          {
+            case PMWT_SMALL: vPush *= 2.0f; break;
+            case PMWT_MEDIUM: vPush *= 1.65f; break;
+            case PMWT_BIG: vPush *= 1.35f; break;
+            case PMWT_HUGE: vPush *= 1.1f; break;
+            default: break;
+          }
+          if(penPushable->m_bPushable) {
+            penPushable->GiveImpulseTranslationAbsolute(FLOAT3D(vPush(1), 0.0f, vPush(3)));
+          }
+        }
+
         resume;
       }
 
@@ -5114,6 +5585,13 @@ procedures:
         if (eStep.iValue == ENEMY_STEP_VAL) {
           OnStep();
         }
+        resume;
+      }
+
+      // [Uni] change color with time
+      on (EChangeColorValue eChangeCol) : {
+        m_colColor = eChangeCol.cValue;
+        m_tmColorChange = eChangeCol.tmLength;
         resume;
       }
     }

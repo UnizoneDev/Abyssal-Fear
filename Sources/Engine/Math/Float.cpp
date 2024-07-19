@@ -108,7 +108,7 @@ BOOL IsValidFloat(float f)
 
 BOOL IsValidDouble(double f)
 {
-  return _finite(f) && (*(unsigned __int64*)&f)!=0xcdcdcdcdcdcdcdcdI64;
+  return _finite(f) && (*(UQUAD*)&f)!=0xcdcdcdcdcdcdcdcdI64;
 /*  int iClass = _fpclass(f);
   return
     iClass==_FPCLASS_NN ||

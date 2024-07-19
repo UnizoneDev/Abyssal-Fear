@@ -106,6 +106,7 @@ EXP_FLT (({DIGIT}+("."({DIGIT}*)?)?)("E"|"e")("+"|"-")?{DIGIT}+)
 "ANIMSPEED"             { return(k_ANIMSPEED);}
 "COLOR"                 { return(k_COLOR);}
 "ALLFRAMESBBOX"         { return(k_ALLFRAMESBBOX);}
+"FRAMEEVENT"            { return(k_FRAMEEVENT);}
 
 <INCLUDE>[ \t]*"\""      /* eat the whitespace */
 <INCLUDE>[^"\""]*"\""   { /* got the include file name */

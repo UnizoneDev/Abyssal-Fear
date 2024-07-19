@@ -140,7 +140,7 @@ BOOL CSeriousSkaStudioApp::SubInitInstance()
 	// Change the registry key under which our settings are stored.
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization.
-	SetRegistryKey( L"SeriousEngine");
+	SetRegistryKey( L"Unizone");
 
 	LoadStdProfileSettings(8);  // Load standard INI file options (including MRU)
 
@@ -158,6 +158,7 @@ BOOL CSeriousSkaStudioApp::SubInitInstance()
   // initialize entire engine
   SE_InitEngine("");
   SE_LoadDefaultFonts();
+
   // remember both compressed and uncompressed rotations in animations
   RememberUnCompresedRotatations(TRUE);
 
@@ -560,6 +561,41 @@ BOOL CSeriousSkaStudioApp::ConvertAnimSet(CTFileName fnAnimSet)
   return TRUE;
 }
 
+
+static FLOATaabbox3D AddAllVerticesToBBox(CModelInstance& mi)
+{
+    FLOATmatrix3D mat;
+    FLOAT3D vPos = FLOAT3D(0, 0, 0);
+    mat.Diagonal(1);
+    CStaticStackArray<FLOAT3D> avVertices;
+    mi.GetModelVertices(avVertices, mat, vPos, 0, 0);
+
+    INDEX ctvtx = avVertices.Count();
+    // if at least one vertex exists
+    FLOATaabbox3D bbox;
+    if (ctvtx > 0) {
+        bbox = FLOATaabbox3D(avVertices[0]);
+        // for each vertex after first one
+        for (INDEX ivx = 1; ivx < ctvtx; ivx++) {
+            // add this vertex position to all frames bbox
+            bbox |= FLOATaabbox3D(avVertices[ivx]);
+        }
+    }
+    return bbox;
+}
+
+// Instant clear of anim queue
+static void InstantClearAnimQueue(CModelInstance& mi)
+{
+    INDEX ctal = mi.mi_aqAnims.aq_Lists.Count();
+    for (INDEX ial = 0; ial < ctal; ial++) {
+        AnimList& al = mi.mi_aqAnims.aq_Lists[ial];
+        al.al_PlayedAnims.Clear();
+    }
+    mi.mi_aqAnims.aq_Lists.Clear();
+}
+
+
 // Save smc file
 void CSeriousSkaStudioApp::SaveSmcFile(CModelInstance &mi,BOOL bSaveChildren)
 {
@@ -960,6 +996,23 @@ void CSeriousSkaStudioApp::SaveModelInstance_t(CModelInstance *pmi,CModelInstanc
   ostrFile.FPrintF_t(MAKESPACE(iCurSpaces));
   ostrFile.FPrintF_t("}\n");
   
+  // write frame events
+  ostrFile.FPrintF_t(MAKESPACE(iCurSpaces));
+  ostrFile.FPrintF_t("FRAMEEVENT\n");
+  ostrFile.FPrintF_t(MAKESPACE(iCurSpaces));
+  ostrFile.FPrintF_t("{\n");
+  // write each frame event
+  INDEX ctfe = pmi->mi_feEvents.Count();
+  for (INDEX ife = 0; ife < ctfe; ife++)
+  {
+      ostrFile.FPrintF_t(MAKESPACE(iCurSpaces + 2));
+      FrameEvent& fe = pmi->mi_feEvents[ife];
+      ostrFile.FPrintF_t("\"%s\"  {%g,%g;}\n", fe.GetName(),
+          fe.GetFrame(), fe.GetEvent());
+  }
+  ostrFile.FPrintF_t(MAKESPACE(iCurSpaces));
+  ostrFile.FPrintF_t("}\n");
+
   // write model color
   // ostrFile.FPrintF_t(MAKESPACE(iCurSpaces));
   // ostrFile.FPrintF_t("COLOR\t\t0x%X;\n",pmi->GetModelColor());

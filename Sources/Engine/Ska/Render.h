@@ -135,6 +135,9 @@ ENGINE_API BOOL RM_GetBoneAbsPosition(CModelInstance &mi,INDEX iBoneID, FLOAT3D 
 ENGINE_API BOOL RM_GetRenBoneAbs(CModelInstance &mi,INDEX iBoneID,RenBone &rb);
 
 ENGINE_API void RM_AddSimpleShadow_View(CModelInstance &mi, const FLOAT fIntensity, const FLOATplane3D &plShadowPlane);
+ENGINE_API void RM_RenderShadow_View(CModelInstance &mi, const CPlacement3D& plLight,
+                                     const FLOAT fFallOff, const FLOAT fHotSpot, const FLOAT fIntensity,
+                                     const FLOATplane3D& plShadowPlane);
 
 ENGINE_API void RM_GetModelVertices( CModelInstance &mi, CStaticStackArray<FLOAT3D> &avVertices, FLOATmatrix3D &mRotation,
                                      FLOAT3D &vPosition, FLOAT fNormalOffset, FLOAT fDistance);

@@ -105,15 +105,15 @@ extern CTString _strURLToVisit = CTString("");
 extern INDEX _iAddonExecState = 0;
 extern CTFileName _fnmAddonToExec = CTString("");
 
-extern CTString sam_strVersion = "1.10";
+extern CTString sam_strVersion = "1.20";
 extern CTString sam_strModName = TRANS("Abyssal Fear");
 
-extern CTString sam_strFirstLevel = "Levels\\LevelsMP\\LimboStart.wld";
-extern CTString sam_strIntroLevel = "Levels\\LevelsMP\\HellIntro.wld";
+extern CTString sam_strFirstLevel = "Levels\\MainStory\\LimboUnderground.wld";
+extern CTString sam_strIntroLevel = "Levels\\MainStory\\HellIntro.wld";
 extern CTString sam_strGameName = "AbyssalFear";
 
-extern CTString sam_strTechTestLevel = "Levels\\LevelsMP\\TechTest.wld";
-extern CTString sam_strTrainingLevel = "Levels\\LevelsMP\\Training.wld";
+extern CTString sam_strTechTestLevel = "Levels\\TechTest.wld";
+extern CTString sam_strTrainingLevel = "Levels\\TutorialBasics.wld";
 
 ENGINE_API extern INDEX snd_iFormat;
 
@@ -628,9 +628,6 @@ void PrintDisplayModeInfo(void)
   if( dm.IsDualHead())   strRes += TRANS(" DualMonitor");
   if( dm.IsWideScreen()) strRes += TRANS(" WideScreen");
        if( _pGfx->gl_eCurrentAPI==GAT_OGL) strRes += " (OpenGL)";
-#ifdef SE1_D3D
-  else if( _pGfx->gl_eCurrentAPI==GAT_D3D) strRes += " (Direct3D)";
-#endif // SE1_D3D
 
   CTString strDescr;
   strDescr.PrintF("\n%s (%s)\n", _strPreferencesDescription, RenderingPreferencesDescription(sam_iVideoSetup));
@@ -1296,20 +1293,11 @@ BOOL TryToSetDisplayMode( enum GfxAPIType eGfxAPI, INDEX iAdapter, PIX pixSizeI,
   // try to set new display mode
   BOOL bSuccess;
   if( bFullScreenMode) {
-#ifdef SE1_D3D
-    if( eGfxAPI==GAT_D3D) OpenMainWindowFullScreen( pixSizeI, pixSizeJ);
-#endif // SE1_D3D
     bSuccess = _pGfx->SetDisplayMode( eGfxAPI, iAdapter, pixSizeI, pixSizeJ, eColorDepth);
     if( bSuccess && eGfxAPI==GAT_OGL) OpenMainWindowFullScreen( pixSizeI, pixSizeJ);
   } else {
-#ifdef SE1_D3D
-    if( eGfxAPI==GAT_D3D) OpenMainWindowNormal( pixSizeI, pixSizeJ);
-#endif // SE1_D3D
     bSuccess = _pGfx->ResetDisplayMode( eGfxAPI);
     if( bSuccess && eGfxAPI==GAT_OGL) OpenMainWindowNormal( pixSizeI, pixSizeJ);
-#ifdef SE1_D3D
-    if( bSuccess && eGfxAPI==GAT_D3D) ResetMainWindowNormal();
-#endif // SE1_D3D
   }
 
   // if new mode was set
@@ -1387,11 +1375,6 @@ const INDEX aDefaultModes[][3] =
   { DD_DEFAULT, GAT_OGL, 0},
   { DD_16BIT,   GAT_OGL, 0},
   { DD_16BIT,   GAT_OGL, 1}, // 3dfx Voodoo2
-#ifdef SE1_D3D
-  { DD_DEFAULT, GAT_D3D, 0},
-  { DD_16BIT,   GAT_D3D, 0},
-  { DD_16BIT,   GAT_D3D, 1},
-#endif // SE1_D3D
 };
 const INDEX ctDefaultModes = ARRAYCOUNT(aDefaultModes);
 

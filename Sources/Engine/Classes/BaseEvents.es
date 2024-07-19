@@ -90,6 +90,7 @@ enum DamageType {
   24 DMT_RIFLE      "Rifle Bullets",  // caused by stronger bullets from rifles
   25 DMT_PUNCH      "Punch",          // caused by a gnaw beast's strong fists or an unblockable blunt attack
   26 DMT_SHARPSTRONG "Sharp Strong",  // caused by an unblockable bladed attack
+  27 DMT_SHOCK       "Electricity",   // caused by electric objects
 9999 DMT_NONE       "no damage",    // internal
 };
 

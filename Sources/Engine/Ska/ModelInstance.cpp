@@ -143,6 +143,7 @@ CModelInstance::CModelInstance()
     mi_cbAllFramesBBox.SetMax(FLOAT3D(0.5, 2, 0.5));
     // Set default model instance name
   //  SetName("Noname");
+	mi_iCurrentEvent = -1;					  
 }
 
 CModelInstance::~CModelInstance()
@@ -156,6 +157,7 @@ CModelInstance::~CModelInstance()
         ASSERT(mi_cbAABox == NULL);
         ASSERT(mi_aAnimSet == NULL);
         ASSERT(mi_cmiChildren == NULL);
+		ASSERT(mi_feEvents == NULL);
     }
 }
 // copy constructor
@@ -175,6 +177,12 @@ void CModelInstance::GetAllFramesBBox(FLOATaabbox3D& aabbox)
     aabbox = FLOATaabbox3D(mi_cbAllFramesBBox.Min(), mi_cbAllFramesBBox.Max());
 }
 
+// [Uni] set all frames bounding box
+void CModelInstance::SetAllFramesBBox(FLOAT3D vMin, FLOAT3D vMax)
+{
+    mi_cbAllFramesBBox.SetMin(vMin);
+    mi_cbAllFramesBBox.SetMax(vMax);
+}
 // fills curent colision box info
 void CModelInstance::GetCurrentColisionBox(FLOATaabbox3D& aabbox)
 {
@@ -283,6 +291,81 @@ void CModelInstance::RemoveColisionBox(INDEX iIndex)
         }
     }
     mi_cbAABox = aColisionBoxesTemp;
+}
+
+FrameEvent& CModelInstance::GetCurrentFrameEvent()
+{
+    ASSERT(mi_iCurrentEvent >= 0);
+    ASSERT(mi_iCurrentEvent < mi_feEvents.Count());
+    ASSERT(mi_feEvents.Count() > 0);
+
+    return mi_feEvents[mi_iCurrentEvent];
+}
+
+FrameEvent& CModelInstance::GetFrameEvent(INDEX ife)
+{
+    ASSERT(ife >= 0);
+    ASSERT(ife < mi_feEvents.Count());
+    return mi_feEvents[ife];
+}
+
+INDEX CModelInstance::GetFrameEventFrame(INDEX iIndex)
+{
+    INDEX iFrameEventClamped = Clamp(iIndex, 0L, mi_feEvents.Count() - 1L);
+    INDEX iFrame = mi_feEvents[iFrameEventClamped].GetFrame();
+    return iFrame;
+};
+
+INDEX CModelInstance::GetFrameEventType(INDEX iIndex)
+{
+    INDEX iFrameEventClamped = Clamp(iIndex, 0L, mi_feEvents.Count() - 1L);
+    INDEX iEvent = mi_feEvents[iFrameEventClamped].GetEvent();
+    return iEvent;
+};
+
+INDEX CModelInstance::GetFrameEventIndex(INDEX iEventID)
+{
+    INDEX ctfe = mi_feEvents.Count();
+    // for each existing event
+    for (INT ife = 0; ife < ctfe; ife++) {
+        FrameEvent& fe = mi_feEvents[ife];
+        // if this is searched event
+        if (fe.GetID() == iEventID) {
+            // return index of event
+            return ife;
+        }
+    }
+    // frame event was not found, return default (0)
+    SKAASSERT(FALSE);
+    return 0;
+}
+
+// [Uni] add frame event to model instance
+void CModelInstance::AddFrameEvent(CTString strName, INDEX iFrame, INDEX iEvent)
+{
+    INDEX ctfe = mi_feEvents.Count();
+    mi_feEvents.Expand(ctfe + 1);
+
+    FrameEvent& fe = mi_feEvents[ctfe];
+    fe.SetName(strName);
+    fe.SetFrame(iFrame);
+    fe.SetEvent(iEvent);
+    mi_iCurrentEvent = 0;
+}
+// [Uni] remove frame event from model instance
+void CModelInstance::RemoveFrameEvent(INDEX iIndex)
+{
+    INDEX ctfe = mi_feEvents.Count();
+    INDEX ifeNew = 0;
+    CStaticArray<struct FrameEvent> aFrameEventsTemp;
+    aFrameEventsTemp.New(ctfe - 1);
+    for (INDEX ife = 0; ife < ctfe; ife++) {
+        if (iIndex != ife) {
+            aFrameEventsTemp[ifeNew] = mi_feEvents[ife];
+            ifeNew++;
+        }
+    }
+    mi_feEvents = aFrameEventsTemp;
 }
 
 // add child to modelinstance
@@ -427,7 +510,7 @@ void CModelInstance::RemoveTexture(TextureInstance* ptiRemove, MeshInstance* pms
 }
 
 // Find texture instance in all mesh instances in model instance
-TextureInstance* CModelInstance::FindTexureInstance(INDEX iTexID)
+TextureInstance* CModelInstance::FindTextureInstance(INDEX iTexID)
 {
     // for each mesh instance
     INDEX ctmshi = mi_aMeshInst.Count();
@@ -449,7 +532,7 @@ TextureInstance* CModelInstance::FindTexureInstance(INDEX iTexID)
 }
 
 // Find texture instance in given mesh instance
-TextureInstance* CModelInstance::FindTexureInstance(INDEX iTexID, MeshInstance& mshi)
+TextureInstance* CModelInstance::FindTextureInstance(INDEX iTexID, MeshInstance& mshi)
 {
     // for each texture instance in given mesh instance
     INDEX ctti = mshi.mi_tiTextures.Count();
@@ -895,6 +978,29 @@ BOOL CModelInstance::AddFlagsToPlayingAnim(INDEX iAnimID, ULONG ulFlags)
     return FALSE;
 }
 
+// [Uni] Get number of animation frames
+INDEX CModelInstance::GetAnimFrameCount(INDEX iAnimID)
+{
+    INDEX iAnimSetIndex, iAnimIndex;
+    FindAnimationByID(iAnimID, &iAnimSetIndex, &iAnimIndex);
+    CAnimSet& as = mi_aAnimSet[iAnimSetIndex];
+    Animation& an = as.as_Anims[iAnimIndex];
+    return an.an_iFrames;
+}
+
+// [Uni] Get specific frame of animation
+INDEX CModelInstance::GetAnimFrame(INDEX iAnimID, INDEX iFrameNum)
+{
+    INDEX iAnimSetIndex, iAnimIndex;
+    FindAnimationByID(iAnimID, &iAnimSetIndex, &iAnimIndex);
+    CAnimSet& as = mi_aAnimSet[iAnimSetIndex];
+    Animation& an = as.as_Anims[iAnimIndex];
+    BoneEnvelope& be = an.an_abeBones[iAnimIndex];
+
+    iFrameNum = be.be_apPos[iAnimIndex].ap_iFrameNum || be.be_arRot[iAnimIndex].ar_iFrameNum || be.be_arRotOpt[iAnimIndex].aro_iFrameNum;
+
+    return iFrameNum;
+}
 // Sets name of model instance
 void CModelInstance::SetName(CTString strName)
 {
@@ -977,6 +1083,20 @@ void CModelInstance::AddSimpleShadow(const FLOAT fIntensity, const FLOATplane3D&
     // _pfModelProfile.StopTimer( CModelProfile::PTI_RENDERSIMPLESHADOW);
 
 }
+																		 
+
+// [Uni] complex shadow rendering
+void CModelInstance::RenderShadow(const CPlacement3D& plLight, const FLOAT fFallOff, const FLOAT fHotSpot,
+    const FLOAT fIntensity, const FLOATplane3D& plShadowPlane)
+{
+    // if shadows are not rendered for current mip, model is half/full face-forward,
+    // intensitiy is too low or projection is not perspective - do nothing!
+    ASSERT(fIntensity > 0 && fIntensity <= 1);
+    _sfStats.IncrementCounter(CStatForm::SCI_MODELSHADOWS);
+    // add one simple shadow to batch list
+    RM_SetObjectMatrices(*this);
+    RM_RenderShadow_View(*this, plLight, fFallOff, fHotSpot, fIntensity, plShadowPlane);
+}
 
 // Copy mesh instance for other model instance
 void CModelInstance::CopyMeshInstance(CModelInstance& miOther)
@@ -1017,6 +1137,8 @@ void CModelInstance::Copy(CModelInstance& miOther)
     mi_fnSourceFile = miOther.mi_fnSourceFile;
     mi_vStretch = miOther.mi_vStretch;
 	mi_cbAllFramesBBox = miOther.mi_cbAllFramesBBox;												
+	mi_feEvents = miOther.mi_feEvents;
+    mi_iCurrentEvent = miOther.mi_iCurrentEvent;
 
     if (miOther.mi_pmidData != NULL)
     {
@@ -1127,6 +1249,8 @@ void CModelInstance::Clear(void)
     mi_cbAABox.Clear();
     // clear anim list
     mi_aqAnims.aq_Lists.Clear();
+	// [Uni] clear all frame events
+    mi_feEvents.Clear();
 }
 
 // Count used memory
@@ -1142,12 +1266,14 @@ SLONG CModelInstance::GetUsedMemory(void)
     slMemoryUsed += mi_aMeshInst.Count() * sizeof(MeshInstance);
     // Count bounding boxes
     slMemoryUsed += mi_cbAABox.Count() * sizeof(ColisionBox);
-    // Cound child model instances
+    // Count child model instances
     INDEX ctcmi = mi_cmiChildren.Count();
     for (INDEX icmi = 0; icmi < ctcmi; icmi++) {
         CModelInstance& cmi = mi_cmiChildren[icmi];
         slMemoryUsed += cmi.GetUsedMemory();
     }
+	// [Uni] Count frame events
+    slMemoryUsed += mi_feEvents.Count() * sizeof(FrameEvent);
     return slMemoryUsed;
 }
 

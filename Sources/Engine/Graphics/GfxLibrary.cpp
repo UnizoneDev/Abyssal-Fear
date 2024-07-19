@@ -44,6 +44,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <Engine/Templates/DynamicStackArray.cpp>
 #include <Engine/Templates/DynamicContainer.cpp>
 #include <Engine/Templates/Stock_CTextureData.h>
+#include <Engine/Templates/Stock_CMesh.h>
 
 
 // control for partial usage of compiled vertex arrays
@@ -160,15 +161,6 @@ extern INDEX ogl_iTBufferEffect  = 0;      // 0=none, 1=partial FSAA, 2=Motion B
 extern INDEX ogl_iTBufferSamples = 2;      // 2, 4 or 8 (for now)
 extern INDEX ogl_iFinish = 1;              // 0=never, 1=before rendering of next frame, 2=at the end of this frame, 3=at projection change
 
-// Direct3D control
-extern INDEX d3d_bUseHardwareTnL = TRUE;
-extern INDEX d3d_bAlternateDepthReads = FALSE;  // should check delayed depth reads at the end of current frame (FALSE) or at begining of the next (TRUE)
-extern INDEX d3d_iVertexBuffersSize   = 1024;   // KBs reserved for vertex buffers
-extern INDEX d3d_iVertexRangeTreshold = 99;     // minimum vertices in buffer that triggers range optimization
-extern INDEX d3d_bFastUpload = TRUE;            // use internal format conversion routines
-extern INDEX d3d_iMaxBurstSize = 0;             // 0=unlimited
-extern INDEX d3d_iFinish = 0;
-
 // API common controls
 extern INDEX gap_iUseTextureUnits = 4;
 extern INDEX gap_iTextureFiltering  = 21;       // bilinear by default
@@ -206,6 +198,7 @@ extern INDEX mdl_iLODDisappear     = 1; // 0=never, 1=ignore bias, 2=with bias
 extern INDEX ska_bShowSkeleton     = FALSE;
 extern INDEX ska_bShowColision     = FALSE;
 extern INDEX ska_bShowBBox         = FALSE;
+extern INDEX ska_bShowActiveBones  = FALSE;
 extern FLOAT ska_fLODMul           = 1.0f;
 extern FLOAT ska_fLODAdd           = 0.0f;
 // terrain controls
@@ -251,6 +244,7 @@ extern INDEX gfx_bDisableWindowsKeys = TRUE;
 
 extern INDEX wed_bIgnoreTJunctions = FALSE;
 extern INDEX wed_bUseBaseForReplacement = FALSE;
+extern INDEX wed_bUseGenericTextureReplacement = FALSE; // [Cecil] Defined here
 
 // some nifty features
 extern INDEX gfx_iHueShift   = 0;       // 0-359
@@ -290,11 +284,9 @@ static INDEX sys_bHasTextureLODBias = 0;
 static INDEX sys_bHasMultitexturing = 0;
 static INDEX sys_bHas32bitTextures = 0;
 static INDEX sys_bHasSwapInterval = 0;
-static INDEX sys_bHasHardwareTnL = 1;
 static INDEX sys_bHasTruform = 0;
 static INDEX sys_bHasCVAs = 0;
 static INDEX sys_bUsingOpenGL = 0;
-extern INDEX sys_bUsingDirect3D = 0;
 
 /*
  * Low level hook flags
@@ -481,19 +473,11 @@ static void GAPInfo(void)
 {
   // check API
   const GfxAPIType eAPI = _pGfx->gl_eCurrentAPI;
-#ifdef SE1_D3D
-  ASSERT( eAPI==GAT_OGL || eAPI==GAT_D3D || eAPI==GAT_NONE);
-#else // SE1_D3D
   ASSERT( eAPI==GAT_OGL || eAPI==GAT_NONE);
-#endif // SE1_D3D
   CPrintF( "\n");
 
   // in case of driver hasn't been initialized yet
-  if( (_pGfx->go_hglRC==NULL 
-#ifdef SE1_D3D
-    && _pGfx->gl_pd3dDevice==NULL
-#endif // SE1_D3D
-    ) || eAPI==GAT_NONE) {
+  if( (_pGfx->go_hglRC==NULL) || eAPI==GAT_NONE) {
     // be brief, be quick
     CPrintF( TRANS("Display driver hasn't been initialized.\n\n"));
     return;
@@ -651,65 +635,6 @@ static void GAPInfo(void)
     if( _pGfx->go_strWinExtensions != "") CPrintF("%s", ReformatExtensionsString(_pGfx->go_strWinExtensions));
     CPrintF("\n- Supported extensions: %s\n", ReformatExtensionsString(_pGfx->go_strSupportedExtensions));
   }
-
-  // Direct3D only stuff
-#ifdef SE1_D3D
-  if( eAPI==GAT_D3D)
-  {
-    // HW T&L
-    CPrintF( "- Hardware T&L: ");
-    if( _pGfx->gl_ulFlags&GLF_D3D_HASHWTNL) {
-      if( _pGfx->gl_ctMaxStreams<GFX_MINSTREAMS) CPrintF( "cannot be used\n");
-      else if( _pGfx->gl_ulFlags&GLF_D3D_USINGHWTNL) CPrintF( "enabled (%d streams)\n", _pGfx->gl_ctMaxStreams);
-      else CPrintF( "disabled\n");
-    } else CPrintF( "not present\n");
-
-    // report vtx/idx buffers size
-    extern SLONG SizeFromVertices_D3D( INDEX ctVertices);
-    const SLONG slMemoryUsed = SizeFromVertices_D3D(_pGfx->gl_ctVertices);
-    CPrintF( "- Vertex buffer size: %.1f KB (%d vertices)\n", slMemoryUsed/1024.0f, _pGfx->gl_ctVertices);
-
-    // N-Patches tessellation (Truform)
-    CPrintF( "- N-Patches: ");
-    if( _pGfx->gl_iMaxTessellationLevel>0) {
-      if( !(_pGfx->gl_ulFlags&GLF_D3D_USINGHWTNL)) CPrintF( "not possible with SW T&L\n");
-      else if( _pGfx->gl_iTessellationLevel>0) {
-        CPrintF( "enabled ");
-        if( gap_bForceTruform) CPrintF( "(for all models)\n");
-        else CPrintF( "(only for Truform-ready models)\n");
-        CPrintF( "- Tesselation level: %d of %d\n", _pGfx->gl_iTessellationLevel, _pGfx->gl_iMaxTessellationLevel);
-      } else CPrintF( "disabled\n");
-    } else CPrintF( "not supported\n");
-
-    // texture compression
-    CPrintF( "- Texture compression: ");
-    if( _pGfx->gl_ulFlags&GLF_TEXTURECOMPRESSION) CPrintF( "supported\n");
-    else CPrintF( "not supported\n");
-
-    // custom clip plane support
-    CPrintF( "- Custom clip plane: ");
-    if( _pGfx->gl_ulFlags&GLF_D3D_CLIPPLANE) CPrintF( "supported\n");
-    else CPrintF( "not supported\n");
-
-    // color buffer writes enable/disable support
-    CPrintF( "- Color masking: ");
-    if( _pGfx->gl_ulFlags&GLF_D3D_COLORWRITES) CPrintF( "supported\n");
-    else CPrintF( "not supported\n");
-
-    // depth (Z) bias support
-    CPrintF( "- Depth biasing: ");
-    if( _pGfx->gl_ulFlags&GLF_D3D_ZBIAS) CPrintF( "supported\n");
-    else CPrintF( "not supported\n");
-
-    // current swap interval (only if fullscreen)
-    if( _pGfx->gl_ulFlags&GLF_FULLSCREEN) {
-      CPrintF( "- Swap interval: ");
-      if( _pGfx->gl_ulFlags&GLF_VSYNC) {
-        CPrintF( "%d frame(s)\n", _pGfx->gl_iSwapInterval);
-      } else CPrintF( "not adjustable\n");
-    }
-  }
-#endif // SE1_D3D
 }
 
 
@@ -723,11 +648,9 @@ extern void UpdateGfxSysCVars(void)
   sys_bHasMultitexturing = 0;
   sys_bHas32bitTextures = 0;
   sys_bHasSwapInterval = 0;
-  sys_bHasHardwareTnL = 1;
   sys_bHasTruform = 0;
   sys_bHasCVAs = 1;
   sys_bUsingOpenGL = 0;
-  sys_bUsingDirect3D = 0;
   if( _pGfx->gl_iMaxTextureAnisotropy>1) sys_bHasTextureAnisotropy = 1;
   if( _pGfx->gl_fMaxTextureLODBias>0) sys_bHasTextureLODBias = 1;
   if( _pGfx->gl_ctTextureUnits>1) sys_bHasMultitexturing = 1;
@@ -737,13 +660,7 @@ extern void UpdateGfxSysCVars(void)
   if( _pGfx->gl_ulFlags & GLF_32BITTEXTURES) sys_bHas32bitTextures = 1;
   if( _pGfx->gl_ulFlags & GLF_VSYNC) sys_bHasSwapInterval = 1;
   if( _pGfx->gl_eCurrentAPI==GAT_OGL && !(_pGfx->gl_ulFlags&GLF_EXT_COMPILEDVERTEXARRAY)) sys_bHasCVAs = 0;
-#ifdef SE1_D3D
-  if( _pGfx->gl_eCurrentAPI==GAT_D3D && !(_pGfx->gl_ulFlags&GLF_D3D_HASHWTNL)) sys_bHasHardwareTnL = 0;
-#endif // SE1_D3D
   if( _pGfx->gl_eCurrentAPI==GAT_OGL) sys_bUsingOpenGL = 1;
-#ifdef SE1_D3D
-  if( _pGfx->gl_eCurrentAPI==GAT_D3D) sys_bUsingDirect3D = 1;
-#endif // SE1_D3D
 }
 
    
@@ -902,6 +819,23 @@ static void MdlPostFunc(void *pvVar)
 }
 
 
+// [Uni] reload all meshes that were loaded
+
+static void ReloadMeshes(void)
+{
+    // mute all sounds
+    _pSound->Mute();
+    // loop thru mesh stock
+    {FOREACHINDYNAMICCONTAINER(_pMeshStock->st_ctObjects, CMesh, itmsh) {
+        CMesh& mesh = *itmsh;
+        mesh.Reload();
+    }}
+    // mark that we need pretouching
+    _bNeedPretouch = TRUE;
+    // all done
+    CPrintF(TRANS("All meshes reloaded.\n"));
+}
+
 /*
  *  GfxLibrary functions
  */
@@ -962,21 +896,9 @@ CGfxLibrary::CGfxLibrary(void)
   gl_ctDriverChanges = 0;
 
   // DX8 not loaded either
-#ifdef SE1_D3D
-  gl_pD3D = NONE;
-  gl_pd3dDevice = NULL;
-  gl_d3dColorFormat = (D3DFORMAT)NONE;
-  gl_d3dDepthFormat = (D3DFORMAT)NONE;
-#endif // SE1_D3D
   gl_pvpActive = NULL;
   gl_ctMaxStreams = 0;
   gl_dwVertexShader = 0;
-#ifdef SE1_D3D
-  gl_pd3dIdx = NULL;
-  gl_pd3dVtx = NULL;
-  gl_pd3dNor = NULL;
-  for( INDEX i=0; i<GFX_MAXLAYERS; i++) gl_pd3dCol[i] = gl_pd3dTex[i] = NULL;
-#endif // SE1_D3D
   gl_ctVertices = 0;
   gl_ctIndices  = 0;
 
@@ -1080,14 +1002,6 @@ void CGfxLibrary::Init(void)
   _pShell->DeclareSymbol("persistent user INDEX ogl_iTBufferSamples;", &ogl_iTBufferSamples);
   _pShell->DeclareSymbol("persistent user INDEX ogl_bTruformLinearNormals;", &ogl_bTruformLinearNormals);
   _pShell->DeclareSymbol("persistent user INDEX ogl_bAlternateClipPlane;",   &ogl_bAlternateClipPlane);
-
-  _pShell->DeclareSymbol("persistent user INDEX d3d_bUseHardwareTnL;", &d3d_bUseHardwareTnL);
-  _pShell->DeclareSymbol("persistent user INDEX d3d_iMaxBurstSize;",   &d3d_iMaxBurstSize);
-  _pShell->DeclareSymbol("persistent user INDEX d3d_iVertexBuffersSize;",   &d3d_iVertexBuffersSize);
-  _pShell->DeclareSymbol("persistent user INDEX d3d_iVertexRangeTreshold;", &d3d_iVertexRangeTreshold);
-  _pShell->DeclareSymbol("persistent user INDEX d3d_bAlternateDepthReads;", &d3d_bAlternateDepthReads);
-  _pShell->DeclareSymbol("persistent      INDEX d3d_bFastUpload;", &d3d_bFastUpload);
-  _pShell->DeclareSymbol("persistent user INDEX d3d_iFinish;", &d3d_iFinish);
 
   _pShell->DeclareSymbol("persistent user INDEX gap_iUseTextureUnits;",   &gap_iUseTextureUnits);
   _pShell->DeclareSymbol("persistent user INDEX gap_iTextureFiltering;",  &gap_iTextureFiltering);
@@ -1229,11 +1143,9 @@ void CGfxLibrary::Init(void)
   _pShell->DeclareSymbol( "INDEX sys_bHasMultitexturing;", &sys_bHasMultitexturing);
   _pShell->DeclareSymbol( "INDEX sys_bHas32bitTextures;", &sys_bHas32bitTextures);
   _pShell->DeclareSymbol( "INDEX sys_bHasSwapInterval;", &sys_bHasSwapInterval);
-  _pShell->DeclareSymbol( "INDEX sys_bHasHardwareTnL;", &sys_bHasHardwareTnL);
   _pShell->DeclareSymbol( "INDEX sys_bHasTruform;", &sys_bHasTruform);
   _pShell->DeclareSymbol( "INDEX sys_bHasCVAs;", &sys_bHasCVAs);
   _pShell->DeclareSymbol( "INDEX sys_bUsingOpenGL;",   &sys_bUsingOpenGL);
-  _pShell->DeclareSymbol( "INDEX sys_bUsingDirect3D;", &sys_bUsingDirect3D);
 
   // initialize gfx APIs support
   InitAPIs();
@@ -1354,20 +1266,6 @@ BOOL CGfxLibrary::StartDisplayMode( enum GfxAPIType eAPI, INDEX iAdapter, PIX pi
     gl_iSwapInterval = 1234; // need to reset
   }
 
-  // DirectX driver ?
-#ifdef SE1_D3D
-  else if( eAPI==GAT_D3D)
-  {
-    // startup D3D
-    bSuccess = InitDriver_D3D();
-    if( !bSuccess) return FALSE; // what, didn't make it?
-    bSuccess = InitDisplay_D3D( iAdapter, pixSizeI, pixSizeJ, eColorDepth);
-    if( !bSuccess) return FALSE;
-    // made it
-    gl_eCurrentAPI = GAT_D3D;
-  }
-#endif // SE1_D3D
-
   // no driver
   else
   {
@@ -1407,13 +1305,6 @@ void CGfxLibrary::StopDisplayMode(void)
     MonitorsOn();       // re-enable multimonitor support if disabled
     CDS_ResetMode();
   }
-#ifdef SE1_D3D
-  else if( gl_eCurrentAPI==GAT_D3D)
-  { // Direct3D
-    EndDriver_D3D();
-    MonitorsOn();
-  }
-#endif // SE1_D3D
   else
   { // none
     ASSERT( gl_eCurrentAPI==GAT_NONE);
@@ -1439,9 +1330,6 @@ void CGfxLibrary::StopDisplayMode(void)
 BOOL CGfxLibrary::SetCurrentViewport(CViewPort *pvp)
 {
   if( gl_eCurrentAPI==GAT_OGL)  return SetCurrentViewport_OGL(pvp);
-#ifdef SE1_D3D
-  if( gl_eCurrentAPI==GAT_D3D)  return SetCurrentViewport_D3D(pvp);
-#endif // SE1_D3D
   if( gl_eCurrentAPI==GAT_NONE) return TRUE;
   ASSERTALWAYS( "SetCurrenViewport: Wrong API!");
   return FALSE;
@@ -1452,11 +1340,7 @@ BOOL CGfxLibrary::SetCurrentViewport(CViewPort *pvp)
 BOOL CGfxLibrary::LockDrawPort( CDrawPort *pdpToLock)
 {
   // check API
-#ifdef SE1_D3D
-  ASSERT( gl_eCurrentAPI==GAT_OGL || gl_eCurrentAPI==GAT_D3D || gl_eCurrentAPI==GAT_NONE);
-#else // SE1_D3D
   ASSERT( gl_eCurrentAPI==GAT_OGL || gl_eCurrentAPI==GAT_NONE);
-#endif // SE1_D3D
 
   // don't allow locking if drawport is too small
   if( pdpToLock->dp_Width<1 || pdpToLock->dp_Height<1) return FALSE;
@@ -1481,20 +1365,6 @@ BOOL CGfxLibrary::LockDrawPort( CDrawPort *pdpToLock)
     pglScissor(  pixMinSI, pixMinSJ, pixMaxSI-pixMinSI+1, pixMaxSJ-pixMinSJ+1);
     OGL_CHECKERROR;
   }
-  // Direct3D ...
-#ifdef SE1_D3D
-  else if( gl_eCurrentAPI==GAT_D3D)
-  { 
-    // set viewport
-    const PIX pixMinSI = pdpToLock->dp_ScissorMinI;
-    const PIX pixMaxSI = pdpToLock->dp_ScissorMaxI;
-    const PIX pixMinSJ = pdpToLock->dp_ScissorMinJ;
-    const PIX pixMaxSJ = pdpToLock->dp_ScissorMaxJ;
-    D3DVIEWPORT8 d3dViewPort = { pixMinSI, pixMinSJ, pixMaxSI-pixMinSI+1, pixMaxSJ-pixMinSJ+1, 0,1 };
-    HRESULT hr = gl_pd3dDevice->SetViewport( &d3dViewPort);
-    D3D_CHECKERROR(hr);
-  }
-#endif // SE1_D3D
 
   // mark and set default projection
   GFX_ulLastDrawPortID = ulThisDrawPortID;
@@ -1508,11 +1378,7 @@ BOOL CGfxLibrary::LockDrawPort( CDrawPort *pdpToLock)
 void CGfxLibrary::UnlockDrawPort( CDrawPort *pdpToUnlock)
 {
   // check API
-#ifdef SE1_D3D
-  ASSERT(gl_eCurrentAPI == GAT_OGL || gl_eCurrentAPI == GAT_D3D || gl_eCurrentAPI == GAT_NONE);
-#else // SE1_D3D
   ASSERT(gl_eCurrentAPI == GAT_OGL || gl_eCurrentAPI == GAT_NONE);
-#endif // SE1_D3D
   // eventually signalize that scene rendering has ended
 }
 
@@ -1718,11 +1584,7 @@ static BOOL GenerateGammaTable(void);
 void CGfxLibrary::SwapBuffers(CViewPort *pvp)
 {
   // check API
-#ifdef SE1_D3D
-  ASSERT(gl_eCurrentAPI == GAT_OGL || gl_eCurrentAPI == GAT_D3D || gl_eCurrentAPI == GAT_NONE);
-#else // SE1_D3D
   ASSERT(gl_eCurrentAPI == GAT_OGL || gl_eCurrentAPI == GAT_NONE);
-#endif // SE1_D3D
 
   // safety check
   ASSERT( gl_pvpActive!=NULL);
@@ -1744,7 +1606,6 @@ void CGfxLibrary::SwapBuffers(CViewPort *pvp)
   gap_iOptimizeClipping = Clamp( gap_iOptimizeClipping, 0L, 2L);
   gap_iTruformLevel = Clamp( gap_iTruformLevel, 0L, _pGfx->gl_iMaxTessellationLevel);
   ogl_iFinish = Clamp( ogl_iFinish, 0L, 3L);
-  d3d_iFinish = Clamp( d3d_iFinish, 0L, 3L);
 
   // OpenGL  
   if( gl_eCurrentAPI==GAT_OGL)
@@ -1770,52 +1631,6 @@ void CGfxLibrary::SwapBuffers(CViewPort *pvp)
     if( !(gl_ulFlags&GLF_EXT_COMPILEDVERTEXARRAY)) ogl_bUseCompiledVertexArrays = 0;
   }
 
-  // Direct3D
-#ifdef SE1_D3D
-  else if( gl_eCurrentAPI==GAT_D3D)
-  {
-    // force finishing of all rendering operations (if required)
-    if( d3d_iFinish==2) gfxFinish();
-
-    // end scene rendering
-    HRESULT hr;
-    if( GFX_bRenderingScene) {
-      hr = gl_pd3dDevice->EndScene(); 
-      D3D_CHECKERROR(hr);
-    }
-    CDisplayMode dm;
-    GetCurrentDisplayMode(dm);
-    ASSERT( (dm.dm_pixSizeI==0 && dm.dm_pixSizeJ==0) || (dm.dm_pixSizeI!=0 && dm.dm_pixSizeJ!=0));
-    if( dm.dm_pixSizeI==0 || dm.dm_pixSizeJ==0 ) {
-      // windowed mode
-      hr = pvp->vp_pSwapChain->Present( NULL, NULL, NULL, NULL);
-    } else {
-      // full screen mode
-      hr = gl_pd3dDevice->Present( NULL, NULL, NULL, NULL);
-    } // done swapping
-    D3D_CHECKERROR(hr); 
-
-    // force finishing of all rendering operations (if required)
-    if( d3d_iFinish==3) gfxFinish();
-
-    // eventually reset vertex buffer if something got changed
-    if( _iLastVertexBufferSize!=d3d_iVertexBuffersSize
-    || (gl_iTessellationLevel<1 && gap_iTruformLevel>0)
-    || (gl_iTessellationLevel>0 && gap_iTruformLevel<1)) {
-      extern void SetupVertexArrays_D3D( INDEX ctVertices);
-      extern void SetupIndexArray_D3D( INDEX ctVertices);
-      extern DWORD SetupShader_D3D( ULONG ulStreamsMask);
-      SetupShader_D3D(NONE); 
-      SetupVertexArrays_D3D(0); 
-      SetupIndexArray_D3D(0);
-      extern INDEX VerticesFromSize_D3D( SLONG &slSize);
-      const INDEX ctVertices = VerticesFromSize_D3D(d3d_iVertexBuffersSize);
-      SetupVertexArrays_D3D(ctVertices); 
-      SetupIndexArray_D3D(2*ctVertices);
-     _iLastVertexBufferSize = d3d_iVertexBuffersSize;
-    } 
-  }
-#endif // SE1_D3D
   // update tessellation level
   gl_iTessellationLevel = gap_iTruformLevel;
 
@@ -1879,11 +1694,6 @@ void CGfxLibrary::SwapBuffers(CViewPort *pvp)
         CTempDC tdc(pvp->vp_hWnd);
         SetDeviceGammaRamp( tdc.hdc, &_auwGammaTable[0]);
       } 
-#ifdef SE1_D3D
-      else if( gl_eCurrentAPI==GAT_D3D) {
-        gl_pd3dDevice->SetGammaRamp( D3DSGR_NO_CALIBRATION, (D3DGAMMARAMP*)&_auwGammaTable[0]);
-      }
-#endif // SE1_D3D
     }
   }
   // if not supported
@@ -1922,14 +1732,6 @@ BOOL CGfxLibrary::LockRaster( CRaster *praToLock)
   ASSERT( praToLock->ra_pvpViewPort!=NULL);
   BOOL bRes = SetCurrentViewport( praToLock->ra_pvpViewPort);
   if( bRes) {
-    // must signal to picky Direct3D
-#ifdef SE1_D3D
-    if( gl_eCurrentAPI==GAT_D3D && !GFX_bRenderingScene) {  
-      HRESULT hr = gl_pd3dDevice->BeginScene(); 
-      D3D_CHECKERROR(hr);
-      bRes = (hr==D3D_OK);
-    } // mark it
-#endif // SE1_D3D
     GFX_bRenderingScene = TRUE;
   } // done
   return bRes;
