@@ -14,10 +14,10 @@ Upcoming features
 * Inventory system (Puzzle items, notes, dropping and combining, etc.)
 
 Resources: Currently unavailable, new version will be uploaded soon!
-Audio: https://www.dropbox.com/scl/fi/wdrum4qpkvha4ya32zl7e/AbyssalFearCUTestAudio.zip?rlkey=skyn8iawgt3lizs06qvrmb2p5&st=on81o9zv&dl=0
-Data: https://www.dropbox.com/scl/fi/2mo6ytdz9wdz9yht72kmj/AbyssalFearCUTestData.zip?rlkey=a2c8ylazcmnwbrmh6b31vdopm&st=i6wy9gn9&dl=0
-Models: https://www.dropbox.com/scl/fi/8n1mouhqu9nopeutiwlsc/AbyssalFearCUTestModels.zip?rlkey=ikw68c6q4i384jirdjrpi84i4&st=v2t2suic&dl=0
-Textures: https://www.dropbox.com/scl/fi/0106xtz22mp0jdo2e9w3i/AbyssalFearCUTestTextures.zip?rlkey=xlgc44w0o3y7imkcnpi2z3v5l&st=hp137wir&dl=0
+* Audio: https://www.dropbox.com/scl/fi/wdrum4qpkvha4ya32zl7e/AbyssalFearCUTestAudio.zip?rlkey=skyn8iawgt3lizs06qvrmb2p5&st=on81o9zv&dl=0
+* Data: https://www.dropbox.com/scl/fi/2mo6ytdz9wdz9yht72kmj/AbyssalFearCUTestData.zip?rlkey=a2c8ylazcmnwbrmh6b31vdopm&st=i6wy9gn9&dl=0
+* Models: https://www.dropbox.com/scl/fi/8n1mouhqu9nopeutiwlsc/AbyssalFearCUTestModels.zip?rlkey=ikw68c6q4i384jirdjrpi84i4&st=v2t2suic&dl=0
+* Textures: https://www.dropbox.com/scl/fi/0106xtz22mp0jdo2e9w3i/AbyssalFearCUTestTextures.zip?rlkey=xlgc44w0o3y7imkcnpi2z3v5l&st=hp137wir&dl=0
 
 # Serious Engine
 
